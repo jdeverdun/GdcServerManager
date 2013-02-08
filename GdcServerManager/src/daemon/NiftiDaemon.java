@@ -8,6 +8,11 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import daemon.tools.nifti.Nifti_Writer;
 
 import modeles.ServerInfo;
 
@@ -25,30 +30,46 @@ import modeles.ServerInfo;
 public class NiftiDaemon extends Thread{
 
 	// Attributs
+	public static final int ANALYZE_7_5 = 0; //SPM2 img/hdr
+	public static final int SPM5_NIFTI = 1; //SPM5 img/hdr
+	public static final int NIFTI_4D = 2; // Nifti 4D nii
+	public static final int FSL_NIFTI = 3; // nifti FSL nii.gz
+	public static int defaultFormat = NIFTI_4D;
+	
+	
 	// la hashmap qui contient les repertoires a convertir et la date de la derniere modif de ce repertoire
-	private HashMap<Path, FileTime> dir2convert; 
+	private ConcurrentHashMap<Path, FileTime> dir2convert; 
 	private ServerInfo serverInfo;
+	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
+	
 	
 	// Constructeur
 	public NiftiDaemon(){
-		setDir2convert(new HashMap<Path, FileTime> ());
+		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
 		setStop(false);
 	}
 
 	public NiftiDaemon(ServerInfo si){
-		setDir2convert(new HashMap<Path, FileTime> ());
+		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
 		setStop(false);
 		setServerInfo(si);
 	}
 	
+	// format issue de la classe Nifti_Writer
+	public NiftiDaemon(ServerInfo si,int format){
+		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
+		setStop(false);
+		setServerInfo(si);
+		setFormat(format);
+	}	
 	// Accesseurs
-	public HashMap<Path, FileTime> getDir2convert() {
+	public ConcurrentHashMap<Path, FileTime> getDir2convert() {
 		return dir2convert;
 	}
 
 
-	public void setDir2convert(HashMap<Path, FileTime> dir2convert) {
+	public void setDir2convert(ConcurrentHashMap<Path, FileTime> dir2convert) {
 		this.dir2convert = dir2convert;
 	}
 	
@@ -68,6 +89,14 @@ public class NiftiDaemon extends Thread{
 	}
 
 
+	public int getFormat() {
+		return format;
+	}
+
+	public void setFormat(int format) {
+		this.format = format;
+	}
+
 	public void setServerInfo(ServerInfo serverInfo) {
 		this.serverInfo = serverInfo;
 	}
@@ -76,19 +105,60 @@ public class NiftiDaemon extends Thread{
 	// Methodes
 	public void run(){
 		System.out.println("Nifti Daemon Online.");
+		String command = "";
 		while(!isStop()){
-			for(Path path:dir2convert.keySet()){
-				if(timeSinceModif(path) > 120000.0f){
+			Set<Path> keys = dir2convert.keySet();
+			Iterator<Path> it = keys.iterator();
+			while(it.hasNext()){
+				Path path = it.next();
+				if(timeSinceModif(path) > 40000.0f){
 					// Si ca fait plus de 2 min on convertit 
-					// /!\ mcverter.exe DOIT etre dans le path
+					// /!\ dcm2nii.exe DOIT etre dans le path
 					
-					// on cree le nouveau nom du repertoire nifti avec le nom du projet (mcverter creera l'arborescence avec le nom du patient)
-					Path niftiPath = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + path.getParent().getFileName());
+					// On recherche l'arborescence et on créé les répertoire si besoin +
+					// NIFTIDIR / NOM_ETUDE / NOM_PATIENT / DATE_IRM / PROTOCOL / SERIE 
+					Path studyName = path.getParent().getParent().getParent().getParent().getFileName();
+					Path patientName = path.getParent().getParent().getParent().getFileName();
+					Path acqDate = path.getParent().getParent().getFileName();
+					Path protocolAcqName = path.getParent().getFileName() ;
+					Path serieName = path.getFileName();
+					
+					Path studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
+					Path patientDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName + File.separator +  patientName);
+					Path acqDateDir = Paths.get(serverInfo.getNiftiDir().toString()  + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate);
+					Path protocolDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate + File.separator +  protocolAcqName);
+					Path serieDir = Paths.get(serverInfo.getNiftiDir().toString()  + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate + File.separator +  protocolAcqName + File.separator +  serieName);
+					
+					checkAndMakeDir(studyDir);
+					checkAndMakeDir(patientDir);
+					checkAndMakeDir(acqDateDir);
+					checkAndMakeDir(protocolDir);
+					checkAndMakeDir(serieDir);
+					
+					Path niftiPath = serieDir;
 					System.out.println("Nifti convert : "+path);
+					// -i id in filename | -p protocol in filename
+					command = "dcm2nii.exe -i y -p y -e n -a n -d n -e n -f n -l 0  ";
+					switch(getFormat()){
+					case ANALYZE_7_5:
+						command+=" -n n -s y -g n ";break;
+					case SPM5_NIFTI:
+						command+=" -n n -g n ";break;
+					case NIFTI_4D://A selectionner en prio ?
+						command+=" -n y -g n ";break;
+					case FSL_NIFTI:
+						command+=" -n y -g y ";break;
+					default:
+						System.err.println("Unknow nifti format");
+					}
+					command+=" -o "+niftiPath+" "+path;
 					Process process;
 					try {
-						process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");
+						//process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");//-x 
+						process = Runtime.getRuntime().exec(command);
 						process.waitFor();
+						// on enleve le repertoire qu'on vient de convertir de la liste
+						it.remove();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} catch (InterruptedException e) {
@@ -113,8 +183,26 @@ public class NiftiDaemon extends Thread{
 	
 	// On recupere le temps depuis la derniere modif du repertoire
 	public long timeSinceModif(Path dir){
-		long time = System.currentTimeMillis() - dir2convert.get(dir).toMillis();
+		BasicFileAttributes attrs = null;
+		try {
+			attrs = Files.readAttributes(dir, BasicFileAttributes.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		long time = System.currentTimeMillis() - attrs.lastModifiedTime().toMillis();
 		return time;
+	}
+	
+	// test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
+	private void checkAndMakeDir(Path dir) {
+		if(!Files.exists(dir)){
+			// Si ce n'est pas le cas on le créé
+			try {
+				Files.createDirectory(dir);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 	
 	

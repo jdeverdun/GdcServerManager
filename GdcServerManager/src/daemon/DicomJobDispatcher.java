@@ -132,7 +132,7 @@ public class DicomJobDispatcher extends Thread{
 	
 	public void removeWorker(DicomWorker dicomWorker) {
 		if(dicomWorker.getPatientFolder() != null)
-			getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getPatientFolder());
+			getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder());
 		dicomWorkerList.remove(dicomWorker);
 		dicomWorker = null;
 	}

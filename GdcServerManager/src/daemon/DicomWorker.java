@@ -19,6 +19,7 @@ public class DicomWorker extends Thread {
 	// Attributs
 	private Path dicomFile;
 	private Path patientFolder;
+	private Path serieFolder;
 	private ServerInfo serverInfo;
 	private DicomJobDispatcher dispatcher;
 	private ImagePlus imp;
@@ -62,6 +63,16 @@ public class DicomWorker extends Thread {
 	}
 
 
+	public Path getSerieFolder() {
+		return serieFolder;
+	}
+
+
+	public void setSerieFolder(Path serieFolder) {
+		this.serieFolder = serieFolder;
+	}
+
+
 	public ServerInfo getServerInfo() {
 		return serverInfo;
 	}
@@ -93,18 +104,20 @@ public class DicomWorker extends Thread {
 		String patientName = getPatientName();
 		String protocolName = getProtocolName();
 		String serieName = getSeriesDescription();
-		
+		String acqDate = getAcquisitionDate();		
 		
 		// On créé les chemins vers les répertoires
 		Path studyFolder = Paths.get(serverInfo.getDicomDir() + File.separator + studyName);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
-		Path protocolFolder = Paths.get(patientFolder + File.separator + protocolName);
-		Path serieFolder = Paths.get(protocolFolder + File.separator + serieName);
+		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
+		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
+		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
 		
 		
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 		checkAndMakeDir(studyFolder);
 		checkAndMakeDir(patientFolder);
+		checkAndMakeDir(dateFolder);
 		checkAndMakeDir(protocolFolder);
 		checkAndMakeDir(serieFolder);
 		
@@ -163,6 +176,11 @@ public class DicomWorker extends Thread {
 		if(prot == null){
 			return null;
 		}
+		if(prot.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(prot.charAt(0) == ' ')
+			prot = prot.substring(1);	
 		// on remplace les caracteres complique par "_"
 		prot = prot.replaceAll("[^A-Za-z0-9]" , "_");
 		return prot;
@@ -174,6 +192,11 @@ public class DicomWorker extends Thread {
 		if(pname == null){
 			return null;
 		}
+		if(pname.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(pname.charAt(0) == ' ')
+			pname = pname.substring(1);			
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9]" , "_");
 		return pname;
@@ -186,6 +209,11 @@ public class DicomWorker extends Thread {
 		if(sdesc == null){
 			return null;
 		}
+		if(sdesc.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(sdesc.charAt(0) == ' ')
+			sdesc = sdesc.substring(1);	
 		// on remplace les caracteres complique par "_"
 		sdesc = sdesc.replaceAll("[^A-Za-z0-9]" , "_");
 		return sdesc;
@@ -197,11 +225,29 @@ public class DicomWorker extends Thread {
 		if(pprot == null){
 			return null;
 		}
+		if(pprot.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(pprot.charAt(0) == ' ')
+			pprot = pprot.substring(1);	
 		// on remplace les caracteres complique par "_"
 		pprot = pprot.replaceAll("[^A-Za-z0-9]" , "_");
 		return pprot;
 	}
-	
+	// Date de l'acquisition ex : 20130122
+	public String getAcquisitionDate(){
+		String pdate = DicomTools.getTag(imp, "0008,0022");
+		if(pdate == null){
+			return null;
+		}
+		if(pdate.isEmpty())
+			return "Unknown";
+		while(pdate.charAt(0) == ' ')
+			pdate = pdate.substring(1);	
+		// on remplace les caracteres complique par "_"
+		pdate = pdate.replaceAll("[^A-Za-z0-9]" , "_");
+		return pdate;
+	}
 	public void prepareToStop(){
 		// On libere de la memoire
 		setImp(null);
