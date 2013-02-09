@@ -2,7 +2,7 @@ package main;
 
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
-import modeles.ServerInfo;
+import model.ServerInfo;
 
 public class GDCSM {
 
@@ -11,7 +11,7 @@ public class GDCSM {
 	 */
 	public static void main(String[] args) {
 		// On définit les paramètres du serveur
-		ServerInfo sinfo = new ServerInfo("C:\\Users\\Analyse\\Downloads\\IMAGES\\im1","C:\\Users\\Analyse\\Downloads\\IMAGES\\im2","C:\\Users\\Analyse\\Downloads\\IMAGES\\im1\\rt");
+		ServerInfo sinfo = new ServerInfo("C:\\Users\\Mobilette\\Desktop\\ftl\\buffer","C:\\Users\\Mobilette\\Desktop\\ftl\\saveDicom","C:\\Users\\Mobilette\\Desktop\\ftl\\saveNifti");
 		// On lance le daemon Nifti
 		NiftiDaemon ndaemon = new NiftiDaemon(sinfo);
 		ndaemon.start();

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
-import modeles.ServerInfo;
+import model.ServerInfo;
 
 public class DicomDaemon extends Thread{
 

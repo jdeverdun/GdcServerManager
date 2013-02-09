@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 
-import modeles.ServerInfo;
+import model.ServerInfo;
 
 
 /**

@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import daemon.tools.nifti.Nifti_Writer;
 
-import modeles.ServerInfo;
+import model.ServerInfo;
 
 
 /**
@@ -107,11 +107,19 @@ public class NiftiDaemon extends Thread{
 		System.out.println("Nifti Daemon Online.");
 		String command = "";
 		while(!isStop()){
+			// On evite une utilisation trop importante du CPU
+			// avec des boucles infini
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e2) {
+				e2.printStackTrace();
+			}
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
 			while(it.hasNext()){
 				Path path = it.next();
-				if(timeSinceModif(path) > 40000.0f){
+				if(timeSinceModif(path) > 120000.0f){
+					System.out.println(timeSinceModif(path)+"----"+dir2convert.get(path).toString());
 					// Si ca fait plus de 2 min on convertit 
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					
@@ -124,10 +132,10 @@ public class NiftiDaemon extends Thread{
 					Path serieName = path.getFileName();
 					
 					Path studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
-					Path patientDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName + File.separator +  patientName);
-					Path acqDateDir = Paths.get(serverInfo.getNiftiDir().toString()  + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate);
-					Path protocolDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate + File.separator +  protocolAcqName);
-					Path serieDir = Paths.get(serverInfo.getNiftiDir().toString()  + File.separator + studyName + File.separator +  patientName + File.separator +  acqDate + File.separator +  protocolAcqName + File.separator +  serieName);
+					Path patientDir = Paths.get(studyDir + File.separator +  patientName);
+					Path acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
+					Path protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);
+					Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
 					
 					checkAndMakeDir(studyDir);
 					checkAndMakeDir(patientDir);

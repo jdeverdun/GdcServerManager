@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 
-import modeles.ServerInfo;
+import model.ServerInfo;
 import static java.nio.file.StandardCopyOption.*;
 
 
