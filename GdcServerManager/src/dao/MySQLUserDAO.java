@@ -24,7 +24,7 @@ public class MySQLUserDAO implements UserDAO {
 	 */
 	public Collection<User> retrieveAll() throws SQLException {
 		// la liste de grimpeurs
-		Collection<User> grimpeurs = new ArrayList<User>();
+		Collection<User> users = new ArrayList<User>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -38,25 +38,23 @@ public class MySQLUserDAO implements UserDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			AscensionDAO asdao=new MySQLAscensionDAO();
-			rset = stmt.executeQuery("select * from Grimpeur");
+			ProjectDAO projdao=new MySQLProjectDAO();
+			rset = stmt.executeQuery("select * from User");
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				User grimpeur = new User();
-				grimpeur.setId(rset.getInt("id"));
-				grimpeur.setAge(rset.getInt("age"));
-				grimpeur.setEmail(rset.getString("email"));
-				grimpeur.setLogin(rset.getString("login"));
-				grimpeur.setNom(rset.getString("nom"));
-				grimpeur.setPassword(rset.getString("password"));
-				grimpeur.setPoids(rset.getInt("poids"));
-				grimpeur.setPrenom(rset.getString("prenom"));
-				grimpeur.setAscensions(asdao.getAscensionForGrimpeur(""+grimpeur.getId()));
+				User user = new User();
+				user.setId(rset.getInt("id"));
+				user.setEmail(rset.getString("email"));
+				user.setLogin(rset.getString("login"));
+				user.setNom(rset.getString("nom"));
+				user.setPassword(rset.getString("password"));
+				user.setPrenom(rset.getString("prenom"));
+				user.setProjects(projdao.getProjectsForUser(""+user.getId()));
 				// ajout a la liste des grimpeurs
-				grimpeurs.add(grimpeur);
+				users.add(user);
 			}
-			return grimpeurs;
+			return users;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -79,7 +77,7 @@ public class MySQLUserDAO implements UserDAO {
 	public User connexion(String login, String password)
 			throws SQLException {
 		// TODO Auto-generated method stub
-		User grimpeursC = new User();
+		User userC = new User();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -95,21 +93,19 @@ public class MySQLUserDAO implements UserDAO {
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 
-			rset = stmt.executeQuery("select * from Grimpeur where login='"
+			rset = stmt.executeQuery("select * from User where login='"
 					+ login + "' and  password='" + password + "'");
 			if (rset != null) {
 				rset.next();
-				grimpeursC.setNom(rset.getString("nom"));
-				grimpeursC.setPrenom(rset.getString("prenom"));
-				grimpeursC.setAge(Integer.parseInt(rset.getString("age")));
-				grimpeursC.setEmail(rset.getString("email"));
-				grimpeursC.setPoids(Integer.parseInt(rset.getString("poids")));
-				grimpeursC.setLogin(rset.getString("login"));
-				grimpeursC.setPassword(rset.getString("password"));
-				grimpeursC.setId(Integer.parseInt(rset.getString("id")));
+				userC.setNom(rset.getString("nom"));
+				userC.setPrenom(rset.getString("prenom"));
+				userC.setEmail(rset.getString("email"));
+				userC.setLogin(rset.getString("login"));
+				userC.setPassword(rset.getString("password"));
+				userC.setId(Integer.parseInt(rset.getString("id")));
 			}
 
-			return grimpeursC;
+			return userC;
 
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
@@ -129,14 +125,12 @@ public class MySQLUserDAO implements UserDAO {
      * @param nom
      * @param prenom
      * @param email
-     * @param poids
-     * @param age
      * @param login
      * @param password
      * @return
      * @throws SQLException
      */
-	public boolean nouveauGrimpeur( int id, String nom, String prenom,  String email, int poids,  int age, String login, String password) throws SQLException {
+	public boolean newUser( int id, String nom, String prenom,  String email, String login, String password) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -154,8 +148,8 @@ public class MySQLUserDAO implements UserDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Grimpeur values ("+id+",'"
-						+ nom + "' ,'" + prenom + "', '"+email+ "', "+poids+", "+age+", '"+login+"', '"+password+"')");
+				rset = stmt.execute("insert into User values ("+id+",'"
+						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"')");
 				
 				return true;
 				
@@ -171,7 +165,7 @@ public class MySQLUserDAO implements UserDAO {
 	}
 	
 	/**
-     * Récupère le plus grand ID de la table Grimpeur
+     * Récupère le plus grand ID de la table User
      * @return
      */
 	public int idmax(){
@@ -194,7 +188,7 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Grimpeur ;");
+			rset = stmt.executeQuery("select max(id) from User ;");
 			if (rset != null) {
 				while(rset.next()){
 					System.out.println("id max= "+rset.getInt(1));
@@ -211,14 +205,14 @@ public class MySQLUserDAO implements UserDAO {
 	}
 	
 	/**
-     * Récupère le grimpeur ayant l'id "id"
+     * Récupère l'utilisateur ayant l'id "id"
      * @param id
      * @return
      * @throws SQLException
      */
-	public User afficheGrimpeur(String id) throws SQLException {
+	public User retrieveUser(String id) throws SQLException {
 		// TODO Auto-generated method stub
-		User grimpeursC = new User();
+		User userC = new User();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -234,19 +228,17 @@ public class MySQLUserDAO implements UserDAO {
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 		
-			rset = stmt.executeQuery("select * from Grimpeur where id="+id);
+			rset = stmt.executeQuery("select * from User where id="+id);
 			while(rset.next()){
-				grimpeursC.setNom(rset.getString("nom"));
-				grimpeursC.setPrenom(rset.getString("prenom"));
-				grimpeursC.setAge(Integer.parseInt(rset.getString("age")));
-				grimpeursC.setEmail(rset.getString("email"));
-				grimpeursC.setPoids(Integer.parseInt(rset.getString("poids")));
-				grimpeursC.setLogin(rset.getString("login"));
-				grimpeursC.setPassword(rset.getString("password"));
-				grimpeursC.setId(Integer.parseInt(rset.getString("id")));
+				userC.setNom(rset.getString("nom"));
+				userC.setPrenom(rset.getString("prenom"));
+				userC.setEmail(rset.getString("email"));
+				userC.setLogin(rset.getString("login"));
+				userC.setPassword(rset.getString("password"));
+				userC.setId(Integer.parseInt(rset.getString("id")));
 			}
 		
-			return grimpeursC;
+			return userC;
 		
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
@@ -260,19 +252,17 @@ public class MySQLUserDAO implements UserDAO {
 	}
 	
 	/**
-     * Met à jours un grimpeur
+     * Met à jours un user
      * @param i
      * @param l
      * @param pass
      * @param n
      * @param pr
      * @param e
-     * @param a
-     * @param p
      * @return
      * @throws SQLException
      */
-	public boolean updateGrimpeur(String i,String l, String pass,String n,String pr,String e, String a,String p) throws SQLException{
+	public boolean updateUser(String i,String l, String pass,String n,String pr,String e) throws SQLException{
 		// la liste de grimpeurs
 		int rset = 0;
 		Statement stmt = null;
@@ -287,7 +277,7 @@ public class MySQLUserDAO implements UserDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Grimpeur set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"',age="+a+",poids="+p+" where id="+i);
+			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"' where id="+i);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);

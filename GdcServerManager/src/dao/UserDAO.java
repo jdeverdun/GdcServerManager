@@ -5,14 +5,14 @@ import java.util.Collection;
 import model.User;
 
 /**
- * Classe faisant les requête sur la table Grimpeur
+ * Classe faisant les requête sur la table User
  * 
  *
  */
 public interface UserDAO {
 	
 	/**
-	 * Récupère la liste des Grimpeurs présent dans la table Grimpeur
+	 * Récupère la liste des Grimpeurs présent dans la table User
 	 * @return
 	 * @throws SQLException
 	 */
@@ -30,48 +30,44 @@ public interface UserDAO {
       public User connexion(String login, String password) throws SQLException;
       
       /**
-       * Récupère le grimpeur ayant l'id "id"
+       * Récupère le User ayant l'id "id"
        * @param id
        * @return
        * @throws SQLException
        */
-      public User afficheGrimpeur(String id) throws SQLException;
+      public User retrieveUser(String id) throws SQLException;
       
       /**
-       * Insère un tuple dans la table Grimpeur
+       * Insère un tuple dans la table User
        * 
        * @param id
        * @param nom
        * @param prenom
        * @param email
-       * @param poids
-       * @param age
        * @param login
        * @param password
        * @return
        * @throws SQLException
        */
-      public boolean nouveauGrimpeur(int id, String nom, String prenom, String email, int poids,int age, String login, String password) throws SQLException;
+      public boolean newUser(int id, String nom, String prenom, String email, String login, String password) throws SQLException;
       
       /**
-       * Récupère le plus grand ID de la table Grimpeur
+       * Récupère le plus grand ID de la table User
        * @return
        */
       public int idmax();
       
       /**
-       * Met à jours un grimpeur
+       * Met à jours un User
        * @param i
        * @param l
        * @param pass
        * @param n
        * @param pr
        * @param e
-       * @param a
-       * @param p
        * @return
        * @throws SQLException
        */
-      public boolean updateGrimpeur(String i,String l, String pass,String n,String pr,String e, String a,String p) throws SQLException;
+      public boolean updateUser(String i,String l, String pass,String n,String pr,String e) throws SQLException;
 }
 

@@ -60,10 +60,10 @@ public class User {
 	  public void setPassword(String password) {
 	        this.password = password;
 	  }
-	   public void setAscensions(Set<Project> projets) {
+	   public void setProjects(Set<Project> projets) {
 			this.projects = projets;
 		}
-		public Set<Project> getAscensions() {
+		public Set<Project> getProjects() {
 			return projects;
 		}
 }
