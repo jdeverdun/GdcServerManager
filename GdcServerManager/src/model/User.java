@@ -66,5 +66,8 @@ public class User {
 		public Set<Project> getProjects() {
 			return projects;
 		}
+		public boolean equals(User p){
+			return this.id==p.id;
+		}
 }
 

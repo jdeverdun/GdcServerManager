@@ -8,6 +8,7 @@ public class AcquisitionDate {
 	private int id;
 	private Date date;
 	private Patient patient;
+	private Project projet;
 	private Set<Protocol> protocoles;
 	
 	public AcquisitionDate() {
@@ -44,6 +45,14 @@ public class AcquisitionDate {
 
 	public void setPatient(Patient patient) {
 		this.patient = patient;
+	}
+
+	public Project getProjet() {
+		return projet;
+	}
+
+	public void setProjet(Project projet) {
+		this.projet = projet;
 	}
 
 }

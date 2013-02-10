@@ -35,7 +35,7 @@ public interface UserDAO {
        * @return
        * @throws SQLException
        */
-      public User retrieveUser(String id) throws SQLException;
+      public User retrieveUser(int id) throws SQLException;
       
       /**
        * Insère un tuple dans la table User
@@ -68,6 +68,6 @@ public interface UserDAO {
        * @return
        * @throws SQLException
        */
-      public boolean updateUser(String i,String l, String pass,String n,String pr,String e) throws SQLException;
+      public boolean updateUser(int i,String l, String pass,String n,String pr,String e) throws SQLException;
 }
 

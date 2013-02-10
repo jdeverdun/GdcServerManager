@@ -33,7 +33,7 @@ public class Patient {
 	}
 
 
-	public void setProject(int p) {
+	public void setProject(Project p) {
 		this.project = p;
 	}
 
@@ -52,6 +52,9 @@ public class Patient {
 
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public boolean equals(Patient p){
+		return this.id==p.id;
 	}
 
 }

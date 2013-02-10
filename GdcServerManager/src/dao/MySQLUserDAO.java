@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import model.Falaise;
 import model.User;
 
 /**
@@ -38,7 +37,7 @@ public class MySQLUserDAO implements UserDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			ProjectDAO projdao=new MySQLProjectDAO();
+			UserProjectDAO uprojdao=new MySQLUserProjectDAO();
 			rset = stmt.executeQuery("select * from User");
 
 			// boucle sur les resultats de la requête
@@ -50,7 +49,7 @@ public class MySQLUserDAO implements UserDAO {
 				user.setNom(rset.getString("nom"));
 				user.setPassword(rset.getString("password"));
 				user.setPrenom(rset.getString("prenom"));
-				user.setProjects(projdao.getProjectsForUser(""+user.getId()));
+				user.setProjects(uprojdao.getProjectsForUser(user.getId()));
 				// ajout a la liste des grimpeurs
 				users.add(user);
 			}
@@ -210,7 +209,7 @@ public class MySQLUserDAO implements UserDAO {
      * @return
      * @throws SQLException
      */
-	public User retrieveUser(String id) throws SQLException {
+	public User retrieveUser(int id) throws SQLException {
 		// TODO Auto-generated method stub
 		User userC = new User();
 		ResultSet rset = null;
@@ -262,7 +261,7 @@ public class MySQLUserDAO implements UserDAO {
      * @return
      * @throws SQLException
      */
-	public boolean updateUser(String i,String l, String pass,String n,String pr,String e) throws SQLException{
+	public boolean updateUser(int i,String l, String pass,String n,String pr,String e) throws SQLException{
 		// la liste de grimpeurs
 		int rset = 0;
 		Statement stmt = null;

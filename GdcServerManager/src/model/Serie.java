@@ -6,7 +6,11 @@ public class Serie {
 
 	private int id;
 	private String name;
+	private boolean hasNifti;
 	private Protocol protocole;
+	private Project projet;
+	private Patient patient;
+	private AcquisitionDate acquistionDate;
 	private Set<DicomImage> dicomImages;
 	private Set<NiftiImage> niftiImages;
 	
@@ -52,6 +56,33 @@ public class Serie {
 
 	public void setNiftiImages(Set<NiftiImage> niftiImages) {
 		this.niftiImages = niftiImages;
+	}
+
+	public Project getProjet() {
+		return projet;
+	}
+
+	public void setProjet(Project projet) {
+		this.projet = projet;
+	}
+
+	public Patient getPatient() {
+		return patient;
+	}
+
+	public void setPatient(Patient patient) {
+		this.patient = patient;
+	}
+
+	public AcquisitionDate getAcquistionDate() {
+		return acquistionDate;
+	}
+
+	public void setAcquistionDate(AcquisitionDate acquistionDate) {
+		this.acquistionDate = acquistionDate;
+	}
+	public boolean equals(Serie p){
+		return this.id==p.id;
 	}
 
 }

@@ -7,6 +7,8 @@ public class Protocol {
 	private int id;
 	private int name;
 	private AcquisitionDate acquisitionDate;
+	private Project projet;
+	private Patient patient;
 	private Set<Serie> series;
 	
 	public Protocol() {
@@ -45,4 +47,23 @@ public class Protocol {
 		this.series = series;
 	}
 
+	public Project getProjet() {
+		return projet;
+	}
+
+	public void setProjet(Project projet) {
+		this.projet = projet;
+	}
+
+	public Patient getPatient() {
+		return patient;
+	}
+
+	public void setPatient(Patient patient) {
+		this.patient = patient;
+	}
+
+	public boolean equals(Protocol p){
+		return this.id==p.id;
+	}
 }

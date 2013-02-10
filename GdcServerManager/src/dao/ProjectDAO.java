@@ -20,7 +20,7 @@ public interface ProjectDAO {
        * @return
        * @throws SQLException
        */
-      public Project retrieve(int id) throws SQLException;
+      public Project retrieveProject(int id) throws SQLException;
       
       /**
        * Récupère le plus grand ID de la table Project
@@ -28,6 +28,8 @@ public interface ProjectDAO {
        */
       public int idmax();
       
-      public void newProject(int id) throws SQLException;
+      public boolean newProject(int id, String name) throws SQLException;
+      
+      public boolean updateProject(int id, String name) throws SQLException;
 
 }

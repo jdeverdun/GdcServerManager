@@ -13,6 +13,7 @@ public class Project {
 
 	private Integer id;
 	private String nom;
+	private Set<User> users = new HashSet<User>();
 	private Set<Patient> patients = new HashSet<Patient>();
 
 	public Project() {
@@ -41,6 +42,14 @@ public class Project {
 
 	public void setPatients(Set<Patient> p) {
 		this.patients = p;
+	}
+
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
 	}
 
 	@Override
