@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import dao.project.MySQLPatientDAO;
+import dao.project.PatientDAO;
+
 import model.Patient;
 import model.Project;
 import model.User;
@@ -100,8 +103,9 @@ public class MySQLProjectDAO implements ProjectDAO {
 	/**
      * Récupère le plus grand ID de la table Project
      * @return
+	 * @throws SQLException 
      */
-	public int idmax(){
+	public int idmax() throws SQLException{
 		
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -133,6 +137,10 @@ public class MySQLProjectDAO implements ProjectDAO {
 		
 		}catch(Exception e){
 			System.err.println("Erreur de chargement du driver" + e);	return -1;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
 		}
 		
 	}

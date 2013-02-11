@@ -1,4 +1,4 @@
-package dao;
+package dao.project;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -18,7 +18,7 @@ public interface AcquisitionDateDAO {
       
       
 
-    public int idmax();
+    public int idmax() throws SQLException;
       
 
     public boolean newAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;

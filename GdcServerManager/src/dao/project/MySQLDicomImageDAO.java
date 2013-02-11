@@ -1,4 +1,4 @@
-package dao;
+package dao.project;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-import model.NiftiImage;
+import model.DicomImage;
 
 
-public class MySQLNiftiImageDAO implements NiftiImageDAO {
-	public Collection<NiftiImage> retrieveAll() throws SQLException {
-		Collection<NiftiImage> niftis = new ArrayList<NiftiImage>();
+public class MySQLDicomImageDAO implements DicomImageDAO {
+	public Collection<DicomImage> retrieveAll() throws SQLException {
+		Collection<DicomImage> dicoms = new ArrayList<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -31,21 +31,21 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage");
+			rset = stmt.executeQuery("select * from DicomImage");
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = new NiftiImage();
-				nifti.setId(rset.getInt("id"));
-				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
-				nifti.setProtocole(nifti.getSerie().getProtocole());
+				DicomImage dicom = new DicomImage();
+				dicom.setId(rset.getInt("id"));
+				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
+				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace � acquisitiondate
-				nifti.setAcquistionDate(nifti.getProtocole().getAcquisitionDate());
-				nifti.setPatient(nifti.getAcquistionDate().getPatient());
-				nifti.setProjet(nifti.getPatient().getProject());
-				niftis.add(nifti);
+				dicom.setAcquistionDate(dicom.getProtocole().getAcquisitionDate());
+				dicom.setPatient(dicom.getAcquistionDate().getPatient());
+				dicom.setProjet(dicom.getPatient().getProject());
+				dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -59,7 +59,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	
 	
 
-	public boolean newNiftiImage( int id, String nom, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean newDicomImage( int id, String nom, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -77,7 +77,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into NiftiImage values ("+id+",'"
+				rset = stmt.execute("insert into DicomImage values ("+id+",'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;
@@ -94,7 +94,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	}
 	
 
-	public int idmax(){
+	public int idmax() throws SQLException{
 		
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -114,7 +114,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from NiftiImage ;");
+			rset = stmt.executeQuery("select max(id) from DicomImage ;");
 			if (rset != null) {
 				while(rset.next()){
 					System.out.println("id max= "+rset.getInt(1));
@@ -126,14 +126,18 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		
 		}catch(Exception e){
 			System.err.println("Erreur de chargement du driver" + e);	return -1;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
 		}
 		
 	}
 	
 
-	public NiftiImage retrieveNiftiImage(int id) throws SQLException {
+	public DicomImage retrieveDicomImage(int id) throws SQLException {
 		// TODO Auto-generated method stub
-		NiftiImage nifti = new NiftiImage();
+		DicomImage dicom = new DicomImage();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -149,18 +153,18 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
-			rset = stmt.executeQuery("select * from NiftiImage where id="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id="+id);
 			while(rset.next()){
-				nifti.setId(rset.getInt("id"));
-				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
-				nifti.setProtocole(nifti.getSerie().getProtocole());
+				dicom.setId(rset.getInt("id"));
+				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
+				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace � acquisitiondate
-				nifti.setAcquistionDate(nifti.getProtocole().getAcquisitionDate());
-				nifti.setPatient(nifti.getAcquistionDate().getPatient());
-				nifti.setProjet(nifti.getPatient().getProject());
+				dicom.setAcquistionDate(dicom.getProtocole().getAcquisitionDate());
+				dicom.setPatient(dicom.getAcquistionDate().getPatient());
+				dicom.setProjet(dicom.getPatient().getProject());
 			}
 		
-			return nifti;
+			return dicom;
 		
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
@@ -179,7 +183,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 
 
 	@Override
-	public boolean updateNiftiImage(int id, String name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean updateDicomImage(int id, String name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -193,7 +197,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update NiftiImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
+			rset = stmt.executeUpdate("update DicomImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -210,9 +214,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 
 
 	@Override
-	public Set<NiftiImage> getNiftiImageForPatient(int id)
+	public Set<DicomImage> getDicomImageForPatient(int id)
 			throws SQLException {
-		Set<NiftiImage> niftis = new HashSet<NiftiImage>();
+		Set<DicomImage> dicoms = new HashSet<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -226,15 +230,15 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_patient="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id_patient="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = retrieveNiftiImage(rset.getInt("id"));	
-				if(nifti!=null) 
-					niftis.add(nifti);
+				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				if(dicom!=null) 
+					dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -249,9 +253,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 
 
 	@Override
-	public Set<NiftiImage> getNiftiImageForProject(int id)
+	public Set<DicomImage> getDicomImageForProject(int id)
 			throws SQLException {
-		Set<NiftiImage> niftis = new HashSet<NiftiImage>();
+		Set<DicomImage> dicoms = new HashSet<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -265,15 +269,15 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_project="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = retrieveNiftiImage(rset.getInt("id"));	
-				if(nifti!=null) 
-					niftis.add(nifti);
+				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				if(dicom!=null) 
+					dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -284,9 +288,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		}
 	}
 	@Override
-	public Set<NiftiImage> getNiftiImageForAcqDate(int id)
+	public Set<DicomImage> getDicomImageForAcqDate(int id)
 			throws SQLException {
-		Set<NiftiImage> niftis = new HashSet<NiftiImage>();
+		Set<DicomImage> dicoms = new HashSet<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -300,15 +304,15 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_acqdate="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id_acqdate="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = retrieveNiftiImage(rset.getInt("id"));	
-				if(nifti!=null) 
-					niftis.add(nifti);
+				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				if(dicom!=null) 
+					dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -320,9 +324,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	}
 	
 	@Override
-	public Set<NiftiImage> getNiftiImageForProtocol(int id)
+	public Set<DicomImage> getDicomImageForProtocol(int id)
 			throws SQLException {
-		Set<NiftiImage> niftis = new HashSet<NiftiImage>();
+		Set<DicomImage> dicoms = new HashSet<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -336,15 +340,15 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_protocol="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id_protocol="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = retrieveNiftiImage(rset.getInt("id"));	
-				if(nifti!=null) 
-					niftis.add(nifti);
+				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				if(dicom!=null) 
+					dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -355,9 +359,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		}
 	}
 	@Override
-	public Set<NiftiImage> getNiftiImageForSerie(int id)
+	public Set<DicomImage> getDicomImageForSerie(int id)
 			throws SQLException {
-		Set<NiftiImage> niftis = new HashSet<NiftiImage>();
+		Set<DicomImage> dicoms = new HashSet<DicomImage>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -371,15 +375,15 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_serie="+id);
+			rset = stmt.executeQuery("select * from DicomImage where id_serie="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				NiftiImage nifti = retrieveNiftiImage(rset.getInt("id"));	
-				if(nifti!=null) 
-					niftis.add(nifti);
+				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				if(dicom!=null) 
+					dicoms.add(dicom);
 			}
-			return niftis;
+			return dicoms;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;

@@ -1,4 +1,4 @@
-package dao;
+package dao.project;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -11,7 +11,7 @@ public interface ProtocolDAO {
 
     public Protocol retrieveProtocol(int id) throws SQLException;  
 
-    public int idmax();
+    public int idmax() throws SQLException;
       
 
     public boolean newProtocol(int id, String name, int projet_id, int patient_id, int id_acqdate) throws SQLException;

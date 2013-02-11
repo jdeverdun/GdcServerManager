@@ -1,4 +1,4 @@
-package dao;
+package dao.project;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,12 +12,11 @@ import java.util.Set;
 
 import model.AcquisitionDate;
 import model.Patient;
-import model.Project;
-import model.User;
 
-public class MySQLPatientDAO implements PatientDAO {
-	public Collection<Patient> retrieveAll() throws SQLException {
-		Collection<Patient> patients = new ArrayList<Patient>();
+
+public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
+	public Collection<AcquisitionDate> retrieveAll() throws SQLException {
+		Collection<AcquisitionDate> acqDates = new ArrayList<AcquisitionDate>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -30,19 +29,20 @@ public class MySQLPatientDAO implements PatientDAO {
 		try {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
-			ProjectDAO projdao=new MySQLProjectDAO();	
+			PatientDAO pdao = new MySQLPatientDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Patient");
+			rset = stmt.executeQuery("select * from AcquisitionDate");
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Patient pat = new Patient();
-				pat.setId(rset.getInt("id"));
-				pat.setNom(rset.getString("name"));
-				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
-				patients.add(pat);
+				AcquisitionDate acq = new AcquisitionDate();
+				acq.setId(rset.getInt("id"));
+				acq.setDate(rset.getDate("acqdate"));
+				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
+				acq.setProjet(acq.getPatient().getProject());
+				acqDates.add(acq);
 			}
-			return patients;
+			return acqDates;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;
@@ -56,7 +56,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	
 	
 
-	public boolean newPatient( int id, String nom, int project_id) throws SQLException {
+	public boolean newAcqDate( int id, String nom, int project_id, int patient_id) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -74,8 +74,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Patient values ("+id+",'"
-						+ nom + "', "+id+")");
+				rset = stmt.execute("insert into Acquisitiondate values ("+id+",'"
+						+ nom + "', "+project_id+","+patient_id+")");
 				
 				return true;
 				
@@ -91,10 +91,11 @@ public class MySQLPatientDAO implements PatientDAO {
 	}
 	
 	/**
-     * Récupère le plus grand ID de la table Patient
+     * Récupère le plus grand ID de la table AcqDate
      * @return
+	 * @throws SQLException 
      */
-	public int idmax(){
+	public int idmax() throws SQLException{
 		
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -114,7 +115,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Patient ;");
+			rset = stmt.executeQuery("select max(id) from AcquisitionDate ;");
 			if (rset != null) {
 				while(rset.next()){
 					System.out.println("id max= "+rset.getInt(1));
@@ -126,14 +127,17 @@ public class MySQLPatientDAO implements PatientDAO {
 		
 		}catch(Exception e){
 			System.err.println("Erreur de chargement du driver" + e);	return -1;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
 		}
-		
 	}
 	
 
-	public Patient retrievePatient(int id) throws SQLException {
+	public AcquisitionDate retrieveAcqDate(int id) throws SQLException {
 		// TODO Auto-generated method stub
-		Patient pat = new Patient();
+		AcquisitionDate acq = new AcquisitionDate();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -148,15 +152,16 @@ public class MySQLPatientDAO implements PatientDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			ProjectDAO projdao=new MySQLProjectDAO();			
-			rset = stmt.executeQuery("select * from Patient where id="+id);
+			PatientDAO pdao=new MySQLPatientDAO();			
+			rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
 			while(rset.next()){
-				pat.setNom(rset.getString("nom"));
-				pat.setId(rset.getInt("id"));
-				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
+				acq.setId(rset.getInt("id"));
+				acq.setDate(rset.getDate("acqdate"));
+				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
+				acq.setProjet(acq.getPatient().getProject());
 			}
 		
-			return pat;
+			return acq;
 		
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
@@ -175,7 +180,7 @@ public class MySQLPatientDAO implements PatientDAO {
 
 
 	@Override
-	public boolean updatePatient(int id, String name, int id_project) throws SQLException {
+	public boolean updateAcqDate(int id, String name, int id_project, int id_patient) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -189,7 +194,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Patient set name='"+name+"',id_project="+id_project+" where id="+id);
+			rset = stmt.executeUpdate("update AcquisitionDate set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -199,9 +204,16 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection.close();
 		}
 	}
-	
-	public Set<Patient> getPatientsForProject(int project_id) throws SQLException {
-		Set<Patient> patients = new HashSet<Patient>();
+
+
+
+
+
+
+	@Override
+	public Set<AcquisitionDate> getAcqDateForPatient(int id)
+			throws SQLException {
+		Set<AcquisitionDate> acqs = new HashSet<AcquisitionDate>();
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -215,15 +227,54 @@ public class MySQLPatientDAO implements PatientDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Patient where id_project="+project_id);
+			rset = stmt.executeQuery("select * from AcquisitionDate where id_patient="+id);
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Patient pat = retrievePatient(rset.getInt("id"));	
-				if(pat!=null) 
-					patients.add(pat);
+				AcquisitionDate acq = retrieveAcqDate(rset.getInt("id"));	
+				if(acq!=null) 
+					acqs.add(acq);
 			}
-			return patients;
+			return acqs;
+		} catch (Exception e) {
+			System.err.println("Erreur SQL " + e);
+			return null;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+
+
+
+
+	@Override
+	public Set<AcquisitionDate> getAcqDateForProject(int id)
+			throws SQLException {
+		Set<AcquisitionDate> acqs = new HashSet<AcquisitionDate>();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			System.err.println("Erreur de chargement du driver " + e);
+			return null;
+		}
+		try {
+			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			stmt = connection.createStatement();
+			rset = stmt.executeQuery("select * from AcquisitionDate where id_project="+id);
+
+			// boucle sur les resultats de la requÃªte
+			while (rset.next()) {
+				AcquisitionDate acq = retrieveAcqDate(rset.getInt("id"));	
+				if(acq!=null) 
+					acqs.add(acq);
+			}
+			return acqs;
 		} catch (Exception e) {
 			System.err.println("Erreur SQL " + e);
 			return null;

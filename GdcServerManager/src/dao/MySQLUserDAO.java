@@ -170,8 +170,9 @@ public class MySQLUserDAO implements UserDAO {
 	/**
      * Récupère le plus grand ID de la table User
      * @return
+	 * @throws SQLException 
      */
-	public int idmax(){
+	public int idmax() throws SQLException{
 		
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -203,6 +204,10 @@ public class MySQLUserDAO implements UserDAO {
 		
 		}catch(Exception e){
 			System.err.println("Erreur de chargement du driver" + e);	return -1;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
 		}
 		
 	}

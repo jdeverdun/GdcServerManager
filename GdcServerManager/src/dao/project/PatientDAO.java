@@ -1,4 +1,4 @@
-package dao;
+package dao.project;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -28,8 +28,9 @@ public interface PatientDAO {
       /**
        * Renvoi l'id max de la table (idmax+1)
        * @return
+     * @throws SQLException 
        */
-      public int idmax();
+      public int idmax() throws SQLException;
       
       /**
        * créé un nouveau patient

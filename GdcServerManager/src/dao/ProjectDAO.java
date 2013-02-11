@@ -25,8 +25,9 @@ public interface ProjectDAO {
       /**
        * Récupère le plus grand ID de la table Project
        * @return
+     * @throws SQLException 
        */
-      public int idmax();
+      public int idmax() throws SQLException;
       
       public boolean newProject(int id, String name) throws SQLException;
       

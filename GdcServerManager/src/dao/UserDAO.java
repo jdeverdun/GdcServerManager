@@ -54,8 +54,9 @@ public interface UserDAO {
       /**
        * Récupère le plus grand ID de la table User
        * @return
+     * @throws SQLException 
        */
-      public int idmax();
+      public int idmax() throws SQLException;
       
       /**
        * Met à jours un User
