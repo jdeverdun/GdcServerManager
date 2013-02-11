@@ -19,7 +19,6 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 	public Set<Project> getProjectsForUser(int id) throws SQLException {
 		Set<Project> projects = new HashSet<Project>();
 		ResultSet rset = null;
-		ResultSet rset2 = null;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
@@ -32,22 +31,15 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			PatientDAO patdao=new MySQLPatientDAO();
-			UserProjectDAO updao=new MySQLUserProjectDAO();
+			//PatientDAO patdao=new MySQLPatientDAO();
+			ProjectDAO pdao=new MySQLProjectDAO();
 			rset = stmt.executeQuery("select * from User_Project where id_user="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				rset2 = stmt.executeQuery("select * from Project where id="+rset.getInt("id_project"));
-				while (rset2.next()) {
-					Project proj = new Project();
-					proj.setId(rset.getInt("id"));
-					proj.setNom(rset.getString("nom"));
-					proj.setPatients(patdao.getPatientsForProject(proj.getId()));
-					proj.setUsers(updao.getUsersForProject(proj.getId()));
-	
+				Project proj = pdao.retrieveProject(rset.getInt("id_project"));
+				if(proj!=null)
 					projects.add(proj);
-				}
 			}
 			return projects;
 		} catch (Exception e) {
@@ -64,7 +56,6 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 	public Set<User> getUsersForProject(int id) throws SQLException {
 		Set<User> users = new HashSet<User>();
 		ResultSet rset = null;
-		ResultSet rset2 = null;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
@@ -77,21 +68,18 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			String url = "jdbc:mysql://localhost:3306/jdeverdun";
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
-			PatientDAO patdao=new MySQLPatientDAO();
-			UserProjectDAO updao=new MySQLUserProjectDAO();
+			//PatientDAO patdao=new MySQLPatientDAO();
+			UserDAO udao=new MySQLUserDAO();
 			rset = stmt.executeQuery("select * from User_Project where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				rset2 = stmt.executeQuery("select * from User where id="+rset.getInt("id_user"));
-				while(rset2.next()){
-					User us = new User();
-					us.setId(rset.getInt("id"));
-					us.setNom(rset.getString("nom"));
-					us.setProjects(updao.getProjectsForUser(us.getId()));
-	
+				User us = udao.retrieveUser(rset.getInt("id_user"));
+					// On limite l'instantiation (usage memoire)
+					//us.setProjects(updao.getProjectsForUser(us.getId()));
+					
+				if(us!=null) 
 					users.add(us);
-				}
 			}
 			return users;
 		} catch (Exception e) {

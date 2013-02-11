@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import model.Project;
 import model.User;
 
 /**
@@ -49,8 +53,8 @@ public class MySQLUserDAO implements UserDAO {
 				user.setNom(rset.getString("nom"));
 				user.setPassword(rset.getString("password"));
 				user.setPrenom(rset.getString("prenom"));
-				user.setProjects(uprojdao.getProjectsForUser(user.getId()));
-				// ajout a la liste des grimpeurs
+
+				
 				users.add(user);
 			}
 			return users;

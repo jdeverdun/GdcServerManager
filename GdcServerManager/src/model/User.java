@@ -69,5 +69,9 @@ public class User {
 		public boolean equals(User p){
 			return this.id==p.id;
 		}
+		public void addProject(Project proj) {
+			this.projects.add(proj);
+			
+		}
 }
 

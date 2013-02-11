@@ -12,7 +12,7 @@ import model.User;
 public interface UserDAO {
 	
 	/**
-	 * Récupère la liste des Grimpeurs présent dans la table User
+	 * Récupère la liste des user présent dans la table User
 	 * @return
 	 * @throws SQLException
 	 */

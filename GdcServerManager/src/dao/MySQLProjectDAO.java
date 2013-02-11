@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+
+import model.Patient;
 import model.Project;
 import model.User;
 
@@ -42,9 +45,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			while (rset.next()) {
 				Project proj = new Project();
 				proj.setId(rset.getInt("id"));
-				proj.setNom(rset.getString("nom"));
-				proj.setPatients(patdao.getPatientsForProject(proj.getId()));
-				proj.setUsers(updao.getUsersForProject(proj.getId()));
+				proj.setNom(rset.getString("nom"));				
 				// ajout a la liste des grimpeurs
 				projects.add(proj);
 			}
@@ -164,8 +165,10 @@ public class MySQLProjectDAO implements ProjectDAO {
 			while(rset.next()){
 				projectC.setNom(rset.getString("nom"));
 				projectC.setId(rset.getInt("id"));
+				
 			}
 		
+			
 			return projectC;
 		
 		} catch (SQLException e) {

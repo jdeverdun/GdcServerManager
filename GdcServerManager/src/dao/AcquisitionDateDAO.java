@@ -1,11 +1,31 @@
 package dao;
 
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Set;
 
 import model.AcquisitionDate;
+import model.Patient;
+import model.User;
 
 public interface AcquisitionDateDAO {
 
-	Set<AcquisitionDate> getAcqDateForPatient(int id);
+
+    public Collection<AcquisitionDate> retrieveAll() throws SQLException;
+
+
+    public AcquisitionDate retrieveAcqDate(int id) throws SQLException;
+      
+      
+
+    public int idmax();
+      
+
+    public boolean newAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;
+      
+    public boolean updateAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;
+      
+	public Set<AcquisitionDate> getAcqDateForPatient(int id) throws SQLException;
+	public Set<AcquisitionDate> getAcqDateForProject(int id) throws SQLException; 
 
 }

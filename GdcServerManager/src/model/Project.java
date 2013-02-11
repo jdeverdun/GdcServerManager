@@ -20,6 +20,10 @@ public class Project {
 
 	}
 
+	public Project(int id) {
+		this.id = id;
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -51,6 +55,10 @@ public class Project {
 	public void setUsers(Set<User> users) {
 		this.users = users;
 	}
+	
+	public void addUser(User u){
+		this.users.add(u);
+	}
 
 	@Override
 	public String toString() {
@@ -59,6 +67,7 @@ public class Project {
 	public boolean equals(Project p){
 		return this.id==p.id;
 	}
+
 
 
 }

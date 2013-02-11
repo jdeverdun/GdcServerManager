@@ -60,10 +60,10 @@ public class DicomImage {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Protocol getProcole() {
+	public Protocol getProtocole() {
 		return procole;
 	}
-	public void setProcole(Protocol procole) {
+	public void setProtocole(Protocol procole) {
 		this.procole = procole;
 	}
 	public boolean equals(DicomImage p){
