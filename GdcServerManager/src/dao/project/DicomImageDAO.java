@@ -11,7 +11,7 @@ public interface DicomImageDAO {
 
     public DicomImage retrieveDicomImage(int id) throws SQLException;  
 
-    public int idmax();
+    public int idmax() throws SQLException;
       
 
     public boolean newDicomImage(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
