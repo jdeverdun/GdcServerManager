@@ -38,6 +38,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			while (rset.next()) {
 				NiftiImage nifti = new NiftiImage();
 				nifti.setId(rset.getInt("id"));
+				nifti.setName(rset.getString("name"));
 				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				nifti.setProtocole(nifti.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -157,6 +158,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			rset = stmt.executeQuery("select * from NiftiImage where id="+id);
 			while(rset.next()){
 				nifti.setId(rset.getInt("id"));
+				nifti.setName(rset.getString("name"));
 				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				nifti.setProtocole(nifti.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate

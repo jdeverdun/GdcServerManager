@@ -14,9 +14,9 @@ public interface SerieDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newSerie(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
+    public boolean newSerie(int id, String name,int hasNifit, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
       
-    public boolean updateSerie(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
+    public boolean updateSerie(int id, String name,int hasNifit, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
       
 	public Set<Serie> getSerieForPatient(int id) throws SQLException;
 	public Set<Serie> getSerieForProject(int id) throws SQLException; 

@@ -81,6 +81,17 @@ public class Serie {
 	public void setAcquistionDate(AcquisitionDate acquistionDate) {
 		this.acquistionDate = acquistionDate;
 	}
+	public boolean doesHaveNifti() {
+		return hasNifti;
+	}
+
+	public void setHasNifti(int hasNifti) {
+		if(hasNifti == 0)
+			this.hasNifti = false;
+		else
+			this.hasNifti = true;
+	}
+
 	public boolean equals(Serie p){
 		return this.id==p.id;
 	}

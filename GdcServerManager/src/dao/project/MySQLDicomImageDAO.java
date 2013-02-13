@@ -37,6 +37,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			while (rset.next()) {
 				DicomImage dicom = new DicomImage();
 				dicom.setId(rset.getInt("id"));
+				dicom.setName(rset.getString("name"));
 				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -156,6 +157,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			rset = stmt.executeQuery("select * from DicomImage where id="+id);
 			while(rset.next()){
 				dicom.setId(rset.getInt("id"));
+				dicom.setName(rset.getString("name"));
 				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate

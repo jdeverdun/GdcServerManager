@@ -36,6 +36,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			while (rset.next()) {
 				Protocol prot = new Protocol();
 				prot.setId(rset.getInt("id"));
+				prot.setName(rset.getString("name"));
 				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
 				prot.setPatient(prot.getAcquisitionDate().getPatient());
 				prot.setProjet(prot.getPatient().getProject());
@@ -156,6 +157,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			rset = stmt.executeQuery("select * from Protocol where id="+id);
 			while(rset.next()){
 				prot.setId(rset.getInt("id"));
+				prot.setName(rset.getString("name"));
 				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
 				prot.setPatient(prot.getAcquisitionDate().getPatient());
 				prot.setProjet(prot.getPatient().getProject());

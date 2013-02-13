@@ -78,7 +78,7 @@ public class Authentificator extends JFrame {
 		panel.add(lblPassword, "cell 1 5,alignx left,aligny center");
 		
 		passwordField = new JPasswordField();
-
+		
 		panel.add(passwordField, "cell 1 6 2 1,growx,aligny center");
 		
 		btnLogin = new JButton("Login");
@@ -120,9 +120,9 @@ public class Authentificator extends JFrame {
 		// on appui sur Entrée quand on est sur le pass -> tente le login
 		passwordField.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent key) {
+			public void keyReleased(KeyEvent key) {
 				if(key.getKeyCode() == KeyEvent.VK_ENTER){
-					
+					login();
 				}
 			}
 		});
@@ -130,7 +130,7 @@ public class Authentificator extends JFrame {
 		// on se log (grise les 2 boutons login/cancel)
 		btnLogin.addActionListener(new ActionListener() {
 		  public void actionPerformed(ActionEvent evt) {
-			  setActive(false);
+			  login();
 		  }
 		});
 		
@@ -216,6 +216,12 @@ public class Authentificator extends JFrame {
 		//btnCancel.setEnabled(status);
 		progressPanel.setVisible(!status);
 		isActive = status;
+	}
+	
+	
+	public void login(){
+		setActive(false);
+		
 	}
 	public static void main(String args[]){
 		SwingUtilities.invokeLater(new Runnable(){

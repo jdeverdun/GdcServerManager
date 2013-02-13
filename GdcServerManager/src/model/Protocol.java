@@ -5,7 +5,7 @@ import java.util.Set;
 public class Protocol {
 
 	private int id;
-	private int name;
+	private String name;
 	private AcquisitionDate acquisitionDate;
 	private Project projet;
 	private Patient patient;
@@ -23,12 +23,12 @@ public class Protocol {
 		this.id = id;
 	}
 
-	public int getName() {
+	public String getName() {
 		return name;
 	}
 
-	public void setName(int name) {
-		this.name = name;
+	public void setName(String string) {
+		this.name = string;
 	}
 
 	public AcquisitionDate getAcquisitionDate() {

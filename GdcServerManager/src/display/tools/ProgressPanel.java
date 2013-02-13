@@ -24,25 +24,12 @@ public class ProgressPanel extends JPanel {
 	private int xPosition;
 
 	private float alpha;
-
-	private boolean started;
-
+	
 	private Timeline progressTimeline;
 
 	public ProgressPanel() {
 		this.xPosition = 0;
 		this.alpha = 0;
-		
-		this.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (started)
-					return;
-
-				start();
-				started = true;
-			}
-		});
 
 		new SwingRepaintTimeline(this).playLoop(RepeatBehavior.LOOP);
 		
