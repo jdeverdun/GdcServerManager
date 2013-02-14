@@ -36,7 +36,7 @@ public class Authentificator extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private static int WIDTH = 252;
-	private static int HEIGHT = 219;
+	private static int HEIGHT = 220;
 	
 	private JTextField txtUsername;
 	private JPasswordField passwordField;
@@ -62,7 +62,7 @@ public class Authentificator extends JFrame {
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new MigLayout("", "[48px,grow][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][11.00]"));
+		panel.setLayout(new MigLayout("", "[48px,grow][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][7.00]"));
 		
 		JPanel panel_2 = new JPanel();
 		panel.add(panel_2, "cell 0 0 1 8,grow");
@@ -233,7 +233,7 @@ public class Authentificator extends JFrame {
 			          System.out.println("Substance Graphite failed to initialize");
 			        }
 				Authentificator auth = new Authentificator();
-				//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 				auth.setVisible(true);
 				
 			}

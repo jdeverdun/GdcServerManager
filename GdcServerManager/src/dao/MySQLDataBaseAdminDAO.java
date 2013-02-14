@@ -1,5 +1,9 @@
 package dao;
 
+import java.io.BufferedReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,6 +12,8 @@ import java.sql.Statement;
 
 public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 
+	public static final String projectTablesCreationFile = "ptablesCreation.sql";
+	
 	@Override
 	public boolean createUser(String login, String password)
 			throws SQLException {
@@ -103,7 +109,6 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 	
 			stmt.executeUpdate("create database "+databaseName+" ;");
 
-			
 			return true;
 		
 		}catch(Exception e){
