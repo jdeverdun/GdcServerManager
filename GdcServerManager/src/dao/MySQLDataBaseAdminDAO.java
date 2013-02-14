@@ -10,13 +10,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import settings.SQLSettings;
+import settings.UserProfile;
+
+import model.User;
+
 public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 
 	public static final String projectTablesCreationFile = "ptablesCreation.sql";
 	
 	@Override
-	public boolean createUser(String login, String password)
-			throws SQLException {
+	public boolean createUser(User user) throws SQLException {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -30,18 +34,19 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			String encryptedPass = null;		
 	
-			rset = stmt.executeQuery("select PASSWORD("+password+") ;");
+			rset = stmt.executeQuery("select PASSWORD("+user.getPassword()+") ;");
 			if (rset != null) {
 				while(rset.next()){
 					encryptedPass=rset.getString(0);
 				}
-				rset = stmt.executeQuery("create user '"+login+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"') ;");
-				rset = stmt.executeQuery("GRANT SELECT ON * . * TO '"+login+"'@'%' IDENTIFIED BY '"+encryptedPass+"' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0	MAX_USER_CONNECTIONS 0 ;");
+				rset = stmt.executeQuery("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"') ;");
+				String[] viewCommand = Scripts.getCreateUserViews(user);
+				rset = stmt.executeQuery("GRANT SELECT ON * . * TO '"+user.getLogin()+"'@'%' IDENTIFIED BY '"+encryptedPass+"' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0	MAX_USER_CONNECTIONS 0 ;");
 				return true;
 			}
 			

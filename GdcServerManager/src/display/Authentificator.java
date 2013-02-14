@@ -16,17 +16,19 @@ import javax.swing.UIManager;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import dao.MySQLUserDAO;
+import dao.UserDAO;
 import display.tools.ProgressPanel;
 
 
+import model.User;
 import net.miginfocom.swing.MigLayout;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
-import java.awt.Window.Type;
-import java.awt.Component;
+import java.sql.SQLException;
 
 
 public class Authentificator extends JFrame {
@@ -221,7 +223,20 @@ public class Authentificator extends JFrame {
 	
 	public void login(){
 		setActive(false);
-		
+		UserDAO udao = new MySQLUserDAO();
+		try {
+			User u = udao.connexion(txtUsername.getText(), passwordField.getText());
+			if(u!=null){
+				//setActive(true);
+				System.exit(0);
+			}else{
+				setActive(true);
+			}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+			setActive(true);
+		}
 	}
 	public static void main(String args[]){
 		SwingUtilities.invokeLater(new Runnable(){

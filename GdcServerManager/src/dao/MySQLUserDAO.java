@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import settings.SQLSettings;
+import settings.UserProfile;
+
 import model.Project;
 import model.User;
 
@@ -92,12 +95,19 @@ public class MySQLUserDAO implements UserDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/";
+			connection = DriverManager.getConnection(url, "fakeuser", "");
 			stmt = connection.createStatement();
-
+			rset = stmt.executeQuery("select password('" + password + "');");
+			if (rset != null) {
+				rset.next();
+				UserProfile.ENCRYPTEDPASS = rset.getString(1);
+			}
+			url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
+			connection = DriverManager.getConnection(url, login, UserProfile.ENCRYPTEDPASS);
+			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from User where login='"
-					+ login + "' and  password='" + password + "'");
+					+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
 			if (rset != null) {
 				rset.next();
 				userC.setNom(rset.getString("nom"));
@@ -106,13 +116,16 @@ public class MySQLUserDAO implements UserDAO {
 				userC.setLogin(rset.getString("login"));
 				userC.setPassword(rset.getString("password"));
 				userC.setId(Integer.parseInt(rset.getString("id")));
+			}else{
+				return null;
 			}
 
 			return userC;
 
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
-			throw e;
+			e.printStackTrace();
+			return null;
 		} finally {
 			rset.close();
 			stmt.close();

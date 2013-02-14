@@ -1,9 +1,9 @@
---drop database if exists gdcserver;
---create database gdcserver;
+drop database if exists gdcserver;
+create database gdcserver;
 use gdcserver;
 
 create table User
-(id integer, nom varchar(20), prenom varchar(20), email varchar(60), login varchar(20), password varchar(20), constraint user_pk primary key (id));
+(id integer, nom varchar(20), prenom varchar(20), email varchar(60), login varchar(30), password varchar(50), constraint user_pk primary key (id));
 
 create table Project
 (id integer, nom varchar(70),constraint project_pk primary key (id));
