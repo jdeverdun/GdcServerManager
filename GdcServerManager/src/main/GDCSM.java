@@ -1,7 +1,15 @@
 package main;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
+
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
+import display.Authentificator;
 import model.ServerInfo;
 
 public class GDCSM {
@@ -18,6 +26,20 @@ public class GDCSM {
 		// On lance le daemon Dicom
 		DicomDaemon ddaemon = new DicomDaemon(sinfo,ndaemon);
 		ddaemon.start();
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run(){
+				JFrame.setDefaultLookAndFeelDecorated(true);
+				try {
+			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+			        } catch (Exception e) {
+			          System.out.println("Substance Graphite failed to initialize");
+			        }
+				Authentificator auth = new Authentificator();
+				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				auth.setVisible(true);
+				
+			}
+		});
 	}
 
 }

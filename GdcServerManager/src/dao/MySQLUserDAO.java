@@ -124,8 +124,9 @@ public class MySQLUserDAO implements UserDAO {
 
 		} catch (SQLException e) {
 			System.err.println("Erreur SQL " + e);
-			e.printStackTrace();
-			return null;
+			//e.printStackTrace();
+			throw e;
+			//return null;
 		} finally {
 			rset.close();
 			stmt.close();

@@ -10,11 +10,9 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
+import settings.WindowManager;
+
 
 import dao.MySQLUserDAO;
 import dao.UserDAO;
@@ -28,7 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
-import java.sql.SQLException;
+
 
 
 public class Authentificator extends JFrame {
@@ -52,7 +50,11 @@ public class Authentificator extends JFrame {
 	
 	public Authentificator() {
 		
+		// quelques variables
+		WindowManager.AUTHENTIFICATOR = this;
 		isActive = true;
+		
+		// Display params
 		
 		
 		setType(Type.POPUP);
@@ -117,7 +119,7 @@ public class Authentificator extends JFrame {
 		setSize(WIDTH,HEIGHT);
 		setResizable(false);
 		
-		
+		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		// ====================== Event ==============================
 		// on appui sur Entrée quand on est sur le pass -> tente le login
 		passwordField.addKeyListener(new KeyAdapter() {
@@ -223,35 +225,35 @@ public class Authentificator extends JFrame {
 	
 	public void login(){
 		setActive(false);
-		UserDAO udao = new MySQLUserDAO();
-		try {
-			User u = udao.connexion(txtUsername.getText(), passwordField.getText());
-			if(u!=null){
-				//setActive(true);
-				System.exit(0);
-			}else{
-				setActive(true);
-			}
-				
-		} catch (SQLException e) {
-			e.printStackTrace();
-			setActive(true);
-		}
+		Thread t = new Thread() {
+	        public void run() {
+				UserDAO udao = new MySQLUserDAO();
+				try {
+					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
+					if(u!=null){
+						dispose();
+						System.exit(0);
+					}else{
+						setActive(true);
+					}
+						
+				} catch (Exception e) {
+					e.printStackTrace();
+					setActive(true);
+				}
+	        }
+		};
+		t.start();
+	}
+	
+	@Override
+	public void dispose(){
+		txtUsername.setText("");
+		passwordField.setText("");
+		setActive(true);
+		super.dispose();
 	}
 	public static void main(String args[]){
-		SwingUtilities.invokeLater(new Runnable(){
-			public void run(){
-				JFrame.setDefaultLookAndFeelDecorated(true);
-				try {
-			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
-			        } catch (Exception e) {
-			          System.out.println("Substance Graphite failed to initialize");
-			        }
-				Authentificator auth = new Authentificator();
-				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
-				auth.setVisible(true);
-				
-			}
-		});
+
 	}
 }
