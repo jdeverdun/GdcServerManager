@@ -49,7 +49,7 @@ public interface UserDAO {
        * @return
        * @throws SQLException
        */
-      public boolean newUser(int id, String nom, String prenom, String email, String login, String password) throws SQLException;
+      public boolean newUser(String nom, String prenom, String email, String login, String password) throws SQLException;
       
       /**
        * Récupère le plus grand ID de la table User

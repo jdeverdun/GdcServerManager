@@ -29,8 +29,10 @@ public interface ProjectDAO {
        */
       public int idmax() throws SQLException;
       
-      public boolean newProject(int id, String name) throws SQLException;
+      public boolean newProject(String string) throws SQLException; 
       
       public boolean updateProject(int id, String name) throws SQLException;
+
+	
 
 }

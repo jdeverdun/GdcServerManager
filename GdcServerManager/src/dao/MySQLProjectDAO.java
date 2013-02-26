@@ -66,7 +66,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 	
 	
 
-	public boolean newProject( int id, String nom) throws SQLException {
+	public boolean newProject(String nom) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -84,7 +84,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Project values ("+id+",'"
+				rset = stmt.execute("insert into Project values ('"
 						+ nom + "')");
 				
 				return true;
@@ -128,8 +128,8 @@ public class MySQLProjectDAO implements ProjectDAO {
 			rset = stmt.executeQuery("select max(id) from Project ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			

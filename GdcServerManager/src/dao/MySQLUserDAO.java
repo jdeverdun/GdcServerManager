@@ -147,7 +147,7 @@ public class MySQLUserDAO implements UserDAO {
      * @return
      * @throws SQLException
      */
-	public boolean newUser( int id, String nom, String prenom,  String email, String login, String password) throws SQLException {
+	public boolean newUser( String nom, String prenom,  String email, String login, String password) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -165,7 +165,7 @@ public class MySQLUserDAO implements UserDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into User values ("+id+",'"
+				rset = stmt.execute("insert into User values ('"
 						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"')");
 				
 				return true;
@@ -209,8 +209,8 @@ public class MySQLUserDAO implements UserDAO {
 			rset = stmt.executeQuery("select max(id) from User ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			

@@ -59,7 +59,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	
 	
 
-	public boolean newPatient( int id, String nom, int project_id) throws SQLException {
+	public boolean newPatient( String nom, int project_id) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -77,8 +77,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Patient values ("+id+",'"
-						+ nom + "', "+id+")");
+				rset = stmt.execute("insert into Patient values ('"
+						+ nom + "', "+project_id+")");
 				
 				return true;
 				
@@ -121,8 +121,8 @@ public class MySQLPatientDAO implements PatientDAO {
 			rset = stmt.executeQuery("select max(id) from Patient ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			

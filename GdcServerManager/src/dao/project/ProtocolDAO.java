@@ -14,7 +14,7 @@ public interface ProtocolDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newProtocol(int id, String name, int projet_id, int patient_id, int id_acqdate) throws SQLException;
+    public boolean newProtocol(String name, int projet_id, int patient_id, int id_acqdate) throws SQLException;
       
     public boolean updateProtocol(int id, String name, int projet_id, int patient_id, int id_acqdate) throws SQLException;
       

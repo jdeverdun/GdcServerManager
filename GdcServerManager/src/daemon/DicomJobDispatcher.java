@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import settings.SystemSettings;
+
 
 import model.ServerInfo;
 
@@ -22,9 +24,10 @@ public class DicomJobDispatcher extends Thread{
 	
 	private DicomDaemon dicomDaemon;
 	private ServerInfo serverInfo;
-	private ArrayList<DicomWorker> dicomWorkerList;
 	private LinkedList<Path> dicomToMove;
-	private int numberOfRuns;
+	private int numberOfRuns; // nombre de threads qui ont été lancé
+	private int maxWorker; // nombre de coeurs disponibles 
+	private DicomWorker dworker;
 	private boolean stop;
 	
 	
@@ -33,12 +36,13 @@ public class DicomJobDispatcher extends Thread{
 
 
 	public DicomJobDispatcher(DicomDaemon dicomDaemon) {
-		dicomWorkerList = new ArrayList<DicomWorker>();
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
 		setDicomDaemon(dicomDaemon);
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
+		setMaxWorker(SystemSettings.AVAILABLE_CORES);
+		
 	}
 
 	
@@ -52,16 +56,6 @@ public class DicomJobDispatcher extends Thread{
 
 	public void setDicomDaemon(DicomDaemon parentDaemon) {
 		this.dicomDaemon = parentDaemon;
-	}
-
-	
-	public ArrayList<DicomWorker> getDicomWorkerList() {
-		return dicomWorkerList;
-	}
-
-
-	public void setDicomWorkerList(ArrayList<DicomWorker> dicomWorkerList) {
-		this.dicomWorkerList = dicomWorkerList;
 	}
 
 
@@ -89,6 +83,34 @@ public class DicomJobDispatcher extends Thread{
 
 
 
+	public int getMaxWorker() {
+		return maxWorker;
+	}
+
+
+
+
+	public void setMaxWorker(int maxWorker) {
+		this.maxWorker = maxWorker;
+	}
+
+
+
+
+	public DicomWorker getDworker() {
+		return dworker;
+	}
+
+
+
+
+	public void setDworker(DicomWorker dworker) {
+		this.dworker = dworker;
+	}
+
+
+
+
 	public boolean isStop() {
 		return stop;
 	}
@@ -100,8 +122,9 @@ public class DicomJobDispatcher extends Thread{
 	
 	// Methodes
 	public void run(){
-		System.out.println("Dispatcher Online.");
+		System.out.println("Dispatcher Online with "+getMaxWorker()+" CPU cores.");
 		while(!isStop()){
+			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty()){
 				try {
 					Thread.sleep(5000);
@@ -110,16 +133,12 @@ public class DicomJobDispatcher extends Thread{
 				}
 			}
 			
-			// on place un delai entre les deplacement pour eviter les erreurs
-			// incoherentes liés à un copie trop rapide
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			DicomWorker dworker = new DicomWorker(this, (Path)dicomToMove.pop());
-	        dicomWorkerList.add(dworker);
-	        dworker.start();        
+			// on lance le deplacement du fichier
+			// on le fait fich/fich (pas multithread) car windows
+			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
+			dworker = new DicomWorker(this, (Path)dicomToMove.pop());
+	        dworker.start();  
+
 	        numberOfRuns++;
 	        if(numberOfRuns>2000){
 	        	// On dit au garbage collector de nettoyer 
@@ -130,10 +149,13 @@ public class DicomJobDispatcher extends Thread{
 		}
 	}
 	
-	public void removeWorker(DicomWorker dicomWorker) {
-		if(dicomWorker.getPatientFolder() != null)
-			getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder());
-		dicomWorkerList.remove(dicomWorker);
+	/**
+	 * Indique au serveur nifti qu'il faut convertir ce repertoire
+	 * @param dicomWorker
+	 */
+	public void sendToNiftiDaemon(DicomWorker dicomWorker) {
+		if(dicomWorker.getPatientFolder() != null){}
+			//getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder());
 		dicomWorker = null;
 	}
 	

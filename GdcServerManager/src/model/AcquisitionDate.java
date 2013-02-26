@@ -6,7 +6,7 @@ import java.util.Set;
 public class AcquisitionDate {
 
 	private int id;
-	private Date date;
+	private String date; // format comme dans les dicom AAAAJJMM
 	private Patient patient;
 	private Project projet;
 	private Set<Protocol> protocoles;
@@ -23,11 +23,11 @@ public class AcquisitionDate {
 		this.id = id;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 

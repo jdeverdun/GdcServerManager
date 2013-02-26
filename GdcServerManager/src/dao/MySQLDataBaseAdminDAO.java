@@ -42,7 +42,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			rset = stmt.executeQuery("select PASSWORD("+user.getPassword()+") ;");
 			if (rset != null) {
 				while(rset.next()){
-					encryptedPass=rset.getString(0);
+					encryptedPass=rset.getString(1);
 				}
 				rset = stmt.executeQuery("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"') ;");
 				String[] viewCommand = Scripts.getCreateUserViews(user);

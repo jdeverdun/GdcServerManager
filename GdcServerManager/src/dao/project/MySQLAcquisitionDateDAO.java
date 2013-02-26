@@ -37,7 +37,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			while (rset.next()) {
 				AcquisitionDate acq = new AcquisitionDate();
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getDate("acqdate"));
+				acq.setDate(rset.getString("acqdate"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 				acqDates.add(acq);
@@ -56,7 +56,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	
 	
 
-	public boolean newAcqDate( int id, String nom, int project_id, int patient_id) throws SQLException {
+	public boolean newAcqDate(String nom, int project_id, int patient_id) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -74,7 +74,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Acquisitiondate values ("+id+",'"
+				rset = stmt.execute("insert into Acquisitiondate values ('"
 						+ nom + "', "+project_id+","+patient_id+")");
 				
 				return true;
@@ -118,8 +118,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			rset = stmt.executeQuery("select max(id) from AcquisitionDate ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			
@@ -156,7 +156,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getDate("acqdate"));
+				acq.setDate(rset.getString("acqdate"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 			}

@@ -21,7 +21,7 @@ public interface AcquisitionDateDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;
+    public boolean newAcqDate(String name, int projet_id, int patient_id) throws SQLException;
       
     public boolean updateAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;
       

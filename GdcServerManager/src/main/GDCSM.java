@@ -19,14 +19,14 @@ public class GDCSM {
 	 */
 	public static void main(String[] args) {
 		// On définit les paramètres du serveur
-		ServerInfo sinfo = new ServerInfo("C:\\Users\\Mobilette\\Desktop\\ftl\\buffer","C:\\Users\\Mobilette\\Desktop\\ftl\\saveDicom","C:\\Users\\Mobilette\\Desktop\\ftl\\saveNifti");
+		ServerInfo sinfo = new ServerInfo("C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\buffer","C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\saveDicom","C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\saveNifti");
 		// On lance le daemon Nifti
 		NiftiDaemon ndaemon = new NiftiDaemon(sinfo);
 		ndaemon.start();
 		// On lance le daemon Dicom
 		DicomDaemon ddaemon = new DicomDaemon(sinfo,ndaemon);
 		ddaemon.start();
-		SwingUtilities.invokeLater(new Runnable(){
+		/*SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);
 				try {
@@ -39,7 +39,7 @@ public class GDCSM {
 				auth.setVisible(true);
 				
 			}
-		});
+		});*/
 	}
 
 }

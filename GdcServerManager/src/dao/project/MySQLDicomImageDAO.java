@@ -60,7 +60,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 	
 	
 
-	public boolean newDicomImage( int id, String nom, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean newDicomImage( String nom, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -78,7 +78,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into DicomImage values ("+id+",'"
+				rset = stmt.execute("insert into DicomImage values ('"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;
@@ -118,8 +118,8 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			rset = stmt.executeQuery("select max(id) from DicomImage ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			

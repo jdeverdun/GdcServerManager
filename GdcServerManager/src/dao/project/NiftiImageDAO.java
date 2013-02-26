@@ -15,7 +15,7 @@ public interface NiftiImageDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newNiftiImage(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
+    public boolean newNiftiImage(String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
       
     public boolean updateNiftiImage(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
       

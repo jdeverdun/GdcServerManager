@@ -56,7 +56,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 	
 	
 
-	public boolean newProtocol( int id, String nom, int project_id, int patient_id, int id_acqdate) throws SQLException {
+	public boolean newProtocol( String nom, int project_id, int patient_id, int id_acqdate) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -74,7 +74,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Protocol values ("+id+",'"
+				rset = stmt.execute("insert into Protocol values ('"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+")");
 				
 				return true;
@@ -118,8 +118,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			rset = stmt.executeQuery("select max(id) from Protocol ;");
 			if (rset != null) {
 				while(rset.next()){
-					System.out.println("id max= "+rset.getInt(1));
-					ident=rset.getInt(1)+1;
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt(1);
 				}
 			}
 			
