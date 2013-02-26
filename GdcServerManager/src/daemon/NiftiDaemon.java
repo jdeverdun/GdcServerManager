@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,7 +107,6 @@ public class NiftiDaemon extends Thread{
 	// Methodes
 	public void run(){
 		System.out.println("Nifti Daemon Online.");
-		String command = "";
 		while(!isStop()){
 			// On evite une utilisation trop importante du CPU
 			// avec des boucles infini
@@ -123,60 +124,17 @@ public class NiftiDaemon extends Thread{
 					// Si ca fait plus de 2 min on convertit 
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					
-					// On recherche l'arborescence et on créé les répertoire si besoin +
-					// NIFTIDIR / NOM_ETUDE / NOM_PATIENT / DATE_IRM / PROTOCOL / SERIE 
-					Path studyName = path.getParent().getParent().getParent().getParent().getFileName();
-					Path patientName = path.getParent().getParent().getParent().getFileName();
-					Path acqDate = path.getParent().getParent().getFileName();
-					Path protocolAcqName = path.getParent().getFileName() ;
-					Path serieName = path.getFileName();
-					
-					Path studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
-					Path patientDir = Paths.get(studyDir + File.separator +  patientName);
-					Path acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
-					Path protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);
-					Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
-					
-					checkAndMakeDir(studyDir);
-					checkAndMakeDir(patientDir);
-					checkAndMakeDir(acqDateDir);
-					checkAndMakeDir(protocolDir);
-					checkAndMakeDir(serieDir);
-					
-					Path niftiPath = serieDir;
-					System.out.println("Nifti convert : "+path);
-					// -i id in filename | -p protocol in filename
-					command = "dcm2nii.exe -i y -p y -e n -a n -d n -e n -f n -l 0  ";
-					switch(getFormat()){
-					case ANALYZE_7_5:
-						command+=" -n n -s y -g n ";break;
-					case SPM5_NIFTI:
-						command+=" -n n -g n ";break;
-					case NIFTI_4D://A selectionner en prio ?
-						command+=" -n y -g n ";break;
-					case FSL_NIFTI:
-						command+=" -n y -g y ";break;
-					default:
-						System.err.println("Unknow nifti format");
-					}
-					command+=" -o "+niftiPath+" "+path;
-					Process process;
-					try {
-						//process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");//-x 
-						process = Runtime.getRuntime().exec(command);
-						process.waitFor();
-						// on enleve le repertoire qu'on vient de convertir de la liste
-						it.remove();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					NiftiWorker nworker = new NiftiWorker(this, path);
+					nworker.start();
+					// on enleve le repertoire qu'on vient de convertir de la liste
+					it.remove();
 				}
 			}
 		}
 	}
 	
+
+
 	public void addDir(Path dir){
 		if(dir2convert.containsKey(dir)) return;
 		BasicFileAttributes attrs;
@@ -201,17 +159,7 @@ public class NiftiDaemon extends Thread{
 		return time;
 	}
 	
-	// test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
-	private void checkAndMakeDir(Path dir) {
-		if(!Files.exists(dir)){
-			// Si ce n'est pas le cas on le créé
-			try {
-				Files.createDirectory(dir);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
-	}
+
 	
 	
 }

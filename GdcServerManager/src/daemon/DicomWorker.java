@@ -28,13 +28,10 @@ import model.ServerInfo;
 import static java.nio.file.StandardCopyOption.*;
 
 
-public class DicomWorker  {
+public class DicomWorker extends DaemonWorker {
 
 	// Attributs
 	private Path dicomFile;
-	private Path patientFolder;
-	private Path serieFolder;
-	private ServerInfo serverInfo;
 	private DicomJobDispatcher dispatcher;
 	private ImagePlus imp;
 	private int project_id;
@@ -71,34 +68,6 @@ public class DicomWorker  {
 		this.imp = imp;
 	}
 
-
-	public Path getPatientFolder() {
-		return patientFolder;
-	}
-
-
-	public void setPatientFolder(Path patientFolder) {
-		this.patientFolder = patientFolder;
-	}
-
-
-	public Path getSerieFolder() {
-		return serieFolder;
-	}
-
-
-	public void setSerieFolder(Path serieFolder) {
-		this.serieFolder = serieFolder;
-	}
-
-
-	public ServerInfo getServerInfo() {
-		return serverInfo;
-	}
-
-	public void setServerInfo(ServerInfo sinfo) {
-		this.serverInfo = sinfo;
-	}
 
 	public DicomJobDispatcher getDispatcher() {
 		return dispatcher;
@@ -162,7 +131,9 @@ public class DicomWorker  {
 		prepareToStop();
 	}
 
-	private void addEntryToDB(Path name, String table) {
+	// Rajoute une entree d'un dossier / image
+	// dans la table "table" de la base de donnee 
+	protected void addEntryToDB(Path name, String table) {
 		switch(table){
 		case "Project":
 			ProjectDAO pdao = new MySQLProjectDAO();
@@ -238,22 +209,6 @@ public class DicomWorker  {
 		}
 	}
 
-
-	// test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
-	// renvoi true si le repertoire existait
-	// false si il a du etre cree
-	private boolean checkAndMakeDir(Path dir) {
-		if(!Files.exists(dir)){
-			// Si ce n'est pas le cas on le créé
-			try {
-				Files.createDirectory(dir);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			return false;
-		}
-		return true;
-	}
 
 
 	@Override
