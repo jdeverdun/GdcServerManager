@@ -8,15 +8,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.DicomImage;
+
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
 import dao.project.DicomImageDAO;
 import dao.project.MySQLAcquisitionDateDAO;
 import dao.project.MySQLDicomImageDAO;
+import dao.project.MySQLNiftiImageDAO;
 import dao.project.MySQLPatientDAO;
 import dao.project.MySQLProtocolDAO;
 import dao.project.MySQLSerieDAO;
+import dao.project.NiftiImageDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
@@ -26,13 +30,15 @@ public class NiftiWorker extends DaemonWorker {
 	private Path path;
 	private Path niftiPath;
 	private NiftiDaemon niftiDaemon;
+	private DicomImage sourceDicomImage;
 	
-	
-	public NiftiWorker(NiftiDaemon nDaemon, Path filename) {
-		// TODO Auto-generated constructor stub
+	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
+		if(dimage==null) 
+			System.err.println("Error : sourceDicomImage is NULL in niftiWorker !");
 		setNiftiDaemon(nDaemon);
 		setPath(filename);
 		setServerInfo(getNiftiDaemon().getServerInfo());
+		setSourceDicomImage(dimage);
 	}
 	public Path getPath() {
 		return path;
@@ -51,6 +57,12 @@ public class NiftiWorker extends DaemonWorker {
 	}
 	public void setNiftiPath(Path niftiPath) {
 		this.niftiPath = niftiPath;
+	}
+	public DicomImage getSourceDicomImage() {
+		return sourceDicomImage;
+	}
+	public void setSourceDicomImage(DicomImage sourceDicomImage) {
+		this.sourceDicomImage = sourceDicomImage;
 	}
 	@Override
 	public void start() {
@@ -123,15 +135,16 @@ public class NiftiWorker extends DaemonWorker {
 	protected void addEntryToDB(Path name, String table) {
 		switch(table){
 		case "NiftiImage":
-			DicomImageDAO dicdao = new MySQLDicomImageDAO();
+			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			try {
-				dicdao.newDicomImage(name.toString(), getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id(),getSerie_id());
+				dicdao.newNiftiImage(name.toString(), sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 			break;
 		default:
-			System.err.println("I don't know tale : "+table+" ... sorry");	
+			System.err.println("I don't know table : "+table+" ... sorry");	
 		}
 	}
 

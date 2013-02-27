@@ -15,6 +15,10 @@ public class AcquisitionDate {
 		
 	}
 
+	public AcquisitionDate(int acqDate_id) {
+		this.id = acqDate_id;
+	}
+
 	public int getId() {
 		return id;
 	}

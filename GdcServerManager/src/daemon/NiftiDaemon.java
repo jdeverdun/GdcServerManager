@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import daemon.tools.nifti.Nifti_Writer;
 
+import model.DicomImage;
 import model.ServerInfo;
 
 
@@ -40,7 +41,7 @@ public class NiftiDaemon extends Thread{
 	
 	
 	// la hashmap qui contient les repertoires a convertir et la date de la derniere modif de ce repertoire
-	private ConcurrentHashMap<Path, FileTime> dir2convert; 
+	private ConcurrentHashMap<Path, DicomImage> dir2convert; 
 	private ServerInfo serverInfo;
 	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
@@ -48,30 +49,30 @@ public class NiftiDaemon extends Thread{
 	
 	// Constructeur
 	public NiftiDaemon(){
-		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
+		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 	}
 
 	public NiftiDaemon(ServerInfo si){
-		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
+		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
 	}
 	
 	// format issue de la classe Nifti_Writer
 	public NiftiDaemon(ServerInfo si,int format){
-		setDir2convert(new ConcurrentHashMap<Path, FileTime> ());
+		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
 	}	
 	// Accesseurs
-	public ConcurrentHashMap<Path, FileTime> getDir2convert() {
+	public ConcurrentHashMap<Path, DicomImage> getDir2convert() {
 		return dir2convert;
 	}
 
 
-	public void setDir2convert(ConcurrentHashMap<Path, FileTime> dir2convert) {
+	public void setDir2convert(ConcurrentHashMap<Path, DicomImage> dir2convert) {
 		this.dir2convert = dir2convert;
 	}
 	
@@ -124,7 +125,7 @@ public class NiftiDaemon extends Thread{
 					// Si ca fait plus de 2 min on convertit 
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					
-					NiftiWorker nworker = new NiftiWorker(this, path);
+					NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
 					nworker.start();
 					// on enleve le repertoire qu'on vient de convertir de la liste
 					it.remove();
@@ -135,16 +136,10 @@ public class NiftiDaemon extends Thread{
 	
 
 
-	public void addDir(Path dir){
+	public void addDir(Path dir,DicomImage di){
 		if(dir2convert.containsKey(dir)) return;
-		BasicFileAttributes attrs;
 		System.out.println("Ajout de : " + dir);
-		try {
-			attrs = Files.readAttributes(dir, BasicFileAttributes.class);
-			dir2convert.put(dir, attrs.lastModifiedTime());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		dir2convert.put(dir, di);
 	}
 	
 	// On recupere le temps depuis la derniere modif du repertoire

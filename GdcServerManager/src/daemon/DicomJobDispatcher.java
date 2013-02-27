@@ -154,8 +154,9 @@ public class DicomJobDispatcher extends Thread{
 	 * @param dicomWorker
 	 */
 	public void sendToNiftiDaemon(DicomWorker dicomWorker) {
-		if(dicomWorker.getPatientFolder() != null){}
-			//getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder());
+		if(dicomWorker.getPatientFolder() != null){
+			getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder(),dicomWorker.getDicomImage());
+		}
 		dicomWorker = null;
 	}
 	

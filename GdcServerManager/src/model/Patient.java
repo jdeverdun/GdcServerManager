@@ -18,6 +18,11 @@ public class Patient {
 	}
 
 
+	public Patient(int patient_id) {
+		this.id = patient_id;
+	}
+
+
 	public int getId() {
 		return id;
 	}

@@ -18,6 +18,10 @@ public class Serie {
 		
 	}
 
+	public Serie(int serie_id) {
+		this.id = serie_id;
+	}
+
 	public int getId() {
 		return id;
 	}

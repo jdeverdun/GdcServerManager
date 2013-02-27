@@ -15,6 +15,10 @@ public class Protocol {
 		// TODO Auto-generated constructor stub
 	}
 
+	public Protocol(int protocol_id) {
+		this.id = protocol_id;
+	}
+
 	public int getId() {
 		return id;
 	}

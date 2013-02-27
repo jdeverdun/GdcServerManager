@@ -24,6 +24,12 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 
+import model.AcquisitionDate;
+import model.DicomImage;
+import model.Patient;
+import model.Project;
+import model.Protocol;
+import model.Serie;
 import model.ServerInfo;
 import static java.nio.file.StandardCopyOption.*;
 
@@ -33,6 +39,7 @@ public class DicomWorker extends DaemonWorker {
 	// Attributs
 	private Path dicomFile;
 	private DicomJobDispatcher dispatcher;
+	private DicomImage dicomImage;
 	private ImagePlus imp;
 	private int project_id;
 	private int patient_id;
@@ -184,10 +191,21 @@ public class DicomWorker extends DaemonWorker {
 			DicomImageDAO dicdao = new MySQLDicomImageDAO();
 			try {
 				dicdao.newDicomImage(name.toString(), getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id(),getSerie_id());
+				dicomImage = new DicomImage();
+				dicomImage.setId(dicdao.idmax());
+				dicomImage.setName(name.toString());
+				dicomImage.setProjet(new Project(getProject_id()));
+				dicomImage.setPatient(new Patient(getPatient_id()));
+				dicomImage.setProtocole(new Protocol(getProtocol_id()));
+				dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
+				dicomImage.setSerie(new Serie(getSerie_id()));
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			
 			break;
+		default:
+			System.err.println("Unknow table : "+table);
 		}
 		
 		
@@ -349,6 +367,16 @@ public class DicomWorker extends DaemonWorker {
 
 	public void setSerie_id(int serie_id) {
 		this.serie_id = serie_id;
+	}
+
+
+	public DicomImage getDicomImage() {
+		return dicomImage;
+	}
+
+
+	public void setDicomImage(DicomImage dicomImage) {
+		this.dicomImage = dicomImage;
 	}
 
 
