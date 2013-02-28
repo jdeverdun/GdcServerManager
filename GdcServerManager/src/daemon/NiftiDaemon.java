@@ -121,7 +121,6 @@ public class NiftiDaemon extends Thread{
 			while(it.hasNext()){
 				Path path = it.next();
 				if(timeSinceModif(path) > 120000.0f){
-					System.out.println(timeSinceModif(path)+"----"+dir2convert.get(path).toString());
 					// Si ca fait plus de 2 min on convertit 
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					
