@@ -32,14 +32,14 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			while (rset.next()) {
 				AcquisitionDate acq = new AcquisitionDate();
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("acqdate"));
+				acq.setDate(rset.getString("name"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 				acqDates.add(acq);
 			}
 			return acqDates;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -102,7 +102,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -123,7 +123,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("acqdate"));
+				acq.setDate(rset.getString("name"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 			}
@@ -131,7 +131,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return acq;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -154,7 +154,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			rset = stmt.executeQuery("select * from AcquisitionDate where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("acqdate"));
+				acq.setDate(rset.getString("name"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 			}
@@ -162,7 +162,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return acq;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -182,7 +182,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			rset = stmt.executeUpdate("update AcquisitionDate set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
-			System.err.println("Erreur SQL " + e2);
+			e2.printStackTrace();
 			return false;
 		} finally {
 			stmt.close();
@@ -211,7 +211,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			}
 			return acqs;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -240,7 +240,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			}
 			return acqs;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();

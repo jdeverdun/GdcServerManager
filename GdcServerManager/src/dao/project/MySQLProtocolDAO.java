@@ -39,7 +39,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			}
 			return protocols;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -67,7 +67,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				e.printStackTrace();	return false;
 			}
 			finally {
 				stmt.close();
@@ -102,7 +102,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -133,7 +133,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return prot;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -167,7 +167,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return prot;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -216,7 +216,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			}
 			return prots;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -246,7 +246,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			}
 			return prots;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -274,7 +274,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			}
 			return prots;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();

@@ -41,13 +41,13 @@ public class MySQLProjectDAO implements ProjectDAO {
 			while (rset.next()) {
 				Project proj = new Project();
 				proj.setId(rset.getInt("id"));
-				proj.setNom(rset.getString("nom"));				
+				proj.setNom(rset.getString("name"));				
 				// ajout a la liste des grimpeurs
 				projects.add(proj);
 			}
 			return projects;
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -114,7 +114,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -141,7 +141,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		
 			rset = stmt.executeQuery("select * from Project where id="+id);
 			while(rset.next()){
-				projectC.setNom(rset.getString("nom"));
+				projectC.setNom(rset.getString("name"));
 				projectC.setId(rset.getInt("id"));
 				
 			}
@@ -150,7 +150,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return projectC;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -176,7 +176,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		
 			rset = stmt.executeQuery("select * from Project where name='"+name+"'");
 			while(rset.next()){
-				projectC.setNom(rset.getString("nom"));
+				projectC.setNom(rset.getString("name"));
 				projectC.setId(rset.getInt("id"));
 				
 			}
@@ -185,7 +185,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return projectC;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -206,7 +206,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			rset = stmt.executeUpdate("update Project set name='"+name+"' where id="+id);
 			return true;
 		} catch (SQLException e2) {
-			System.err.println("Erreur SQL " + e2);
+			e2.printStackTrace();
 			return false;
 		} finally {
 			stmt.close();

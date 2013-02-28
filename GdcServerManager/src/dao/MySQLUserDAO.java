@@ -56,7 +56,7 @@ public class MySQLUserDAO implements UserDAO {
 			}
 			return users;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -118,7 +118,7 @@ public class MySQLUserDAO implements UserDAO {
 			return userC;
 
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			//e.printStackTrace();
 			throw e;
 			//return null;
@@ -193,7 +193,7 @@ public class MySQLUserDAO implements UserDAO {
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -231,7 +231,7 @@ public class MySQLUserDAO implements UserDAO {
 			return userC;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();

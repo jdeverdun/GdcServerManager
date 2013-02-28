@@ -43,7 +43,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -102,7 +102,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -137,7 +137,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicom;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -160,7 +160,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			rset = stmt.executeUpdate("update DicomImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
-			System.err.println("Erreur SQL " + e2);
+			e2.printStackTrace();
 			return false;
 		} finally {
 			stmt.close();
@@ -190,7 +190,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -222,7 +222,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -250,7 +250,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -279,7 +279,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -307,7 +307,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			}
 			return dicoms;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();

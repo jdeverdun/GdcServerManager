@@ -46,7 +46,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			return false;
 		
 		}catch(SQLException e){
-			System.err.println("Erreur SQL" + e);	return false;
+			e.printStackTrace();	return false;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -72,7 +72,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			}
 			return false;
 		}catch(SQLException e){
-			System.err.println("Erreur SQL " + e);	return false;
+			e.printStackTrace();	return false;
 		}finally{
 			resultSet.close();
 		}
@@ -92,7 +92,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			return true;
 		
 		}catch(SQLException e){
-			System.err.println("Erreur SQL " + e);	return false;
+			e.printStackTrace();	return false;
 		}finally {
 			stmt.close();
 			connection.close();

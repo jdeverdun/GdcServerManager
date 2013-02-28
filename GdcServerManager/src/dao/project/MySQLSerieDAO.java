@@ -42,7 +42,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			}
 			return series;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -70,7 +70,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				e.printStackTrace();	return false;
 			}
 			finally {
 				stmt.close();
@@ -101,7 +101,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return ident;
 		
 		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return -1;
+			e.printStackTrace();	return -1;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -135,7 +135,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return serie;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -172,7 +172,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return serie;
 		
 		} catch (SQLException e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			rset.close();
@@ -220,7 +220,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			}
 			return series;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -249,7 +249,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			}
 			return series;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -277,7 +277,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			}
 			return series;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -306,7 +306,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			}
 			return series;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();

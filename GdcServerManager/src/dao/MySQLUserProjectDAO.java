@@ -39,7 +39,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			}
 			return projects;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
@@ -72,7 +72,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			}
 			return users;
 		} catch (Exception e) {
-			System.err.println("Erreur SQL " + e);
+			e.printStackTrace();
 			return null;
 		} finally {
 			rset.close();
