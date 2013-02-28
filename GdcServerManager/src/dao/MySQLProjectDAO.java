@@ -69,14 +69,16 @@ public class MySQLProjectDAO implements ProjectDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Project values ('"
+				rset = stmt.execute("insert into Project values (NULL,'"
 						+ nom + "')");
 				
 				return true;
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				System.err.println("Erreur de chargement du driver ");
+				e.printStackTrace();
+				return false;
 			}
 			finally {
 				stmt.close();
@@ -128,7 +130,6 @@ public class MySQLProjectDAO implements ProjectDAO {
      * @throws SQLException
      */
 	public Project retrieveProject(int id) throws SQLException {
-		// TODO Auto-generated method stub
 		Project projectC = new Project();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -159,9 +160,39 @@ public class MySQLProjectDAO implements ProjectDAO {
 		
 	}
 	
-	
-
-
+	/**
+	 * Recupere un projet par son nom
+	 */
+	@Override
+	public Project retrieveProject(String name) throws SQLException {
+		Project projectC = new Project();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+		
+			rset = stmt.executeQuery("select * from Project where name='"+name+"'");
+			while(rset.next()){
+				projectC.setNom(rset.getString("nom"));
+				projectC.setId(rset.getInt("id"));
+				
+			}
+		
+			
+			return projectC;
+		
+		} catch (SQLException e) {
+			System.err.println("Erreur SQL " + e);
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
 
 
 	@Override
@@ -182,4 +213,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			connection.close();
 		}
 	}
+
+
+
 }

@@ -1,11 +1,15 @@
 package main;
 
+import java.sql.SQLException;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
+
+import settings.SQLSettings;
 
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
@@ -26,7 +30,7 @@ public class GDCSM {
 		// On lance le daemon Dicom
 		DicomDaemon ddaemon = new DicomDaemon(sinfo,ndaemon);
 		ddaemon.start();
-		/*SwingUtilities.invokeLater(new Runnable(){
+		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);
 				try {
@@ -39,7 +43,7 @@ public class GDCSM {
 				auth.setVisible(true);
 				
 			}
-		});*/
+		});
 	}
 
 }

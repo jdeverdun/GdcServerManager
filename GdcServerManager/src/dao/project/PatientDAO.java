@@ -24,6 +24,14 @@ public interface PatientDAO {
        */
       public Patient retrievePatient(int id) throws SQLException;
       
+      /**
+       * Recupere un patient via son nom et l'id du projet
+       * @param name
+       * @param project_id
+       * @return
+     * @throws SQLException 
+       */
+      public Patient retrievePatient(String name, int project_id) throws SQLException;
       
       /**
        * Renvoi l'id max de la table (idmax+1)
@@ -53,4 +61,6 @@ public interface PatientDAO {
       public boolean updatePatient(int id, String name, int projet_id) throws SQLException;
 
       public Set<Patient> getPatientsForProject(int project_id)  throws SQLException;
+
+	
 }

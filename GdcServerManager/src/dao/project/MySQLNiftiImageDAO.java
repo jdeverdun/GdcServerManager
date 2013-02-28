@@ -66,7 +66,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into NiftiImage values ('"
+				rset = stmt.execute("insert into NiftiImage values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;

@@ -111,21 +111,32 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
+		// sinon recuperer les ID des projets etc
 		boolean dirExists = checkAndMakeDir(studyFolder);
 		if(!dirExists)
 			addEntryToDB(studyFolder.getFileName(),"Project");
+		else
+			setProject_idFromDB(studyFolder.getFileName());
 		dirExists = checkAndMakeDir(patientFolder);
 		if(!dirExists)
 			addEntryToDB(patientFolder.getFileName(),"Patient");
+		else
+			setPatient_idFromDB(patientFolder.getFileName());
 		dirExists = checkAndMakeDir(dateFolder);
 		if(!dirExists)
 			addEntryToDB(dateFolder.getFileName(),"AcqDate");
+		else
+			setAcqDate_idFromDB(dateFolder.getFileName());
 		dirExists = checkAndMakeDir(protocolFolder);
 		if(!dirExists)
 			addEntryToDB(protocolFolder.getFileName(),"Protocol");
+		else
+			setProtocol_idFromDB(protocolFolder.getFileName());
 		dirExists = checkAndMakeDir(serieFolder);
 		if(!dirExists)
 			addEntryToDB(serieFolder.getFileName(),"Serie");
+		else
+			setSerie_idFromDB(serieFolder.getFileName());
 		
 		Path newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
@@ -138,9 +149,84 @@ public class DicomWorker extends DaemonWorker {
 		prepareToStop();
 	}
 
+	// Set des ID serie // protocol // projet etc depuis la BDD
+	
+	private void setSerie_idFromDB(Path fileName) {
+		SerieDAO sdao = new MySQLSerieDAO();
+		try {
+			Serie s = sdao.retrieveSerie(fileName.toString(),getProject_id(),getPatient_id(),getAcqDate_id(),getProtocol_id());
+			setSerie_id(s.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 * Definition de l'attribut Protocol_id grace a son nom (repertoire) depuis la BDD
+	 * @param fileName
+	 */
+	private void setProtocol_idFromDB(Path fileName) {
+		ProtocolDAO pdao = new MySQLProtocolDAO();
+		try {
+			Protocol p = pdao.retrieveProtocol(fileName.toString(),getProject_id(),getPatient_id(),getAcqDate_id());
+			setProtocol_id(p.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Definition de l'attribut Acqdate_id grace a son nom (repertoire) depuis la BDD
+	 * @param fileName
+	 */
+	private void setAcqDate_idFromDB(Path fileName) {
+		AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
+		try {
+			AcquisitionDate a = adao.retrieveAcqDate(fileName.toString(),getProject_id(),getPatient_id());
+			setAcqDate_id(a.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 * Definition de l'attribut Patient_id grace a son nom (repertoire) depuis la BDD
+	 * @param fileName
+	 */
+	private void setPatient_idFromDB(Path fileName) {
+		PatientDAO pdao = new MySQLPatientDAO();
+		try {
+			Patient p = pdao.retrievePatient(fileName.toString(),getProject_id());
+			setPatient_id(p.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 * Definition de l'attribut Project_id grace a son nom (repertoire) depuis la BDD
+	 * @param fileName
+	 */
+	private void setProject_idFromDB(Path fileName) {
+		ProjectDAO pdao = new MySQLProjectDAO();
+		try {
+			Project p = pdao.retrieveProject(fileName.toString());
+			setProject_id(p.getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	
+	
 	// Rajoute une entree d'un dossier / image
 	// dans la table "table" de la base de donnee 
 	protected void addEntryToDB(Path name, String table) {
+		System.out.println("go"+table);
 		switch(table){
 		case "Project":
 			ProjectDAO pdao = new MySQLProjectDAO();

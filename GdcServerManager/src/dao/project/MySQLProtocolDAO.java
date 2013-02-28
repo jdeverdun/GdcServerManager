@@ -60,7 +60,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Protocol values ('"
+				rset = stmt.execute("insert into Protocol values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+")");
 				
 				return true;
@@ -113,7 +113,6 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 	
 
 	public Protocol retrieveProtocol(int id) throws SQLException {
-		// TODO Auto-generated method stub
 		Protocol prot = new Protocol();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -144,6 +143,39 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		
 	}
 
+	@Override
+	public Protocol retrieveProtocol(String name, int project_id,
+			int patient_id, int acqDate_id) throws SQLException {
+		Protocol prot = new Protocol();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
+			rset = stmt.executeQuery("select * from Protocol where name='"+name+"' and id_project="+project_id+" and " +
+					" id_patient="+patient_id+" and id_acqdate="+acqDate_id);
+			while(rset.next()){
+				prot.setId(rset.getInt("id"));
+				prot.setName(rset.getString("name"));
+				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
+				prot.setPatient(prot.getAcquisitionDate().getPatient());
+				prot.setProjet(prot.getPatient().getProject());
+			}
+		
+			return prot;
+		
+		} catch (SQLException e) {
+			System.err.println("Erreur SQL " + e);
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
 	@Override
 	public boolean updateProtocol(int id, String name, int id_project, int id_patient, int id_acqdate) throws SQLException {
 		int rset = 0;

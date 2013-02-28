@@ -60,7 +60,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Acquisitiondate values ('"
+				rset = stmt.execute("insert into Acquisitiondate values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+")");
 				
 				return true;
@@ -112,7 +112,6 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	
 
 	public AcquisitionDate retrieveAcqDate(int id) throws SQLException {
-		// TODO Auto-generated method stub
 		AcquisitionDate acq = new AcquisitionDate();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -142,7 +141,35 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		
 	}
 	
-	
+	@Override
+	public AcquisitionDate retrieveAcqDate(String name, int project_id, int patient_id) throws SQLException {
+		AcquisitionDate acq = new AcquisitionDate();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			PatientDAO pdao=new MySQLPatientDAO();			
+			rset = stmt.executeQuery("select * from AcquisitionDate where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
+			while(rset.next()){
+				acq.setId(rset.getInt("id"));
+				acq.setDate(rset.getString("acqdate"));
+				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
+				acq.setProjet(acq.getPatient().getProject());
+			}
+		
+			return acq;
+		
+		} catch (SQLException e) {
+			System.err.println("Erreur SQL " + e);
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
 
 	@Override
 	public boolean updateAcqDate(int id, String name, int id_project, int id_patient) throws SQLException {
@@ -162,10 +189,6 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			connection.close();
 		}
 	}
-
-
-
-
 
 
 	@Override
@@ -197,9 +220,6 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		}
 	}
 
-
-
-
 	@Override
 	public Set<AcquisitionDate> getAcqDateForProject(int id)
 			throws SQLException {
@@ -228,4 +248,5 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			connection.close();
 		}
 	}
+
 }

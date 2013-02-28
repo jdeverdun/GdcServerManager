@@ -63,7 +63,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Serie values ('"
+				rset = stmt.execute("insert into Serie values (NULL,'"
 						+ nom + "', "+hasnifti+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
 				
 				return true;
@@ -112,7 +112,6 @@ public class MySQLSerieDAO implements SerieDAO{
 	
 
 	public Serie retrieveSerie(int id) throws SQLException {
-		// TODO Auto-generated method stub
 		Serie serie = new Serie();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -146,7 +145,42 @@ public class MySQLSerieDAO implements SerieDAO{
 		
 	}
 
-
+	@Override
+	public Serie retrieveSerie(String name, int project_id, int patient_id,
+			int acqDate_id, int protocol_id) throws SQLException {
+		Serie serie = new Serie();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			ProtocolDAO pdao = new MySQLProtocolDAO();
+			rset = stmt.executeQuery("select * from Serie where name='"+name+"' and id_project="+project_id+" and " +
+					" id_patient="+patient_id+" and id_acqdate="+acqDate_id+" and id_protocol="+protocol_id);
+			while(rset.next()){
+				serie.setId(rset.getInt("id"));
+				serie.setName(rset.getString("name"));
+				serie.setHasNifti(rset.getInt("hasnifti"));
+				serie.setProtocole(pdao.retrieveProtocol(rset.getInt("id_protocol")));
+				// instantiation en cascade grace à acquisitiondate
+				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
+				serie.setPatient(serie.getAcquistionDate().getPatient());
+				serie.setProjet(serie.getPatient().getProject());
+			}
+		
+			return serie;
+		
+		} catch (SQLException e) {
+			System.err.println("Erreur SQL " + e);
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
 	@Override
 	public boolean updateSerie(int id, String name,int hasnifti, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
 		int rset = 0;
@@ -280,4 +314,5 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection.close();
 		}
 	}
+
 }

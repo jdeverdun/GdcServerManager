@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import oracle.ucp.UniversalConnectionPoolException;
+
 import settings.SQLSettings;
 import settings.UserProfile;
 
@@ -89,6 +91,14 @@ public class MySQLUserDAO implements UserDAO {
 				UserProfile.ENCRYPTEDPASS = rset.getString(1);
 				UserProfile.LOGIN = login;
 			}
+			// On lance le pool PDS apres avoir mis à jours les infos de connexion
+			try {
+				SQLSettings.launchPDS();
+			} catch (SQLException | UniversalConnectionPoolException e1) {
+				System.err.println("PDS could not be launch ... will exit");
+				e1.printStackTrace();
+			}
+			// On recupere une connexion
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from User where login='"
@@ -141,7 +151,7 @@ public class MySQLUserDAO implements UserDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into User values ('"
+				rset = stmt.execute("insert into User values (NULL,'"
 						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"')");
 				
 				return true;

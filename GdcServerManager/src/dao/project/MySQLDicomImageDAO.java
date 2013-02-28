@@ -64,7 +64,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into DicomImage values ('"
+				rset = stmt.execute("insert into DicomImage values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;

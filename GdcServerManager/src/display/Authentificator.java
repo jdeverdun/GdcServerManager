@@ -232,7 +232,7 @@ public class Authentificator extends JFrame {
 					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
 					if(u!=null){
 						dispose();
-						System.exit(0);
+						//System.exit(0);
 					}else{
 						setActive(true);
 					}
@@ -252,8 +252,5 @@ public class Authentificator extends JFrame {
 		passwordField.setText("");
 		setActive(true);
 		super.dispose();
-	}
-	public static void main(String args[]){
-
 	}
 }

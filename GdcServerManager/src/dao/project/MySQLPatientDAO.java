@@ -63,7 +63,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Patient values ('"
+				rset = stmt.execute("insert into Patient values (NULL,'"
 						+ nom + "', "+project_id+")");
 				
 				return true;
@@ -116,7 +116,6 @@ public class MySQLPatientDAO implements PatientDAO {
 	
 
 	public Patient retrievePatient(int id) throws SQLException {
-		// TODO Auto-generated method stub
 		Patient pat = new Patient();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -145,10 +144,34 @@ public class MySQLPatientDAO implements PatientDAO {
 		
 	}
 	
-	
-
-
-
+	@Override
+	public Patient retrievePatient(String name, int project_id) throws SQLException {
+		Patient pat = new Patient();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			ProjectDAO projdao=new MySQLProjectDAO();			
+			rset = stmt.executeQuery("select * from Patient where name='"+name+"' and id_project="+project_id);
+			while(rset.next()){
+				pat.setNom(rset.getString("nom"));
+				pat.setId(rset.getInt("id"));
+				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
+			}
+		
+			return pat;
+		
+		} catch (SQLException e) {
+			System.err.println("Erreur SQL " + e);
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
 
 	@Override
 	public boolean updatePatient(int id, String name, int id_project) throws SQLException {
@@ -195,4 +218,5 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection.close();
 		}
 	}
+
 }

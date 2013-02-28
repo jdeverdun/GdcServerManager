@@ -37,7 +37,9 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 				}
 				rset = stmt.executeQuery("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"') ;");
 				String[] viewCommand = Scripts.getCreateUserViews(user);
-				rset = stmt.executeQuery("GRANT SELECT ON * . * TO '"+user.getLogin()+"'@'%' IDENTIFIED BY '"+encryptedPass+"' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0	MAX_USER_CONNECTIONS 0 ;");
+				// On cree les vues utilisateur et on donne les acces
+				for(String curcom:viewCommand)
+					rset = stmt.executeQuery(curcom);
 				return true;
 			}
 			

@@ -33,6 +33,8 @@ public interface ProjectDAO {
       
       public boolean updateProject(int id, String name) throws SQLException;
 
+      public Project retrieveProject(String name)  throws SQLException;
+
 	
 
 }
