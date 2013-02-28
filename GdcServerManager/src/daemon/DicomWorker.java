@@ -143,7 +143,7 @@ public class DicomWorker extends DaemonWorker {
 		// On deplace
 		moveDicomTo(newPath);
 		// On ajoute l'entree du DICOM dans la database
-		addEntryToDB(serieFolder.getFileName(),"DicomImage");
+		addEntryToDB(dicomFile.getFileName(),"DicomImage");
 		
 		// On termine
 		prepareToStop();
