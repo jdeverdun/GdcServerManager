@@ -27,14 +27,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Patient");
@@ -66,17 +59,8 @@ public class MySQLPatientDAO implements PatientDAO {
 			boolean rset = false;
 			Statement stmt = null;
 			Connection connection = null;
-			
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				System.err.println("Erreur de chargement du driver " + e);
-				return false;
-			}
-			
-			try {
-				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-				connection = DriverManager.getConnection(url, "root", "jdeverdun");
+				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into Patient values ('"
@@ -105,18 +89,8 @@ public class MySQLPatientDAO implements PatientDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return -1;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -147,16 +121,8 @@ public class MySQLPatientDAO implements PatientDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();			
 			rset = stmt.executeQuery("select * from Patient where id="+id);
@@ -190,14 +156,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			System.err.println("Erreur de chargement du driver " + e1);
-			return false;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update Patient set name='"+name+"',id_project="+id_project+" where id="+id);
 			return true;
@@ -216,14 +175,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Patient where id_project="+project_id);
 

@@ -24,14 +24,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage");
@@ -70,15 +63,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			Connection connection = null;
 			
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				System.err.println("Erreur de chargement du driver " + e);
-				return false;
-			}
-			
-			try {
-				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-				connection = DriverManager.getConnection(url, "root", "jdeverdun");
+				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into NiftiImage values ('"
@@ -93,8 +78,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			finally {
 				stmt.close();
 				connection.close();
-			}
-		
+			}	
 	}
 	
 
@@ -102,19 +86,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		
 		ResultSet rset = null;
 		Statement stmt = null;
-		Connection connection = null;
-		
+		Connection connection = null;		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return -1;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -147,14 +121,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Connection connection = null;
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
 			rset = stmt.executeQuery("select * from NiftiImage where id="+id);
@@ -181,11 +148,6 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		}
 		
 	}
-	
-	
-
-
-
 
 	@Override
 	public boolean updateNiftiImage(int id, String name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
@@ -193,14 +155,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			System.err.println("Erreur de chargement du driver " + e1);
-			return false;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update NiftiImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
 			return true;
@@ -226,14 +181,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_patient="+id);
 
@@ -265,14 +213,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_project="+id);
 
@@ -300,14 +241,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_acqdate="+id);
 
@@ -336,14 +270,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_protocol="+id);
 
@@ -371,14 +298,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_serie="+id);
 

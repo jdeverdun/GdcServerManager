@@ -1,9 +1,5 @@
 package dao;
 
-import java.io.BufferedReader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import settings.SQLSettings;
-import settings.UserProfile;
 
 import model.User;
 
@@ -19,23 +14,19 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 
 	public static final String projectTablesCreationFile = "ptablesCreation.sql";
 	
+	
+	
+	// PAS FINI ? 
 	@Override
 	public boolean createUser(User user) throws SQLException {
+		if(SQLSettings.PDS == null) 
+			System.err.println("PDS not started.");
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return false;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			String encryptedPass = null;		
 	
@@ -52,8 +43,8 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			
 			return false;
 		
-		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return false;
+		}catch(SQLException e){
+			System.err.println("Erreur SQL" + e);	return false;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -63,19 +54,10 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 
 	@Override
 	public boolean exists(String databaseName) throws SQLException {
-		// Connection connection = <your java.sql.Connection>
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return false;
-		}
 		Connection connection = null;
 		ResultSet resultSet = null;
 		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			resultSet = connection.getMetaData().getCatalogs();
 	
 			//iterate each catalog in the ResultSet
@@ -87,8 +69,8 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			  }
 			}
 			return false;
-		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return false;
+		}catch(SQLException e){
+			System.err.println("Erreur SQL " + e);	return false;
 		}finally{
 			resultSet.close();
 		}
@@ -100,24 +82,15 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		Connection connection = null;
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return false;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();	
 	
 			stmt.executeUpdate("create database "+databaseName+" ;");
 
 			return true;
 		
-		}catch(Exception e){
-			System.err.println("Erreur de chargement du driver" + e);	return false;
+		}catch(SQLException e){
+			System.err.println("Erreur SQL " + e);	return false;
 		}finally {
 			stmt.close();
 			connection.close();

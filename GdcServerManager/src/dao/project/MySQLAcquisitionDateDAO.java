@@ -23,14 +23,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			PatientDAO pdao = new MySQLPatientDAO();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from AcquisitionDate");
@@ -63,17 +56,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			boolean rset = false;
 			Statement stmt = null;
 			Connection connection = null;
-			
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				System.err.println("Erreur de chargement du driver " + e);
-				return false;
-			}
-			
-			try {
-				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-				connection = DriverManager.getConnection(url, "root", "jdeverdun");
+				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into Acquisitiondate values ('"
@@ -102,18 +86,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return -1;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -143,16 +117,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			PatientDAO pdao=new MySQLPatientDAO();			
 			rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
@@ -178,23 +144,13 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	
 	
 
-
-
-
 	@Override
 	public boolean updateAcqDate(int id, String name, int id_project, int id_patient) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			System.err.println("Erreur de chargement du driver " + e1);
-			return false;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update AcquisitionDate set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+" where id="+id);
 			return true;
@@ -220,14 +176,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from AcquisitionDate where id_patient="+id);
 
@@ -259,14 +208,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from AcquisitionDate where id_project="+id);
 

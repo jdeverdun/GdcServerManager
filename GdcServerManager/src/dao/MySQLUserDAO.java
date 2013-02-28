@@ -35,16 +35,8 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			UserProjectDAO uprojdao=new MySQLUserProjectDAO();
 			rset = stmt.executeQuery("select * from User");
 
 			// boucle sur les resultats de la requÃªte
@@ -87,13 +79,6 @@ public class MySQLUserDAO implements UserDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
 		try {
 			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/";
 			connection = DriverManager.getConnection(url, "fakeuser", "");
@@ -102,9 +87,9 @@ public class MySQLUserDAO implements UserDAO {
 			if (rset != null) {
 				rset.next();
 				UserProfile.ENCRYPTEDPASS = rset.getString(1);
+				UserProfile.LOGIN = login;
 			}
-			url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, login, UserProfile.ENCRYPTEDPASS);
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from User where login='"
 					+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
@@ -136,7 +121,7 @@ public class MySQLUserDAO implements UserDAO {
 	}
 	
 	/**
-     * Insère un tuple dans la table Grimpeur
+     * Insère un tuple dans la table User
      * 
      * @param id
      * @param nom
@@ -152,17 +137,8 @@ public class MySQLUserDAO implements UserDAO {
 			boolean rset = false;
 			Statement stmt = null;
 			Connection connection = null;
-			
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				System.err.println("Erreur de chargement du driver " + e);
-				return false;
-			}
-			
-			try {
-				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-				connection = DriverManager.getConnection(url, "root", "jdeverdun");
+				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into User values ('"
@@ -191,18 +167,8 @@ public class MySQLUserDAO implements UserDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} 
-		catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return -1;
-		}
-		
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -238,16 +204,8 @@ public class MySQLUserDAO implements UserDAO {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
-		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
 			rset = stmt.executeQuery("select * from User where id="+id);
@@ -290,14 +248,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			System.err.println("Erreur de chargement du driver " + e1);
-			return false;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"' where id="+i);
 			return true;

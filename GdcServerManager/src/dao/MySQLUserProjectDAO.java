@@ -25,14 +25,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
@@ -62,14 +55,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Erreur de chargement du driver " + e);
-			return null;
-		}
-		try {
-			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
-			connection = DriverManager.getConnection(url, "root", "jdeverdun");
+			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			UserDAO udao=new MySQLUserDAO();
