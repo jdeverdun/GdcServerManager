@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import settings.SQLSettings;
+
 import model.AcquisitionDate;
 import model.Protocol;
 
@@ -26,7 +28,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
 			stmt = connection.createStatement();
@@ -70,7 +72,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			}
 			
 			try {
-				String url = "jdbc:mysql://localhost:3306/jdeverdun";
+				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
@@ -110,7 +112,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			int ident=-1;		
@@ -150,7 +152,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
@@ -193,7 +195,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return false;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update Protocol set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+" where id="+id);
@@ -226,7 +228,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Protocol where id_patient="+id);
@@ -265,7 +267,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Protocol where id_project="+id);
@@ -300,7 +302,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Protocol where id_acqdate="+id);

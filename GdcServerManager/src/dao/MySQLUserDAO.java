@@ -41,7 +41,7 @@ public class MySQLUserDAO implements UserDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			UserProjectDAO uprojdao=new MySQLUserProjectDAO();
@@ -161,7 +161,7 @@ public class MySQLUserDAO implements UserDAO {
 			}
 			
 			try {
-				String url = "jdbc:mysql://localhost:3306/jdeverdun";
+				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
@@ -201,7 +201,7 @@ public class MySQLUserDAO implements UserDAO {
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			int ident=-1;		
@@ -246,7 +246,7 @@ public class MySQLUserDAO implements UserDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 		
@@ -296,7 +296,7 @@ public class MySQLUserDAO implements UserDAO {
 			return false;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"' where id="+i);

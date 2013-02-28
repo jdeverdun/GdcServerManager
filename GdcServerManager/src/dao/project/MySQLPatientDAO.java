@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import settings.SQLSettings;
+
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 
@@ -31,7 +33,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			stmt = connection.createStatement();
@@ -73,7 +75,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			}
 			
 			try {
-				String url = "jdbc:mysql://localhost:3306/jdeverdun";
+				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
@@ -113,7 +115,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			int ident=-1;		
@@ -153,7 +155,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();			
@@ -194,7 +196,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return false;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update Patient set name='"+name+"',id_project="+id_project+" where id="+id);
@@ -220,7 +222,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from Patient where id_project="+project_id);

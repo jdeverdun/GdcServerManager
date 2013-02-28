@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import settings.SQLSettings;
+
 import dao.project.MySQLPatientDAO;
 import dao.project.PatientDAO;
 
@@ -37,7 +39,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			PatientDAO patdao=new MySQLPatientDAO();
@@ -80,7 +82,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			}
 			
 			try {
-				String url = "jdbc:mysql://localhost:3306/jdeverdun";
+				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
@@ -120,7 +122,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			int ident=-1;		
@@ -165,7 +167,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 		
@@ -207,7 +209,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return false;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update Project set name='"+name+"' where id="+id);

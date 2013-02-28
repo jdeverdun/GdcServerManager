@@ -74,7 +74,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		Connection connection = null;
 		ResultSet resultSet = null;
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			resultSet = connection.getMetaData().getCatalogs();
 	
@@ -108,7 +108,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();	
 	

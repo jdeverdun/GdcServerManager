@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import settings.SQLSettings;
+
 
 
 import model.NiftiImage;
@@ -28,7 +30,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
@@ -75,7 +77,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			}
 			
 			try {
-				String url = "jdbc:mysql://localhost:3306/jdeverdun";
+				String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 				connection = DriverManager.getConnection(url, "root", "jdeverdun");
 				stmt = connection.createStatement();
 				
@@ -111,7 +113,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		}
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			int ident=-1;		
@@ -151,7 +153,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
@@ -197,7 +199,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return false;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update NiftiImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
@@ -230,7 +232,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_patient="+id);
@@ -269,7 +271,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_project="+id);
@@ -304,7 +306,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_acqdate="+id);
@@ -340,7 +342,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_protocol="+id);
@@ -375,7 +377,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery("select * from NiftiImage where id_serie="+id);

@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import settings.SQLSettings;
+
 
 import model.Project;
 import model.User;
@@ -29,7 +31,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
@@ -66,7 +68,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			return null;
 		}
 		try {
-			String url = "jdbc:mysql://localhost:3306/jdeverdun";
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/"+SQLSettings.DATABASE_NAME;
 			connection = DriverManager.getConnection(url, "root", "jdeverdun");
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
