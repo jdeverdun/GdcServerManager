@@ -34,6 +34,16 @@ public class MainWindow extends JFrame {
 	private double screenWidth;
 	private double screenHeight;
 	
+	// items
+	private JMenuBar menuBar;
+	private JMenu mnFile;
+	private JMenuItem mntmOpen;
+	private JMenu mnAdministration;
+	private JMenu mnUsers;
+	private JMenuItem mntmCreate;
+	private JToolBar toolBar;
+	
+	
 	public MainWindow() {
 		
 		// Init
@@ -43,28 +53,28 @@ public class MainWindow extends JFrame {
 		setScreenHeight(screenSize.getHeight());
 		
 		// Ajout des composants
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mnFile = new JMenu("File");
+		mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpen = new JMenuItem("Open");
+		mntmOpen = new JMenuItem("Open");
 
 		mnFile.add(mntmOpen);
 		
-		JMenu mnAdministration = new JMenu("Administration");
+		mnAdministration = new JMenu("Administration");
 		mnAdministration.setActionCommand("Administration");
 		menuBar.add(mnAdministration);
 		
-		JMenu mnUsers = new JMenu("Users");
+		mnUsers = new JMenu("Users");
 		mnAdministration.add(mnUsers);
 		
-		JMenuItem mntmCreate = new JMenuItem("Create");
+		mntmCreate = new JMenuItem("Create");
 		mnUsers.add(mntmCreate);
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
-		JToolBar toolBar = new JToolBar();
+		toolBar = new JToolBar();
 		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		
 		JPanel panel = new JPanel();

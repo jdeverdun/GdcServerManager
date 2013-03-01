@@ -2,19 +2,21 @@ package model;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 public class User {
-
+	public static enum Acclvl{SIMPLE,ADMIN}
+	private static int RANDOM_NUM = 16;
 	private int id;
-      private String nom;
-      private String prenom;
-      private String email;
-      private String login;
-      private String password;
-      private int level;
-      private Set<Project> projects;
+	  private String nom;
+	  private String prenom;
+	  private String email;
+	  private String login;
+	  private String password;
+	  private int level;
+	  private Set<Project> projects;
 
-      public User(String nom, String prenom, String email, int poids,
-  			int age, String login, String password, int level) {
+      public User(String nom, String prenom, String email,String login, String password, int level) {
   		super();
   		this.nom = nom;
   		this.prenom = prenom;
@@ -22,8 +24,18 @@ public class User {
   		this.login = login;
   		this.password = password;
   		this.level = level;
-  	}
-	  public User(){
+  		}
+      public User(String nom, String prenom, String email, String login, int level) {
+    		super();
+    		this.nom = nom;
+    		this.prenom = prenom;
+    		this.email = email;
+    		this.login = login;
+    		this.password = randomPass(RANDOM_NUM);
+    		this.level = level;
+    	}
+
+	public User(){
 		  
 	  }
 	  public int getId() {
@@ -79,7 +91,9 @@ public class User {
 	}
 	public void addProject(Project proj) {
 		this.projects.add(proj);
-		
+	}
+	private String randomPass(int count) {
+		return RandomStringUtils.randomAlphanumeric(count);
 	}
 }
 
