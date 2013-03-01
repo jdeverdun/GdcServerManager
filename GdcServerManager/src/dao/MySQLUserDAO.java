@@ -50,7 +50,7 @@ public class MySQLUserDAO implements UserDAO {
 				user.setNom(rset.getString("nom"));
 				user.setPassword(rset.getString("password"));
 				user.setPrenom(rset.getString("prenom"));
-
+				user.setLevel(rset.getInt("level"));
 				
 				users.add(user);
 			}

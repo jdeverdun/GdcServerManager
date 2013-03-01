@@ -10,16 +10,18 @@ public class User {
       private String email;
       private String login;
       private String password;
+      private int level;
       private Set<Project> projects;
 
       public User(String nom, String prenom, String email, int poids,
-  			int age, String login, String password) {
+  			int age, String login, String password, int level) {
   		super();
   		this.nom = nom;
   		this.prenom = prenom;
   		this.email = email;
   		this.login = login;
   		this.password = password;
+  		this.level = level;
   	}
 	  public User(){
 		  
@@ -60,18 +62,24 @@ public class User {
 	  public void setPassword(String password) {
 	        this.password = password;
 	  }
-	   public void setProjects(Set<Project> projets) {
-			this.projects = projets;
-		}
-		public Set<Project> getProjects() {
-			return projects;
-		}
-		public boolean equals(User p){
-			return this.id==p.id;
-		}
-		public void addProject(Project proj) {
-			this.projects.add(proj);
-			
-		}
+	   public int getLevel() {
+		return level;
+	}
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	public void setProjects(Set<Project> projets) {
+		this.projects = projets;
+	}
+	public Set<Project> getProjects() {
+		return projects;
+	}
+	public boolean equals(User p){
+		return this.id==p.id;
+	}
+	public void addProject(Project proj) {
+		this.projects.add(proj);
+		
+	}
 }
 
