@@ -3,7 +3,8 @@ create database gdcserver;
 use gdcserver;
 
 create table User
-(id integer NOT NULL AUTO_INCREMENT, nom varchar(20), prenom varchar(20), email varchar(60), login varchar(30) UNIQUE, password varchar(50), constraint user_pk primary key (id));
+(id integer NOT NULL AUTO_INCREMENT, nom varchar(20), prenom varchar(20), email varchar(60), login varchar(30) UNIQUE, password varchar(50),level tinyint,
+ constraint user_pk primary key (id));
 
 create table Project
 (id integer NOT NULL AUTO_INCREMENT, name varchar(70) UNIQUE,constraint project_pk primary key (id));

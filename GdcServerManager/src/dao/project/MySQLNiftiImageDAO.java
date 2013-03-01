@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+
 import settings.SQLSettings;
 
 
@@ -73,7 +74,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				System.err.println("Warning : SQL -> " + e);	return false;
 			}
 			finally {
 				stmt.close();
@@ -150,6 +151,26 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	}
 
 	@Override
+	public void removeEntry(String name, int id_project, int id_patient,
+			int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("delete from niftiimage where name='"+name+"' and id_project="+id_project+" and id_patient="+id_patient+" and id_acqdate="+id_acqdate+" and id_protocol="+id_protocol+" and id_serie="+id_serie);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			return;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	@Override
 	public boolean updateNiftiImage(int id, String name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
@@ -167,10 +188,6 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			connection.close();
 		}
 	}
-
-
-
-
 
 
 	@Override

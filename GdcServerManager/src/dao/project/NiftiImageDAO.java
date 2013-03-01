@@ -23,5 +23,8 @@ public interface NiftiImageDAO {
 	public Set<NiftiImage> getNiftiImageForProject(int id) throws SQLException; 
 	public Set<NiftiImage> getNiftiImageForAcqDate(int id) throws SQLException; 
 	public Set<NiftiImage> getNiftiImageForProtocol(int id) throws SQLException; 
-	public Set<NiftiImage> getNiftiImageForSerie(int id) throws SQLException; 
+	public Set<NiftiImage> getNiftiImageForSerie(int id) throws SQLException;
+
+	public void removeEntry(String string, int id_project, int id_patient, int id_acqdate, int id_protocol,
+			int id_serie) throws SQLException; 
 }

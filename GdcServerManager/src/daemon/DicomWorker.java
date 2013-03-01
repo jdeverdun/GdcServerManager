@@ -226,7 +226,6 @@ public class DicomWorker extends DaemonWorker {
 	// Rajoute une entree d'un dossier / image
 	// dans la table "table" de la base de donnee 
 	protected void addEntryToDB(Path name, String table) {
-		System.out.println("go"+table);
 		switch(table){
 		case "Project":
 			ProjectDAO pdao = new MySQLProjectDAO();

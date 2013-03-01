@@ -2,6 +2,7 @@ package daemon;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -86,7 +87,7 @@ public class NiftiWorker extends DaemonWorker {
 		checkAndMakeDir(protocolDir);
 		checkAndMakeDir(serieDir);
 		
-		Path niftiPath = serieDir;
+		niftiPath = serieDir;
 		System.out.println("Nifti convert : "+path);
 		String command = buildConvertCommandFor(path);
 		Process process;
@@ -95,13 +96,15 @@ public class NiftiWorker extends DaemonWorker {
 			// On recupere la liste des nifti qui existait avant la conversion
 			// sous la forme "nom_datamodif"
 			HashMap<String,Path> niftiBefore = getNiftiListIn(niftiPath);
+			// on les efface (car dcm2nii n'overwrite pas !)
+			removeFiles(niftiBefore);
 			process = Runtime.getRuntime().exec(command);
 			process.waitFor();
 			// On recupere les nom des fichiers nifti cree
 			// et on ajoute les infos à la database
-			ArrayList<Path> niftis = extractNewNiftiFrom(getNiftiListIn(niftiPath),niftiBefore);
-			for(Path currNifti:niftis)
-				addEntryToDB(currNifti,"NiftiImage");
+			HashMap<String,Path> niftis = getNiftiListIn(niftiPath);
+			for(String currNifti:niftis.keySet())
+				addEntryToDB(niftis.get(currNifti),"NiftiImage");
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -111,6 +114,31 @@ public class NiftiWorker extends DaemonWorker {
 
 	}
 
+	// supprime les fichiers renseignes dans une hashmap
+	private void removeFiles(HashMap<String, Path> niftis) {
+		for(String currNifti:niftis.keySet())
+			try {
+				Files.delete(niftis.get(currNifti));
+				removeDBEntry(niftis.get(currNifti).getFileName());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return;
+	}
+	
+	// Supprime une entree dans la table niftiimage de la bdd
+	// où le nom du fichier = fileName et les id correspondent
+	private void removeDBEntry(Path fileName) {
+		NiftiImageDAO ndao = new MySQLNiftiImageDAO();
+		try {
+			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	// Construit la commande pour convertir un repertoire dicom (dicomPath) en nifti
 	private String buildConvertCommandFor(Path dicomPath) {
 		// -i id in filename | -p protocol in filename
@@ -137,7 +165,7 @@ public class NiftiWorker extends DaemonWorker {
 		case "NiftiImage":
 			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			try {
-				dicdao.newNiftiImage(name.toString(), sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+				dicdao.newNiftiImage(name.getFileName().toString(), sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -151,6 +179,7 @@ public class NiftiWorker extends DaemonWorker {
 	// renvoi une arrayList avec les nifti nouvellement cree
 	// compare le contenu de 2 hashmap issuent 
 	// de getNiftiListIn
+	@SuppressWarnings("unused")
 	private ArrayList<Path> extractNewNiftiFrom(HashMap<String, Path> niftiAfter,
 			HashMap<String, Path> niftiBefore) {
 		ArrayList<Path> niftis = new ArrayList<Path>();

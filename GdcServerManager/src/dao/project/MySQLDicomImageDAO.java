@@ -71,7 +71,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				System.err.println("Warning : SQL -> " + e);	return false;
 			}
 			finally {
 				stmt.close();

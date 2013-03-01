@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Project {
 
-	private Integer id;
+	private int id;
 	private String nom;
 	private Set<User> users = new HashSet<User>();
 	private Set<Patient> patients = new HashSet<Patient>();
@@ -24,11 +24,11 @@ public class Project {
 		this.id = id;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
