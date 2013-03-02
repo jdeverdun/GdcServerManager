@@ -11,11 +11,17 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.util.regex.Pattern;
+
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+
+
+import tools.Mailer;
 import model.User.Acclvl;
+import java.awt.FlowLayout;
 
 public class UserCreationPanel extends JPanel {
 	private String desriptionText;
@@ -31,11 +37,13 @@ public class UserCreationPanel extends JPanel {
 	private JLabel lblAccountLevel;
 	private JComboBox comboBox;
 	private JButton btnCreate;
+	private JButton btnCancel;
+	private ProgressPanel progressPanel;
 	
 	//private JButton 
 	public UserCreationPanel() {
 		setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00][][][][][][][][][]"));
+		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00][][][][][][][][][6.00,grow,fill][][]"));
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -84,11 +92,14 @@ public class UserCreationPanel extends JPanel {
 		btnCreate = new JButton("Create");
 		add(btnCreate, "cell 0 7,alignx center,aligny center");
 		
-		JButton btnCancel = new JButton("Cancel");
+		btnCancel = new JButton("Cancel");
 		add(btnCancel, "cell 1 7,alignx center,aligny center");
 		
+		progressPanel = new ProgressPanel();
+		add(progressPanel, "cell 0 8 2 1,growx,aligny baseline");
+		progressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
-		
+		//progressPanel.setVisible(false);
 		// Listener
 		btnCancel.addActionListener(new ActionListener() {
 			
@@ -96,6 +107,30 @@ public class UserCreationPanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				getPopupWindow().hide();
 			}
+		});
+		btnCreate.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// on valide les champs
+				if(checkField()){
+					Thread mailSender = new Thread(){
+						public void run(){
+							Mailer mailer = new Mailer(getTxtMail().getText());
+							boolean succeed = mailer.sendMail("essai GDC", "Salut je test le mdp \n ca marche");
+							if(succeed)
+								getPopup().hide();
+							else{
+								// si le mail est pas partie
+							}
+								
+						}
+					};
+					mailSender.start();
+					progressPanel.setVisible(true);
+				}
+			}
+
 		});
 	}
 	public String getDesriptionText() {
@@ -182,5 +217,18 @@ public class UserCreationPanel extends JPanel {
 	public Popup getPopupWindow(){
 		return this.popup;
 	}
-
+	
+	// verifie que les champs ont ete bien remplit et formatté
+	private boolean checkField() {
+		// On check le login
+		if(!getTxtLogin().getText().matches("^[a-zA-Z0-9]+$"))
+			return false;
+		// On check le mail
+		Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
+		if(!rfc2822.matcher(getTxtMail().getText()).matches()) {
+		    return false;
+		}
+		
+		return true;
+	}
 }

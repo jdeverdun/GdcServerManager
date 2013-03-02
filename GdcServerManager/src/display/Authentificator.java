@@ -16,7 +16,7 @@ import settings.WindowManager;
 
 import dao.MySQLUserDAO;
 import dao.UserDAO;
-import display.tools.ProgressPanel;
+import display.containers.ProgressPanel;
 
 
 import model.User;

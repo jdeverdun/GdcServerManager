@@ -1,4 +1,4 @@
-package display.tools;
+package display.containers;
 
 
 import java.awt.*;
@@ -18,7 +18,7 @@ public class ProgressPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 8350770509778064144L;
 
-	private static final int INNER_HEIGHT = 60;
+	private static int INNER_HEIGHT = 60;
 
 	private static final int INNER_WIDTH = 350;
 
@@ -140,5 +140,8 @@ public class ProgressPanel extends JPanel {
 
 	public void setAlpha(float alpha) {
 		this.alpha = alpha;
+	}
+	public static void setINNER_HEIGHT(int h){
+		INNER_HEIGHT = h;
 	}
 }
