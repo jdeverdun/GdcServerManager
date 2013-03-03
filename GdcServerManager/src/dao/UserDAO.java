@@ -38,7 +38,18 @@ public interface UserDAO {
       public User retrieveUser(int id) throws SQLException;
       
       /**
-       * Insère un tuple dans la table User
+       * Récupère le User ayant le login "login"
+       * @param id
+       * @return
+       * @throws SQLException
+       */
+      public User retrieveUser(String login) throws SQLException;
+      
+      /**
+       * Insère un tuple dans la table User et renvoi 0 si tout c'est bien passe
+       * 1 si le login existe deja
+       * 2 si erreur SQL autre
+       * firstconnect obligatoirement a 1
        * 
        * @param id
        * @param nom
@@ -46,11 +57,20 @@ public interface UserDAO {
        * @param email
        * @param login
        * @param password
+       * @param level
        * @return
        * @throws SQLException
        */
-      public boolean newUser(String nom, String prenom, String email, String login, String password) throws SQLException;
-      
+      public int newUser(String nom, String prenom, String email, String login, String password, int level) throws SQLException;
+      /**
+       * Cree un nouvel utilisateur 
+       * Renvoi 3 si le "User" n'est pas complet
+       * 
+       * @param u
+       * @return
+       * @throws SQLException
+       */
+      public int newUser(User u) throws SQLException;
       /**
        * Récupère le plus grand ID de la table User
        * @return
@@ -66,9 +86,11 @@ public interface UserDAO {
        * @param n
        * @param pr
        * @param e
+       * @param level
+       * @param fconnect
        * @return
        * @throws SQLException
        */
-      public boolean updateUser(int i,String l, String pass,String n,String pr,String e) throws SQLException;
+      public boolean updateUser(int i,String l, String pass,String n,String pr,String e,int level,int fconnect) throws SQLException;
 }
 

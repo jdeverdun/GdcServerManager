@@ -8,13 +8,14 @@ public class User {
 	public static enum Acclvl{SIMPLE,ADMIN}
 	private static int RANDOM_NUM = 16;
 	private int id;
-	  private String nom;
-	  private String prenom;
-	  private String email;
-	  private String login;
-	  private String password;
-	  private int level;
-	  private Set<Project> projects;
+	private String nom;
+	private String prenom;
+	private String email;
+	private String login;
+	private String password;
+	private int level;
+	private Set<Project> projects;
+	private int firstConnect;
 
       public User(String nom, String prenom, String email,String login, String password, int level) {
   		super();
@@ -36,7 +37,12 @@ public class User {
     	}
 
 	public User(){
-		  
+		this.nom = "";
+		this.prenom = "";
+		this.email = "";
+		this.login = "";
+		this.password = "";
+		this.level = -1; 
 	  }
 	  public int getId() {
 	        return id;
@@ -80,6 +86,12 @@ public class User {
 	public void setLevel(int level) {
 		this.level = level;
 	}
+	public int getFirstConnect() {
+		return firstConnect;
+	}
+	public void setFirstConnect(int firstConnect) {
+		this.firstConnect = firstConnect;
+	}
 	public void setProjects(Set<Project> projets) {
 		this.projects = projets;
 	}
@@ -94,6 +106,15 @@ public class User {
 	}
 	public static String randomPass(int count) {
 		return RandomStringUtils.randomAlphanumeric(count);
+	}
+	public boolean isReadyForInsert() {
+		if(!this.getEmail().equals("") && !this.getNom().equals("") && !this.getPrenom().equals("")
+				&& !this.getLogin().equals("") && this.getLevel()!=-1 && !this.getPassword().equals(""))
+			return true;
+		return false;
+	}
+	public int firstConnect() {
+		return firstConnect;
 	}
 }
 

@@ -51,7 +51,7 @@ public class MySQLUserDAO implements UserDAO {
 				user.setPassword(rset.getString("password"));
 				user.setPrenom(rset.getString("prenom"));
 				user.setLevel(rset.getInt("level"));
-				
+				user.setFirstConnect(rset.getInt("firstconnect"));
 				users.add(user);
 			}
 			return users;
@@ -111,6 +111,8 @@ public class MySQLUserDAO implements UserDAO {
 				userC.setLogin(rset.getString("login"));
 				userC.setPassword(rset.getString("password"));
 				userC.setId(Integer.parseInt(rset.getString("id")));
+				userC.setLevel(rset.getInt("level"));
+				userC.setFirstConnect(rset.getInt("firstconnect"));
 			}else{
 				return null;
 			}
@@ -131,7 +133,10 @@ public class MySQLUserDAO implements UserDAO {
 	}
 	
 	/**
-     * Insère un tuple dans la table User
+     * Insère un tuple dans la table User et renvoi 0 si tout c'est bien passe
+     * 1 si le login existe deja
+     * 2 si erreur SQL autre
+     * firstConnect est obligatoirement place a 1
      * 
      * @param id
      * @param nom
@@ -139,10 +144,11 @@ public class MySQLUserDAO implements UserDAO {
      * @param email
      * @param login
      * @param password
+     * @param level
      * @return
      * @throws SQLException
      */
-	public boolean newUser( String nom, String prenom,  String email, String login, String password) throws SQLException {
+	public int newUser( String nom, String prenom,  String email, String login, String password, int level) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -152,19 +158,39 @@ public class MySQLUserDAO implements UserDAO {
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into User values (NULL,'"
-						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"')");
+						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"', "+level+",1)");
 				
-				return true;
+				return 0;
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				if(e.toString().contains("UNIQUE"))
+					return 1;
+				else{
+					System.err.println("Erreur SQL " + e);
+					return 2;
+				}
 			}
 			finally {
 				stmt.close();
 				connection.close();
 			}
 		
+	}
+	
+	/**
+     * Cree un nouvel utilisateur 
+     * Renvoi 3 si le "User" n'est pas complet
+     * 
+     * @param u
+     * @return
+     * @throws SQLException
+     */
+	public int newUser(User u) throws SQLException {
+		if(u.isReadyForInsert())
+			return newUser(u.getNom(), u.getPrenom(), u.getEmail(), u.getLogin(), u.getPassword(),u.getLevel());
+		else
+			return 3;
 	}
 	
 	/**
@@ -226,6 +252,50 @@ public class MySQLUserDAO implements UserDAO {
 				userC.setLogin(rset.getString("login"));
 				userC.setPassword(rset.getString("password"));
 				userC.setId(Integer.parseInt(rset.getString("id")));
+				userC.setFirstConnect(rset.getInt("firstconnect"));
+				userC.setLevel(rset.getInt("level"));
+			}
+		
+			return userC;
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+		
+	}
+	
+	
+	/**
+     * Récupère l'utilisateur ayant le login "login"
+     * @param id
+     * @return
+     * @throws SQLException
+     */
+	public User retrieveUser(String login) throws SQLException {
+		// TODO Auto-generated method stub
+		User userC = new User();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+		
+			rset = stmt.executeQuery("select * from User where login="+login);
+			while(rset.next()){
+				userC.setNom(rset.getString("nom"));
+				userC.setPrenom(rset.getString("prenom"));
+				userC.setEmail(rset.getString("email"));
+				userC.setLogin(rset.getString("login"));
+				userC.setPassword(rset.getString("password"));
+				userC.setId(Integer.parseInt(rset.getString("id")));
+				userC.setLevel(rset.getInt("level"));
+				userC.setFirstConnect(rset.getInt("firstconnect"));
 			}
 		
 			return userC;
@@ -249,10 +319,12 @@ public class MySQLUserDAO implements UserDAO {
      * @param n
      * @param pr
      * @param e
+     * @param level
+     * @param fconnect
      * @return
      * @throws SQLException
      */
-	public boolean updateUser(int i,String l, String pass,String n,String pr,String e) throws SQLException{
+	public boolean updateUser(int i,String l, String pass,String n,String pr,String e,int level, int fconnect) throws SQLException{
 		// la liste de grimpeurs
 		int rset = 0;
 		Statement stmt = null;
@@ -260,7 +332,7 @@ public class MySQLUserDAO implements UserDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"' where id="+i);
+			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);

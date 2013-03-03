@@ -231,6 +231,9 @@ public class Authentificator extends JFrame {
 				try {
 					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
 					if(u!=null){
+						if(u.firstConnect()==1){
+							changePassword(u);
+						}
 						dispose();
 						//System.exit(0);
 					}else{
@@ -246,6 +249,13 @@ public class Authentificator extends JFrame {
 		t.start();
 	}
 	
+	// permet de demander a l'utilisateur de changer son mot de passe
+	//
+	private void changePassword(User u) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
 	public void dispose(){
 		txtUsername.setText("");

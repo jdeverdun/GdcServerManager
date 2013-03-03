@@ -10,7 +10,10 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
+
+import java.awt.Dimension;
 import java.awt.Font;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
@@ -18,13 +21,17 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
+import dao.MySQLUserDAO;
+import dao.UserDAO;
+
 
 import tools.Mailer;
+import model.User;
 import model.User.Acclvl;
 import java.awt.FlowLayout;
 
 public class UserCreationPanel extends JPanel {
-	private String desriptionText;
+	private static String HEADERTXT = "<b>User creation</b><br /> Please fill each field";
 	private JLabel descriptLabel;
 	private JTextField txtLogin;
 	private JTextField txtLastName;
@@ -39,6 +46,7 @@ public class UserCreationPanel extends JPanel {
 	private JButton btnCreate;
 	private JButton btnCancel;
 	private ProgressPanel progressPanel;
+	private JLabel lblWarning;
 	
 	//private JButton 
 	public UserCreationPanel() {
@@ -50,8 +58,12 @@ public class UserCreationPanel extends JPanel {
 		add(panel, "cell 0 0 2 1,grow");
 		panel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 		
-		descriptLabel = new JLabel("<html><b>User creation</b><br /> Please fill each field</html>");
-		panel.add(descriptLabel, "cell 0 0,grow");
+		descriptLabel = new JLabel("<html>"+UserCreationPanel.HEADERTXT +"</html>");
+		panel.add(descriptLabel, "flowy,cell 0 0,grow");
+		
+		lblWarning = new JLabel("");
+		lblWarning.setVisible(false);
+		panel.add(lblWarning, "cell 0 0,aligny center");
 		
 		JLabel lblLogin = new JLabel("Login");
 		lblLogin.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -99,7 +111,6 @@ public class UserCreationPanel extends JPanel {
 		progressPanel.setVisible(false);
 		add(progressPanel, "cell 0 8 2 1,growx,aligny baseline");
 		progressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
 		//progressPanel.setVisible(false);
 		// Listener
 		btnCancel.addActionListener(new ActionListener() {
@@ -114,32 +125,77 @@ public class UserCreationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// on valide les champs
-				if(checkField()){
+				int returnStatus = checkField();
+				switch(returnStatus){
+				case 0:
 					Thread mailSender = new Thread(){
 						public void run(){
-							Mailer mailer = new Mailer(getTxtMail().getText());
+							// On construit notre nouvel utilisateur
+							Acclvl acclevel = (Acclvl) getComboBox().getEditor().getItem();
+							int level = -1;
+							switch(acclevel){
+							case SIMPLE:
+								level = 1;
+								break;
+							case ADMIN:
+								level = 3;
+								break;
+							}
+							User u = new User(getTxtFirstname().getText(), getTxtLastName().getText(), getTxtMail().getText(), getTxtLogin().getText(), level);
+							// on essai d'inserer le nouvel utilisateur dans al bdd
+							UserDAO udao = new MySQLUserDAO();
+							try {
+								int insertstatus = udao.newUser(u);
+								switch(insertstatus){
+								case 1:
+									setWarning("Login already exists.");
+									break;
+								case 2:
+									setWarning("SQL Error. Contact an admin");
+									return;
+								case 3:
+									setWarning("Code Error. Contact an admin");
+									return;
+								}
+							} catch (SQLException e) {
+								setLock(false);
+								progressPanel.setVisible(false);
+								e.printStackTrace();
+								return;
+							}
+							
+							// On envoi le mail avec le mot de passe temporaire
+							Mailer mailer = new Mailer(u.getEmail());
 							
 							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{
 								// si le mail est pas partie
+								setWarning("Error with mailing.");
+								setLock(false);
+								progressPanel.setVisible(false);
 							}
 								
 						}
 					};
+					getLblWarning().setText("");
+					getLblWarning().setVisible(false);
 					mailSender.start();
+					setLock(true);
 					progressPanel.setVisible(true);
+					
+					break;
+				case 1:
+					setWarning("Only a-zA-Z0-9 characters allowed for Login.");
+					break;
+				case 2:
+					setWarning("Incorrect email format.");
+					break;
 				}
 			}
 
 		});
-	}
-	public String getDesriptionText() {
-		return desriptionText;
-	}
-	public void setDesriptionText(String desriptionText) {
-		this.desriptionText = desriptionText;
 	}
 	public JLabel getDescriptLabel() {
 		return descriptLabel;
@@ -189,6 +245,12 @@ public class UserCreationPanel extends JPanel {
 	public void setTxtMail(JTextField txtMail) {
 		this.txtMail = txtMail;
 	}
+	public JLabel getLblWarning() {
+		return lblWarning;
+	}
+	public void setLblWarning(JLabel lblWarning) {
+		this.lblWarning = lblWarning;
+	}
 	public JLabel getLblEmail() {
 		return lblEmail;
 	}
@@ -220,17 +282,39 @@ public class UserCreationPanel extends JPanel {
 		return this.popup;
 	}
 	
+	// desactive/active tout les champs
+	private void setLock(boolean locked) {
+		boolean enabled = !locked;
+		getTxtLogin().setEnabled(enabled);
+		getTxtFirstname().setEnabled(enabled);
+		getTxtLastName().setEnabled(enabled);
+		getTxtMail().setEnabled(enabled);
+		getComboBox().setEnabled(enabled);
+		getBtnCreate().setEnabled(enabled);
+	}
+	
+	
+	
+	
+	
 	// verifie que les champs ont ete bien remplit et formatté
-	private boolean checkField() {
+	// et renvoi le status (0 = bien formatte, 1 = login malformatte, 2 = mail mal formatte)
+	private int checkField() {
 		// On check le login
 		if(!getTxtLogin().getText().matches("^[a-zA-Z0-9]+$"))
-			return false;
+			return 1;
 		// On check le mail
 		Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
 		if(!rfc2822.matcher(getTxtMail().getText()).matches()) {
-		    return false;
+		    return 2;
 		}
 		
-		return true;
+		return 0;
+	}
+	
+	// affiche un warning dans lblWarning
+	private void setWarning(String txt){
+		getLblWarning().setVisible(true);
+		getLblWarning().setText("<html><font color=\"red\">"+txt+"</font></html>");
 	}
 }
