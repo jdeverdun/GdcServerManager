@@ -37,7 +37,7 @@ public class ProgressPanel extends JPanel {
 		this.alpha = 0;
 
 		new SwingRepaintTimeline(this).playLoop(RepeatBehavior.LOOP);
-		
+		setMaximumSize(new Dimension(500,2));
 	}
 
 	public void start() {
@@ -109,14 +109,14 @@ public class ProgressPanel extends JPanel {
 		g2d.setComposite(AlphaComposite.SrcOver.derive(0.1f * this.alpha));
 		for (int i = 6; i >= 0; i--) {
 			g2d.fillOval(this.xPosition - HIGHLIGHTER_WIDTH / 2 - i, h / 2
-					- HIGHLIGHTER_HEIGHT / 4 - i-1,
+					- HIGHLIGHTER_HEIGHT / 2 - i-1,
 					HIGHLIGHTER_WIDTH + 2 * i, HIGHLIGHTER_HEIGHT + 2 * i);
 		}
 
 		// Highlighter on track
 		g2d.setComposite(AlphaComposite.SrcOver.derive(this.alpha));
 		g2d.setColor(new Color(136, 182, 231));
-		g2d.fillRect(this.xPosition - 28, h / 4 - 2, 56, 2);
+		g2d.fillRect(this.xPosition - 28, h / 2 - 2, 56, 2);
 
 		g2d.dispose();
 	}

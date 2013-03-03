@@ -92,7 +92,7 @@ public class User {
 	public void addProject(Project proj) {
 		this.projects.add(proj);
 	}
-	private String randomPass(int count) {
+	public static String randomPass(int count) {
 		return RandomStringUtils.randomAlphanumeric(count);
 	}
 }

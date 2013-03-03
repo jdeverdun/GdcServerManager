@@ -43,7 +43,7 @@ public class UserCreationPanel extends JPanel {
 	//private JButton 
 	public UserCreationPanel() {
 		setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00][][][][][][][][][6.00,grow,fill][][]"));
+		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00,grow][][][][][][][][][6.00,grow,fill][][]"));
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -96,6 +96,7 @@ public class UserCreationPanel extends JPanel {
 		add(btnCancel, "cell 1 7,alignx center,aligny center");
 		
 		progressPanel = new ProgressPanel();
+		progressPanel.setVisible(false);
 		add(progressPanel, "cell 0 8 2 1,growx,aligny baseline");
 		progressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
@@ -117,7 +118,8 @@ public class UserCreationPanel extends JPanel {
 					Thread mailSender = new Thread(){
 						public void run(){
 							Mailer mailer = new Mailer(getTxtMail().getText());
-							boolean succeed = mailer.sendMail("essai GDC", "Salut je test le mdp \n ca marche");
+							
+							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{
