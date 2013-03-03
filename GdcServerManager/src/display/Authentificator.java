@@ -10,13 +10,18 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 
+import settings.UserProfile;
 import settings.WindowManager;
 
 
 import dao.MySQLUserDAO;
 import dao.UserDAO;
+import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
+import display.containers.UserCreationPanel;
 
 
 import model.User;
@@ -232,8 +237,9 @@ public class Authentificator extends JFrame {
 					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
 					if(u!=null){
 						if(u.firstConnect()==1){
-							changePassword(u);
+							u = changePassword(u,Authentificator.this);
 						}
+
 						dispose();
 						//System.exit(0);
 					}else{
@@ -250,10 +256,20 @@ public class Authentificator extends JFrame {
 	}
 	
 	// permet de demander a l'utilisateur de changer son mot de passe
+	// necessite un user et une frame parent
 	//
-	private void changePassword(User u) {
-		// TODO Auto-generated method stub
-		
+	public static User changePassword(User u,JFrame parent) {
+		final JFrame par = parent;
+		Thread passT = new Thread(){
+			public void run(){
+				PassChangePanel pchange = new PassChangePanel();
+				Popup popup = PopupFactory.getSharedInstance().getPopup(par, pchange, (int)par.getX(),(int)par.getY());
+				pchange.setPopup(popup);
+				popup.show();
+			}
+		};
+		passT.start();
+		return u;
 	}
 
 	@Override

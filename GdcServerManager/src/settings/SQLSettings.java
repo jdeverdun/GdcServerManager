@@ -100,4 +100,9 @@ public class SQLSettings {
 		   
 		
 	}
+	public static void stopPDS() throws UniversalConnectionPoolException{
+		if(MGR!=null)
+			MGR.destroyConnectionPool("mgr_pool");
+		PDS = null;
+	}
 }

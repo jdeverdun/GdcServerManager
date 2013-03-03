@@ -6,12 +6,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.Popup;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.SQLException;
 import java.util.regex.Pattern;

@@ -113,6 +113,7 @@ public class MySQLUserDAO implements UserDAO {
 				userC.setId(Integer.parseInt(rset.getString("id")));
 				userC.setLevel(rset.getInt("level"));
 				userC.setFirstConnect(rset.getInt("firstconnect"));
+				UserProfile.CURRENT_USER = userC;
 			}else{
 				return null;
 			}
