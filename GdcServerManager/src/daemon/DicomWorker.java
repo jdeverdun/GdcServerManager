@@ -59,7 +59,7 @@ public class DicomWorker extends DaemonWorker {
 		// TODO Auto-generated constructor stub
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
-		setServerInfo(getServerInfo());
+		setServerInfo(getDispatcher().getServerInfo());
 	}
 
 	
