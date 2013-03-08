@@ -82,6 +82,7 @@ public abstract class DaemonWorker {
 		return true;
 	}
 	
+	// get AES encrypt / decrypt pass
 	protected String getAESPass() {
 		String projectName = getProjectFolder().getFileName().toString();
 		DBCache cache = getServerInfo().getDbCache();

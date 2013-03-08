@@ -15,6 +15,16 @@ public class DBCache {
 	private HashMap<String, Integer> idAcqDateList; // stock les id des acqdate identife par nom@@idpatient@@idprojet
 	private HashMap<String, Integer> idProtocolList; // stock les id des protocol identife par nom@@idacqdate@@idpatient@@idprojet
 	private HashMap<String, Integer> idSerieList; // stock les id des series identife par nom@@idprotocol@@idacqdate@@idpatient@@idprojet
+	
+	public DBCache(){
+		rkeyList = new HashMap<String, String>();
+		idProjectList = new HashMap<String, Integer>();
+		idPatientList = new HashMap<String, Integer>();
+		idAcqDateList = new HashMap<String, Integer>();
+		idProtocolList = new HashMap<String, Integer>();
+		idSerieList = new HashMap<String, Integer>();
+	}
+	
 	public HashMap<String, String> getRkeyList() {
 		return rkeyList;
 	}

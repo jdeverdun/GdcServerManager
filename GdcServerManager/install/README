@@ -1,0 +1,4 @@
+Installation : 
+
+1. Installer "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" en le telechargeant sur le site d'oracle 
+et en placant le contenu de l'archive dans <java_home>/lib/security
