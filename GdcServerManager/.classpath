@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="flamingo-7.2.1.jar"/>
-	<classpathentry kind="lib" path="laf-plugin-7.2.1.jar"/>
-	<classpathentry kind="lib" path="laf-widget-7.2.1.jar"/>
-	<classpathentry kind="lib" path="substance-7.2.1-lite.jar"/>
-	<classpathentry kind="lib" path="substance-7.2.1-tools.jar"/>
-	<classpathentry kind="lib" path="substance-7.2.1.jar"/>
-	<classpathentry kind="lib" path="substance-flamingo-7.2.1-lite.jar"/>
-	<classpathentry kind="lib" path="substance-flamingo-7.2.1.jar"/>
-	<classpathentry kind="lib" path="trident-7.2.1-base.jar"/>
-	<classpathentry kind="lib" path="trident-7.2.1-swing.jar"/>
-	<classpathentry kind="lib" path="trident-7.2.1-swt.jar"/>
-	<classpathentry kind="lib" path="trident-7.2.1.jar"/>
-	<classpathentry kind="lib" path="mysql-connector-java-5.1.23-bin.jar"/>
-	<classpathentry kind="lib" path="ij.jar"/>
-	<classpathentry kind="lib" path="ucp.jar"/>
-	<classpathentry kind="lib" path="commons-lang3-3.1.jar"/>
-	<classpathentry kind="lib" path="mail.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/flamingo-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/laf-plugin-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/laf-widget-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/substance-7.2.1-lite.jar"/>
+	<classpathentry kind="lib" path="lib/substance-7.2.1-tools.jar"/>
+	<classpathentry kind="lib" path="lib/substance-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/substance-flamingo-7.2.1-lite.jar"/>
+	<classpathentry kind="lib" path="lib/substance-flamingo-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/trident-7.2.1-base.jar"/>
+	<classpathentry kind="lib" path="lib/trident-7.2.1-swing.jar"/>
+	<classpathentry kind="lib" path="lib/trident-7.2.1-swt.jar"/>
+	<classpathentry kind="lib" path="lib/trident-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.23-bin.jar"/>
+	<classpathentry kind="lib" path="lib/ij.jar"/>
+	<classpathentry kind="lib" path="lib/ucp.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout15-swing.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="miglayout15-swing.jar" sourcepath="miglayout-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
