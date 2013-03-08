@@ -5,11 +5,17 @@ import ij.util.DicomTools;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
@@ -23,6 +29,7 @@ import dao.project.MySQLSerieDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
+import es.vocali.util.AESCrypt;
 
 import model.AcquisitionDate;
 import model.DicomImage;
@@ -31,6 +38,7 @@ import model.Project;
 import model.Protocol;
 import model.Serie;
 import model.ServerInfo;
+import model.User;
 import static java.nio.file.StandardCopyOption.*;
 
 
@@ -51,7 +59,7 @@ public class DicomWorker extends DaemonWorker {
 		// TODO Auto-generated constructor stub
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
-		setServerInfo(getDispatcher().getServerInfo());
+		setServerInfo(getServerInfo());
 	}
 
 	
@@ -108,7 +116,6 @@ public class DicomWorker extends DaemonWorker {
 		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
 		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
 		
-		
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
 		// sinon recuperer les ID des projets etc
@@ -142,20 +149,50 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On deplace
 		moveDicomTo(newPath);
-		// On ajoute l'entree du DICOM dans la database
-		addEntryToDB(dicomFile.getFileName(),"DicomImage");
+		
+		// AES crypt
+		// Encrypte le fichier en rajoutant l'extension definit dans AESCrypt.ENCRYPTSUFFIX
+		try {
+			AESCrypt aes = new AESCrypt(false, getAESPass(getProject_id()));
+			aes.encrypt(2, newPath.toString(), newPath+AESCrypt.ENCRYPTSUFFIX);
+			// On supprime le fichier non encrypte
+			Files.deleteIfExists(newPath);
+			
+			
+			// On ajoute l'entree du DICOM dans la database
+			addEntryToDB(dicomFile.getFileName(),"DicomImage");
+			
+		} catch (GeneralSecurityException | IOException e) {
+			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
+			e.printStackTrace();
+		}
+		
 		
 		// On termine
 		prepareToStop();
 	}
 
-	// Set des ID serie // protocol // projet etc depuis la BDD
 	
+	// Set des ID serie // protocol // projet etc depuis la BDD
 	private void setSerie_idFromDB(Path fileName) {
+		// on verifie d'abord si on a pas les infos dans le cache
+		DBCache cache = getServerInfo().getDbCache();
+		Integer id = cache.getIdSerieList().get(fileName.toString() + "@@" + getProtocol_id() + "@@" + getAcqDate_id() + "@@" +
+				"" + getPatient_id() + "@@" + getProject_id());
+		if(id!=null){
+			setSerie_id(id);
+			return;
+		}
+		
+		// Si ce n'est pas le cas on fait la requete SQL 
+		// et on met à jours le cache
+		
 		SerieDAO sdao = new MySQLSerieDAO();
 		try {
 			Serie s = sdao.retrieveSerie(fileName.toString(),getProject_id(),getPatient_id(),getAcqDate_id(),getProtocol_id());
 			setSerie_id(s.getId());
+			cache.getIdSerieList().put(fileName.toString() + "@@" + getProtocol_id() + "@@" + getAcqDate_id() + "@@" +
+					"" + getPatient_id() + "@@" + getProject_id(), s.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -167,10 +204,24 @@ public class DicomWorker extends DaemonWorker {
 	 * @param fileName
 	 */
 	private void setProtocol_idFromDB(Path fileName) {
+		// on verifie d'abord si on a pas les infos dans le cache
+		DBCache cache = getServerInfo().getDbCache();
+		Integer id = cache.getIdProtocolList().get(fileName.toString() + "@@" + getAcqDate_id() + "@@" +
+				"" + getPatient_id() + "@@" + getProject_id());
+		if(id!=null){
+			setProtocol_id(id);
+			return;
+		}
+			
+		// Si ce n'est pas le cas on fait la requete SQL 
+		// et on met à jours le cache
+		
 		ProtocolDAO pdao = new MySQLProtocolDAO();
 		try {
 			Protocol p = pdao.retrieveProtocol(fileName.toString(),getProject_id(),getPatient_id(),getAcqDate_id());
 			setProtocol_id(p.getId());
+			cache.getIdProtocolList().put(fileName.toString() + "@@" + getAcqDate_id() + "@@" +
+					"" + getPatient_id() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -181,10 +232,24 @@ public class DicomWorker extends DaemonWorker {
 	 * @param fileName
 	 */
 	private void setAcqDate_idFromDB(Path fileName) {
+		// on verifie d'abord si on a pas les infos dans le cache
+		DBCache cache = getServerInfo().getDbCache();
+		Integer id = cache.getIdAcqDateList().get(fileName.toString() + "@@" +
+				"" + getPatient_id() + "@@" + getProject_id());
+		if(id!=null){
+			setAcqDate_id(id);
+			return;
+		}
+			
+		// Si ce n'est pas le cas on fait la requete SQL 
+		// et on met à jours le cache
+		
 		AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
 		try {
 			AcquisitionDate a = adao.retrieveAcqDate(fileName.toString(),getProject_id(),getPatient_id());
 			setAcqDate_id(a.getId());
+			cache.getIdAcqDateList().put(fileName.toString() + "@@" +
+					"" + getPatient_id() + "@@" + getProject_id(), a.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -196,10 +261,22 @@ public class DicomWorker extends DaemonWorker {
 	 * @param fileName
 	 */
 	private void setPatient_idFromDB(Path fileName) {
+		// on verifie d'abord si on a pas les infos dans le cache
+		DBCache cache = getServerInfo().getDbCache();
+		Integer id = cache.getIdPatientList().get(fileName.toString() + "@@" + getProject_id());
+		if(id!=null){
+			setPatient_id(id);
+			return;
+		}
+			
+		// Si ce n'est pas le cas on fait la requete SQL 
+		// et on met à jours le cache
+		
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
 			Patient p = pdao.retrievePatient(fileName.toString(),getProject_id());
 			setPatient_id(p.getId());
+			cache.getIdPatientList().put(fileName.toString() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -211,10 +288,22 @@ public class DicomWorker extends DaemonWorker {
 	 * @param fileName
 	 */
 	private void setProject_idFromDB(Path fileName) {
+		// on verifie d'abord si on a pas les infos dans le cache
+		DBCache cache = getServerInfo().getDbCache();
+		Integer id = cache.getIdProjectList().get(fileName.toString());
+		if(id!=null){
+			setProject_id(id);
+			return;
+		}
+			
+		// Si ce n'est pas le cas on fait la requete SQL 
+		// et on met à jours le cache
+		
 		ProjectDAO pdao = new MySQLProjectDAO();
 		try {
 			Project p = pdao.retrieveProject(fileName.toString());
 			setProject_id(p.getId());
+			cache.getIdProjectList().put(fileName.toString(),p.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -472,5 +561,4 @@ public class DicomWorker extends DaemonWorker {
 		// le patient à la liste des patients à convertir en nifti
 		dispatcher.sendToNiftiDaemon(this);
 	}
-
 }

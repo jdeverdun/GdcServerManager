@@ -2,6 +2,7 @@ package daemon;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import settings.SystemSettings;
@@ -14,8 +15,6 @@ import model.ServerInfo;
  * Classe contenant une liste mis à jours régulierement 
  * des fichiers à déplacer
  * 
- * Les deplacements se font avec un délais de 50 ms pour éviter des
- * erreurs d'overload
  * @author Analyse
  *
  */
@@ -26,7 +25,7 @@ public class DicomJobDispatcher extends Thread{
 	private ServerInfo serverInfo;
 	private LinkedList<Path> dicomToMove;
 	private int numberOfRuns; // nombre de threads qui ont été lancé
-	private int maxWorker; // nombre de coeurs disponibles 
+	private int maxWorker; // nombre de coeurs disponibles [obsolete]
 	private DicomWorker dworker;
 	private boolean stop;
 	
@@ -107,9 +106,6 @@ public class DicomJobDispatcher extends Thread{
 	public void setDworker(DicomWorker dworker) {
 		this.dworker = dworker;
 	}
-
-
-
 
 	public boolean isStop() {
 		return stop;

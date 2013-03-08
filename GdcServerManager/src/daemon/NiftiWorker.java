@@ -25,6 +25,7 @@ import dao.project.NiftiImageDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
+import es.vocali.util.AESCrypt;
 
 public class NiftiWorker extends DaemonWorker {
 
@@ -98,13 +99,21 @@ public class NiftiWorker extends DaemonWorker {
 			HashMap<String,Path> niftiBefore = getNiftiListIn(niftiPath);
 			// on les efface (car dcm2nii n'overwrite pas !)
 			removeFiles(niftiBefore);
+			// on decrypte les fichiers dicom temporairement (pour la conversion)
+			AESCrypt aes = new AESCrypt(false, buildKey());
+			aes.decrypt(fromPath, toPath)
+			// on convertie
 			process = Runtime.getRuntime().exec(command);
 			process.waitFor();
+			// on re-encrypt les dicom
+			
 			// On recupere les nom des fichiers nifti cree
 			// et on ajoute les infos à la database
 			HashMap<String,Path> niftis = getNiftiListIn(niftiPath);
-			for(String currNifti:niftis.keySet())
+			for(String currNifti:niftis.keySet()){
 				addEntryToDB(niftis.get(currNifti),"NiftiImage");
+				encrypt(niftis.get(currNifti));
+			}
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -114,6 +123,12 @@ public class NiftiWorker extends DaemonWorker {
 
 	}
 
+	private String buildKey() {
+		String pname = getSourceDicomImage().getProjet();
+		for(int)
+			pname += c;
+		return null;
+	}
 	// supprime les fichiers renseignes dans une hashmap
 	private void removeFiles(HashMap<String, Path> niftis) {
 		for(String currNifti:niftis.keySet())

@@ -7,7 +7,7 @@ create table User
  constraint user_pk primary key (id));
 
 create table Project
-(id integer NOT NULL AUTO_INCREMENT, name varchar(70) UNIQUE,constraint project_pk primary key (id));
+(id integer NOT NULL AUTO_INCREMENT, name varchar(70) UNIQUE, rkey varchar(50), constraint project_pk primary key (id));
 
 create table User_Project
 (id_user integer, id_project integer,

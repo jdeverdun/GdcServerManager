@@ -3,7 +3,12 @@ package daemon;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 
+import dao.MySQLProjectDAO;
+import dao.ProjectDAO;
+
+import model.Project;
 import model.ServerInfo;
 
 public abstract class DaemonWorker {
@@ -11,6 +16,7 @@ public abstract class DaemonWorker {
 	// Attributs
 	protected Path patientFolder;
 	protected Path serieFolder;
+	protected Path projectFolder;
 	protected ServerInfo serverInfo;
 	
 	// Accesseurs
@@ -46,6 +52,16 @@ public abstract class DaemonWorker {
 	
 	// Methodes
 	
+	public Path getProjectFolder() {
+		return projectFolder;
+	}
+
+
+	public void setProjectFolder(Path projectFolder) {
+		this.projectFolder = projectFolder;
+	}
+
+
 	abstract public void start();
 	
 	
@@ -66,6 +82,22 @@ public abstract class DaemonWorker {
 		return true;
 	}
 	
+	protected String getAESPass(int projectid) {
+		DBCache cache = getServerInfo().getDbCache();
+		ProjectDAO pdao = new MySQLProjectDAO();
+		String rkey = cache.getRkeyList().get(projectid);
+		if(rkey!=null)
+			return rkey+Project.generateLocalKeyFrom(getProjectFolder().getFileName().toString());
+		try {
+			Project proj = pdao.retrieveProject(projectid);
+			cache.getRkeyList().put(proj.getNom(), proj.getRemoteKey());
+			String lkey = Project.generateLocalKeyFrom(proj.getNom());
+			return proj.getRemoteKey()+lkey;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	// Rajoute une entree d'un dossier / image
 	// dans la table "table" de la base de donnee 

@@ -1,6 +1,10 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -13,11 +17,16 @@ public class Project {
 
 	private int id;
 	private String nom;
+	private String remoteKey;
 	private Set<User> users = new HashSet<User>();
 	private Set<Patient> patients = new HashSet<Patient>();
 
 	public Project() {
 
+	}
+	public Project(String n, String rkey) {
+		setNom(n);
+		setRemoteKey(rkey);
 	}
 
 	public Project(int id) {
@@ -56,6 +65,12 @@ public class Project {
 		this.users = users;
 	}
 	
+	public String getRemoteKey() {
+		return remoteKey;
+	}
+	public void setRemoteKey(String remoteKey) {
+		this.remoteKey = remoteKey;
+	}
 	public void addUser(User u){
 		this.users.add(u);
 	}
@@ -67,7 +82,20 @@ public class Project {
 	public boolean equals(Project p){
 		return this.id==p.id;
 	}
-
+	
+	// Genere la clef de cryptage locale pour le projet
+	public static String generateLocalKeyFrom(String seed) {
+        List<Character> characters = new ArrayList<Character>();  
+        for(char c : seed.toCharArray()) {  
+            characters.add(c);  
+        }  
+        Collections.shuffle(characters,new Random(seed.length()));  
+        StringBuilder sb = new StringBuilder();  
+        for(char c : characters) {  
+            sb.append(c);  
+        }  
+        return sb.toString();  
+	}
 
 
 }

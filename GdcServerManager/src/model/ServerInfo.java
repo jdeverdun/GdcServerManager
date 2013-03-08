@@ -6,24 +6,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import daemon.DBCache;
+
 public class ServerInfo {
 
 	// Attributs
 	private Path incomingDir; // dossier des dicom en vrac
 	private Path dicomDir; // dossier des dicom triés
 	private Path niftiDir; // dossier des nifti triés
+	private DBCache dbCache; // cache de donnees de la bdd
 	
 	// Constructeurs
 	public ServerInfo(){
 		incomingDir = null;
 		dicomDir = null;
 		niftiDir = null;
+		dbCache = new DBCache();
 	}
 	
 	public ServerInfo(String inc, String dicom, String nifti){
 		setIncomingDir(inc);
 		setDicomDir(dicom);
 		setNiftiDir(nifti);
+		dbCache = new DBCache();
 	}
 	
 	
@@ -55,6 +60,14 @@ public class ServerInfo {
 	public void setNiftiDir(String niftiDir) {
 		this.niftiDir = (new File(niftiDir)).toPath();
 		buildIfNotExist(this.niftiDir);
+	}
+
+	public DBCache getDbCache() {
+		return dbCache;
+	}
+
+	public void setDbCache(DBCache dbCache) {
+		this.dbCache = dbCache;
 	}
 
 	public void buildIfNotExist(Path p){
