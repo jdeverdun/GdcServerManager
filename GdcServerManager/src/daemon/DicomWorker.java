@@ -56,7 +56,6 @@ public class DicomWorker extends DaemonWorker {
 	private int serie_id;
 	
 	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) {
-		// TODO Auto-generated constructor stub
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
 		setServerInfo(getDispatcher().getServerInfo());
@@ -111,6 +110,7 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On créé les chemins vers les répertoires
 		Path studyFolder = Paths.get(serverInfo.getDicomDir() + File.separator + studyName);
+		setProjectFolder(studyFolder);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
 		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
 		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
@@ -153,7 +153,7 @@ public class DicomWorker extends DaemonWorker {
 		// AES crypt
 		// Encrypte le fichier en rajoutant l'extension definit dans AESCrypt.ENCRYPTSUFFIX
 		try {
-			AESCrypt aes = new AESCrypt(false, getAESPass(getProject_id()));
+			AESCrypt aes = new AESCrypt(false, getAESPass());
 			aes.encrypt(2, newPath.toString(), newPath+AESCrypt.ENCRYPTSUFFIX);
 			// On supprime le fichier non encrypte
 			Files.deleteIfExists(newPath);

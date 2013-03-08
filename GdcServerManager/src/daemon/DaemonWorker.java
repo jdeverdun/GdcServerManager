@@ -82,14 +82,15 @@ public abstract class DaemonWorker {
 		return true;
 	}
 	
-	protected String getAESPass(int projectid) {
+	protected String getAESPass() {
+		String projectName = getProjectFolder().getFileName().toString();
 		DBCache cache = getServerInfo().getDbCache();
 		ProjectDAO pdao = new MySQLProjectDAO();
-		String rkey = cache.getRkeyList().get(projectid);
+		String rkey = cache.getRkeyList().get(projectName);
 		if(rkey!=null)
-			return rkey+Project.generateLocalKeyFrom(getProjectFolder().getFileName().toString());
+			return rkey+Project.generateLocalKeyFrom(projectName);
 		try {
-			Project proj = pdao.retrieveProject(projectid);
+			Project proj = pdao.retrieveProject(projectName);
 			cache.getRkeyList().put(proj.getNom(), proj.getRemoteKey());
 			String lkey = Project.generateLocalKeyFrom(proj.getNom());
 			return proj.getRemoteKey()+lkey;

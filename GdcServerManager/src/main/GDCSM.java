@@ -23,7 +23,8 @@ public class GDCSM {
 	 */
 	public static void main(String[] args) {
 		// On définit les paramètres du serveur
-		ServerInfo sinfo = new ServerInfo("C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\buffer","C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\saveDicom","C:\\Users\\serge\\Documents\\GdcServer_simu\\essai1\\saveNifti");
+		ServerInfo sinfo = new ServerInfo("C:\\Users\\Analyse\\Downloads\\test\\buffer","C:\\Users\\Analyse\\Downloads\\test\\saveDicom","C:\\Users\\Analyse\\Downloads\\test\\saveNifti",
+				"C:\\Users\\Analyse\\Downloads\\test\\temp");
 		// On lance le daemon Nifti
 		NiftiDaemon ndaemon = new NiftiDaemon(sinfo);
 		ndaemon.start();

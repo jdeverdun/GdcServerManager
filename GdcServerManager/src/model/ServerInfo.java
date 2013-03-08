@@ -14,6 +14,7 @@ public class ServerInfo {
 	private Path incomingDir; // dossier des dicom en vrac
 	private Path dicomDir; // dossier des dicom triés
 	private Path niftiDir; // dossier des nifti triés
+	private Path tempDir; // dossier temporaire, utilise surtout pour la conversion nifti (decryptage fichier)
 	private DBCache dbCache; // cache de donnees de la bdd
 	
 	// Constructeurs
@@ -21,13 +22,15 @@ public class ServerInfo {
 		incomingDir = null;
 		dicomDir = null;
 		niftiDir = null;
+		setTempDir(null);
 		dbCache = new DBCache();
 	}
 	
-	public ServerInfo(String inc, String dicom, String nifti){
+	public ServerInfo(String inc, String dicom, String nifti,String temp){
 		setIncomingDir(inc);
 		setDicomDir(dicom);
 		setNiftiDir(nifti);
+		setTempDir(temp);
 		dbCache = new DBCache();
 	}
 	
@@ -68,6 +71,15 @@ public class ServerInfo {
 
 	public void setDbCache(DBCache dbCache) {
 		this.dbCache = dbCache;
+	}
+
+	public Path getTempDir() {
+		return tempDir;
+	}
+
+	public void setTempDir(String tempDir) {
+		this.tempDir = (new File(tempDir)).toPath();
+		buildIfNotExist(this.tempDir);
 	}
 
 	public void buildIfNotExist(Path p){

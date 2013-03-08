@@ -1,10 +1,12 @@
 package daemon;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +73,7 @@ public class NiftiWorker extends DaemonWorker {
 		// On recherche l'arborescence et on créé les répertoire si besoin +
 		// NIFTIDIR / NOM_ETUDE / NOM_PATIENT / DATE_IRM / PROTOCOL / SERIE 
 		Path studyName = path.getParent().getParent().getParent().getParent().getFileName();
+		setProjectFolder(studyName);
 		Path patientName = path.getParent().getParent().getParent().getFileName();
 		Path acqDate = path.getParent().getParent().getFileName();
 		Path protocolAcqName = path.getParent().getFileName() ;
@@ -90,7 +93,7 @@ public class NiftiWorker extends DaemonWorker {
 		
 		niftiPath = serieDir;
 		System.out.println("Nifti convert : "+path);
-		String command = buildConvertCommandFor(path);
+
 		Process process;
 		try {
 			//process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");//-x 
@@ -99,36 +102,57 @@ public class NiftiWorker extends DaemonWorker {
 			HashMap<String,Path> niftiBefore = getNiftiListIn(niftiPath);
 			// on les efface (car dcm2nii n'overwrite pas !)
 			removeFiles(niftiBefore);
-			// on decrypte les fichiers dicom temporairement (pour la conversion)
-			AESCrypt aes = new AESCrypt(false, buildKey());
-			aes.decrypt(fromPath, toPath)
+			
+			// ------------------------------------------------------------------- //
+			// on decrypte les fichiers dicom temporairement (pour la conversion)  //
+			// que l'on place dans le repertoire temporaire (tempDir)              //
+			// ------------------------------------------------------------------- //
+			
+			AESCrypt aes = new AESCrypt(false, getAESPass());
+			
+			Path tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + serieName);
+			Path tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + serieName);
+			buildIfNotExist(tempDicomPath);
+			buildIfNotExist(tempNiftiPath);
+			for(String name:path.toFile().list()){
+				if(name.endsWith(AESCrypt.ENCRYPTSUFFIX)){
+					String dpath = path + "/" +  name;
+					String tpath = tempDicomPath + "/" + name.substring(0, name.length()-5); // on recupere le vrai nom du dicom (sans le .enc)
+					aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
+				}
+			}
+			
+			// On cree la commande (on convertie dans un autre repertoire)
+			String command = buildConvertCommandFor(tempDicomPath,tempNiftiPath);
 			// on convertie
 			process = Runtime.getRuntime().exec(command);
 			process.waitFor();
 			// on re-encrypt les dicom
 			
 			// On recupere les nom des fichiers nifti cree
-			// et on ajoute les infos à la database
-			HashMap<String,Path> niftis = getNiftiListIn(niftiPath);
+			// on les encrypt et on les deplace dans leur repertoire final
+			HashMap<String,Path> niftis = getNiftiListIn(tempDicomPath);
 			for(String currNifti:niftis.keySet()){
-				addEntryToDB(niftis.get(currNifti),"NiftiImage");
-				encrypt(niftis.get(currNifti));
+				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
+				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
+				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
+				addEntryToDB(finalNiftiPath,"NiftiImage");	
 			}
+			
+			// On supprime tous les fichiers cree dans tempDir
+			delete(tempDicomPath.toFile());
+			delete(tempNiftiPath.toFile());
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
 		}
 
 	}
 
-	private String buildKey() {
-		String pname = getSourceDicomImage().getProjet();
-		for(int)
-			pname += c;
-		return null;
-	}
 	// supprime les fichiers renseignes dans une hashmap
 	private void removeFiles(HashMap<String, Path> niftis) {
 		for(String currNifti:niftis.keySet())
@@ -155,7 +179,7 @@ public class NiftiWorker extends DaemonWorker {
 	}
 	
 	// Construit la commande pour convertir un repertoire dicom (dicomPath) en nifti
-	private String buildConvertCommandFor(Path dicomPath) {
+	private String buildConvertCommandFor(Path dicomPath, Path niftiPath) {
 		// -i id in filename | -p protocol in filename
 		String command = "dcm2nii.exe -i y -p y -e n -a n -d n -e n -f n -l 0  ";
 		switch(getNiftiDaemon().getFormat()){
@@ -170,7 +194,7 @@ public class NiftiWorker extends DaemonWorker {
 		default:
 			System.err.println("Unknow nifti format");
 		}
-		command+=" -o "+this.niftiPath+" "+dicomPath;
+		command+=" -o "+niftiPath+" "+dicomPath;
 		return command;
 	}
 	
@@ -226,6 +250,34 @@ public class NiftiWorker extends DaemonWorker {
 				niftiList.put(name+"_"+(new File(fullpath).lastModified()),Paths.get(fullpath));
 		}
 		return niftiList;
+	}
+	
+	/**
+	 * Cree un repertoire
+	 * @param p Path
+	 */
+	public void buildIfNotExist(Path p){
+		try {
+			if(Files.exists(p))
+				Files.delete(p);
+			Files.createDirectories(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Supprime recursivement un repertoire
+	 * @param f
+	 * @throws IOException
+	 */
+	public void delete(File f) throws IOException {
+	  if (f.isDirectory()) {
+	    for (File c : f.listFiles())
+	      delete(c);
+	  }
+	  if (!f.delete())
+	    throw new FileNotFoundException("Failed to delete file: " + f);
 	}
 
 }
