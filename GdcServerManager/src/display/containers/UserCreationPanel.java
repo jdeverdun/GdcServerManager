@@ -141,14 +141,22 @@ public class UserCreationPanel extends JPanel {
 								level = 3;
 								break;
 							}
+							
+							// On cree le nouvel utilisateur
 							User u = new User(getTxtFirstname().getText(), getTxtLastName().getText(), getTxtMail().getText(), getTxtLogin().getText(), level);
 							UserDAO udao = new MySQLUserDAO();
 							try {
-								u.setId(udao.idmax());
+								u.setId(udao.idmax()+1);
 							}catch(Exception e){
 								e.printStackTrace();
 							}
-							// on essai d'inserer le nouvel utilisateur dans al bdd
+							
+							// On s'assure qu'il est valide
+							if(!u.isReadyForInsert()){
+								setWarning("Code Error. Contact an admin");
+								return;
+							}
+							// on essai d'inserer le nouvel utilisateur dans la bdd
 							DataBaseAdminDAO dbdao = new MySQLDataBaseAdminDAO();
 							try {
 								dbdao.createUser(u);

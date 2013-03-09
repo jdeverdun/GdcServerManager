@@ -12,6 +12,11 @@ import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import settings.UserProfile;
 import settings.WindowManager;
@@ -239,10 +244,22 @@ public class Authentificator extends JFrame {
 						if(u.firstConnect()==1){
 							u = changePassword(u,Authentificator.this);
 						}
-
+						
+						SwingUtilities.invokeLater(new Runnable(){
+							public void run(){
+								JFrame.setDefaultLookAndFeelDecorated(true);
+								try {
+							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+							        } catch (Exception e) {
+							          System.out.println("Substance Graphite failed to initialize");
+							        }
+								WindowManager.MAINWINDOW = new MainWindow();
+								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								WindowManager.MAINWINDOW.createAndShowGUI();
+							}
+						});
 						dispose();
-						MainWindow mw = new MainWindow();
-						mw.createAndShowGUI();
+						
 						//System.exit(0);
 					}else{
 						setActive(true);
