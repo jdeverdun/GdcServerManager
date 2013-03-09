@@ -40,13 +40,13 @@ constraint uprot_acqdata_patient_projet_nameserie unique(name,id_project,id_pati
 constraint protocolserie_fk foreign key (id_protocol) references Protocol(id) on delete cascade);
 
 create table DicomImage
-(id integer NOT NULL AUTO_INCREMENT, name varchar(50),id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
+(id integer NOT NULL AUTO_INCREMENT, name varchar(70),id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
 constraint dicomimage_pk primary key (id),
 constraint uprot_serie_acqdata_patient_projet_namedicom unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
 constraint seriedicom_fk foreign key (id_serie ) references Serie(id) on delete cascade);
 
 create table NiftiImage
-(id integer NOT NULL AUTO_INCREMENT, name varchar(50),id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
+(id integer NOT NULL AUTO_INCREMENT, name varchar(70),id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
 constraint niftiimage_pk primary key (id),
 constraint uprot_serie_acqdata_patient_projet_namenifti unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
 constraint serienifti_fk foreign key (id_serie) references Serie(id) on delete cascade);

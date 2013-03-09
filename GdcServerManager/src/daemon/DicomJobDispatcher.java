@@ -1,9 +1,12 @@
 package daemon;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import settings.SystemSettings;
 
@@ -28,7 +31,7 @@ public class DicomJobDispatcher extends Thread{
 	private int maxWorker; // nombre de coeurs disponibles [obsolete]
 	private DicomWorker dworker;
 	private boolean stop;
-	
+	private int waitCounter;
 	
 
 
@@ -122,8 +125,15 @@ public class DicomJobDispatcher extends Thread{
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty()){
+				if(waitCounter>10000){
+					//Si aucun fichier n'a ete ajouter depuis plus de 10 sec
+					// on verifie si on a pas rate des event a cause d'overflow
+					checkForMissedFiles();
+					waitCounter = 0;
+				}
 				try {
 					Thread.sleep(5000);
+					waitCounter += 5000;
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -145,18 +155,24 @@ public class DicomJobDispatcher extends Thread{
 		}
 	}
 	
+	
 	/**
-	 * Indique au serveur nifti qu'il faut convertir ce repertoire
-	 * @param dicomWorker
+	 * Rajoute a la liste des dicom a deplacer ceux qui on pu etre oublie
+	 * a cause d'event overflow
 	 */
-	public void sendToNiftiDaemon(DicomWorker dicomWorker) {
-		if(dicomWorker.getPatientFolder() != null){
-			getDicomDaemon().getNiftiDaemon().addDir(dicomWorker.getSerieFolder(),dicomWorker.getDicomImage());
+	private void checkForMissedFiles() {
+		String[] filesInInc = getServerInfo().getIncomingDir().toFile().list();
+		for(String name:filesInInc){
+			if(name.length()>2){
+				String fullpath = getServerInfo().getIncomingDir() + "/" + name;
+				addDicomToMove(Paths.get(fullpath));
+			}
 		}
-		dicomWorker = null;
 	}
+
 	
 	public void addDicomToMove(Path p){
-		dicomToMove.push(p);
+		if(!dicomToMove.contains(p))
+			dicomToMove.push(p);
 	}
 }

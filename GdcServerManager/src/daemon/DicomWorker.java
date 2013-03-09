@@ -150,23 +150,18 @@ public class DicomWorker extends DaemonWorker {
 		// On deplace
 		moveDicomTo(newPath);
 		
-		// AES crypt
-		// Encrypte le fichier en rajoutant l'extension definit dans AESCrypt.ENCRYPTSUFFIX
-		try {
-			AESCrypt aes = new AESCrypt(false, getAESPass());
-			aes.encrypt(2, newPath.toString(), newPath+AESCrypt.ENCRYPTSUFFIX);
-			// On supprime le fichier non encrypte
-			Files.deleteIfExists(newPath);
-			
-			
-			// On ajoute l'entree du DICOM dans la database
-			addEntryToDB(dicomFile.getFileName(),"DicomImage");
-			
-		} catch (GeneralSecurityException | IOException e) {
-			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
-			e.printStackTrace();
-		}
+		// On construit l'objet dicom
+		dicomImage = new DicomImage();
+		dicomImage.setName(dicomFile.getFileName().toString());
+		dicomImage.setProjet(new Project(getProject_id()));
+		dicomImage.setPatient(new Patient(getPatient_id()));
+		dicomImage.setProtocole(new Protocol(getProtocol_id()));
+		dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
+		dicomImage.setSerie(new Serie(getSerie_id()));
 		
+		// On ajoute le fichier brute dans la liste des fichiers
+		// a encrypter 
+		getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
 		
 		// On termine
 		prepareToStop();
@@ -361,23 +356,6 @@ public class DicomWorker extends DaemonWorker {
 				e.printStackTrace();
 			}
 			break;
-		case "DicomImage":
-			DicomImageDAO dicdao = new MySQLDicomImageDAO();
-			try {
-				dicdao.newDicomImage(name.toString(), getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id(),getSerie_id());
-				dicomImage = new DicomImage();
-				dicomImage.setId(dicdao.idmax());
-				dicomImage.setName(name.toString());
-				dicomImage.setProjet(new Project(getProject_id()));
-				dicomImage.setPatient(new Patient(getPatient_id()));
-				dicomImage.setProtocole(new Protocol(getProtocol_id()));
-				dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
-				dicomImage.setSerie(new Serie(getSerie_id()));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-			break;
 		default:
 			System.err.println("Unknow table : "+table);
 		}
@@ -557,8 +535,5 @@ public class DicomWorker extends DaemonWorker {
 	public void prepareToStop(){
 		// On libere de la memoire
 		setImp(null);
-		// On enleve le worker de la liste des worker et on ajoute
-		// le patient à la liste des patients à convertir en nifti
-		dispatcher.sendToNiftiDaemon(this);
 	}
 }

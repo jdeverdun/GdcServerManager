@@ -16,6 +16,12 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 import model.ServerInfo;
 
+
+/**
+ * Daemon principal, point de depart du traitement des dicom 
+ * @author Mobilette
+ *
+ */
 public class DicomDaemon extends Thread{
 
 	
@@ -24,6 +30,7 @@ public class DicomDaemon extends Thread{
 	// Attributs
 	private ServerInfo serverInfo;
 	private DicomJobDispatcher dicomJobDispatcher;
+	private EncryptDaemon encryptDaemon;
 	private NiftiDaemon niftiDaemon;
 	
 	
@@ -35,6 +42,7 @@ public class DicomDaemon extends Thread{
 		setServerInfo(si);
 		setNiftiDaemon(ndaemon);
 		dicomJobDispatcher = new DicomJobDispatcher(this);
+		encryptDaemon = new EncryptDaemon(this);
 	}
 	
 	/*
@@ -46,6 +54,9 @@ public class DicomDaemon extends Thread{
 		System.out.println("Dicom Daemon Online.");
 		// on lance le dispatcher
 		dicomJobDispatcher.start();
+		// puis l'encrypteur
+		encryptDaemon.start();
+		
 		Path dir = serverInfo.getIncomingDir();
 		try {
 			WatchService watcher = FileSystems.getDefault().newWatchService();
@@ -109,6 +120,12 @@ public class DicomDaemon extends Thread{
 	}
 	public void setNiftiDaemon(NiftiDaemon niftiDaemon) {
 		this.niftiDaemon = niftiDaemon;
+	}
+	public EncryptDaemon getEncryptDaemon() {
+		return encryptDaemon;
+	}
+	public void setEncryptDaemon(EncryptDaemon encryptDaemon) {
+		this.encryptDaemon = encryptDaemon;
 	}
 
 }
