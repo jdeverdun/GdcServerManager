@@ -131,27 +131,30 @@ public class UserCreationPanel extends JPanel {
 					Thread mailSender = new Thread(){
 						public void run(){
 							// On construit notre nouvel utilisateur
-							String acclevel = (String) getComboBox().getEditor().getItem();
+							Acclvl acclevel = (Acclvl) getComboBox().getSelectedItem();
 							int level = -1;
 							switch(acclevel){
-							case "SIMPLE":
+							case SIMPLE:
 								level = 1;
 								break;
-							case "ADMIN":
+							case ADMIN:
 								level = 3;
 								break;
 							}
 							User u = new User(getTxtFirstname().getText(), getTxtLastName().getText(), getTxtMail().getText(), getTxtLogin().getText(), level);
-							
+							UserDAO udao = new MySQLUserDAO();
+							try {
+								u.setId(udao.idmax());
+							}catch(Exception e){
+								e.printStackTrace();
+							}
 							// on essai d'inserer le nouvel utilisateur dans al bdd
 							DataBaseAdminDAO dbdao = new MySQLDataBaseAdminDAO();
 							try {
 								dbdao.createUser(u);
 							} catch (SQLException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-							UserDAO udao = new MySQLUserDAO();
 							try {
 								int insertstatus = udao.newUser(u);
 								switch(insertstatus){
@@ -175,7 +178,7 @@ public class UserCreationPanel extends JPanel {
 							// On envoi le mail avec le mot de passe temporaire
 							Mailer mailer = new Mailer(u.getEmail());
 							
-							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : \n Please change it ASAP.");
+							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : "+u.getPassword()+" \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{
