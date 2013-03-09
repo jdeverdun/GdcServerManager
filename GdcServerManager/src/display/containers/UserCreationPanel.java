@@ -19,6 +19,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
+import dao.DataBaseAdminDAO;
+import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
 import dao.UserDAO;
 
@@ -129,18 +131,26 @@ public class UserCreationPanel extends JPanel {
 					Thread mailSender = new Thread(){
 						public void run(){
 							// On construit notre nouvel utilisateur
-							Acclvl acclevel = (Acclvl) getComboBox().getEditor().getItem();
+							String acclevel = (String) getComboBox().getEditor().getItem();
 							int level = -1;
 							switch(acclevel){
-							case SIMPLE:
+							case "SIMPLE":
 								level = 1;
 								break;
-							case ADMIN:
+							case "ADMIN":
 								level = 3;
 								break;
 							}
 							User u = new User(getTxtFirstname().getText(), getTxtLastName().getText(), getTxtMail().getText(), getTxtLogin().getText(), level);
+							
 							// on essai d'inserer le nouvel utilisateur dans al bdd
+							DataBaseAdminDAO dbdao = new MySQLDataBaseAdminDAO();
+							try {
+								dbdao.createUser(u);
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 							UserDAO udao = new MySQLUserDAO();
 							try {
 								int insertstatus = udao.newUser(u);

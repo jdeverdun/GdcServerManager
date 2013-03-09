@@ -22,6 +22,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		if(SQLSettings.PDS == null) 
 			System.err.println("PDS not started.");
 		ResultSet rset = null;
+		int rset2;
 		Statement stmt = null;
 		Connection connection = null;
 		
@@ -30,16 +31,16 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			stmt = connection.createStatement();
 			String encryptedPass = null;		
 	
-			rset = stmt.executeQuery("select PASSWORD("+user.getPassword()+") ;");
+			rset = stmt.executeQuery("select PASSWORD('"+user.getPassword()+"') ;");
 			if (rset != null) {
 				while(rset.next()){
 					encryptedPass=rset.getString(1);
 				}
-				rset = stmt.executeQuery("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"') ;");
+				rset2 = stmt.executeUpdate("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"' ;");
 				String[] viewCommand = Scripts.getCreateUserViews(user);
 				// On cree les vues utilisateur et on donne les acces
 				for(String curcom:viewCommand)
-					rset = stmt.executeQuery(curcom);
+					rset2 = stmt.executeUpdate(curcom);
 				return true;
 			}
 			

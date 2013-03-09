@@ -241,6 +241,8 @@ public class Authentificator extends JFrame {
 						}
 
 						dispose();
+						MainWindow mw = new MainWindow();
+						mw.createAndShowGUI();
 						//System.exit(0);
 					}else{
 						setActive(true);

@@ -16,7 +16,7 @@ public class Scripts {
 		script[3] = "create view Protocol_"+u.getId()+" as select * from Protocol where Protocol.id_project = any(select id_project from User_Project where id_user="+u.getId()+");";
 		script[4] = "create view DicomImage_"+u.getId()+" as select * from DicomImage where DicomImage.id_project = any(select id_project from User_Project where id_user="+u.getId()+");";
 		script[5] = "create view NiftiImage_"+u.getId()+" as select * from NiftiImage where NiftiImage.id_project = any(select id_project from User_Project where id_user="+u.getId()+");";
-		script[6] = "create view User_"+u.getId()+" as select * from User where User.id ="+u.getId()+");";
+		script[6] = "create view User_"+u.getId()+" as select * from User where User.id ="+u.getId()+";";
 		
 		script[7] = "GRANT SELECT ON `"+SQLSettings.DATABASE_NAME+"`.`Project_"+u.getId()+"` TO '"+u.getLogin()+"'@'';";
 		script[8] = "GRANT SELECT ON `"+SQLSettings.DATABASE_NAME+"`.`Patient_"+u.getId()+"` TO '"+u.getLogin()+"'@'';";
