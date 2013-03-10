@@ -24,7 +24,6 @@ import settings.WindowManager;
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
 import display.containers.FileManager;
-import display.containers.FileTree;
 import display.containers.UserCreationPanel;
 
 import javax.swing.JMenuItem;
@@ -237,6 +236,7 @@ public class MainWindow extends JFrame {
 		gbc_btnDeleteLocal.gridx = 2;
 		gbc_btnDeleteLocal.gridy = 0;
 		btnLocalpanel.add(btnDeleteLocal, gbc_btnDeleteLocal);
+		
 		
 		//fileTreeLocal = new FileTree(new File("."));
 		//treelocalbuttonPane.setLeftComponent(fileTreeLocal);

@@ -68,7 +68,7 @@ rename/delete etc. are called that update nodes & file lists.
 @see http://stackoverflow.com/questions/6182110
 @license LGPL
 */
-class FileManager {
+public class FileManager {
 
     /** Title of the application */
     public static final String APP_TITLE = "FileMan";

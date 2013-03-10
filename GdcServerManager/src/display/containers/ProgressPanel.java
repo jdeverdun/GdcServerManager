@@ -20,7 +20,7 @@ public class ProgressPanel extends JPanel {
 
 	private static int INNER_HEIGHT = 60;
 
-	private static final int INNER_WIDTH = 350;
+	private static int INNER_WIDTH = 350;
 
 	private static final int HIGHLIGHTER_HEIGHT = 2;
 
@@ -143,5 +143,9 @@ public class ProgressPanel extends JPanel {
 	}
 	public static void setINNER_HEIGHT(int h){
 		INNER_HEIGHT = h;
+	}
+
+	public void setINNER_WIDTH(int i) {
+		INNER_WIDTH = i;
 	}
 }
