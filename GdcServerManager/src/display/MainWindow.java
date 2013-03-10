@@ -20,6 +20,7 @@ import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import settings.WindowManager;
 
+import display.containers.FileTree;
 import display.containers.UserCreationPanel;
 
 import javax.swing.JMenuItem;
@@ -38,6 +39,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Insets;
+import java.io.File;
 import java.io.IOException;
 
 public class MainWindow extends JFrame {
@@ -71,6 +73,7 @@ public class MainWindow extends JFrame {
 	private JButton btnCreateLocal;
 	private JButton btnDeleteLocal;
 	private JButton btnlocalTowork;
+	private FileTree fileTreeLocal;
 	
 	
 	public MainWindow() {
@@ -125,6 +128,7 @@ public class MainWindow extends JFrame {
 		distautresplitPane.setRightComponent(distworklocalPane);
 		
 		treeworkbuttonPane = new JSplitPane();
+		treeworkbuttonPane.setOneTouchExpandable(true);
 		treeworkbuttonPane.setResizeWeight(0.95);
 		treeworkbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		distworklocalPane.setLeftComponent(treeworkbuttonPane);
@@ -206,6 +210,9 @@ public class MainWindow extends JFrame {
 		gbc_btnDeleteLocal.gridy = 0;
 		btnLocalpanel.add(btnDeleteLocal, gbc_btnDeleteLocal);
 		
+		fileTreeLocal = new FileTree(new File("."));
+		treelocalbuttonPane.setLeftComponent(fileTreeLocal);
+		
 		treedistbuttonPane = new JSplitPane();
 		treedistbuttonPane.setResizeWeight(0.95);
 		treedistbuttonPane.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -262,6 +269,8 @@ public class MainWindow extends JFrame {
 
        
         this.setSize(1000, 700);
+        setTitle(WindowManager.PROGRAM_NAME);
+        setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
         //Display the window.
         this.setVisible(true);
         this.setLocationRelativeTo(null);
