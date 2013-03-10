@@ -81,9 +81,9 @@ class FileManager {
     private File currentDir;
 
     /** Main GUI container */
-    private JPanel gui;
     private DefaultTreeModel treeModel;
-
+    private JFrame parentFrame;
+    
     /** Directory listing */
     private JTable table;
     private JProgressBar progressBar;
@@ -93,11 +93,17 @@ class FileManager {
     private boolean cellSizesSet = false;
     private int rowIconPadding = 6;
 
+    public FileManager(JFrame parent,Path defdir){
+    	setCurrentDir(defdir.toFile());
+    	parentFrame = parent;
+    }
+    public FileManager(JFrame parent){
+    	setCurrentDir(new File(System.getProperty("user.home")));
+    	parentFrame = parent;
+    }
 
     public Container getPane() {
         //if (gui==null) {
-            gui = new JPanel(new BorderLayout(3,3));
-            gui.setBorder(new EmptyBorder(5,5,5,5));
 
             fileSystemView = FileSystemView.getFileSystemView();
             desktop = Desktop.getDesktop();
@@ -124,13 +130,6 @@ class FileManager {
                 }
               });
             
-            listSelectionListener = new ListSelectionListener() {
-                @Override
-                public void valueChanged(ListSelectionEvent lse) {
-                    int row = table.getSelectionModel().getLeadSelectionIndex();
-                    setFileDetails( ((FileTableModel)table.getModel()).getFile(row) );
-                }
-            };
             table.getSelectionModel().addListSelectionListener(listSelectionListener);
             JScrollPane tableScroll = new JScrollPane(table);
             Dimension d = tableScroll.getPreferredSize();
@@ -181,15 +180,14 @@ class FileManager {
                 JSplitPane.HORIZONTAL_SPLIT,
                 treeScroll,
                 detailView);
-            gui.add(splitPane, BorderLayout.CENTER);
 
             JPanel simpleOutput = new JPanel(new BorderLayout(3,3));
             progressBar = new JProgressBar();
             simpleOutput.add(progressBar, BorderLayout.EAST);
             progressBar.setVisible(false);
-            showChildren(Paths.get("C:/"));
-            gui.add(simpleOutput, BorderLayout.SOUTH);
+            showChildren(getCurrentDir().toPath());
             //table.setDragEnabled(true);
+            table.setColumnSelectionAllowed(false);
     
         //}
         return tableScroll;
@@ -223,12 +221,12 @@ class FileManager {
 	private void showThrowable(Throwable t) {
         t.printStackTrace();
         JOptionPane.showMessageDialog(
-            gui,
+            parentFrame,
             t.toString(),
             t.getMessage(),
             JOptionPane.ERROR_MESSAGE
             );
-        gui.repaint();
+        parentFrame.repaint();
     }
 
     /** Update the table on the EDT */
@@ -249,8 +247,8 @@ class FileManager {
                     table.setRowHeight( icon.getIconHeight()+rowIconPadding );
 
                     setColumnWidth(0,-1);
-                    setColumnWidth(3,120);
-                    table.getColumnModel().getColumn(3).setMaxWidth(60);
+                  //  setColumnWidth(3,70);
+                  //  table.getColumnModel().getColumn(3).setMaxWidth(60);
  
 
                     cellSizesSet = true;
@@ -284,6 +282,7 @@ class FileManager {
             @Override
             public Void doInBackground() {
                 File file = (File) node.toFile();
+                setCurrentDir(file);
                 if (file.isDirectory()) {
                     File[] files = fileSystemView.getFiles(file, !UserProfile.SHOW_HIDDEN_FILES); //!!
                     File[] filesWithParent = new File[files.length+1];
@@ -310,22 +309,6 @@ class FileManager {
             }
         };
         worker.execute();
-    }
-
-    /** Update the File details view with the details of this File. */
-    private void setFileDetails(File file) {
-        setCurrentDir(file);
-        Icon icon = fileSystemView.getSystemIcon(file);
-
-        JFrame f = (JFrame)gui.getTopLevelAncestor();
-        if (f!=null) {
-            f.setTitle(
-                APP_TITLE +
-                " :: " +
-                fileSystemView.getSystemDisplayName(file) );
-        }
-
-        gui.repaint();
     }
 
     public File getCurrentDir() {
@@ -368,38 +351,11 @@ class FileManager {
         return created;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    // Significantly improves the look of the output in
-                    // terms of the file names returned by FileSystemView!
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch(Exception weTried) {
-                }
-                JFrame f = new JFrame(APP_TITLE);
-                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-                FileManager fileManager = new FileManager();
-                f.setContentPane(fileManager.getPane());
 
-                try {
-                    URL urlBig = fileManager.getClass().getResource("fm-icon-32x32.png");
-                    URL urlSmall = fileManager.getClass().getResource("fm-icon-16x16.png");
-                    ArrayList<Image> images = new ArrayList<Image>();
-                    images.add( ImageIO.read(urlBig) );
-                    images.add( ImageIO.read(urlSmall) );
-                    f.setIconImages(images);
-                } catch(Exception weTried) {}
-
-                f.pack();
-                f.setLocationByPlatform(true);
-                f.setMinimumSize(f.getSize());
-                f.setVisible(true);
-
-            }
-        });
-    }
+	public void refresh() {
+		showChildren(currentDir.toPath());
+	}
 }
 
 /** A TableModel to hold File[]. */
@@ -430,7 +386,17 @@ class FileTableModel extends AbstractTableModel {
             case 1:
                 return fileSystemView.getSystemDisplayName(file);
             case 2:
-                return file.length();
+            	long nbytes = file.length();
+            	long kilobytes = (nbytes / 1024);
+            	long megabytes = (kilobytes / 1024);
+            	long gigabytes = (megabytes / 1024);
+            	if(kilobytes>1 && megabytes<1)
+            		return kilobytes + " Kb";
+            	else if(megabytes>=1 && gigabytes<1)
+            		return megabytes + " Mb";
+            	else if(gigabytes>=1)
+            		return gigabytes + " Gb";
+                return nbytes + " b";
             case 3:
                 return file.lastModified();
             default:

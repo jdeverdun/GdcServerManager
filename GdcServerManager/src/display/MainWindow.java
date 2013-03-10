@@ -33,12 +33,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
+
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.MenuBar;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JList;
@@ -110,9 +113,15 @@ public class MainWindow extends JFrame {
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		toolBar = new JToolBar();
-		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
+		getContentPane().add(toolBar, BorderLayout.NORTH);
+		//getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		
-		btnRefresh = new JButton("Refresh");
+		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
+		Image img = icon.getImage();  
+		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
+		ImageIcon icon2 = new ImageIcon(newimg); 
+		btnRefresh = new JButton(icon2);
+		//btnRefresh = new JButton("Refresh");
 		toolBar.add(btnRefresh);
 		
 		JPanel panel = new JPanel();
@@ -147,7 +156,7 @@ public class MainWindow extends JFrame {
 		gbl_btnWorkpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		btnWorkpanel.setLayout(gbl_btnWorkpanel);
 		
-		fileTreeWork = new FileManager();
+		fileTreeWork = new FileManager(this);
 		treeworkbuttonPane.setLeftComponent(fileTreeWork.getPane());
 		btnCreateWork = new JButton("create");
 		GridBagConstraints gbc_btnCreateWork = new GridBagConstraints();
@@ -165,10 +174,10 @@ public class MainWindow extends JFrame {
 		gbc_btnDeleteWork.gridy = 0;
 		btnWorkpanel.add(btnDeleteWork, gbc_btnDeleteWork);
 		
-		ImageIcon icon2=new ImageIcon(MainWindow.class.getResource("/images/forward.png"));
-		Image img = icon2.getImage();  
-		Image newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
-		ImageIcon icon = new ImageIcon(newimg); 
+		icon2=new ImageIcon(MainWindow.class.getResource("/images/forward.png"));
+		img = icon2.getImage();  
+		newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+		icon = new ImageIcon(newimg); 
 		btnWorkTolocal = new JButton(icon);
 		GridBagConstraints gbc_btnWorkTolocal = new GridBagConstraints();
 		gbc_btnWorkTolocal.fill = GridBagConstraints.BOTH;
@@ -218,7 +227,7 @@ public class MainWindow extends JFrame {
 		
 		//fileTreeLocal = new FileTree(new File("."));
 		//treelocalbuttonPane.setLeftComponent(fileTreeLocal);
-		fileTreeLocal = new FileManager();
+		fileTreeLocal = new FileManager(this);
 		treelocalbuttonPane.setLeftComponent(fileTreeLocal.getPane());
 		treedistbuttonPane = new JSplitPane();
 		treedistbuttonPane.setResizeWeight(0.95);
@@ -226,7 +235,7 @@ public class MainWindow extends JFrame {
 		treedistbuttonPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		treedistbuttonPane.setOneTouchExpandable(true);
 		treedistbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		fileTreeDist = new FileManager();
+		fileTreeDist = new FileManager(this);
 		treedistbuttonPane.setLeftComponent(fileTreeDist.getPane());
 		distautresplitPane.setLeftComponent(treedistbuttonPane);
 		
@@ -250,7 +259,11 @@ public class MainWindow extends JFrame {
 		gbc_btndistToLocal.gridy = 0;
 		buttonsDistpanel.add(btndistToLocal, gbc_btndistToLocal);
 		
-		btndistToWorkspace = new JButton("toWorkspace");
+		icon2=new ImageIcon(MainWindow.class.getResource("/images/forward.png"));
+		img = icon2.getImage();  
+		newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+		icon = new ImageIcon(newimg); 
+		btndistToWorkspace = new JButton(icon);
 		btndistToWorkspace.setAlignmentX(Component.CENTER_ALIGNMENT);
 		GridBagConstraints gbc_btndistToWorkspace = new GridBagConstraints();
 		gbc_btndistToWorkspace.fill = GridBagConstraints.BOTH;
@@ -259,7 +272,15 @@ public class MainWindow extends JFrame {
 		buttonsDistpanel.add(btndistToWorkspace, gbc_btndistToWorkspace);
 		
 		// Listeners
-		
+		btnRefresh.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getFileTreeDist().refresh();
+				getFileTreeLocal().refresh();
+				getFileTreeWork().refresh();
+			}
+		});
 		mntmCreate.addActionListener(new ActionListener() {
 			
 			@Override
@@ -285,6 +306,224 @@ public class MainWindow extends JFrame {
         this.setLocationRelativeTo(null);
     }
 	 
+
+
+	public JMenu getMnFile() {
+		return mnFile;
+	}
+
+	public void setMnFile(JMenu mnFile) {
+		this.mnFile = mnFile;
+	}
+
+	public JMenuItem getMntmOpen() {
+		return mntmOpen;
+	}
+
+	public void setMntmOpen(JMenuItem mntmOpen) {
+		this.mntmOpen = mntmOpen;
+	}
+
+	public JMenu getMnAdministration() {
+		return mnAdministration;
+	}
+
+	public void setMnAdministration(JMenu mnAdministration) {
+		this.mnAdministration = mnAdministration;
+	}
+
+	public JMenu getMnUsers() {
+		return mnUsers;
+	}
+
+	public void setMnUsers(JMenu mnUsers) {
+		this.mnUsers = mnUsers;
+	}
+
+	public JMenuItem getMntmCreate() {
+		return mntmCreate;
+	}
+
+	public void setMntmCreate(JMenuItem mntmCreate) {
+		this.mntmCreate = mntmCreate;
+	}
+
+	public JToolBar getToolBar() {
+		return toolBar;
+	}
+
+	public void setToolBar(JToolBar toolBar) {
+		this.toolBar = toolBar;
+	}
+
+	public JSplitPane getDistautresplitPane() {
+		return distautresplitPane;
+	}
+
+	public void setDistautresplitPane(JSplitPane distautresplitPane) {
+		this.distautresplitPane = distautresplitPane;
+	}
+
+	public JSplitPane getDistworklocalPane() {
+		return distworklocalPane;
+	}
+
+	public void setDistworklocalPane(JSplitPane distworklocalPane) {
+		this.distworklocalPane = distworklocalPane;
+	}
+
+	public JSplitPane getTreedistbuttonPane() {
+		return treedistbuttonPane;
+	}
+
+	public void setTreedistbuttonPane(JSplitPane treedistbuttonPane) {
+		this.treedistbuttonPane = treedistbuttonPane;
+	}
+
+	public JSplitPane getTreeworkbuttonPane() {
+		return treeworkbuttonPane;
+	}
+
+	public void setTreeworkbuttonPane(JSplitPane treeworkbuttonPane) {
+		this.treeworkbuttonPane = treeworkbuttonPane;
+	}
+
+	public JSplitPane getTreelocalbuttonPane() {
+		return treelocalbuttonPane;
+	}
+
+	public void setTreelocalbuttonPane(JSplitPane treelocalbuttonPane) {
+		this.treelocalbuttonPane = treelocalbuttonPane;
+	}
+
+	public JTabbedPane getOngletPane() {
+		return ongletPane;
+	}
+
+	public void setOngletPane(JTabbedPane ongletPane) {
+		this.ongletPane = ongletPane;
+	}
+
+	public JButton getBtnRefresh() {
+		return btnRefresh;
+	}
+
+	public void setBtnRefresh(JButton btnRefresh) {
+		this.btnRefresh = btnRefresh;
+	}
+
+	public JPanel getButtonsDistpanel() {
+		return buttonsDistpanel;
+	}
+
+	public void setButtonsDistpanel(JPanel buttonsDistpanel) {
+		this.buttonsDistpanel = buttonsDistpanel;
+	}
+
+	public JButton getBtndistToWorkspace() {
+		return btndistToWorkspace;
+	}
+
+	public void setBtndistToWorkspace(JButton btndistToWorkspace) {
+		this.btndistToWorkspace = btndistToWorkspace;
+	}
+
+	public JButton getBtndistToLocal() {
+		return btndistToLocal;
+	}
+
+	public void setBtndistToLocal(JButton btndistToLocal) {
+		this.btndistToLocal = btndistToLocal;
+	}
+
+	public JPanel getBtnWorkpanel() {
+		return btnWorkpanel;
+	}
+
+	public void setBtnWorkpanel(JPanel btnWorkpanel) {
+		this.btnWorkpanel = btnWorkpanel;
+	}
+
+	public JPanel getBtnLocalpanel() {
+		return btnLocalpanel;
+	}
+
+	public void setBtnLocalpanel(JPanel btnLocalpanel) {
+		this.btnLocalpanel = btnLocalpanel;
+	}
+
+	public JButton getBtnWorkTolocal() {
+		return btnWorkTolocal;
+	}
+
+	public void setBtnWorkTolocal(JButton btnWorkTolocal) {
+		this.btnWorkTolocal = btnWorkTolocal;
+	}
+
+	public JButton getBtnDeleteWork() {
+		return btnDeleteWork;
+	}
+
+	public void setBtnDeleteWork(JButton btnDeleteWork) {
+		this.btnDeleteWork = btnDeleteWork;
+	}
+
+	public JButton getBtnCreateWork() {
+		return btnCreateWork;
+	}
+
+	public void setBtnCreateWork(JButton btnCreateWork) {
+		this.btnCreateWork = btnCreateWork;
+	}
+
+	public JButton getBtnCreateLocal() {
+		return btnCreateLocal;
+	}
+
+	public void setBtnCreateLocal(JButton btnCreateLocal) {
+		this.btnCreateLocal = btnCreateLocal;
+	}
+
+	public JButton getBtnDeleteLocal() {
+		return btnDeleteLocal;
+	}
+
+	public void setBtnDeleteLocal(JButton btnDeleteLocal) {
+		this.btnDeleteLocal = btnDeleteLocal;
+	}
+
+	public JButton getBtnlocalTowork() {
+		return btnlocalTowork;
+	}
+
+	public void setBtnlocalTowork(JButton btnlocalTowork) {
+		this.btnlocalTowork = btnlocalTowork;
+	}
+
+	public FileManager getFileTreeLocal() {
+		return fileTreeLocal;
+	}
+
+	public void setFileTreeLocal(FileManager fileTreeLocal) {
+		this.fileTreeLocal = fileTreeLocal;
+	}
+
+	public FileManager getFileTreeWork() {
+		return fileTreeWork;
+	}
+
+	public void setFileTreeWork(FileManager fileTreeWork) {
+		this.fileTreeWork = fileTreeWork;
+	}
+
+	public FileManager getFileTreeDist() {
+		return fileTreeDist;
+	}
+
+	public void setFileTreeDist(FileManager fileTreeDist) {
+		this.fileTreeDist = fileTreeDist;
+	}
+
 	public double getScreenWidth() {
 		return screenWidth;
 	}
