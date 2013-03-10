@@ -10,6 +10,7 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import settings.SQLSettings;
+import settings.SystemSettings;
 
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
@@ -23,14 +24,8 @@ public class GDCSM {
 	 */
 	public static void main(String[] args) {
 		// On définit les paramètres du serveur
-		ServerInfo sinfo = new ServerInfo("C:\\Users\\Mobilette\\Downloads\\test\\buffer","C:\\Users\\Mobilette\\Downloads\\test\\saveDicom","C:\\Users\\Mobilette\\Downloads\\test\\saveNifti",
+		SystemSettings.SERVER_INFO = new ServerInfo("C:\\Users\\Mobilette\\Downloads\\test\\buffer","C:\\Users\\Mobilette\\Downloads\\test\\saveDicom","C:\\Users\\Mobilette\\Downloads\\test\\saveNifti",
 				"C:\\Users\\Mobilette\\Downloads\\test\\temp");
-		// On lance le daemon Nifti
-		NiftiDaemon ndaemon = new NiftiDaemon(sinfo);
-		ndaemon.start();
-		// On lance le daemon Dicom
-		DicomDaemon ddaemon = new DicomDaemon(sinfo,ndaemon);
-		ddaemon.start();
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);

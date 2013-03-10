@@ -3,6 +3,8 @@ package daemon;
 import java.nio.file.Path;
 import java.util.LinkedList;
 
+import javax.swing.JOptionPane;
+
 import model.DicomImage;
 import model.ServerInfo;
 
@@ -20,6 +22,7 @@ public class EncryptDaemon extends Thread {
 	private ServerInfo serverInfo;
 	private DicomDaemon dicomDaemon;
 	private boolean stop;
+	private boolean waitingToStop;
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -27,6 +30,7 @@ public class EncryptDaemon extends Thread {
 		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
+		waitingToStop = false;
 	}
 	
 	
@@ -36,6 +40,8 @@ public class EncryptDaemon extends Thread {
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty()){
+				if(waitingToStop)
+					setStop(true);
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -54,8 +60,39 @@ public class EncryptDaemon extends Thread {
 		return stop;
 	}
 	public void setStop(boolean stop) {
-		this.stop = stop;
+		if(stop = true){
+			if(!dicomToEncrypt.isEmpty()){
+				Object[] options = {"Finish & stop",
+	                    "Force stop"};
+				final JOptionPane optionPane = new JOptionPane(
+					    ""+dicomToEncrypt.size() + " need to be encrypt ...",
+					    JOptionPane.YES_NO_CANCEL_OPTION,
+					    JOptionPane.QUESTION_MESSAGE,
+					    null,
+					    options,
+					    options[0]);
+				String result = (String)optionPane.getValue();
+				if(result==null)
+					return;
+				if(result.equals(options[1]))
+					waitingToStop = true;
+				else
+					this.stop = true;
+			}
+		}else{
+			this.stop = stop;
+		}
 	}
+	public boolean isWaitingToStop() {
+		return waitingToStop;
+	}
+
+
+	public void setWaitingToStop(boolean waitingToStop) {
+		this.waitingToStop = waitingToStop;
+	}
+
+
 	public LinkedList<Path> getDicomToEncrypt() {
 		return dicomToEncrypt;
 	}

@@ -147,7 +147,7 @@ public class NiftiWorker extends DaemonWorker {
 			for(String currNifti:niftis.keySet()){
 				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
-				aes.encrypt(1,niftis.get(currNifti).toString(), newPath.toString());
+				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
 				addEntryToDB(finalNiftiPath,"NiftiImage");	
 			}
 			

@@ -32,17 +32,20 @@ public class DicomDaemon extends Thread{
 	private DicomJobDispatcher dicomJobDispatcher;
 	private EncryptDaemon encryptDaemon;
 	private NiftiDaemon niftiDaemon;
-	
+	private boolean stop;
+	private boolean waitingToStop;
 	
 	public DicomDaemon(ServerInfo si){
 		setServerInfo(si);
 		dicomJobDispatcher = new DicomJobDispatcher(this);
+		waitingToStop = false;
 	}
 	public DicomDaemon(ServerInfo si, NiftiDaemon ndaemon) {
 		setServerInfo(si);
 		setNiftiDaemon(ndaemon);
 		dicomJobDispatcher = new DicomJobDispatcher(this);
 		encryptDaemon = new EncryptDaemon(this);
+		waitingToStop = false;
 	}
 	
 	/*
@@ -98,6 +101,17 @@ public class DicomDaemon extends Thread{
 		        if (!valid) {
 		            break;
 		        }
+		        if(isStop()){
+		        	encryptDaemon.setStop(true);
+		        	if(encryptDaemon.isStop() || encryptDaemon.isWaitingToStop()){
+		        		dicomJobDispatcher.setStop(true);
+		        		if(encryptDaemon.isWaitingToStop())
+		        			waitingToStop = true;
+		        		break;
+		        	}else{
+		        		setStop(false);
+		        	}
+		        }
 		    }
 		} catch (IOException x) {
 		    System.err.println(x);
@@ -126,6 +140,15 @@ public class DicomDaemon extends Thread{
 	}
 	public void setEncryptDaemon(EncryptDaemon encryptDaemon) {
 		this.encryptDaemon = encryptDaemon;
+	}
+	public void setStop(boolean b) {
+		stop = b;
+	}
+	public boolean isStop() {
+		return stop;
+	}
+	public boolean isWaitingToStop() {
+		return waitingToStop;
 	}
 
 }

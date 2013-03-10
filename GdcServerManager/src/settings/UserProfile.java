@@ -15,6 +15,7 @@ public class UserProfile {
 	
 	// Preferences liees au programme
 	public static boolean SHOW_HIDDEN_FILES = false; 
+	
 
 	
 	public static void reset(){

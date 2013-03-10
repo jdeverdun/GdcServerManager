@@ -40,18 +40,21 @@ public class NiftiDaemon extends Thread{
 	private ServerInfo serverInfo;
 	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
+	private boolean waitingToStop;
 	
 	
 	// Constructeur
 	public NiftiDaemon(){
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
+		waitingToStop = false;
 	}
 
 	public NiftiDaemon(ServerInfo si){
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
+		waitingToStop = false;
 	}
 	
 	// format issue de la classe Nifti_Writer
@@ -60,6 +63,7 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
+		waitingToStop = false;
 	}	
 	// Accesseurs
 	public ConcurrentHashMap<Path, DicomImage> getDir2convert() {
@@ -111,6 +115,8 @@ public class NiftiDaemon extends Thread{
 			} catch (InterruptedException e2) {
 				e2.printStackTrace();
 			}
+			if(dir2convert.isEmpty() && waitingToStop)
+				setStop(true);
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
 			while(it.hasNext()){
@@ -146,6 +152,10 @@ public class NiftiDaemon extends Thread{
 		}
 		long time = System.currentTimeMillis() - attrs.lastModifiedTime().toMillis();
 		return time;
+	}
+
+	public void setWaitingToStop(boolean b) {
+		waitingToStop = b;
 	}
 	
 

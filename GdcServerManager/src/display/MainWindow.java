@@ -18,8 +18,12 @@ import javax.swing.JTable;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import settings.SystemSettings;
 import settings.WindowManager;
 
+import daemon.DicomDaemon;
+import daemon.NiftiDaemon;
+import display.containers.FileManager;
 import display.containers.FileTree;
 import display.containers.UserCreationPanel;
 
@@ -52,6 +56,7 @@ public class MainWindow extends JFrame {
 	private double screenWidth;
 	private double screenHeight;
 	
+	private boolean daemonLaunched;
 	// items
 	private JMenuBar menuBar;
 	private JMenu mnFile;
@@ -81,6 +86,8 @@ public class MainWindow extends JFrame {
 	private FileManager fileTreeLocal;
 	private FileManager fileTreeWork;
 	private FileManager fileTreeDist;
+	private JMenu mnServer;
+	private JMenuItem mntmStartstop;
 	
 	public MainWindow() {
 		
@@ -89,7 +96,7 @@ public class MainWindow extends JFrame {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setScreenWidth(screenSize.getWidth());
 		setScreenHeight(screenSize.getHeight());
-		
+		daemonLaunched = false;
 		// Ajout des composants
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -110,10 +117,16 @@ public class MainWindow extends JFrame {
 		
 		mntmCreate = new JMenuItem("Create");
 		mnUsers.add(mntmCreate);
+		
+		mnServer = new JMenu("Server");
+		mnAdministration.add(mnServer);
+		
+		mntmStartstop = new JMenuItem("Start");
+		mnServer.add(mntmStartstop);
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		toolBar = new JToolBar();
-		getContentPane().add(toolBar, BorderLayout.NORTH);
+		//getContentPane().add(toolBar, BorderLayout.NORTH);
 		//getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		
 		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
@@ -289,6 +302,18 @@ public class MainWindow extends JFrame {
 				Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ucreate, (int)getX()+200,(int)getY()+150);
 				ucreate.setPopupWindow(popup);
 				popup.show();
+			}
+		});
+		
+		mntmStartstop.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!daemonLaunched){
+					startDeamons();
+				}else{
+					stopDaemons();
+				}
 			}
 		});
 	}
@@ -540,6 +565,46 @@ public class MainWindow extends JFrame {
 		this.screenHeight = screenHeight;
 	}
 
+	public void startDeamons(){
+		if(SystemSettings.NIFTI_DAEMON!=null)
+			SystemSettings.NIFTI_DAEMON = null;
+		if(SystemSettings.DICOM_DAEMON!=null)
+			SystemSettings.DICOM_DAEMON = null;
+		// On lance le daemon Nifti
+		SystemSettings.NIFTI_DAEMON = new NiftiDaemon(SystemSettings.SERVER_INFO);
+		SystemSettings.NIFTI_DAEMON.start();
+		// On lance le daemon Dicom
+		SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO,SystemSettings.NIFTI_DAEMON);
+		SystemSettings.DICOM_DAEMON.start();
+		daemonLaunched = true;
+		mntmStartstop.setText("False");
+	}
+	
+	/**
+	 * Coupe les daemon en demandant a l'utilisateur
+	 * l'action a realiser si il reste des donnees dans les listes
+	 */
+	public void stopDaemons(){
+		if(SystemSettings.DICOM_DAEMON!=null){
+			SystemSettings.DICOM_DAEMON.setStop(true);
+			if(SystemSettings.DICOM_DAEMON.isStop()){
+				if(SystemSettings.NIFTI_DAEMON!=null){
+					SystemSettings.NIFTI_DAEMON.setStop(true);
+				}
+				daemonLaunched = false;
+				mntmStartstop.setText("Start");
+			}else{
+				if(SystemSettings.DICOM_DAEMON.isWaitingToStop()){
+					SystemSettings.NIFTI_DAEMON.setWaitingToStop(true);
+					while(SystemSettings.DICOM_DAEMON.isStop() && SystemSettings.NIFTI_DAEMON.isStop()){
+						
+					}
+					daemonLaunched = false;
+					mntmStartstop.setText("Start");
+				}
+			}
+		}
+	}
 	public static void main(String args[]){
 
 		SwingUtilities.invokeLater(new Runnable(){
