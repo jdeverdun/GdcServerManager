@@ -115,13 +115,8 @@ public class FileTree extends JPanel {
 		            			changeTree(f);
 		            		}
 		                }else{
-		                	BufferedImage imgtmp = null;
-		            		try {
-		            		    imgtmp = ImageIO.read(f);
-		            		} catch (IOException ee) {
-		            			System.out.println(ee.toString());
-		            			System.out.println("ou est l'image");
-		            		}
+		                	// 1 clic gauche
+		                	
 		                }
 	            	}
             	}catch(Exception ex){}

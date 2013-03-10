@@ -41,6 +41,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.JList;
+import javax.swing.AbstractListModel;
 
 public class MainWindow extends JFrame {
 	
@@ -73,8 +75,9 @@ public class MainWindow extends JFrame {
 	private JButton btnCreateLocal;
 	private JButton btnDeleteLocal;
 	private JButton btnlocalTowork;
-	private FileTree fileTreeLocal;
-	
+	private FileManager fileTreeLocal;
+	private FileManager fileTreeWork;
+	private FileManager fileTreeDist;
 	
 	public MainWindow() {
 		
@@ -122,6 +125,7 @@ public class MainWindow extends JFrame {
 		distautresplitPane = new JSplitPane();
 		distautresplitPane.setResizeWeight(0.35);
 		ongletPane.addTab("New tab", null, distautresplitPane, null);
+
 		
 		distworklocalPane = new JSplitPane();
 		distworklocalPane.setResizeWeight(0.5);
@@ -143,6 +147,8 @@ public class MainWindow extends JFrame {
 		gbl_btnWorkpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		btnWorkpanel.setLayout(gbl_btnWorkpanel);
 		
+		fileTreeWork = new FileManager();
+		treeworkbuttonPane.setLeftComponent(fileTreeWork.getPane());
 		btnCreateWork = new JButton("create");
 		GridBagConstraints gbc_btnCreateWork = new GridBagConstraints();
 		gbc_btnCreateWork.fill = GridBagConstraints.BOTH;
@@ -210,15 +216,18 @@ public class MainWindow extends JFrame {
 		gbc_btnDeleteLocal.gridy = 0;
 		btnLocalpanel.add(btnDeleteLocal, gbc_btnDeleteLocal);
 		
-		fileTreeLocal = new FileTree(new File("."));
-		treelocalbuttonPane.setLeftComponent(fileTreeLocal);
-		
+		//fileTreeLocal = new FileTree(new File("."));
+		//treelocalbuttonPane.setLeftComponent(fileTreeLocal);
+		fileTreeLocal = new FileManager();
+		treelocalbuttonPane.setLeftComponent(fileTreeLocal.getPane());
 		treedistbuttonPane = new JSplitPane();
 		treedistbuttonPane.setResizeWeight(0.95);
 		treedistbuttonPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 		treedistbuttonPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		treedistbuttonPane.setOneTouchExpandable(true);
 		treedistbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		fileTreeDist = new FileManager();
+		treedistbuttonPane.setLeftComponent(fileTreeDist.getPane());
 		distautresplitPane.setLeftComponent(treedistbuttonPane);
 		
 		buttonsDistpanel = new JPanel();

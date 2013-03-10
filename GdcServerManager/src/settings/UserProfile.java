@@ -13,6 +13,10 @@ public class UserProfile {
 	public static User CURRENT_USER = null;
 	public static Set<Project> PROJECTS = new HashSet<Project>();
 	
+	// Preferences liees au programme
+	public static boolean SHOW_HIDDEN_FILES = false; 
+
+	
 	public static void reset(){
 		LOGIN = null;
 		PASSWORD = null;
