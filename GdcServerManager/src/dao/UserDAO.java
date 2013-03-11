@@ -107,5 +107,20 @@ public interface UserDAO {
        * @throws SQLException
        */
       public boolean updateUser(User user) throws SQLException;
+
+      /**
+       * Supprime un utilisateur
+       * @param u
+       * @return
+     * @throws SQLException 
+       */
+      public boolean removeUser(User u) throws SQLException;
+      
+      /**
+       * Renvoi la valeur de l'autoincrement
+       * @return
+       * @throws SQLException
+       */
+      public int aivalue() throws SQLException;
 }
 

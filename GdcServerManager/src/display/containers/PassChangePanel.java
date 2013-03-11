@@ -25,6 +25,8 @@ import javax.swing.JPasswordField;
 
 import settings.UserProfile;
 
+import dao.DataBaseAdminDAO;
+import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
 import dao.UserDAO;
 
@@ -40,6 +42,10 @@ public class PassChangePanel extends PopupPanel {
 		super();
 		descriptLabel = new JLabel("<html>"+PassChangePanel.HEADERTXT +"</html>");
 		getMainPanel().add(descriptLabel, "flowy,cell 0 0,grow");
+		
+		lblWarning = new JLabel("");
+		lblWarning.setVisible(false);
+		mainPanel.add(lblWarning, "cell 0 0,aligny center");
 		
 		JLabel lblPassfirst = new JLabel("New Password");
 		lblPassfirst.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -95,9 +101,12 @@ public class PassChangePanel extends PopupPanel {
 					}
 					
 					// On met à jours l'utilisateur sur la db
+					DataBaseAdminDAO ddao = new MySQLDataBaseAdminDAO();
 					try {
 						udao.updateUser(ulocal);
+						ddao.setPasswordForCurrentUser(ulocal.getPassword());
 						UserProfile.CURRENT_USER = ulocal;
+						getPopupWindow().hide();
 					} catch (SQLException e1) {
 						setWarning("SQL Error");
 						e1.printStackTrace();

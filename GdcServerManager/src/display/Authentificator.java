@@ -246,11 +246,9 @@ public class Authentificator extends JFrame {
 	        public void run() {
 				UserDAO udao = new MySQLUserDAO();
 				try {
-					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
+					final User u = udao.connexion(txtUsername.getText(), passwordField.getText());
 					if(u!=null){
-						if(u.firstConnect()==1){
-							u = changePassword(u,Authentificator.this);
-						}
+						
 						
 						SwingUtilities.invokeLater(new Runnable(){
 							public void run(){
@@ -265,6 +263,7 @@ public class Authentificator extends JFrame {
 								WindowManager.MAINWINDOW.createAndShowGUI();
 							}
 						});
+						
 						dispose();
 						
 						//System.exit(0);
@@ -281,22 +280,7 @@ public class Authentificator extends JFrame {
 		t.start();
 	}
 	
-	// permet de demander a l'utilisateur de changer son mot de passe
-	// necessite un user et une frame parent
-	//
-	public static User changePassword(User u,JFrame parent) {
-		final JFrame par = parent;
-		Thread passT = new Thread(){
-			public void run(){
-				PassChangePanel pchange = new PassChangePanel();
-				Popup popup = PopupFactory.getSharedInstance().getPopup(par, pchange, (int)par.getX(),(int)par.getY());
-				pchange.setPopup(popup);
-				popup.show();
-			}
-		};
-		passT.start();
-		return u;
-	}
+
 
 	@Override
 	public void dispose(){

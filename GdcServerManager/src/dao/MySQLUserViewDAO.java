@@ -16,64 +16,60 @@ import settings.SQLSettings;
 import model.Project;
 import model.User;
 
-public class MySQLUserProjectDAO implements UserProjectDAO {
+public class MySQLUserViewDAO implements UserViewDAO {
 
+	
+	public int addUserView( String login, int view) throws SQLException {
+		
+		boolean rset = false;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			rset = stmt.execute("insert into User_View values (NULL,'"
+					+ login + "' ," + view + ")");
+			
+			return 0;
+			
+		}
+		catch(Exception e){
+			if(e.toString().contains("UNIQUE"))
+				return 1;
+			else{
+				System.err.println("Erreur SQL " + e);
+				return 2;
+			}
+		}
+		finally {
+			stmt.close();
+			connection.close();
+		}
+	
+	}
+	
 	@Override
-	public Set<Project> getProjectsForUser(int id) throws SQLException {
-		Set<Project> projects = new HashSet<Project>();
+	public int getViewForLogin(String login) throws SQLException {
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
+		int res = -1;
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
-			rset = stmt.executeQuery("select * from User_Project where id_user="+id);
+			rset = stmt.executeQuery("select * from User_View where login_user='"+login+"'");
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Project proj = pdao.retrieveProject(rset.getInt("id_project"));
-				if(proj!=null)
-					projects.add(proj);
+				res = rset.getInt("view_num");
 			}
-			return projects;
+			return res;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
-		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
-		}
-	}
-
-	@Override
-	public Set<User> getUsersForProject(int id) throws SQLException {
-		Set<User> users = new HashSet<User>();
-		ResultSet rset = null;
-		Statement stmt = null;
-		Connection connection = null;
-		try {
-			connection = SQLSettings.PDS.getConnection();
-			stmt = connection.createStatement();
-			//PatientDAO patdao=new MySQLPatientDAO();
-			UserDAO udao=new MySQLUserDAO();
-			rset = stmt.executeQuery("select * from User_Project where id_project="+id);
-
-			// boucle sur les resultats de la requête
-			while (rset.next()) {
-				User us = udao.retrieveUser(rset.getInt("id_user"));
-					// On limite l'instantiation (usage memoire)
-					//us.setProjects(updao.getProjectsForUser(us.getId()));
-					
-				if(us!=null) 
-					users.add(us);
-			}
-			return users;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			return -1;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -82,7 +78,6 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 	}
 	
 	public boolean removeUser(User u) throws SQLException{
-		// la liste de grimpeurs
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -90,7 +85,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User_Project where id_user="+u.getId());
+			rset = stmt.executeUpdate("delete from User_View where login_user="+u.getLogin());
 
 			return true;
 		} catch (SQLException e2) {

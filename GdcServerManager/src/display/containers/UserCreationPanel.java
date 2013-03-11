@@ -46,20 +46,16 @@ public class UserCreationPanel extends PopupPanel {
 	
 	//private JButton 
 	public UserCreationPanel() {
-		setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00,grow][][][][][][][][][6.00,grow,fill][][]"));
-		
-		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		add(panel, "cell 0 0 2 1,grow");
-		panel.setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
+		//setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		//setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00,grow][][][][][][][][][6.00,grow,fill][][]"));
+		super();
+
 		
 		descriptLabel = new JLabel("<html>"+UserCreationPanel.HEADERTXT +"</html>");
-		panel.add(descriptLabel, "flowy,cell 0 0,grow");
-		
+		mainPanel.add(descriptLabel, "flowy,cell 0 0,grow");
 		lblWarning = new JLabel("");
 		lblWarning.setVisible(false);
-		panel.add(lblWarning, "cell 0 0,aligny center");
+		mainPanel.add(lblWarning, "cell 0 0,aligny center");
 		
 		JLabel lblLogin = new JLabel("Login");
 		lblLogin.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -143,37 +139,37 @@ public class UserCreationPanel extends PopupPanel {
 							// Mot de passe en clair
 							String realPass = u.getPassword();
 							UserDAO udao = new MySQLUserDAO();
+							System.out.println(realPass);
 							try {
-								u.setId(udao.idmax()+1);
 								// on encrypt le mdp
-								u.setPassword(udao.encryptPass(u.getPassword()));
+								u.setPassword(udao.encryptPass(realPass));
 							}catch(Exception e){
 								e.printStackTrace();
 							}
-							
 							// On s'assure qu'il est valide
 							if(!u.isReadyForInsert()){
 								setWarning("Code Error. Contact an admin");
+								progressPanel.setVisible(false);
 								return;
 							}
-							// on essai d'inserer le nouvel utilisateur dans la bdd
-							DataBaseAdminDAO dbdao = new MySQLDataBaseAdminDAO();
-							try {
-								dbdao.createUser(u);
-							} catch (SQLException e1) {
-								e1.printStackTrace();
-							}
+							
 							try {
 								int insertstatus = udao.newUser(u);
 								switch(insertstatus){
 								case 1:
+									setLock(false);
 									setWarning("Login already exists.");
+									progressPanel.setVisible(false);
 									break;
 								case 2:
-									setWarning("SQL Error. Contact an admin");
+									setLock(false);
+									setWarning("SQL Error.");
+									progressPanel.setVisible(false);
 									return;
 								case 3:
-									setWarning("Code Error. Contact an admin");
+									setLock(false);
+									setWarning("Code Error.");
+									progressPanel.setVisible(false);
 									return;
 								}
 							} catch (SQLException e) {
@@ -183,17 +179,42 @@ public class UserCreationPanel extends PopupPanel {
 								return;
 							}
 							
+							// On recupere l'id
+							try {
+								u.setId(udao.retrieveUser(u.getLogin()).getId());
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+							
+							
+							// on essai d'inserer le nouvel utilisateur dans la bdd
+							DataBaseAdminDAO dbdao = new MySQLDataBaseAdminDAO();
+							try {
+								dbdao.createUser(u);
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+							
 							// On envoi le mail avec le mot de passe temporaire
 							Mailer mailer = new Mailer(u.getEmail());
 							
-							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : "+realPass+" \n Please change it ASAP.");
+							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : '"+realPass+"' \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{
-								// si le mail est pas partie
-								setWarning("Error with mailing.");
+								// On affiche le message d'erreur
+								setWarning("Mailing error.");
 								setLock(false);
 								progressPanel.setVisible(false);
+								// si le mail est pas partie
+								//On annule les changement de la db
+								try {
+									udao.removeUser(u);
+									dbdao.removeUser(u);
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+								
 							}
 								
 						}

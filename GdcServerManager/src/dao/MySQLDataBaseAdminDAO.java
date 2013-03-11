@@ -37,10 +37,16 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 					encryptedPass=rset.getString(1);
 				}
 				rset2 = stmt.executeUpdate("create user '"+user.getLogin()+"'@'%' IDENTIFIED BY PASSWORD '"+encryptedPass+"' ;");
+				
 				String[] viewCommand = Scripts.getCreateUserViews(user);
 				// On cree les vues utilisateur et on donne les acces
 				for(String curcom:viewCommand)
 					rset2 = stmt.executeUpdate(curcom);
+				
+				// on insere le tuple dans user_view
+				UserViewDAO uvdao = new MySQLUserViewDAO();
+				uvdao.addUserView(user.getLogin(), user.getId());
+				
 				return true;
 			}
 			
@@ -50,6 +56,45 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 			e.printStackTrace();	return false;
 		}finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	// PAS FINI ? 
+	@Override
+	public boolean removeUser(User user) throws SQLException {
+		if(SQLSettings.PDS == null) 
+			System.err.println("PDS not started.");
+		int rset2;
+		Statement stmt = null;
+		Connection connection = null;
+		
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+	
+			String[] viewCommand = Scripts.getDeleteUserViews(user);
+			// On supprime les vues utilisateur et  acces
+			for(String curcom:viewCommand)
+				rset2 = stmt.executeUpdate(curcom);
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			stmt.execute("DROP USER "+user.getLogin()+" ;");
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			stmt.execute("DROP USER "+user.getLogin()+"@'' ;");
+
+			// on enleve le tuple de user_view
+			UserViewDAO uvdao = new MySQLUserViewDAO();
+			uvdao.removeUser(user);
+			
+			return true;
+
+		
+		}catch(SQLException e){
+			e.printStackTrace();	return false;
+		}finally {
 			stmt.close();
 			connection.close();
 		}
@@ -100,4 +145,26 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		}
 	}
 
+	@Override
+	public boolean setPasswordForCurrentUser(String pass) throws SQLException {
+		Statement stmt = null;
+		Connection connection = null;
+		
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();	
+	
+			stmt.executeUpdate("set password=password('"+pass+"') ;");
+
+			return true;
+		
+		}catch(SQLException e){
+			e.printStackTrace();	return false;
+		}finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	
 }

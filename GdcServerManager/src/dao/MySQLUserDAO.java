@@ -104,11 +104,14 @@ public class MySQLUserDAO implements UserDAO {
 			// On recupere une connexion
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			if(UserProfile.CURRENT_USER.getLevel() == 3){
+			
+			UserViewDAO uvdao = new MySQLUserViewDAO();
+			int idview = uvdao.getViewForLogin(login);
+			if(idview == UserViewDAO.ADMIN_VIEW_NUM){
 				rset = stmt.executeQuery("select * from User where login='"
 						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
 			}else{
-				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login='"
+				rset = stmt.executeQuery("select * from User_"+idview+" where login='"
 						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
 			}
 			if (rset != null) {
@@ -140,6 +143,8 @@ public class MySQLUserDAO implements UserDAO {
 		}
 
 	}
+	
+	
 	
 	/**
      * Insère un tuple dans la table User et renvoi 0 si tout c'est bien passe
@@ -241,6 +246,38 @@ public class MySQLUserDAO implements UserDAO {
 		
 	}
 	
+	
+	public int aivalue() throws SQLException{
+		
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			int ident=-1;		
+	
+			rset = stmt.executeQuery("SHOW TABLE STATUS LIKE 'user' ;");
+
+				
+			if (rset != null) {
+				while(rset.next()){
+					//System.out.println("id max= "+rset.getInt(1));
+					ident=rset.getInt("Auto_increment");
+				}
+			}
+			
+			return ident;
+		
+		}catch(Exception e){
+			e.printStackTrace();	return -1;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+		
+	}
 	/**
      * Récupère l'utilisateur ayant l'id "id"
      * @param id
@@ -304,9 +341,9 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User where login="+login);
+				rset = stmt.executeQuery("select * from User where login='"+login+"'");
 			else
-				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login="+login);
+				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login='"+login+"'");
 			
 			while(rset.next()){
 				userC.setNom(rset.getString("nom"));
@@ -392,6 +429,29 @@ public class MySQLUserDAO implements UserDAO {
 			return null;
 		} finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public boolean removeUser(User u) throws SQLException{
+		// la liste de grimpeurs
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			rset = stmt.executeUpdate("delete from User where id="+u.getId());
+
+			UserProjectDAO udao = new MySQLUserProjectDAO();
+			udao.removeUser(u);
+			return true;
+		} catch (SQLException e2) {
+			System.err.println("Erreur SQL " + e2);
+			return false;
+		} finally {
 			stmt.close();
 			connection.close();
 		}

@@ -19,11 +19,13 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import settings.SystemSettings;
+import settings.UserProfile;
 import settings.WindowManager;
 
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
 import display.containers.FileManager;
+import display.containers.PassChangePanel;
 import display.containers.UserCreationPanel;
 
 import javax.swing.JMenuItem;
@@ -109,6 +111,11 @@ public class MainWindow extends JFrame {
 		
 		mnAdministration = new JMenu("Administration");
 		mnAdministration.setActionCommand("Administration");
+		
+		// On masque le bouton si l'utilisateur n'est pas admin
+		if(UserProfile.CURRENT_USER.getLevel()<3)
+			mnAdministration.setVisible(false);
+		
 		menuBar.add(mnAdministration);
 		
 		mnUsers = new JMenu("Users         ");
@@ -319,6 +326,8 @@ public class MainWindow extends JFrame {
 	}
 	
 	 public void createAndShowGUI() {
+		 
+
         //Create and set up the window.
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -329,6 +338,24 @@ public class MainWindow extends JFrame {
         //Display the window.
         this.setVisible(true);
         this.setLocationRelativeTo(null);
+		// On change le mdp si c'est la premiere connexion
+		if(UserProfile.CURRENT_USER.firstConnect() == 1){
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run(){
+					JFrame.setDefaultLookAndFeelDecorated(true);
+					try {
+				          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+			        } catch (Exception e) {
+			          System.out.println("Substance Graphite failed to initialize");
+			        }
+					UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+					PassChangePanel pchange = new PassChangePanel();
+					Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, pchange, (int)getX()+200,(int)getY()+150);
+					pchange.setPopup(popup);
+					popup.show();
+				}
+			});
+		}
     }
 	 
 

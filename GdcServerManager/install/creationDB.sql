@@ -5,6 +5,12 @@ use gdcserver;
 create table User
 (id integer NOT NULL AUTO_INCREMENT, nom varchar(20), prenom varchar(20), email varchar(60), login varchar(30) UNIQUE, password varchar(50),level tinyint, firstconnect tinyint(1),
  constraint user_pk primary key (id));
+ 
+create table User_View
+(id integer NOT NULL AUTO_INCREMENT, login_user varchar(50), view_num integer,
+constraint user_view_pk primary key (id),
+constraint login_user_fk foreign key (login_user) references User(login) on delete cascade,
+constraint login_view_unique unique(login_user,view_num));
 
 create table Project
 (id integer NOT NULL AUTO_INCREMENT, name varchar(70) UNIQUE, rkey varchar(50), constraint project_pk primary key (id));
