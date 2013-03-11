@@ -39,7 +39,10 @@ public class MySQLUserDAO implements UserDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from User");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User");
+			else
+				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -101,8 +104,13 @@ public class MySQLUserDAO implements UserDAO {
 			// On recupere une connexion
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from User where login='"
-					+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeQuery("select * from User where login='"
+						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
+			}else{
+				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login='"
+						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
+			}
 			if (rset != null) {
 				rset.next();
 				userC.setNom(rset.getString("nom"));
@@ -209,7 +217,11 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from User ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from User ;");
+			else
+				rset = stmt.executeQuery("select max(id) from User_"+UserProfile.CURRENT_USER.getId()+" ;");
+				
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -245,7 +257,11 @@ public class MySQLUserDAO implements UserDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
-			rset = stmt.executeQuery("select * from User where id="+id);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User where id="+id);
+			else
+				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				userC.setNom(rset.getString("nom"));
 				userC.setPrenom(rset.getString("prenom"));
@@ -287,7 +303,11 @@ public class MySQLUserDAO implements UserDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
-			rset = stmt.executeQuery("select * from User where login="+login);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User where login="+login);
+			else
+				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login="+login);
+			
 			while(rset.next()){
 				userC.setNom(rset.getString("nom"));
 				userC.setPrenom(rset.getString("prenom"));
@@ -339,6 +359,32 @@ public class MySQLUserDAO implements UserDAO {
 			System.err.println("Erreur SQL " + e2);
 			return false;
 		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	
+	public String encryptPass(String password)
+			throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			String url = "jdbc:mysql://"+SQLSettings.ADDRESS+":3306/";
+			connection = DriverManager.getConnection(url, "fakeuser", "");
+			stmt = connection.createStatement();
+			rset = stmt.executeQuery("select password('" + password + "');");
+			if (rset != null) {
+				rset.next();
+				return rset.getString(1);
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			rset.close();
 			stmt.close();
 			connection.close();
 		}

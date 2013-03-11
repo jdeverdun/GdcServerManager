@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 import dao.project.MySQLPatientDAO;
 import dao.project.PatientDAO;
@@ -38,7 +39,10 @@ public class MySQLProjectDAO implements ProjectDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Project");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Project");
+			else
+				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -120,7 +124,10 @@ public class MySQLProjectDAO implements ProjectDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Project ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from Project ;");
+			else
+				rset = stmt.executeQuery("select max(id) from Project_"+UserProfile.CURRENT_USER.getId()+" ;");
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -156,7 +163,11 @@ public class MySQLProjectDAO implements ProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
-			rset = stmt.executeQuery("select * from Project where id="+id);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Project where id="+id);
+			else
+				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				projectC.setNom(rset.getString("name"));
 				projectC.setId(rset.getInt("id"));
@@ -191,7 +202,11 @@ public class MySQLProjectDAO implements ProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
-			rset = stmt.executeQuery("select * from Project where name='"+name+"'");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Project where name='"+name+"'");
+			else
+				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"'");
+			
 			while(rset.next()){
 				projectC.setNom(rset.getString("name"));
 				projectC.setId(rset.getInt("id"));

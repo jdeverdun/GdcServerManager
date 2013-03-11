@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
@@ -30,7 +31,11 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection = SQLSettings.PDS.getConnection();
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Patient");
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Patient");
+			else
+				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -94,7 +99,11 @@ public class MySQLPatientDAO implements PatientDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Patient ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from Patient ;");
+			else
+				rset = stmt.executeQuery("select max(id) from Patient_"+UserProfile.CURRENT_USER.getId()+" ;");
+			
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -123,8 +132,13 @@ public class MySQLPatientDAO implements PatientDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			ProjectDAO projdao=new MySQLProjectDAO();			
-			rset = stmt.executeQuery("select * from Patient where id="+id);
+			ProjectDAO projdao=new MySQLProjectDAO();		
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Patient where id="+id);
+			else
+				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				pat.setNom(rset.getString("name"));
 				pat.setId(rset.getInt("id"));
@@ -153,8 +167,13 @@ public class MySQLPatientDAO implements PatientDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			ProjectDAO projdao=new MySQLProjectDAO();			
-			rset = stmt.executeQuery("select * from Patient where name='"+name+"' and id_project="+project_id);
+			ProjectDAO projdao=new MySQLProjectDAO();	
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Patient where name='"+name+"' and id_project="+project_id);
+			else
+				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id);
+			
 			while(rset.next()){
 				pat.setNom(rset.getString("name"));
 				pat.setId(rset.getInt("id"));
@@ -200,7 +219,11 @@ public class MySQLPatientDAO implements PatientDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Patient where id_project="+project_id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Patient where id_project="+project_id);
+			else
+				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where id_project="+project_id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {

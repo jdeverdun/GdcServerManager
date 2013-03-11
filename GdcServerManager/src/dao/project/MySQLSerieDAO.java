@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 
 import model.Serie;
@@ -25,7 +26,11 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection = SQLSettings.PDS.getConnection();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Serie");
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie");
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -90,7 +95,11 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Serie ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from Serie ;");
+			else
+				rset = stmt.executeQuery("select max(id) from Serie_"+UserProfile.CURRENT_USER+" ;");
+			
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -120,7 +129,12 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
-			rset = stmt.executeQuery("select * from Serie where id="+id);
+
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie where id="+id);
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				serie.setId(rset.getInt("id"));
 				serie.setName(rset.getString("name"));
@@ -156,8 +170,14 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
-			rset = stmt.executeQuery("select * from Serie where name='"+name+"' and id_project="+project_id+" and " +
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeQuery("select * from Serie where name='"+name+"' and id_project="+project_id+" and " +
 					" id_patient="+patient_id+" and id_acqdate="+acqDate_id+" and id_protocol="+protocol_id);
+			}else{
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and " +
+						" id_patient="+patient_id+" and id_acqdate="+acqDate_id+" and id_protocol="+protocol_id);
+			}
 			while(rset.next()){
 				serie.setId(rset.getInt("id"));
 				serie.setName(rset.getString("name"));
@@ -210,7 +230,11 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Serie where id_patient="+id);
+
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie where id_patient="+id);
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -239,7 +263,11 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Serie where id_project="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie where id_project="+id);
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -267,7 +295,11 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Serie where id_acqdate="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie where id_acqdate="+id);
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -296,7 +328,11 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Serie where id_protocol="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Serie where id_protocol="+id);
+			else
+				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_protocol="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {

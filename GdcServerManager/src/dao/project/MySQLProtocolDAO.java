@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 import model.AcquisitionDate;
 import model.Protocol;
@@ -25,7 +26,11 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			connection = SQLSettings.PDS.getConnection();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Protocol");
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Protocol");
+			else
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -91,7 +96,11 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from Protocol ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from Protocol ;");
+			else
+				rset = stmt.executeQuery("select max(id) from Protocol_"+UserProfile.CURRENT_USER.getId()+" ;");
+			
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -121,7 +130,13 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
-			rset = stmt.executeQuery("select * from Protocol where id="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Protocol where id="+id);
+			else
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
+			
 			while(rset.next()){
 				prot.setId(rset.getInt("id"));
 				prot.setName(rset.getString("name"));
@@ -154,8 +169,14 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
-			rset = stmt.executeQuery("select * from Protocol where name='"+name+"' and id_project="+project_id+" and " +
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeQuery("select * from Protocol where name='"+name+"' and id_project="+project_id+" and " +
 					" id_patient="+patient_id+" and id_acqdate="+acqDate_id);
+			}else{
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and " +
+						" id_patient="+patient_id+" and id_acqdate="+acqDate_id);
+			}
 			while(rset.next()){
 				prot.setId(rset.getInt("id"));
 				prot.setName(rset.getString("name"));
@@ -206,7 +227,11 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Protocol where id_patient="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Protocol where id_patient="+id);
+			else
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -236,7 +261,11 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Protocol where id_project="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Protocol where id_project="+id);
+			else
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -264,7 +293,11 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from Protocol where id_acqdate="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from Protocol where id_acqdate="+id);
+			else
+				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {

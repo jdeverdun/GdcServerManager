@@ -144,9 +144,13 @@ public class UserCreationPanel extends JPanel {
 							
 							// On cree le nouvel utilisateur
 							User u = new User(getTxtFirstname().getText(), getTxtLastName().getText(), getTxtMail().getText(), getTxtLogin().getText(), level);
+							// Mot de passe en clair
+							String realPass = u.getPassword();
 							UserDAO udao = new MySQLUserDAO();
 							try {
 								u.setId(udao.idmax()+1);
+								// on encrypt le mdp
+								u.setPassword(udao.encryptPass(u.getPassword()));
 							}catch(Exception e){
 								e.printStackTrace();
 							}
@@ -186,7 +190,7 @@ public class UserCreationPanel extends JPanel {
 							// On envoi le mail avec le mot de passe temporaire
 							Mailer mailer = new Mailer(u.getEmail());
 							
-							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : "+u.getPassword()+" \n Please change it ASAP.");
+							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : "+realPass+" \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{

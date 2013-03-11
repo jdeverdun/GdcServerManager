@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 import model.AcquisitionDate;
 import model.Patient;
@@ -26,7 +27,11 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			connection = SQLSettings.PDS.getConnection();
 			PatientDAO pdao = new MySQLPatientDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from AcquisitionDate");
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from AcquisitionDate");
+			else
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -91,7 +96,11 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from AcquisitionDate ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from AcquisitionDate ;");
+			else
+				rset = stmt.executeQuery("select max(id) from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" ;");
+			
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -119,8 +128,12 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			PatientDAO pdao=new MySQLPatientDAO();			
-			rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
+			PatientDAO pdao=new MySQLPatientDAO();		
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from AcquisitionDate where id="+id);
+			else
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
 				acq.setDate(rset.getString("name"));
@@ -150,8 +163,11 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			PatientDAO pdao=new MySQLPatientDAO();			
-			rset = stmt.executeQuery("select * from AcquisitionDate where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
+			PatientDAO pdao=new MySQLPatientDAO();		
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from AcquisitionDate where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
+			else
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
 				acq.setDate(rset.getString("name"));
@@ -201,7 +217,10 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from AcquisitionDate where id_patient="+id);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from AcquisitionDate where id_patient="+id);
+			else
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -230,7 +249,10 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from AcquisitionDate where id_project="+id);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from AcquisitionDate where id_project="+id);
+			else
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {

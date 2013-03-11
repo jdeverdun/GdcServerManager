@@ -12,6 +12,7 @@ import java.util.Set;
 
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 
 
@@ -28,7 +29,10 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			connection = SQLSettings.PDS.getConnection();
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage");
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -93,7 +97,11 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("select max(id) from NiftiImage ;");
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max(id) from NiftiImage ;");
+			else
+				rset = stmt.executeQuery("select max(id) from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" ;");
+			
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -125,7 +133,12 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
-			rset = stmt.executeQuery("select * from NiftiImage where id="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+			
 			while(rset.next()){
 				nifti.setId(rset.getInt("id"));
 				nifti.setName(rset.getString("name"));
@@ -200,7 +213,11 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_patient="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id_patient="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -232,7 +249,11 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_project="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id_project="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -260,7 +281,11 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_acqdate="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id_acqdate="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -289,7 +314,10 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_protocol="+id);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id_protocol="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id_protocol="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -317,7 +345,11 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeQuery("select * from NiftiImage where id_serie="+id);
+
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from NiftiImage where id_serie="+id);
+			else
+				rset = stmt.executeQuery("select * from NiftiImage_"+UserProfile.CURRENT_USER.getId()+" where id_serie="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {

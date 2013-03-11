@@ -5,8 +5,12 @@ import java.awt.GridLayout;
 import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import javax.swing.JButton;
+
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -24,6 +28,7 @@ import settings.WindowManager;
 
 import dao.MySQLUserDAO;
 import dao.UserDAO;
+import display.containers.ImagePanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
 import display.containers.UserCreationPanel;
@@ -76,10 +81,11 @@ public class Authentificator extends JFrame {
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new MigLayout("", "[48px,grow][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][7.00]"));
+		panel.setLayout(new MigLayout("", "[48px,grow,fill][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][7.00]"));
 		
-		JPanel panel_2 = new JPanel();
+		ImagePanel panel_2 = new ImagePanel("logovd.png");
 		panel.add(panel_2, "cell 0 0 1 8,grow");
+		
 		
 		lblUsername = new JLabel("Username");
 		panel.add(lblUsername, "cell 1 3,alignx left,aligny center");
@@ -129,7 +135,8 @@ public class Authentificator extends JFrame {
 		setSize(WIDTH,HEIGHT);
 		setResizable(false);
 		
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		// ====================== Event ==============================
 		// on appui sur Entrée quand on est sur le pass -> tente le login
 		passwordField.addKeyListener(new KeyAdapter() {

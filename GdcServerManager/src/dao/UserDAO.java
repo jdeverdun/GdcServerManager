@@ -92,5 +92,13 @@ public interface UserDAO {
        * @throws SQLException
        */
       public boolean updateUser(int i,String l, String pass,String n,String pr,String e,int level,int fconnect) throws SQLException;
+      
+      /**
+       * Encrypt un mot de passe via la commande SQL
+       * @param password
+       * @return
+       * @throws SQLException
+       */
+      public String encryptPass(String password) throws SQLException;
 }
 

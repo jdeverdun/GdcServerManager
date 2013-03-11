@@ -111,7 +111,7 @@ public class MainWindow extends JFrame {
 		mnAdministration.setActionCommand("Administration");
 		menuBar.add(mnAdministration);
 		
-		mnUsers = new JMenu("Users");
+		mnUsers = new JMenu("Users         ");
 		mnAdministration.add(mnUsers);
 		
 		mntmCreate = new JMenuItem("Create");
@@ -125,7 +125,7 @@ public class MainWindow extends JFrame {
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		toolBar = new JToolBar();
-		//getContentPane().add(toolBar, BorderLayout.NORTH);
+		getContentPane().add(toolBar, BorderLayout.NORTH);
 		//getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		
 		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
