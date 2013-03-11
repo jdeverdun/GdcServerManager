@@ -30,12 +30,10 @@ import model.User;
 import model.User.Acclvl;
 import java.awt.FlowLayout;
 
-public class UserCreationPanel extends JPanel {
+public class UserCreationPanel extends PopupPanel {
 	private static String HEADERTXT = "<b>User creation</b><br /> Please fill each field";
-	private JLabel descriptLabel;
 	private JTextField txtLogin;
 	private JTextField txtLastName;
-	private Popup popup;
 	private JLabel lblLastName;
 	private JLabel lblFirstName;
 	private JTextField txtFirstname;
@@ -45,8 +43,6 @@ public class UserCreationPanel extends JPanel {
 	private JComboBox comboBox;
 	private JButton btnCreate;
 	private JButton btnCancel;
-	private ProgressPanel progressPanel;
-	private JLabel lblWarning;
 	
 	//private JButton 
 	public UserCreationPanel() {
@@ -220,12 +216,6 @@ public class UserCreationPanel extends JPanel {
 
 		});
 	}
-	public JLabel getDescriptLabel() {
-		return descriptLabel;
-	}
-	public void setDescriptLabel(JLabel descriptLabel) {
-		this.descriptLabel = descriptLabel;
-	}
 	public JTextField getTxtLogin() {
 		return txtLogin;
 	}
@@ -268,12 +258,6 @@ public class UserCreationPanel extends JPanel {
 	public void setTxtMail(JTextField txtMail) {
 		this.txtMail = txtMail;
 	}
-	public JLabel getLblWarning() {
-		return lblWarning;
-	}
-	public void setLblWarning(JLabel lblWarning) {
-		this.lblWarning = lblWarning;
-	}
 	public JLabel getLblEmail() {
 		return lblEmail;
 	}
@@ -297,12 +281,6 @@ public class UserCreationPanel extends JPanel {
 	}
 	public void setBtnCreate(JButton btnCreate) {
 		this.btnCreate = btnCreate;
-	}
-	public void setPopupWindow(Popup popup) {
-		this.popup = popup;
-	}
-	public Popup getPopupWindow(){
-		return this.popup;
 	}
 	
 	// desactive/active tout les champs
@@ -335,9 +313,4 @@ public class UserCreationPanel extends JPanel {
 		return 0;
 	}
 	
-	// affiche un warning dans lblWarning
-	private void setWarning(String txt){
-		getLblWarning().setVisible(true);
-		getLblWarning().setText("<html><font color=\"red\">"+txt+"</font></html>");
-	}
 }

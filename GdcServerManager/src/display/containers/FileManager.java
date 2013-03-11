@@ -354,7 +354,9 @@ public class FileManager {
 
 
 	public void refresh() {
+		table.setEnabled(false);
 		showChildren(currentDir.toPath());
+		table.setEnabled(true);
 	}
 }
 

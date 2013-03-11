@@ -353,7 +353,11 @@ public class MySQLUserDAO implements UserDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
+			else
+				rset = stmt.executeUpdate("update User_"+UserProfile.CURRENT_USER.getId()+" set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
+			
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -364,6 +368,9 @@ public class MySQLUserDAO implements UserDAO {
 		}
 	}
 	
+	public boolean updateUser(User user) throws SQLException{
+		return updateUser(user.getId(), user.getLogin(), user.getPassword(), user.getNom(), user.getPrenom(), user.getEmail(), user.getLevel(), user.getFirstConnect());
+	}
 	
 	public String encryptPass(String password)
 			throws SQLException {

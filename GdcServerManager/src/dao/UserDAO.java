@@ -100,5 +100,12 @@ public interface UserDAO {
        * @throws SQLException
        */
       public String encryptPass(String password) throws SQLException;
+
+      /**
+       * Met à jours un utilisateur grace a un objet user
+       * @param user
+       * @throws SQLException
+       */
+      public boolean updateUser(User user) throws SQLException;
 }
 
