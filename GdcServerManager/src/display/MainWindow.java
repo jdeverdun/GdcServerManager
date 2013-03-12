@@ -1,11 +1,13 @@
 package display;
 
 import javax.imageio.ImageIO;
+import javax.security.auth.Refreshable;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
@@ -34,7 +36,9 @@ import display.containers.DeleteUserPanel;
 import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
+import display.containers.ProgressPanel;
 import display.containers.UserCreationPanel;
+import display.containers.WaitingBarPanel;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -388,9 +392,56 @@ public class MainWindow extends JFrame {
 				popup.show();
 			}
 		});
+		
+		btnWorkTolocal.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				WaitingBarPanel ppanel = new WaitingBarPanel(); // mode creation de liens
+				ppanel.setTitle("Copying ...");
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeWork().copySelectedFilesTo(getFileTreeLocal().getCurrentDir());
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the copy.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeDist().refresh();
+						getFileTreeLocal().refresh();
+						getFileTreeWork().refresh();
+					}
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				popup.show();
+				
+				copyThread.start();				
+			}
+		});
 	}
 	
-	 public void createAndShowGUI() {
+
+	public void createAndShowGUI() {
 		 
 
         //Create and set up the window.
@@ -657,6 +708,7 @@ public class MainWindow extends JFrame {
 		this.screenHeight = screenHeight;
 	}
 
+
 	public void startDeamons(){
 		if(SystemSettings.NIFTI_DAEMON!=null)
 			SystemSettings.NIFTI_DAEMON = null;
@@ -696,6 +748,25 @@ public class MainWindow extends JFrame {
 				}
 			}
 		}
+	}
+	
+	public void setLock(boolean b) {
+		getFileTreeDist().getTable().setEnabled(!b);
+		getFileTreeLocal().getTable().setEnabled(!b);
+		getFileTreeWork().getTable().setEnabled(!b);
+		getBtnCreateLocal().setEnabled(!b);
+		getBtnCreateWork().setEnabled(!b);
+		getBtnDeleteLocal().setEnabled(!b);
+		getBtnDeleteWork().setEnabled(!b);
+		getBtndistToLocal().setEnabled(!b);
+		getBtndistToWorkspace().setEnabled(!b);
+		getBtnLocalpanel().setEnabled(!b);
+		getBtnlocalTowork().setEnabled(!b);
+		getBtnRefresh().setEnabled(!b);
+		getBtnWorkpanel().setEnabled(!b);
+		getBtnWorkTolocal().setEnabled(!b);
+		getDistautresplitPane().setEnabled(!b);
+		getDistworklocalPane().setEnabled(!b);
 	}
 	public static void main(String args[]){
 

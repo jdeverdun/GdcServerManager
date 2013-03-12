@@ -24,6 +24,8 @@ import javax.swing.filechooser.FileSystemView;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
+
 import settings.UserProfile;
 
 import java.util.Date;
@@ -217,6 +219,28 @@ public class FileManager {
 		}
 	}
 
+    /**
+     * Deplace les fichiers / repertoire selectionnees vers le dossier dir
+     * @param currentDir2
+     * @throws IOException 
+     */
+	public void copySelectedFilesTo(File dir) throws IOException {
+		// Recupere les lignes selectionnees
+		int[] indices = table.getSelectedRows();
+		// On recupere les fichiers correspondants
+		ArrayList<File> files = new ArrayList<File>();
+		for(int i=0;i<indices.length;i++){
+			int row = table.convertRowIndexToModel(indices[i]);
+			File fi = ((FileTableModel)table.getModel()).getFile(row);
+			if(!fi.getName().contains("..")){
+				if(fi.isDirectory())
+					FileUtils.copyDirectoryToDirectory(fi, dir);
+				else
+					FileUtils.copyFileToDirectory(fi, dir);
+			}
+		}
+	}
+
 
 	private void showThrowable(Throwable t) {
         t.printStackTrace();
@@ -358,6 +382,25 @@ public class FileManager {
 		showChildren(currentDir.toPath());
 		table.setEnabled(true);
 	}
+	public DefaultTreeModel getTreeModel() {
+		return treeModel;
+	}
+	public void setTreeModel(DefaultTreeModel treeModel) {
+		this.treeModel = treeModel;
+	}
+	public JTable getTable() {
+		return table;
+	}
+	public void setTable(JTable table) {
+		this.table = table;
+	}
+	public FileTableModel getFileTableModel() {
+		return fileTableModel;
+	}
+	public void setFileTableModel(FileTableModel fileTableModel) {
+		this.fileTableModel = fileTableModel;
+	}
+
 }
 
 /** A TableModel to hold File[]. */

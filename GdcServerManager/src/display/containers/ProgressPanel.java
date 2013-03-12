@@ -32,6 +32,8 @@ public class ProgressPanel extends JPanel {
 	
 	private Timeline progressTimeline;
 
+	private Popup popup;
+
 	public ProgressPanel() {
 		this.xPosition = 0;
 		this.alpha = 0;
@@ -147,5 +149,9 @@ public class ProgressPanel extends JPanel {
 
 	public void setINNER_WIDTH(int i) {
 		INNER_WIDTH = i;
+	}
+
+	public void setPopupWindow(Popup popup) {
+		this.popup = popup;
 	}
 }
