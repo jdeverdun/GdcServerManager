@@ -32,6 +32,7 @@ import dao.UserDAO;
 import dao.UserViewDAO;
 import display.containers.DeleteUserPanel;
 import display.containers.FileManager;
+import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.UserCreationPanel;
 
@@ -97,6 +98,9 @@ public class MainWindow extends JFrame {
 	private JMenu mnServer;
 	private JMenuItem mntmStartstop;
 	private JMenuItem mntmDelete;
+	private JMenu mnManage;
+	private JMenuItem mntmLinkProject;
+	private JMenuItem mntmUnlinkProject;
 	
 	public MainWindow() {
 		
@@ -127,13 +131,28 @@ public class MainWindow extends JFrame {
 		menuBar.add(mnAdministration);
 		
 		mnUsers = new JMenu("Users         ");
+		mnUsers.setToolTipText("");
 		mnAdministration.add(mnUsers);
 		
 		mntmCreate = new JMenuItem("Create");
+		mntmCreate.setToolTipText("Create new user");
 		mnUsers.add(mntmCreate);
 		
 		mntmDelete = new JMenuItem("Delete");
+		mntmDelete.setToolTipText("Remove existing user");
 		mnUsers.add(mntmDelete);
+		
+		mnManage = new JMenu("Manage");
+		mnManage.setToolTipText("Manage users permissions - params ");
+		mnUsers.add(mnManage);
+		
+		mntmLinkProject = new JMenuItem("Link project");
+		mntmLinkProject.setToolTipText("Add an access to a specific project to the specified user");
+		mnManage.add(mntmLinkProject);
+		
+		mntmUnlinkProject = new JMenuItem("Unlink project");
+		mntmUnlinkProject.setToolTipText("Remove existing link between user and a project");
+		mnManage.add(mntmUnlinkProject);
 		
 		mnServer = new JMenu("Server");
 		mnAdministration.add(mnServer);
@@ -151,6 +170,7 @@ public class MainWindow extends JFrame {
 		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
 		ImageIcon icon2 = new ImageIcon(newimg); 
 		btnRefresh = new JButton(icon2);
+		btnRefresh.setToolTipText("Refresh");
 		//btnRefresh = new JButton("Refresh");
 		toolBar.add(btnRefresh);
 		
@@ -344,6 +364,28 @@ public class MainWindow extends JFrame {
 				udelete.setPopupWindow(popup);
 				popup.show();
 				
+			}
+		});
+		
+		mntmLinkProject.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LinkProjectPanel ulink = new LinkProjectPanel(0); // mode creation de liens
+				Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ulink, (int)getX()+200,(int)getY()+150);
+				ulink.setPopupWindow(popup);
+				popup.show();
+			}
+		});
+		
+		mntmUnlinkProject.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LinkProjectPanel ulink = new LinkProjectPanel(1); // mode creation de liens
+				Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ulink, (int)getX()+200,(int)getY()+150);
+				ulink.setPopupWindow(popup);
+				popup.show();
 			}
 		});
 	}

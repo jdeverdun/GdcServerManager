@@ -56,7 +56,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return projects;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -98,8 +98,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			}
 			catch(Exception e){
 				System.err.println("Erreur de chargement du driver ");
-				e.printStackTrace();
-				return false;
+				throw e;
 			}
 			finally {
 				stmt.close();
@@ -138,7 +137,8 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();
+			throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -239,7 +239,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();

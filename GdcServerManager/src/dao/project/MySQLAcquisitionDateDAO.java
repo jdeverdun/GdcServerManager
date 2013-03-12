@@ -45,7 +45,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return acqDates;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -111,7 +111,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();
+			throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -199,7 +200,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();
@@ -231,7 +232,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return acqs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -263,7 +264,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			return acqs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();

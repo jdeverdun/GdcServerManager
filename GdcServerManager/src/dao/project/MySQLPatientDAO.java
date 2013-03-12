@@ -48,7 +48,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return patients;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -75,7 +75,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				
 			}
 			catch(Exception e){
-				System.err.println("Erreur de chargement du driver " + e);	return false;
+				System.err.println("Erreur de chargement du driver " + e);	throw e;
 			}
 			finally {
 				stmt.close();
@@ -114,7 +114,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();	throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -204,7 +204,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();
@@ -234,7 +234,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			return patients;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();

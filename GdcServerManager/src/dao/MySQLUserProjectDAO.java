@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import settings.SQLSettings;
+import settings.UserProfile;
 
 
 import model.Project;
@@ -29,7 +30,11 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
-			rset = stmt.executeQuery("select * from User_Project where id_user="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User_Project where id_user="+id);
+			else
+				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_user="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -40,7 +45,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			return projects;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -59,7 +64,11 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			UserDAO udao=new MySQLUserDAO();
-			rset = stmt.executeQuery("select * from User_Project where id_project="+id);
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User_Project where id_project="+id);
+			else
+				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -73,7 +82,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			return users;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -95,11 +104,107 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();
 		}
+	}
+	
+	public int removeLink(int id_user, int id_project) throws SQLException{
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			rset = stmt.executeUpdate("delete from User_Project where id_user="+id_user+" and id_project="+id_project);
+
+			return 0;
+		} catch (SQLException e2) {
+			System.err.println("Erreur SQL " + e2);
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	public int removeLink(String login, String projectname) throws SQLException{
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			// On recupere les id user // projet
+			UserDAO udao = new MySQLUserDAO();
+			ProjectDAO pdao = new MySQLProjectDAO();
+			User u = udao.retrieveUser(login);
+			Project p = pdao.retrieveProject(projectname);
+			return removeLink(u.getId(),p.getId());
+		} catch (SQLException e2) {
+			System.err.println("Erreur SQL " + e2);
+			throw e2;
+		}
+	}
+	
+	public boolean exists(int user_id, int project_id) throws SQLException{
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+		
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from User_Project where id_user="+user_id+" and id_project="+project_id);
+			else
+				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_user="+user_id+" and id_project="+project_id);
+			
+			return rset.next();		
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public int addLink(String login, String projectname) throws SQLException {
+		
+		boolean rset = false;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			// On recupere les id user // projet
+			UserDAO udao = new MySQLUserDAO();
+			ProjectDAO pdao = new MySQLProjectDAO();
+			User u = udao.retrieveUser(login);
+			Project p = pdao.retrieveProject(projectname);
+			
+			// Check si le tuple existe deja
+			boolean tupleExists = exists(u.getId(), p.getId());
+			if(!tupleExists){
+				rset = stmt.execute("insert into User_Project values ("
+						+ u.getId() + " ," + p.getId() + ")");
+				return 0;
+			}else{
+				return 1;
+			}		
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
+		finally {
+			stmt.close();
+			connection.close();
+		}
+	
 	}
 
 }

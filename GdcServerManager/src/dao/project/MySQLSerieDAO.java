@@ -48,7 +48,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -75,7 +75,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				
 			}
 			catch(Exception e){
-				e.printStackTrace();	return false;
+				e.printStackTrace();	throw e;
 			}
 			finally {
 				stmt.close();
@@ -110,7 +110,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();	throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -213,7 +213,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();
@@ -245,7 +245,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -278,7 +278,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -310,7 +310,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -343,7 +343,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();

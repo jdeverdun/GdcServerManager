@@ -237,7 +237,7 @@ public class MySQLUserDAO implements UserDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();	throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -270,7 +270,8 @@ public class MySQLUserDAO implements UserDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();	
+			throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -450,7 +451,8 @@ public class MySQLUserDAO implements UserDAO {
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
-			return false;
+			throw e2;
+			//return false;
 		} finally {
 			stmt.close();
 			connection.close();

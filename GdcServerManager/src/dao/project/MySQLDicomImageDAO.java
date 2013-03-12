@@ -48,7 +48,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -75,7 +75,8 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				
 			}
 			catch(Exception e){
-				System.err.println("Warning : SQL -> " + e);	return false;
+				System.err.println("Warning : SQL -> " + e);
+				throw e;
 			}
 			finally {
 				stmt.close();
@@ -109,7 +110,8 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return ident;
 		
 		}catch(Exception e){
-			e.printStackTrace();	return -1;
+			e.printStackTrace();
+			throw e;
 		}finally {
 			rset.close();
 			stmt.close();
@@ -171,7 +173,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
-			return false;
+			throw e2;
 		} finally {
 			stmt.close();
 			connection.close();
@@ -205,7 +207,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -241,7 +243,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -273,7 +275,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -306,7 +308,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
@@ -338,7 +340,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			return dicoms;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			throw e;
 		} finally {
 			rset.close();
 			stmt.close();
