@@ -85,11 +85,11 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User_View where login_user="+u.getLogin());
+			rset = stmt.executeUpdate("delete from User_View where login_user='"+u.getLogin()+"'");
 
 			return true;
 		} catch (SQLException e2) {
-			System.err.println("Erreur SQL " + e2);
+			e2.printStackTrace();
 			return false;
 		} finally {
 			stmt.close();

@@ -24,6 +24,13 @@ import settings.WindowManager;
 
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
+import dao.DataBaseAdminDAO;
+import dao.MySQLDataBaseAdminDAO;
+import dao.MySQLUserDAO;
+import dao.MySQLUserViewDAO;
+import dao.UserDAO;
+import dao.UserViewDAO;
+import display.containers.DeleteUserPanel;
 import display.containers.FileManager;
 import display.containers.PassChangePanel;
 import display.containers.UserCreationPanel;
@@ -89,6 +96,7 @@ public class MainWindow extends JFrame {
 	private FileManager fileTreeDist;
 	private JMenu mnServer;
 	private JMenuItem mntmStartstop;
+	private JMenuItem mntmDelete;
 	
 	public MainWindow() {
 		
@@ -124,6 +132,9 @@ public class MainWindow extends JFrame {
 		mntmCreate = new JMenuItem("Create");
 		mnUsers.add(mntmCreate);
 		
+		mntmDelete = new JMenuItem("Delete");
+		mnUsers.add(mntmDelete);
+		
 		mnServer = new JMenu("Server");
 		mnAdministration.add(mnServer);
 		
@@ -132,8 +143,8 @@ public class MainWindow extends JFrame {
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		toolBar = new JToolBar();
-		getContentPane().add(toolBar, BorderLayout.NORTH);
-		//getContentPane().add(toolBar, "cell 0 0 31 1,grow");
+		//getContentPane().add(toolBar, BorderLayout.NORTH);
+		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		
 		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
 		Image img = icon.getImage();  
@@ -321,6 +332,18 @@ public class MainWindow extends JFrame {
 				}else{
 					stopDaemons();
 				}
+			}
+		});
+		
+		mntmDelete.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				DeleteUserPanel udelete = new DeleteUserPanel();
+				Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, udelete, (int)getX()+200,(int)getY()+150);
+				udelete.setPopupWindow(popup);
+				popup.show();
+				
 			}
 		});
 	}

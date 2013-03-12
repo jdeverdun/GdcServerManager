@@ -14,7 +14,7 @@ public abstract class PopupPanel extends JPanel{
 	 */
 	private static final long serialVersionUID = -8354078835544022052L;
 	protected Popup popup;
-	protected static String HEADERTXT = "<b>Gene update</b><br /> Your password is unsafe, please change it.";
+	protected static String HEADERTXT = "<b>Generic text</b><br /> none.";
 	protected JLabel descriptLabel;
 	protected ProgressPanel progressPanel;
 	protected JLabel lblWarning;
