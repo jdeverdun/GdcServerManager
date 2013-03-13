@@ -19,7 +19,7 @@ public class DecryptDaemon extends Thread {
 	private ServerInfo serverInfo;
 	private boolean stop;
 	
-	public DecryptDaemon(DicomDaemon dicomDaemon){
+	public DecryptDaemon(){
 		fileToDecrypt = new LinkedList<Path[]>();
 		stop = false;
 	}
@@ -27,7 +27,7 @@ public class DecryptDaemon extends Thread {
 	
 	@Override
 	public void run() {
-		System.out.println("Encrypter Online.");
+		System.out.println("Decrypter Online.");
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(fileToDecrypt.isEmpty()){
@@ -39,7 +39,8 @@ public class DecryptDaemon extends Thread {
 			}
 			
 			// on lance le decryptage du fichier
-			fileDecryptWorker = new FileDecryptWorker(this, (Path)fileToDecrypt.pop()[0], (Path)fileToDecrypt.pop()[1]);
+			Path[] toWork = (Path[])fileToDecrypt.pop();
+			fileDecryptWorker = new FileDecryptWorker(this, toWork[0], toWork[1]);
 			fileDecryptWorker.start();  
 
 		}
@@ -84,6 +85,11 @@ public class DecryptDaemon extends Thread {
 
 	public void addFileToDecrypt(Path source, Path to){
 		fileToDecrypt.push(new Path[]{source,to});
+	}
+
+
+	public void cleanList() {
+		fileToDecrypt.clear();
 	}
 	
 

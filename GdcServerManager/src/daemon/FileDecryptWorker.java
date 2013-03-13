@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 
+import settings.SystemSettings;
+
 import es.vocali.util.AESCrypt;
 
 /**
@@ -27,7 +29,7 @@ public class FileDecryptWorker extends DaemonWorker {
 		Path acqdateFolder = protocolFolder.getParent();
 		setPatientFolder(acqdateFolder.getParent());
 		setProjectFolder(getPatientFolder().getParent());
-		
+		setServerInfo(SystemSettings.SERVER_INFO);
 	}
 	
 	
@@ -66,7 +68,7 @@ public class FileDecryptWorker extends DaemonWorker {
 		try {
 			AESCrypt aes = new AESCrypt(false, getAESPass());
 			String filename = from.getFileName().toString().substring(0, from.getFileName().toString().length()-4);
-			aes.decrypt(from.toString(), to+filename);			
+			aes.decrypt(from.toString(), to+"/"+filename);			
 			
 		} catch (GeneralSecurityException | IOException e) {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique

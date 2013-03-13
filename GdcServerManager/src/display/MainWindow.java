@@ -24,6 +24,7 @@ import settings.SystemSettings;
 import settings.UserProfile;
 import settings.WindowManager;
 
+import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
 import daemon.NiftiDaemon;
 import dao.DataBaseAdminDAO;
@@ -68,7 +69,7 @@ public class MainWindow extends JFrame {
 	
 	private double screenWidth;
 	private double screenHeight;
-	
+	private boolean isLock;
 	private boolean daemonLaunched;
 	// items
 	private JMenuBar menuBar;
@@ -109,11 +110,8 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		
 		// Init
-		WindowManager.MAINWINDOW = this;
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setScreenWidth(screenSize.getWidth());
-		setScreenHeight(screenSize.getHeight());
-		daemonLaunched = false;
+		init();
+		
 		// Ajout des composants
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -254,7 +252,11 @@ public class MainWindow extends JFrame {
 		gbl_btnLocalpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		btnLocalpanel.setLayout(gbl_btnLocalpanel);
 		
-		btnlocalTowork = new JButton("toWork");
+		icon2=new ImageIcon(MainWindow.class.getResource("/images/backward.png"));
+		img = icon2.getImage();  
+		newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+		icon = new ImageIcon(newimg); 
+		btnlocalTowork = new JButton(icon);
 		
 		GridBagConstraints gbc_btnlocalTowork = new GridBagConstraints();
 		gbc_btnlocalTowork.insets = new Insets(0, 0, 0, 5);
@@ -290,7 +292,7 @@ public class MainWindow extends JFrame {
 		treedistbuttonPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		treedistbuttonPane.setOneTouchExpandable(true);
 		treedistbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		fileTreeDist = new FileManager(this);
+		fileTreeDist = new FileManager(this,SystemSettings.SERVER_INFO.getDicomDir());
 		treedistbuttonPane.setLeftComponent(fileTreeDist.getPane());
 		distautresplitPane.setLeftComponent(treedistbuttonPane);
 		
@@ -305,7 +307,11 @@ public class MainWindow extends JFrame {
 		gbl_buttonsDistpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		buttonsDistpanel.setLayout(gbl_buttonsDistpanel);
 		
-		btndistToLocal = new JButton("toWorkspace");
+		icon2=new ImageIcon(MainWindow.class.getResource("/images/download2.png"));
+		img = icon2.getImage();  
+		newimg = img.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH);  
+		icon = new ImageIcon(newimg); 
+		btndistToLocal = new JButton(icon);
 		btndistToLocal.setAlignmentX(0.5f);
 		GridBagConstraints gbc_btndistToLocal = new GridBagConstraints();
 		gbc_btndistToLocal.fill = GridBagConstraints.BOTH;
@@ -314,9 +320,9 @@ public class MainWindow extends JFrame {
 		gbc_btndistToLocal.gridy = 0;
 		buttonsDistpanel.add(btndistToLocal, gbc_btndistToLocal);
 		
-		icon2=new ImageIcon(MainWindow.class.getResource("/images/forward.png"));
+		icon2=new ImageIcon(MainWindow.class.getResource("/images/test.png"));
 		img = icon2.getImage();  
-		newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+		newimg = img.getScaledInstance(70, 30,  java.awt.Image.SCALE_SMOOTH);  
 		icon = new ImageIcon(newimg); 
 		btndistToWorkspace = new JButton(icon);
 		btndistToWorkspace.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -398,7 +404,7 @@ public class MainWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setLock(true);
-				WaitingBarPanel ppanel = new WaitingBarPanel(); // mode creation de liens
+				WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeLocal()); // mode creation de liens
 				ppanel.setTitle("Copying ...");
 				JFrame tmp = new JFrame();
 				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
@@ -438,8 +444,274 @@ public class MainWindow extends JFrame {
 				copyThread.start();				
 			}
 		});
+		btnlocalTowork.addActionListener(new ActionListener() {
+					
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeLocal()); // mode creation de liens
+				ppanel.setTitle("Copying ...");
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeLocal().copySelectedFilesTo(getFileTreeWork().getCurrentDir());
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the copy.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeDist().refresh();
+						getFileTreeLocal().refresh();
+						getFileTreeWork().refresh();
+					}
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				popup.show();
+				
+				copyThread.start();				
+			}
+		});
+		btndistToWorkspace.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				final WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeDist()); // mode creation de liens
+				final String title = "Copy & Decrypt ...";
+				ppanel.setTitle(title);
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeDist().copySelectedFilesAndDecryptTo(getFileTreeWork().getCurrentDir());
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the copy.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeDist().refresh();
+						getFileTreeLocal().refresh();
+						getFileTreeWork().refresh();
+					}
+					
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				ppanel.setFiletree(getFileTreeDist());
+				popup.show();
+				
+				copyThread.start();	
+				
+				// On attend que tout se termine
+				Thread updateStatusThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(isLock){
+							ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				updateStatusThread.start();
+			}
+		});
+		
+		btnDeleteLocal.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeLocal()); // mode creation de liens
+				ppanel.setTitle("Deleting ...");
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeLocal().deleteSelectedFiles();
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the deletion.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeLocal().refresh();
+					}
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				popup.show();
+				
+				copyThread.start();				
+			}
+		});
+		
+		btnDeleteWork.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeWork()); // mode creation de liens
+				ppanel.setTitle("Deleting ...");
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeWork().deleteSelectedFiles();
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the deletion.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeWork().refresh();
+					}
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				popup.show();
+				
+				copyThread.start();				
+			}
+		});
+		
+		btnCreateLocal.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				String response = JOptionPane.showInputDialog(null,
+						  "Folder creation",
+						  "Folder name ?",
+						  JOptionPane.QUESTION_MESSAGE);
+				if(!response.equals("")){
+					File fi = new File(getFileTreeLocal().getCurrentDir() + "/" + response);
+					if(!fi.exists()){
+						fi.mkdir();
+						getFileTreeLocal().refresh();
+					}else{
+						JOptionPane.showMessageDialog(MainWindow.this,
+							    "Directory already exists.",
+							    "Create dir error",
+							    JOptionPane.ERROR_MESSAGE);
+					}
+				}	
+				setLock(false);
+			}
+		});
+		btnCreateWork.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				String response = JOptionPane.showInputDialog(null,
+						  "Folder creation",
+						  "Folder name ?",
+						  JOptionPane.QUESTION_MESSAGE);
+				if(!response.equals("")){
+					File fi = new File(getFileTreeWork().getCurrentDir() + "/" + response);
+					if(!fi.exists()){
+						fi.mkdir();
+						getFileTreeWork().refresh();
+					}else{
+						JOptionPane.showMessageDialog(MainWindow.this,
+							    "Directory already exists.",
+							    "Create dir error",
+							    JOptionPane.ERROR_MESSAGE);
+					}
+				}	
+				setLock(false);
+			}
+		});
 	}
 	
+	
+
+	/**
+	 * Methode permettant d'initialiser certaines variables 
+	 * et lancer des daemon au demarrage
+	 */
+	private void init() {
+		WindowManager.MAINWINDOW = this;
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		setScreenWidth(screenSize.getWidth());
+		setScreenHeight(screenSize.getHeight());
+		daemonLaunched = false;
+		isLock = false;
+		// On lance par defaut le decrypteur
+		SystemSettings.DECRYPT_DAEMON = new DecryptDaemon();
+		SystemSettings.DECRYPT_DAEMON.start();
+	}
+
+
 
 	public void createAndShowGUI() {
 		 
@@ -751,6 +1023,7 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void setLock(boolean b) {
+		isLock = b;
 		getFileTreeDist().getTable().setEnabled(!b);
 		getFileTreeLocal().getTable().setEnabled(!b);
 		getFileTreeWork().getTable().setEnabled(!b);

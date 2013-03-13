@@ -19,8 +19,15 @@ public class WaitingBarPanel extends JPanel{
 	private JButton btnCancel;
 	private Popup popup;
 	private Thread runningThread;
+	private FileManager filetree; // celui qui tourne dans le thread
 	
+	
+	public WaitingBarPanel(FileManager fileManager){
+		this();
+		setFiletree(fileManager);
+	}
 	public WaitingBarPanel(){
+		
 		setLayout(new MigLayout("", "[grow,center][]", "[][23.00,fill][]"));
 		
 		lblTitle = new JLabel("Waiting");
@@ -38,7 +45,7 @@ public class WaitingBarPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				getPopup().hide();
-				getRunningThread().stop();
+				getFiletree().terminateAction();
 				WindowManager.MAINWINDOW.setLock(false);
 			}
 		});
@@ -53,7 +60,7 @@ public class WaitingBarPanel extends JPanel{
 	}
 
 	public void setTitle(String txt){
-		txt = "            "+txt+"            ";
+		txt = "<html>                 "+txt+"                 </html>";
 		getLblTitle().setText(txt);
 	}
 
@@ -71,6 +78,14 @@ public class WaitingBarPanel extends JPanel{
 
 	public void setRunningThread(Thread runningThread) {
 		this.runningThread = runningThread;
+	}
+
+	public FileManager getFiletree() {
+		return filetree;
+	}
+
+	public void setFiletree(FileManager filetree) {
+		this.filetree = filetree;
 	}
 
 }

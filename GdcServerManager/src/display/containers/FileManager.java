@@ -26,6 +26,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 
+import settings.SystemSettings;
 import settings.UserProfile;
 
 import java.util.Date;
@@ -94,14 +95,17 @@ public class FileManager {
     private ListSelectionListener listSelectionListener;
     private boolean cellSizesSet = false;
     private int rowIconPadding = 6;
+	private boolean continueAction;
 
     public FileManager(JFrame parent,Path defdir){
     	setCurrentDir(defdir.toFile());
     	parentFrame = parent;
+    	continueAction = true;
     }
     public FileManager(JFrame parent){
     	setCurrentDir(new File(System.getProperty("user.home")));
     	parentFrame = parent;
+    	continueAction = true;
     }
 
     public Container getPane() {
@@ -232,6 +236,10 @@ public class FileManager {
 		for(int i=0;i<indices.length;i++){
 			int row = table.convertRowIndexToModel(indices[i]);
 			File fi = ((FileTableModel)table.getModel()).getFile(row);
+			if(!continueAction){
+				continueAction = true;
+				return;
+			}
 			if(!fi.getName().contains("..")){
 				if(fi.isDirectory())
 					FileUtils.copyDirectoryToDirectory(fi, dir);
@@ -241,7 +249,94 @@ public class FileManager {
 		}
 	}
 
+	/**
+     * Supprime les fichiers / repertoire selectionnees vers 
+     * @param currentDir2
+     * @throws IOException 
+     */
+	public void deleteSelectedFiles() throws IOException {
+		// Recupere les lignes selectionnees
+		int[] indices = table.getSelectedRows();
+		// On recupere les fichiers correspondants
+		ArrayList<File> files = new ArrayList<File>();
+		for(int i=0;i<indices.length;i++){
+			int row = table.convertRowIndexToModel(indices[i]);
+			File fi = ((FileTableModel)table.getModel()).getFile(row);
+			if(!continueAction){
+				continueAction = true;
+				return;
+			}
+			if(!fi.getName().contains("..")){
+				if(fi.isDirectory())
+					FileUtils.deleteQuietly(fi);
+				else
+					fi.delete();
+			}
+		}
+	}
+	
+	/**
+     * Deplace les fichiers / repertoire selectionnees vers le dossier dir
+     * et decrypte
+     * @param currentDir2
+     * @throws IOException 
+     */
+	public void copySelectedFilesAndDecryptTo(File dir) throws IOException {
+		// Recupere les lignes selectionnees
+		int[] indices = table.getSelectedRows();
+		// On recupere les fichiers correspondants
+		ArrayList<File> files = new ArrayList<File>();
+		for(int i=0;i<indices.length;i++){
+			int row = table.convertRowIndexToModel(indices[i]);
+			File fi = ((FileTableModel)table.getModel()).getFile(row);
+			if(!continueAction){
+				continueAction = true;
+				return;
+			}
+			if(!fi.getName().contains("..")){
+				copyAndDecrypt(fi, dir);
+			}
+		}
+		while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		continueAction = true;
+		SystemSettings.DECRYPT_DAEMON.cleanList();
+	}
 
+	/**
+	 * Recursive copie & decrypt
+	 * @param fi
+	 * @param dir
+	 */
+	private void copyAndDecrypt(File fi, File dir) {
+		if(fi.isDirectory()){
+			File ndir = new File(dir.getAbsolutePath()+ "/" + fi.getName());
+			ndir.mkdir();
+			for(File cf:fi.listFiles()){
+				if(!cf.getName().contains("..") && !cf.getName().equals(".")){
+					copyAndDecrypt(cf, ndir);
+				}
+			}
+		}else{
+			SystemSettings.DECRYPT_DAEMON.addFileToDecrypt(fi.toPath(), dir.toPath());
+		}
+	}
+	
+	
+	/**
+	 * Stoppe l'action que realise ce filetree (copie de fichier // decryptage etc)
+	 */
+	public void terminateAction() {
+		continueAction = false;
+	}
+	public void terminateCopyAndDecrypt(){
+		SystemSettings.DECRYPT_DAEMON.cleanList();
+	}
 	private void showThrowable(Throwable t) {
         t.printStackTrace();
         JOptionPane.showMessageDialog(
