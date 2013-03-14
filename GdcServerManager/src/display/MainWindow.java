@@ -432,7 +432,6 @@ public class MainWindow extends JFrame {
 					}
 
 					private void resfreshFileTree() {
-						getFileTreeDist().refresh();
 						getFileTreeLocal().refresh();
 						getFileTreeWork().refresh();
 					}
@@ -477,7 +476,6 @@ public class MainWindow extends JFrame {
 					}
 
 					private void resfreshFileTree() {
-						getFileTreeDist().refresh();
 						getFileTreeLocal().refresh();
 						getFileTreeWork().refresh();
 					}
@@ -524,8 +522,72 @@ public class MainWindow extends JFrame {
 
 					private void resfreshFileTree() {
 						getFileTreeDist().refresh();
-						getFileTreeLocal().refresh();
 						getFileTreeWork().refresh();
+					}
+					
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				ppanel.setFiletree(getFileTreeDist());
+				popup.show();
+				
+				copyThread.start();	
+				
+				// On attend que tout se termine
+				Thread updateStatusThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(isLock){
+							ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				updateStatusThread.start();
+			}
+		});
+		
+		btndistToLocal.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setLock(true);
+				final WaitingBarPanel ppanel = new WaitingBarPanel(getFileTreeDist()); // mode creation de liens
+				final String title = "Copy & Decrypt ...";
+				ppanel.setTitle(title);
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							getFileTreeDist().copySelectedFilesAndDecryptTo(getFileTreeLocal().getCurrentDir());
+							popup.hide();
+							setLock(false);
+							resfreshFileTree();
+						} catch (IOException e) {
+							setLock(false);
+							popup.hide();
+							JOptionPane.showMessageDialog(MainWindow.this,
+								    "Error during the copy.",
+								    "Copy error",
+								    JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+						}
+					}
+
+					private void resfreshFileTree() {
+						getFileTreeDist().refresh();
+						getFileTreeLocal().refresh();
 					}
 					
 				});
