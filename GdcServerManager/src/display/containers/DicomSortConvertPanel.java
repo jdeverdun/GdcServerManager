@@ -60,7 +60,7 @@ public class DicomSortConvertPanel extends JPanel {
 	private JButton btnReset;
 	private ProgressPanel progressPanel;
 	private JLabel lblStatus;
-	
+	private JScrollPane scrollPane;
 	
 	
 	public DicomSortConvertPanel(){
@@ -90,7 +90,7 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		
 		
-		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane = new JScrollPane(table);
 		// On gere le drop
 		scrollPane.setDropTarget(new DropTarget() {
 	        public synchronized void drop(DropTargetDropEvent evt) {
@@ -113,6 +113,21 @@ public class DicomSortConvertPanel extends JPanel {
 							setLock(false);
 						}
 					});
+	                statusThread = new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							while(progressPanel.isVisible()){
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+								getLblStatus().setText(droppedFiles.size() + " Dicoms in list." );
+							}
+						}
+					});
+					statusThread.start();
 	                addThread.start();
 	                setLock(true);
 	            } catch (Exception ex) {
@@ -314,6 +329,7 @@ public class DicomSortConvertPanel extends JPanel {
 		btnStart.setEnabled(!islock);
 		btnCancel.setEnabled(islock);
 		comboBox.setEnabled(!islock);
+		scrollPane.setEnabled(!islock);
 	}
 	
 	/**

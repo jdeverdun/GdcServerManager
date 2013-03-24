@@ -246,6 +246,24 @@ public class Authentificator extends JFrame {
 	        public void run() {
 				UserDAO udao = new MySQLUserDAO();
 				try {
+					// Si utilisateur et mdp vide on lance en mode offline
+					if(txtUsername.getText().isEmpty() && passwordField.getText().isEmpty()){
+						SwingUtilities.invokeLater(new Runnable(){
+							public void run(){
+								JFrame.setDefaultLookAndFeelDecorated(true);
+								try {
+							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+							        } catch (Exception e) {
+							          System.out.println("Substance Graphite failed to initialize");
+							        }
+								WindowManager.MAINWINDOW = new MainWindow(0);
+								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								WindowManager.MAINWINDOW.createAndShowGUI();
+							}
+						});
+						dispose();
+						return;
+					}
 					final User u = udao.connexion(txtUsername.getText(), passwordField.getText());
 					if(u!=null){
 						
@@ -258,7 +276,7 @@ public class Authentificator extends JFrame {
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
 							        }
-								WindowManager.MAINWINDOW = new MainWindow();
+								WindowManager.MAINWINDOW = new MainWindow(1);
 								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 								WindowManager.MAINWINDOW.createAndShowGUI();
 							}
