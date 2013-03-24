@@ -119,36 +119,50 @@ public class DicomWorker extends DaemonWorker {
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
 		// sinon recuperer les ID des projets etc
+		boolean isServerMode = getDispatcher().isServerMode();
 		boolean dirExists = checkAndMakeDir(studyFolder);
-		if(!dirExists)
-			addEntryToDB(studyFolder.getFileName(),"Project");
-		else
-			setProject_idFromDB(studyFolder.getFileName());
+		if(isServerMode){
+			if(!dirExists)
+				addEntryToDB(studyFolder.getFileName(),"Project");
+			else
+				setProject_idFromDB(studyFolder.getFileName());
+		}
 		dirExists = checkAndMakeDir(patientFolder);
-		if(!dirExists)
-			addEntryToDB(patientFolder.getFileName(),"Patient");
-		else
-			setPatient_idFromDB(patientFolder.getFileName());
+		if(isServerMode){
+			if(!dirExists)
+				addEntryToDB(patientFolder.getFileName(),"Patient");
+			else
+				setPatient_idFromDB(patientFolder.getFileName());
+		}
 		dirExists = checkAndMakeDir(dateFolder);
-		if(!dirExists)
-			addEntryToDB(dateFolder.getFileName(),"AcqDate");
-		else
-			setAcqDate_idFromDB(dateFolder.getFileName());
+		if(isServerMode){
+			if(!dirExists)
+				addEntryToDB(dateFolder.getFileName(),"AcqDate");
+			else
+				setAcqDate_idFromDB(dateFolder.getFileName());
+		}
 		dirExists = checkAndMakeDir(protocolFolder);
-		if(!dirExists)
-			addEntryToDB(protocolFolder.getFileName(),"Protocol");
-		else
-			setProtocol_idFromDB(protocolFolder.getFileName());
+		if(isServerMode){
+			if(!dirExists)
+				addEntryToDB(protocolFolder.getFileName(),"Protocol");
+			else
+				setProtocol_idFromDB(protocolFolder.getFileName());
+		}
 		dirExists = checkAndMakeDir(serieFolder);
-		if(!dirExists)
-			addEntryToDB(serieFolder.getFileName(),"Serie");
-		else
-			setSerie_idFromDB(serieFolder.getFileName());
+		if(isServerMode){
+			if(!dirExists)
+				addEntryToDB(serieFolder.getFileName(),"Serie");
+			else
+				setSerie_idFromDB(serieFolder.getFileName());
+		}
 		
 		Path newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
 		// On deplace
-		moveDicomTo(newPath);
+		if(isServerMode)
+			moveDicomTo(newPath);
+		else
+			copyDicomTo(newPath);
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
@@ -159,15 +173,25 @@ public class DicomWorker extends DaemonWorker {
 		dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
 		dicomImage.setSerie(new Serie(getSerie_id()));
 		
-		// On ajoute le fichier brute dans la liste des fichiers
-		// a encrypter 
-		getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
+		if(isServerMode){
+			// On ajoute le fichier brute dans la liste des fichiers
+			// a encrypter 
+			getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
+		}else{
+			if(getDispatcher().getNiftiDaemon()!=null){
+				getDispatcher().getNiftiDaemon().addDir(newPath.getParent(), dicomImage);
+			}
+				
+		}
 		
 		// On termine
 		prepareToStop();
 	}
 
 	
+
+
+
 	// Set des ID serie // protocol // projet etc depuis la BDD
 	private void setSerie_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
@@ -379,7 +403,18 @@ public class DicomWorker extends DaemonWorker {
 		}
 	}
 
-
+	private void copyDicomTo(Path newPath) {
+		try {
+			System.out.println("Copying : " + dicomFile.getFileName() + " to " + newPath);
+			Files.copy(dicomFile, newPath, REPLACE_EXISTING);
+			// update date de modification du repertoire du patient
+			long currentTimeMillis = System.currentTimeMillis();
+	        FileTime fileTime = FileTime.fromMillis(currentTimeMillis);
+	        Files.setLastModifiedTime(getPatientFolder(), fileTime);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public boolean equals(Object other) {

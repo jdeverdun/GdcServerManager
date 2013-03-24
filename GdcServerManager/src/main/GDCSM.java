@@ -24,8 +24,8 @@ public class GDCSM {
 	 */
 	public static void main(String[] args) {
 		// On définit les paramètres du serveur
-		SystemSettings.SERVER_INFO = new ServerInfo("C:\\Users\\Analyse\\Downloads\\test\\buffer","C:\\Users\\Analyse\\Downloads\\test\\saveDicom","C:\\Users\\Analyse\\Downloads\\test\\saveNifti",
-				"C:\\Users\\Analyse\\Downloads\\test\\temp");
+		SystemSettings.SERVER_INFO = new ServerInfo("C:\\Users\\Mobilette\\Downloads\\test\\buffer","C:\\Users\\Mobilette\\Downloads\\test\\saveDicom","C:\\Users\\Mobilette\\Downloads\\test\\saveNifti",
+				"C:\\Users\\Mobilette\\Downloads\\test\\temp");
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);

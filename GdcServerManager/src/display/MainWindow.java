@@ -34,12 +34,14 @@ import dao.MySQLUserViewDAO;
 import dao.UserDAO;
 import dao.UserViewDAO;
 import display.containers.DeleteUserPanel;
+import display.containers.DicomSortConvertPanel;
 import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
 import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
+import display.containers.RequestPanel;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -106,6 +108,10 @@ public class MainWindow extends JFrame {
 	private JMenu mnManage;
 	private JMenuItem mntmLinkProject;
 	private JMenuItem mntmUnlinkProject;
+	private RequestPanel requetePanel;
+	private JMenu mnDicom;
+	private JMenuItem mntmSort;
+	private DicomSortConvertPanel dicomSortConvertPanel;
 	
 	public MainWindow() {
 		
@@ -122,6 +128,12 @@ public class MainWindow extends JFrame {
 		mntmOpen = new JMenuItem("Open");
 
 		mnFile.add(mntmOpen);
+		
+		mnDicom = new JMenu("Dicom");
+		mnFile.add(mnDicom);
+		
+		mntmSort = new JMenuItem("Sort");
+		mnDicom.add(mntmSort);
 		
 		mnAdministration = new JMenu("Administration");
 		mnAdministration.setActionCommand("Administration");
@@ -185,9 +197,18 @@ public class MainWindow extends JFrame {
 		
 		distautresplitPane = new JSplitPane();
 		distautresplitPane.setResizeWeight(0.35);
-		ongletPane.addTab("New tab", null, distautresplitPane, null);
+		ongletPane.addTab("Explorer", null, distautresplitPane, null);
+		requetePanel = new RequestPanel();
+		ongletPane.addTab("Selecter", null, requetePanel,
+                "Retrieve selective DATA");
 
+		dicomSortConvertPanel = new DicomSortConvertPanel();
+		ongletPane.addTab("Sort & convert", null, dicomSortConvertPanel,
+                "Sort DICOM & convert to nifti");
+
+		ongletPane.setEnabledAt(2, false); 
 		
+
 		distworklocalPane = new JSplitPane();
 		distworklocalPane.setResizeWeight(0.5);
 		distautresplitPane.setRightComponent(distworklocalPane);
@@ -340,6 +361,15 @@ public class MainWindow extends JFrame {
 				getFileTreeDist().refresh();
 				getFileTreeLocal().refresh();
 				getFileTreeWork().refresh();
+			}
+		});
+		mntmSort.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				ongletPane.setEnabledAt(2, true); 
+				dicomSortConvertPanel.reset();
+				ongletPane.setSelectedIndex(2);
 			}
 		});
 		mntmCreate.addActionListener(new ActionListener() {

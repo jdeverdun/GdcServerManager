@@ -110,22 +110,29 @@ public class NiftiWorker extends DaemonWorker {
 			// on decrypte les fichiers dicom temporairement (pour la conversion)  //
 			// que l'on place dans le repertoire temporaire (tempDir)              //
 			// ------------------------------------------------------------------- //
-			
-			AESCrypt aes = new AESCrypt(false, getAESPass());
-			Path tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + serieName);
-			Path tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + serieName);
-			buildIfNotExist(tempDicomPath);
-			buildIfNotExist(tempNiftiPath);
-			for(String name:path.toFile().list()){
-				if(name.endsWith(AESCrypt.ENCRYPTSUFFIX)){
-					String dpath = path + "/" +  name;
-					String tpath = tempDicomPath + "/" + name.substring(0, name.length()-4); // on recupere le vrai nom du dicom (sans le .enc)
-					aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
+			String command = "";
+			AESCrypt aes = null;
+			Path tempDicomPath = null;
+			Path tempNiftiPath = null;
+			if(getNiftiDaemon().isServerMode()){
+				aes = new AESCrypt(false, getAESPass());
+				tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + serieName);
+				tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + serieName);
+				buildIfNotExist(tempDicomPath);
+				buildIfNotExist(tempNiftiPath);
+				for(String name:path.toFile().list()){
+					if(name.endsWith(AESCrypt.ENCRYPTSUFFIX)){
+						String dpath = path + "/" +  name;
+						String tpath = tempDicomPath + "/" + name.substring(0, name.length()-4); // on recupere le vrai nom du dicom (sans le .enc)
+						aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
+					}
 				}
+				
+				// On cree la commande (on convertie dans un autre repertoire)
+				command = buildConvertCommandFor(tempDicomPath,tempNiftiPath);
+			}else{
+				command = buildConvertCommandFor(path,niftiPath);
 			}
-			
-			// On cree la commande (on convertie dans un autre repertoire)
-			String command = buildConvertCommandFor(tempDicomPath,tempNiftiPath);
 			// on convertie
 			process = Runtime.getRuntime().exec(command);
 			if(false){
@@ -140,20 +147,22 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			process.waitFor();
 			
+			if(getNiftiDaemon().isServerMode()){
+				// On recupere les nom des fichiers nifti cree
+				// on les encrypt et on les deplace dans leur repertoire final
+				HashMap<String,Path> niftis = getNiftiListIn(tempNiftiPath);
+				for(String currNifti:niftis.keySet()){
+					Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
+					Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
+					aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
+					addEntryToDB(finalNiftiPath,"NiftiImage");
+				}
 			
-			// On recupere les nom des fichiers nifti cree
-			// on les encrypt et on les deplace dans leur repertoire final
-			HashMap<String,Path> niftis = getNiftiListIn(tempNiftiPath);
-			for(String currNifti:niftis.keySet()){
-				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
-				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
-				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
-				addEntryToDB(finalNiftiPath,"NiftiImage");	
+			
+				// On supprime tous les fichiers cree dans tempDir
+				delete(tempDicomPath.toFile());
+				delete(tempNiftiPath.toFile());
 			}
-			
-			// On supprime tous les fichiers cree dans tempDir
-			delete(tempDicomPath.toFile());
-			delete(tempNiftiPath.toFile());
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();

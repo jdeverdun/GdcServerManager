@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
+import model.DicomImage;
 import model.ServerInfo;
 
 
@@ -91,7 +92,10 @@ public class DicomDaemon extends Thread{
 		            WatchEvent<Path> ev = (WatchEvent<Path>)event;
 		            Path filename = ev.context();
 		            Path realPath = Paths.get(dir.toString() + File.separator + filename.getFileName());
-		            dicomJobDispatcher.addDicomToMove(realPath);
+		            if(DicomImage.isDicom(realPath.toFile()))
+		            	dicomJobDispatcher.addDicomToMove(realPath);
+		            else
+		            	realPath.toFile().delete();//on supprime le fichier si ce n'est pas un dicom
 		        }
 
 		        // Reset the key -- this step is critical if you want to

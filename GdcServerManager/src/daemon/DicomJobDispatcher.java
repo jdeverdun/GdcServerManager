@@ -1,5 +1,7 @@
 package daemon;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Set;
 import settings.SystemSettings;
 
 
+import model.DicomImage;
 import model.ServerInfo;
 
 
@@ -32,12 +35,13 @@ public class DicomJobDispatcher extends Thread{
 	private DicomWorker dworker;
 	private boolean stop;
 	private int waitCounter;
-	
-
+	private boolean serverMode;
+	private NiftiDaemon niftiDaemon;
 
 
 
 	public DicomJobDispatcher(DicomDaemon dicomDaemon) {
+		setServerMode(true);
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
 		setDicomDaemon(dicomDaemon);
@@ -47,7 +51,23 @@ public class DicomJobDispatcher extends Thread{
 		
 	}
 
-	
+	/**
+	 *  principalement pour mode conversion only
+	 * @param si
+	 * @param servermode
+	 * @param nifti
+	 */
+	public DicomJobDispatcher(ServerInfo si,boolean servermode,NiftiDaemon nifti) {
+		setServerMode(servermode);
+		setNiftiDaemon(nifti);
+		dicomToMove = new LinkedList<Path>();
+		numberOfRuns = 0;
+		setDicomDaemon(null);
+		setStop(false);
+		setServerInfo(si);
+		setMaxWorker(SystemSettings.AVAILABLE_CORES);
+		
+	}
 	
 	
 	// Accesseurs
@@ -99,6 +119,14 @@ public class DicomJobDispatcher extends Thread{
 
 
 
+	public boolean isServerMode() {
+		return serverMode;
+	}
+
+	public void setServerMode(boolean serverMode) {
+		this.serverMode = serverMode;
+	}
+
 	public DicomWorker getDworker() {
 		return dworker;
 	}
@@ -108,6 +136,18 @@ public class DicomJobDispatcher extends Thread{
 
 	public void setDworker(DicomWorker dworker) {
 		this.dworker = dworker;
+	}
+
+	/**
+	 * Que quand serverMode = false !!!
+	 * @return
+	 */
+	public NiftiDaemon getNiftiDaemon() {
+		return niftiDaemon;
+	}
+
+	public void setNiftiDaemon(NiftiDaemon niftiDaemon) {
+		this.niftiDaemon = niftiDaemon;
 	}
 
 	public boolean isStop() {
@@ -124,11 +164,15 @@ public class DicomJobDispatcher extends Thread{
 		System.out.println("Dispatcher Online with "+getMaxWorker()+" CPU cores.");
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
-			while(dicomToMove.isEmpty()){
-				if(waitCounter>10000){
+			while(dicomToMove.isEmpty() && !isStop()){
+				if(waitCounter>10000 && isServerMode()){
 					//Si aucun fichier n'a ete ajouter depuis plus de 10 sec
 					// on verifie si on a pas rate des event a cause d'overflow
-					checkForMissedFiles();
+					try {
+						checkForMissedFiles();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					waitCounter = 0;
 				}
 				try {
@@ -138,7 +182,8 @@ public class DicomJobDispatcher extends Thread{
 					e.printStackTrace();
 				}
 			}
-			
+			if(isStop())
+				return;
 			// on lance le deplacement du fichier
 			// on le fait fich/fich (pas multithread) car windows
 			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
@@ -159,13 +204,19 @@ public class DicomJobDispatcher extends Thread{
 	/**
 	 * Rajoute a la liste des dicom a deplacer ceux qui on pu etre oublie
 	 * a cause d'event overflow
+	 * @throws IOException 
 	 */
-	private void checkForMissedFiles() {
+	private void checkForMissedFiles() throws IOException {
 		String[] filesInInc = getServerInfo().getIncomingDir().toFile().list();
 		for(String name:filesInInc){
+			File lfile = new File(getServerInfo().getIncomingDir() + "/" + name);
 			if(name.length()>2){
-				String fullpath = getServerInfo().getIncomingDir() + "/" + name;
-				addDicomToMove(Paths.get(fullpath));
+				if(DicomImage.isDicom(lfile)){
+					String fullpath = getServerInfo().getIncomingDir() + "/" + name;
+					addDicomToMove(Paths.get(fullpath));
+				}else{
+					lfile.delete();
+				}
 			}
 		}
 	}

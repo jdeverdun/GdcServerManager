@@ -28,6 +28,7 @@ import model.ServerInfo;
 public class NiftiDaemon extends Thread{
 
 	// Attributs
+	public static enum FORMAT{SPM2,SPM5,NIFTI,cNIFTI};
 	public static final int ANALYZE_7_5 = 0; //SPM2 img/hdr
 	public static final int SPM5_NIFTI = 1; //SPM5 img/hdr
 	public static final int NIFTI_4D = 2; // Nifti 4D nii
@@ -41,30 +42,45 @@ public class NiftiDaemon extends Thread{
 	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
 	private boolean waitingToStop;
+	private boolean serverMode;
+	private float waitTimeToConvert; // cf setServerMode();
 	
 	
 	// Constructeur
 	public NiftiDaemon(){
+		setServerMode(true);
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		waitingToStop = false;
 	}
 
 	public NiftiDaemon(ServerInfo si){
+		setServerMode(true);
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
 		waitingToStop = false;
 	}
 	
-	// format issue de la classe Nifti_Writer
+	// format 
 	public NiftiDaemon(ServerInfo si,int format){
+		setServerMode(true);
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
 		waitingToStop = false;
 	}	
+	
+	public NiftiDaemon(ServerInfo si,int format, boolean serverMode){
+		setServerMode(serverMode);
+		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
+		setStop(false);
+		setServerInfo(si);
+		setFormat(format);
+		waitingToStop = false;
+	}
+	
 	// Accesseurs
 	public ConcurrentHashMap<Path, DicomImage> getDir2convert() {
 		return dir2convert;
@@ -119,10 +135,10 @@ public class NiftiDaemon extends Thread{
 				setStop(true);
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
-			while(it.hasNext()){
+			while(it.hasNext() && !isStop()){
 				Path path = it.next();
-				if(timeSinceModif(path) > 120000.0f){
-					// Si ca fait plus de 2 min on convertit 
+				if(timeSinceModif(path) > waitTimeToConvert ){
+					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					
 					NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
@@ -156,6 +172,26 @@ public class NiftiDaemon extends Thread{
 
 	public void setWaitingToStop(boolean b) {
 		waitingToStop = b;
+	}
+
+	public float getWaitTimeToConvert() {
+		return waitTimeToConvert;
+	}
+
+	public void setWaitTimeToConvert(float waitTimeToConvert) {
+		this.waitTimeToConvert = waitTimeToConvert;
+	}
+
+	public boolean isServerMode() {
+		return serverMode;
+	}
+
+	public void setServerMode(boolean serverMode) {
+		this.serverMode = serverMode;
+		if(this.serverMode)
+			waitTimeToConvert = 120000.0f;
+		else
+			waitTimeToConvert = 1000.0f;
 	}
 	
 

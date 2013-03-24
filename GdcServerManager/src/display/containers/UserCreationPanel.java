@@ -198,7 +198,7 @@ public class UserCreationPanel extends PopupPanel {
 							// On envoi le mail avec le mot de passe temporaire
 							Mailer mailer = new Mailer(u.getEmail());
 							
-							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : '"+realPass+"' \n Please change it ASAP.");
+							boolean succeed = mailer.sendMail("GDC password", "Here is your temporary password : "+realPass+" \n Please change it ASAP.");
 							if(succeed)
 								getPopup().hide();
 							else{

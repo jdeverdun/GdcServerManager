@@ -1,5 +1,9 @@
 package model;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 public class DicomImage {
 
 	private int id;
@@ -70,4 +74,27 @@ public class DicomImage {
 		return this.id==p.id;
 	}
 
+	/**
+	 * Check si le fichier est un dicom
+	 * @param fi
+	 * @return
+	 * @throws IOException 
+	 */
+	public static boolean isDicom(File fi) throws IOException {
+		if(fi.getName().endsWith(".enc"))
+			return false;
+		RandomAccessFile in = new RandomAccessFile(fi.getAbsolutePath(), "r");
+		// on se place sur le byte 128
+		// et on cherche le mot clef "DICM"
+		in.seek(128);
+		String key = "";
+		try{
+			key = in.readLine().substring(0, 4);
+		}catch(Exception e){
+			in.close();
+			return false;
+		}
+		in.close();
+		return key.equals("DICM");
+	}
 }
