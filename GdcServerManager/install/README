@@ -2,3 +2,5 @@ Installation :
 
 1. Installer "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files !!! JCE7 !!!" en le telechargeant sur le site d'oracle 
 et en placant le contenu de l'archive dans <java_home>/lib/security
+
+Sur le serveur : Installer DavMail

@@ -3,8 +3,10 @@ package tools;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -13,27 +15,27 @@ import javax.mail.internet.MimeMessage;
 import javax.swing.Popup;
 
 public class Mailer {
-	private static String HOST =  "smtp.gmail.com";
-	private static String FROM = "gdcservtest@gmail.com";
-	private static String USER = "gdcservtest@gmail.com";
-	private static String EncryptedPass = "gdct%123456m";
+	private final String HOST =  "120.40.30.100";
+	private final String FROM = "GDC Server";
+	private final String USER = "gdcservtest@gmail.com";
+	private final String EncryptedPass = "gdct%123456m";
 	private String host;
 	private String from;
 	private String to;
 	private String user;
 	
 	public Mailer(){
-		this.host = Mailer.HOST;
-		this.from = Mailer.FROM;
+		this.host = HOST;
+		this.from = FROM;
 	}
 	public Mailer(String to){
-		this.host = Mailer.HOST;
-		this.from = Mailer.FROM;
+		this.host = HOST;
+		this.from = FROM;
 		this.to = to;
 		this.user = USER;
 	}
 	public Mailer(String from,String to){
-		this.host = Mailer.HOST;
+		this.host = HOST;
 		this.from = from;
 		this.to = to;
 		this.user = USER;
@@ -49,37 +51,42 @@ public class Mailer {
 		if(this.to == null)
 			return false;
 
-		// Set properties
-		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", host);
-		props.put("mail.smtp.port", "587");
-		// Get session
-		Session session = Session.getInstance(props,
-		  new javax.mail.Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(user, Mailer.EncryptedPass.substring(0, 3)+Mailer.EncryptedPass.substring(5, 11));
-			}
-		  });
- 
+		Properties properties = new Properties();
+		properties.put("mail.transport.protocol", "smtp");
+		properties.put("mail.smtp.host", host);
+		properties.put("mail.smtp.port", "1025");
+		properties.put("mail.smtp.auth", "true");
+
+		final String username = user;
+		final String password = EncryptedPass.substring(0, 3)+EncryptedPass.substring(5, 11);
+		Authenticator authenticator = new Authenticator() {
+		    protected PasswordAuthentication getPasswordAuthentication() {
+		        return new PasswordAuthentication(username, password);
+		    }
+		};
+
+		Transport transport = null;
+
 		try {
- 
-			Message message = new MimeMessage(session);
+		    Session session = Session.getDefaultInstance(properties, authenticator);
+		    transport = session.getTransport();
+		    transport.connect(username, password);
+		    Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
 			message.setRecipients(Message.RecipientType.TO,
 				InternetAddress.parse(to));
 			message.setSubject(subject);
 			message.setText(content);
- 
-			Transport.send(message);
- 
-			return true;
-		} catch (MessagingException e) {
+		    transport.sendMessage(message, message.getAllRecipients());
+		    return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-			
+		} finally {
+		    if (transport != null) try { transport.close(); } catch (MessagingException logOrIgnore) {}
 		}
+		
 	}
 	 
 }
