@@ -61,6 +61,8 @@ public class DicomSortConvertPanel extends JPanel {
 	private ProgressPanel progressPanel;
 	private JLabel lblStatus;
 	private JScrollPane scrollPane;
+	private JButton btnOutputDir;
+	private JLabel lblNiftidir;
 	
 	
 	public DicomSortConvertPanel(){
@@ -167,12 +169,22 @@ public class DicomSortConvertPanel extends JPanel {
 		lblStatus = new JLabel("");
 		panel.add(lblStatus, "cell 0 3");
 		
+		btnOutputDir = new JButton("Output dir");
+		btnOutputDir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		panel.add(btnOutputDir, "flowx,cell 1 1");
+		
 		btnCancel = new JButton("Cancel");
 		btnCancel.setEnabled(false);
 		panel.add(btnCancel, "cell 1 1,alignx left");
 		
 		btnReset = new JButton("reset");
 		panel.add(btnReset, "cell 1 0,alignx left");
+		
+		lblNiftidir = new JLabel("niftiDir");
+		panel.add(lblNiftidir, "cell 1 3");
 		
 		btnReset.addActionListener(new ActionListener() {
 			
@@ -296,6 +308,17 @@ public class DicomSortConvertPanel extends JPanel {
 				comboBox.setVisible(chckbxConvertToNifti.isSelected());
 			}
 		});
+		
+		
+		// Affiche la fenetre des settings avec choix des repertoires
+		btnOutputDir.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				
+			}
+		});
 	}
 
 
@@ -330,6 +353,7 @@ public class DicomSortConvertPanel extends JPanel {
 		btnCancel.setEnabled(islock);
 		comboBox.setEnabled(!islock);
 		scrollPane.setEnabled(!islock);
+		btnOutputDir.setEnabled(!islock);
 	}
 	
 	/**

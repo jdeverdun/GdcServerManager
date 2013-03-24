@@ -40,6 +40,7 @@ import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
+import display.containers.SettingsPanel;
 import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
@@ -113,6 +114,8 @@ public class MainWindow extends JFrame {
 	private JMenu mnDicom;
 	private JMenuItem mntmSort;
 	private DicomSortConvertPanel dicomSortConvertPanel;
+	private JMenu mnEdit;
+	private JMenuItem mntmPreferences;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -130,7 +133,7 @@ public class MainWindow extends JFrame {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		mnFile = new JMenu("File");
+		mnFile = new JMenu("File      ");
 		menuBar.add(mnFile);
 		
 		mntmOpen = new JMenuItem("Open");
@@ -149,6 +152,12 @@ public class MainWindow extends JFrame {
 		// On masque le bouton si l'utilisateur n'est pas admin
 		if(UserProfile.CURRENT_USER.getLevel()<3)
 			mnAdministration.setVisible(false);
+		
+		mnEdit = new JMenu("Edit     ");
+		menuBar.add(mnEdit);
+		
+		mntmPreferences = new JMenuItem("Preferences");
+		mnEdit.add(mntmPreferences);
 		
 		menuBar.add(mnAdministration);
 		
@@ -215,14 +224,8 @@ public class MainWindow extends JFrame {
                 "Sort DICOM & convert to nifti");
 
 		ongletPane.setEnabledAt(2, false); 
-		if(i==0){
-			ongletPane.setEnabledAt(0, false);
-			ongletPane.setEnabledAt(1, false);
-			ongletPane.setSelectedIndex(2);
-		}else{
-		
-		
-
+		if(i!=0){
+			
 			distworklocalPane = new JSplitPane();
 			distworklocalPane.setResizeWeight(0.5);
 			distautresplitPane.setRightComponent(distworklocalPane);
@@ -797,7 +800,19 @@ public class MainWindow extends JFrame {
 					setLock(false);
 				}
 			});
+		}else{
+			// si mode guest
+			ongletPane.setEnabledAt(0, false);
+			ongletPane.setEnabledAt(1, false);
+			ongletPane.setSelectedIndex(2);
 		}
+		mntmPreferences.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				SettingsPanel spanel = new SettingsPanel();
+			}
+		});
 	}
 	
 	

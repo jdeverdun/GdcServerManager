@@ -179,7 +179,8 @@ public class NiftiWorker extends DaemonWorker {
 		for(String currNifti:niftis.keySet())
 			try {
 				Files.delete(niftis.get(currNifti));
-				removeDBEntry(niftis.get(currNifti).getFileName());
+				if(getNiftiDaemon().isServerMode())
+					removeDBEntry(niftis.get(currNifti).getFileName());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
