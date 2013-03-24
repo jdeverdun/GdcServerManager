@@ -343,13 +343,14 @@ public class DicomSortConvertPanel extends JPanel {
 	 */
 	public void reset() {
 		droppedFiles.clear();
-		EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
-				model.setRowCount(0);
+				((DefaultTableModel) table.getModel()).setRowCount(0);
 			}
 		});
+		
 		
 	}
 }
