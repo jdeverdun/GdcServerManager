@@ -96,17 +96,28 @@ public class DicomWorker extends DaemonWorker {
 	// Methodes
 
 	public void start(){
-		// On recupere le nom du protocole medical
-		String studyName = getStudyDescription();
-		// Si le protocole est null alors le fichier est encore en cours de copie
-		if(studyName == null){
-			prepareToStop();
+		String studyName = null;
+		String patientName = null;
+		String protocolName = null;
+		String serieName = null;
+		String acqDate = null;
+		try{
+			// On recupere le nom du protocole medical
+			studyName = getStudyDescription();
+			// Si le protocole est null alors le fichier est encore en cours de copie
+			if(studyName == null){
+				prepareToStop();
+				return;
+			}	
+			patientName = getPatientName();
+			protocolName = getProtocolName();
+			serieName = getSeriesDescription();
+			acqDate = getAcquisitionDate();		
+		}catch(Exception e){
+			System.out.println(dicomFile.getFileName() + " not a DICOM.");
+			dicomFile.toFile().delete();
 			return;
-		}	
-		String patientName = getPatientName();
-		String protocolName = getProtocolName();
-		String serieName = getSeriesDescription();
-		String acqDate = getAcquisitionDate();		
+		}
 		
 		// On créé les chemins vers les répertoires
 		Path studyFolder = Paths.get(serverInfo.getDicomDir() + File.separator + studyName);
