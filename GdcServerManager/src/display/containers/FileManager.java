@@ -223,6 +223,20 @@ public class FileManager {
 		}
 	}
 
+    
+    /**
+     * Change le repertoire actuel du filemanager
+     * @param dir
+     */
+    public void switchToDir(Path dir){
+    	try {
+			setCurrentDir(dir.toFile().getCanonicalFile());
+			showChildren(dir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+    }
+    
     /**
      * Deplace les fichiers / repertoire selectionnees vers le dossier dir
      * @param currentDir2

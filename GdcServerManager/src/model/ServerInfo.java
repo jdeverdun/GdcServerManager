@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 import daemon.DBCache;
 
@@ -20,13 +21,16 @@ public class ServerInfo {
 	private static final String DICOM_DIR_NAME = "dicomDir";
 	private static final String NIFTI_DIR_NAME = "niftiDir";
 	private static final String TEMP_DIR_NAME = "tempDir";
+	private static final String SERVER_DIR_NAME = "serverDir";
 	public static String CONF_FILE = "params.conf";
 	// Attributs
 	private Path incomingDir; // dossier des dicom en vrac
 	private Path dicomDir; // dossier des dicom triés
 	private Path niftiDir; // dossier des nifti triés
 	private Path tempDir; // dossier temporaire, utilise surtout pour la conversion nifti (decryptage fichier)
+	private Path serverDir; // dossier racine du serveur
 	private DBCache dbCache; // cache de donnees de la bdd
+	
 	
 	// Constructeurs
 	public ServerInfo(){
@@ -34,14 +38,16 @@ public class ServerInfo {
 		dicomDir = null;
 		niftiDir = null;
 		setTempDir(null);
+		setServerDir(null);
 		dbCache = new DBCache();
 	}
 	
-	public ServerInfo(String inc, String dicom, String nifti,String temp){
+	public ServerInfo(String inc, String dicom, String nifti,String temp,String serv){
 		setIncomingDir(inc);
 		setDicomDir(dicom);
 		setNiftiDir(nifti);
 		setTempDir(temp);
+		setServerDir(serv);
 		dbCache = new DBCache();
 	}
 	
@@ -62,11 +68,13 @@ public class ServerInfo {
 			setDicomDir(params.get(DICOM_DIR_NAME));
 			setNiftiDir(params.get(NIFTI_DIR_NAME));
 			setTempDir(params.get(TEMP_DIR_NAME));
+			setServerDir(params.get(SERVER_DIR_NAME));
 		}else{
 			setIncomingDir(app_dir+ "/" +INCOMING_DIR_NAME);
 			setDicomDir(app_dir + "/" +DICOM_DIR_NAME);
 			setNiftiDir(app_dir + "/" + NIFTI_DIR_NAME);
 			setTempDir(app_dir + "/" + TEMP_DIR_NAME);
+			setServerDir(getDicomDir().toString());
 			saveConfiguration();
 		}
 		dbCache = new DBCache();
@@ -109,6 +117,16 @@ public class ServerInfo {
 		this.dbCache = dbCache;
 	}
 
+	public Path getServerDir() {
+		return serverDir;
+	}
+	
+	public void setServerDir(String serv){
+		this.serverDir = Paths.get(serv);
+		if(WindowManager.MAINWINDOW!=null && WindowManager.MAINWINDOW.getFileTreeDist()!=null){
+			WindowManager.MAINWINDOW.getFileTreeDist().switchToDir(serverDir);
+		}
+	}
 	public Path getTempDir() {
 		return tempDir;
 	}
@@ -159,6 +177,7 @@ public class ServerInfo {
 		lines.add(DICOM_DIR_NAME+"="+getDicomDir());
 		lines.add(NIFTI_DIR_NAME+"="+getNiftiDir());
 		lines.add(TEMP_DIR_NAME+"="+getTempDir());
+		lines.add(SERVER_DIR_NAME+"="+getServerDir());
 		try {
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
@@ -183,5 +202,7 @@ public class ServerInfo {
 		// TODO Auto-generated method stub
 
 	}
+
+
 
 }

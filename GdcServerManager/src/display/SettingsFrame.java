@@ -32,38 +32,54 @@ public class SettingsFrame extends JFrame {
 	private JTextField niftiField;
 	private JTextField txtBufferdir;
 	private JTextField txtTempdir;
+	private JTextField txtServerDir;
 	public SettingsFrame() {
-		setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
+		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		add(splitPane);
+		getContentPane().add(splitPane);
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setLeftComponent(tabbedPane);
 		
 		JPanel filesSettingPanel = new JPanel();
-		tabbedPane.addTab("Files", null, filesSettingPanel, null);
+		JPanel serverSettingPanel = new JPanel();
+		tabbedPane.addTab("Server", null, serverSettingPanel, null);
+		serverSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[]"));
+		
+		JLabel lblRootServerDirectory = new JLabel("Root server directory");
+		serverSettingPanel.add(lblRootServerDirectory, "cell 0 0,alignx trailing");
+		
+		txtServerDir = new JTextField(SystemSettings.SERVER_INFO.getServerDir().toString());
+		txtServerDir.setToolTipText("Directory of the data server ( Default : J:/ )");
+		serverSettingPanel.add(txtServerDir, "cell 1 0,growx");
+		txtServerDir.setColumns(10);
+		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/folder.png"));
+		Image img = icon.getImage();  
+		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
+		ImageIcon icon2 = new ImageIcon(newimg); 
+		
+		JButton btnSelectserverdir = new JButton(icon2);
+		serverSettingPanel.add(btnSelectserverdir, "cell 2 0");
+		tabbedPane.addTab("Converter", null, filesSettingPanel, null);
 		filesSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[][][][][][]"));
 		
 		JLabel lblDicomDirectory = new JLabel("Dicom directory ");
-		filesSettingPanel.add(lblDicomDirectory, "cell 0 0,alignx center");
+		filesSettingPanel.add(lblDicomDirectory, "cell 0 0,alignx left");
 		
 		txtDicomDirectory = new JTextField(SystemSettings.SERVER_INFO.getDicomDir().toString());
 		txtDicomDirectory.setToolTipText("Directory where the dicom images will be saved.");
 		filesSettingPanel.add(txtDicomDirectory, "cell 1 0,growx");
 		txtDicomDirectory.setColumns(10);
 		
-		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/folder.png"));
-		Image img = icon.getImage();  
-		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
-		ImageIcon icon2 = new ImageIcon(newimg); 
+		
 		
 		JButton btnSelectdicomdir = new JButton(icon2);
 		filesSettingPanel.add(btnSelectdicomdir, "cell 2 0");
 		
 		JLabel lblNiftiDirectry = new JLabel("Nifti directory");
-		filesSettingPanel.add(lblNiftiDirectry, "cell 0 1,alignx center");
+		filesSettingPanel.add(lblNiftiDirectry, "cell 0 1,alignx left");
 		
 		niftiField = new JTextField(SystemSettings.SERVER_INFO.getNiftiDir().toString());
 		niftiField.setToolTipText("Directory where nifti files will be saved.");
@@ -74,7 +90,7 @@ public class SettingsFrame extends JFrame {
 		filesSettingPanel.add(niftiSelectbutton, "cell 2 1");
 		
 		JLabel lblBufferDirectory = new JLabel("Buffer directory");
-		filesSettingPanel.add(lblBufferDirectory, "cell 0 2,alignx trailing");
+		filesSettingPanel.add(lblBufferDirectory, "cell 0 2,alignx left");
 		
 		txtBufferdir = new JTextField(SystemSettings.SERVER_INFO.getIncomingDir().toString());
 		filesSettingPanel.add(txtBufferdir, "cell 1 2,growx");
@@ -84,7 +100,7 @@ public class SettingsFrame extends JFrame {
 		filesSettingPanel.add(btnbufferselect, "cell 2 2");
 		
 		JLabel lblTempDirectory = new JLabel("Temp directory");
-		filesSettingPanel.add(lblTempDirectory, "cell 0 3,alignx trailing");
+		filesSettingPanel.add(lblTempDirectory, "cell 0 3,alignx left");
 		
 		txtTempdir = new JTextField(SystemSettings.SERVER_INFO.getTempDir().toString());
 		txtTempdir.setToolTipText("Directory for temp files.");
@@ -176,6 +192,28 @@ public class SettingsFrame extends JFrame {
 	            }
 			}
 		});
+		btnSelectserverdir.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getServerDir().toString());
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int retval = fc.showOpenDialog(SettingsFrame.this);
+	            if (retval == JFileChooser.APPROVE_OPTION) {
+	            	File file = fc.getSelectedFile();
+	            	txtServerDir.setText(file.getAbsolutePath());
+	            }
+			}
+		});
+	}
+
+	/**
+	 * i correspond a l'onglet actif par defaut
+	 * @param i
+	 */
+	public SettingsFrame(int i) {
+		this();
+		tabbedPane.setSelectedIndex(i);
 	}
 
 	public void createAndShowGUI(){

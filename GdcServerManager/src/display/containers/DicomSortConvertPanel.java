@@ -37,6 +37,8 @@ import daemon.DicomDaemon;
 import daemon.DicomJobDispatcher;
 import daemon.NiftiDaemon;
 import daemon.NiftiDaemon.FORMAT;
+import display.SettingsFrame;
+
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -62,7 +64,6 @@ public class DicomSortConvertPanel extends JPanel {
 	private JLabel lblStatus;
 	private JScrollPane scrollPane;
 	private JButton btnOutputDir;
-	private JLabel lblNiftidir;
 	
 	
 	public DicomSortConvertPanel(){
@@ -182,9 +183,6 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		btnReset = new JButton("reset");
 		panel.add(btnReset, "cell 1 0,alignx left");
-		
-		lblNiftidir = new JLabel("niftiDir");
-		panel.add(lblNiftidir, "cell 1 3");
 		
 		btnReset.addActionListener(new ActionListener() {
 			
@@ -315,7 +313,14 @@ public class DicomSortConvertPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				final SettingsFrame sf = new SettingsFrame(1);
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						sf.createAndShowGUI();
+					}
+				});
 				
 			}
 		});

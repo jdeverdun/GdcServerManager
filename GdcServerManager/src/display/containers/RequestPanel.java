@@ -12,10 +12,17 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTextField;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 public class RequestPanel extends JPanel {
 	private JSplitPane splitPane;
 	private JTable table;
+	private JTextField txtPutCustomSql;
 	
 	public RequestPanel() {
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -28,6 +35,13 @@ public class RequestPanel extends JPanel {
 		JPanel requestFieldpanel = new JPanel();
 		requestFieldpanel.setBorder(new TitledBorder(null, "Request", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		splitPane.setLeftComponent(requestFieldpanel);
+		requestFieldpanel.setLayout(new MigLayout("", "[grow]", "[][][][]"));
+		
+		txtPutCustomSql = new JTextField();
+		txtPutCustomSql.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		txtPutCustomSql.setText("Put custom SQL request here");
+		requestFieldpanel.add(txtPutCustomSql, "cell 0 3,growx");
+		txtPutCustomSql.setColumns(10);
 		
 		table = new JTable();
 		table.setName("");
@@ -54,6 +68,23 @@ public class RequestPanel extends JPanel {
 		
 		
 		splitPane.setRightComponent(new JScrollPane(table));
+		
+		txtPutCustomSql.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(txtPutCustomSql.getText().equals("")){
+					txtPutCustomSql.setText("Put custom SQL request here");
+					txtPutCustomSql.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				txtPutCustomSql.setText("");
+				txtPutCustomSql.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			}
+		});
 	}
 
 }

@@ -329,7 +329,7 @@ public class MainWindow extends JFrame {
 			treedistbuttonPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 			treedistbuttonPane.setOneTouchExpandable(true);
 			treedistbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			fileTreeDist = new FileManager(this,SystemSettings.SERVER_INFO.getDicomDir());
+			fileTreeDist = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir());
 			treedistbuttonPane.setLeftComponent(fileTreeDist.getPane());
 			distautresplitPane.setLeftComponent(treedistbuttonPane);
 			
