@@ -1,5 +1,8 @@
 package main;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 
 import javax.swing.JFrame;
@@ -23,9 +26,16 @@ public class GDCSM {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// on identifie le repertoire du programme
+		try {
+			SystemSettings.APP_DIR = Paths.get(new File(".").getCanonicalPath());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
 		// On définit les paramètres du serveur
-		SystemSettings.SERVER_INFO = new ServerInfo("C:\\Users\\Analyse\\Downloads\\test\\buffer","C:\\Users\\Analyse\\Downloads\\test\\saveDicom","C:\\Users\\Analyse\\Downloads\\test\\saveNifti",
-				"C:\\Users\\Analyse\\Downloads\\test\\temp");
+		SystemSettings.SERVER_INFO = new ServerInfo(SystemSettings.APP_DIR);
+		
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);

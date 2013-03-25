@@ -40,7 +40,6 @@ import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
-import display.containers.SettingsPanel;
 import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
@@ -810,7 +809,14 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SettingsPanel spanel = new SettingsPanel();
+				final SettingsFrame sframe = new SettingsFrame();
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						sframe.createAndShowGUI();
+					}
+				});
 			}
 		});
 	}
