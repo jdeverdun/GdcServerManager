@@ -1,5 +1,6 @@
 package daemon;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,7 +112,11 @@ public class DicomEncryptWorker extends DaemonWorker {
 	private void prepareToStop() {
 		// On enleve le worker de la liste des worker et on ajoute
 		// le patient à la liste des patients à convertir en nifti
-		encryptDaemon.sendToNiftiDaemon(this);
+		// On ne le ratjoute que si le workspace du protocole existe
+		
+		/* /!\  A decommenter dans la version finale */
+		//if(new File(getServerInfo().getServerDir() + "/" + dicomImage.getProjet().getNom()).exists())
+			encryptDaemon.sendToNiftiDaemon(this);
 	}
 
 }

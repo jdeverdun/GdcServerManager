@@ -135,6 +135,7 @@ public class SettingsFrame extends JFrame {
 				SystemSettings.SERVER_INFO.setDicomDir(txtDicomDirectory.getText());
 				SystemSettings.SERVER_INFO.setNiftiDir(niftiField.getText());
 				SystemSettings.SERVER_INFO.setTempDir(txtTempdir.getText());
+				SystemSettings.SERVER_INFO.setServerDir(txtServerDir.getText());
 				SystemSettings.SERVER_INFO.saveConfiguration();
 				dispose();
 				

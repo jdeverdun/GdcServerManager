@@ -126,6 +126,9 @@ public class ServerInfo {
 		if(WindowManager.MAINWINDOW!=null && WindowManager.MAINWINDOW.getFileTreeDist()!=null){
 			WindowManager.MAINWINDOW.getFileTreeDist().switchToDir(serverDir);
 		}
+		if(WindowManager.MAINWINDOW!=null && WindowManager.MAINWINDOW.getFileTreeWork()!=null){
+			WindowManager.MAINWINDOW.getFileTreeWork().switchToDir(serverDir);
+		}
 	}
 	public Path getTempDir() {
 		return tempDir;
