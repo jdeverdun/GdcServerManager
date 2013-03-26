@@ -5,6 +5,8 @@ import java.util.Set;
 public class Patient {
 
 	private int id;
+	private String birthdate;
+	private String sex;
 	private Project project;
 	private String nom;
 	private Set<AcquisitionDate> acquisitionsDates;
@@ -60,6 +62,26 @@ public class Patient {
 	}
 	public boolean equals(Patient p){
 		return this.id==p.id;
+	}
+
+
+	public String getBirthdate() {
+		return birthdate;
+	}
+
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
+	}
+
+
+	public String getSex() {
+		return sex;
+	}
+
+
+	public void setSex(String sex) {
+		this.sex = sex;
 	}
 
 

@@ -31,7 +31,7 @@ public interface PatientDAO {
        * @return
      * @throws SQLException 
        */
-      public Patient retrievePatient(String name, int project_id) throws SQLException;
+      public Patient retrievePatient(String name,String birthdate,String sex, int project_id) throws SQLException;
       
       /**
        * Renvoi l'id max de la table (idmax+1)
@@ -48,7 +48,7 @@ public interface PatientDAO {
        * @return
        * @throws SQLException
        */
-      public boolean newPatient(String name, int projet_id) throws SQLException;
+      public boolean newPatient(String name,String birthdate,String sex, int projet_id) throws SQLException;
       
       /**
        * met à jours un tuple
@@ -58,7 +58,7 @@ public interface PatientDAO {
        * @return
        * @throws SQLException
        */
-      public boolean updatePatient(int id, String name, int projet_id) throws SQLException;
+      public boolean updatePatient(int id, String name,String birthdate,String sex, int projet_id) throws SQLException;
 
       public Set<Patient> getPatientsForProject(int project_id)  throws SQLException;
 

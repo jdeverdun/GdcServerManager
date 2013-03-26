@@ -49,6 +49,8 @@ public class DicomWorker extends DaemonWorker {
 	private DicomJobDispatcher dispatcher;
 	private DicomImage dicomImage;
 	private ImagePlus imp;
+	private String birthdate;
+	private String sex;
 	private int project_id;
 	private int patient_id;
 	private int acqDate_id;
@@ -110,6 +112,8 @@ public class DicomWorker extends DaemonWorker {
 				return;
 			}	
 			patientName = getPatientName();
+			birthdate = getBirthdate();
+			sex = getSex();
 			protocolName = getProtocolName();
 			serieName = getSeriesDescription();
 			acqDate = getAcquisitionDate();		
@@ -178,6 +182,7 @@ public class DicomWorker extends DaemonWorker {
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
 		dicomImage.setName(dicomFile.getFileName().toString());
+		dicomImage.setMri_name(getMri_name());
 		dicomImage.setProjet(new Project(getProject_id()));
 		dicomImage.setPatient(new Patient(getPatient_id()));
 		dicomImage.setProtocole(new Protocol(getProtocol_id()));
@@ -200,6 +205,9 @@ public class DicomWorker extends DaemonWorker {
 	}
 
 	
+
+
+
 
 
 
@@ -304,7 +312,7 @@ public class DicomWorker extends DaemonWorker {
 		
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
-			Patient p = pdao.retrievePatient(fileName.toString(),getProject_id());
+			Patient p = pdao.retrievePatient(fileName.toString(),this.birthdate,this.sex, getProject_id());
 			setPatient_id(p.getId());
 			cache.getIdPatientList().put(fileName.toString() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
@@ -358,7 +366,7 @@ public class DicomWorker extends DaemonWorker {
 		case "Patient":
 			PatientDAO patdao = new MySQLPatientDAO();
 			try {
-				patdao.newPatient(name.toString(), getProject_id());
+				patdao.newPatient(name.toString(),this.birthdate,this.sex, getProject_id());
 				setPatient_id(patdao.idmax());
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -489,6 +497,53 @@ public class DicomWorker extends DaemonWorker {
 		return sdesc;
 	}
 	
+	// Date de naissance
+	public String getBirthdate(){
+		String bdate = DicomTools.getTag(imp, "0010,0030");
+		if(bdate == null){
+			return null;
+		}
+		if(bdate.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(bdate.charAt(0) == ' ')
+			bdate = bdate.substring(1);	
+		// on remplace les caracteres complique par "_"
+		bdate = bdate.replaceAll("[^A-Za-z0-9]" , "_");
+		return bdate;
+	}
+	// Sexe du patient
+	public String getSex(){
+		String psex = DicomTools.getTag(imp, "0010,0040");
+		if(psex == null){
+			return null;
+		}
+		if(psex.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(psex.charAt(0) == ' ')
+			psex = psex.substring(1);	
+		// on remplace les caracteres complique par "_"
+		psex = psex.replaceAll("[^A-Za-z0-9]" , "_");
+		return psex;
+	}	
+	
+	// Nom de l'IRM
+	public String getMri_name(){
+		String iname = DicomTools.getTag(imp, "0008,1090");
+		if(iname == null){
+			return null;
+		}
+		if(iname.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(iname.charAt(0) == ' ')
+			iname = iname.substring(1);	
+		// on remplace les caracteres complique par "_"
+		iname = iname.replaceAll("[^A-Za-z0-9]" , "_");
+		return iname;
+	}
+		
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
 	public String getProtocolName(){
 		String pprot = DicomTools.getTag(imp, "0018,1030");
@@ -535,6 +590,11 @@ public class DicomWorker extends DaemonWorker {
 
 	public void setPatient_id(int patient_id) {
 		this.patient_id = patient_id;
+	}
+
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
 	}
 
 

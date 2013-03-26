@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 public class DicomImage {
 
 	private int id;
+	private String mri_name;
 	private Project projet;
 	private Patient patient;
 	private AcquisitionDate acquistionDate;
@@ -96,5 +97,11 @@ public class DicomImage {
 		}
 		in.close();
 		return key.equals("DICM");
+	}
+	public String getMri_name() {
+		return mri_name;
+	}
+	public void setMri_name(String mri_name) {
+		this.mri_name = mri_name;
 	}
 }

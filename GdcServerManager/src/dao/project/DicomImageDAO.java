@@ -14,13 +14,14 @@ public interface DicomImageDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newDicomImage(String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
+    public boolean newDicomImage(String name, String mri_name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
       
-    public boolean updateDicomImage(int id, String name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
+    public boolean updateDicomImage(int id, String name, String mri_name, int projet_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException;
       
 	public Set<DicomImage> getDicomImageForPatient(int id) throws SQLException;
 	public Set<DicomImage> getDicomImageForProject(int id) throws SQLException; 
 	public Set<DicomImage> getDicomImageForAcqDate(int id) throws SQLException; 
 	public Set<DicomImage> getDicomImageForProtocol(int id) throws SQLException; 
 	public Set<DicomImage> getDicomImageForSerie(int id) throws SQLException; 
+	
 }

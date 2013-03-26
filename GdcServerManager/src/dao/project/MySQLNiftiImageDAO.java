@@ -39,6 +39,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				NiftiImage nifti = new NiftiImage();
 				nifti.setId(rset.getInt("id"));
 				nifti.setName(rset.getString("name"));
+				nifti.setMri_name(rset.getString("mri_name"));
 				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				nifti.setProtocole(nifti.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -61,7 +62,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	
 	
 
-	public boolean newNiftiImage( String nom, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean newNiftiImage( String nom, String mri_name, int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -72,7 +73,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into NiftiImage values (NULL,'"
-						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
+						+ nom + "','"+mri_name+"', "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;
 				
@@ -144,6 +145,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			while(rset.next()){
 				nifti.setId(rset.getInt("id"));
 				nifti.setName(rset.getString("name"));
+				nifti.setMri_name(rset.getString("mri_name"));
 				nifti.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
 				nifti.setProtocole(nifti.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -166,7 +168,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	}
 
 	@Override
-	public void removeEntry(String name, int id_project, int id_patient,
+	public void removeEntry(String name,String mri_name, int id_project, int id_patient,
 			int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
@@ -174,7 +176,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("delete from niftiimage where name='"+name+"' and id_project="+id_project+" and id_patient="+id_patient+" and id_acqdate="+id_acqdate+" and id_protocol="+id_protocol+" and id_serie="+id_serie);
+			rset = stmt.executeUpdate("delete from niftiimage where name='"+name+"' and mri_name='"+mri_name+"' and id_project="+id_project+" and id_patient="+id_patient+" and id_acqdate="+id_acqdate+" and id_protocol="+id_protocol+" and id_serie="+id_serie);
 			return;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
@@ -186,14 +188,14 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	}
 	
 	@Override
-	public boolean updateNiftiImage(int id, String name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean updateNiftiImage(int id, String name,String mri_name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update NiftiImage set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
+			rset = stmt.executeUpdate("update NiftiImage set name='"+name+"',mri_name='"+mri_name+"' , id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

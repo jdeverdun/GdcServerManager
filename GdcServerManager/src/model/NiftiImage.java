@@ -4,6 +4,7 @@ public class NiftiImage {
 
 	private int id;
 	private String name;
+	private String mri_name;
 	private Project projet;
 	private Patient patient;
 	private AcquisitionDate acquistionDate;
@@ -86,6 +87,16 @@ public class NiftiImage {
 	
 	public boolean equals(NiftiImage p){
 		return this.id==p.id;
+	}
+
+
+	public String getMri_name() {
+		return mri_name;
+	}
+
+
+	public void setMri_name(String mri_name) {
+		this.mri_name = mri_name;
 	}
 
 }

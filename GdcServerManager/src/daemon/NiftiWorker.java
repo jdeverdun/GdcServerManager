@@ -192,7 +192,7 @@ public class NiftiWorker extends DaemonWorker {
 	private void removeDBEntry(Path fileName) {
 		NiftiImageDAO ndao = new MySQLNiftiImageDAO();
 		try {
-			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -226,7 +226,7 @@ public class NiftiWorker extends DaemonWorker {
 		case "NiftiImage":
 			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			try {
-				dicdao.newNiftiImage(name.getFileName().toString(), sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+				dicdao.newNiftiImage(name.getFileName().toString(), sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
 				e.printStackTrace();

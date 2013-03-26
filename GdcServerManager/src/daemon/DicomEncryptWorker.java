@@ -1,5 +1,8 @@
 package daemon;
 
+import ij.ImagePlus;
+import ij.util.DicomTools;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +27,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 	private Path dicomFile;
 	private EncryptDaemon encryptDaemon;
 	private DicomImage dicomImage;
+	private ImagePlus imp;
 	
 	public DicomEncryptWorker(EncryptDaemon disp, Path p, DicomImage di){
 		dicomFile = p;
@@ -92,7 +96,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 			case "DicomImage":
 				DicomImageDAO dicdao = new MySQLDicomImageDAO();
 				try {
-					dicdao.newDicomImage(name.toString(), dicomImage.getProjet().getId(), dicomImage.getPatient().getId(),
+					dicdao.newDicomImage(name.toString(),dicomImage.getMri_name(), dicomImage.getProjet().getId(), dicomImage.getPatient().getId(),
 							dicomImage.getAcquistionDate().getId(),dicomImage.getProtocole().getId(),dicomImage.getSerie().getId());
 					dicomImage.setId(dicdao.idmax());
 				} catch (SQLException e) {
@@ -105,11 +109,31 @@ public class DicomEncryptWorker extends DaemonWorker {
 		}
 	}
 	
+	// Date de naissance
+	public String getBirthdate(){
+		if(imp==null){
+			imp = new ImagePlus(dicomFile.toFile().getAbsolutePath());
+		}
+		String bdate = DicomTools.getTag(imp, "0010,0030");
+		if(bdate == null){
+			return null;
+		}
+		if(bdate.isEmpty())
+			return "Unknown";
+		// On enleve les espace en debut de chaine
+		while(bdate.charAt(0) == ' ')
+			bdate = bdate.substring(1);	
+		// on remplace les caracteres complique par "_"
+		bdate = bdate.replaceAll("[^A-Za-z0-9]" , "_");
+		return bdate;
+	}
 	
+		
 	/**
 	 * envoi les infos vers le daemon nifti
 	 */
 	private void prepareToStop() {
+		this.imp = null;
 		// On enleve le worker de la liste des worker et on ajoute
 		// le patient à la liste des patients à convertir en nifti
 		// On ne le ratjoute que si le workspace du protocole existe
