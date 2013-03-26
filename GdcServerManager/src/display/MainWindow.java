@@ -245,7 +245,7 @@ public class MainWindow extends JFrame {
 			gbl_btnWorkpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 			btnWorkpanel.setLayout(gbl_btnWorkpanel);
 			
-			fileTreeWork = new FileManager(this);
+			fileTreeWork = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir(),2);
 			treeworkbuttonPane.setLeftComponent(fileTreeWork.getPane());
 			btnCreateWork = new JButton("create");
 			GridBagConstraints gbc_btnCreateWork = new GridBagConstraints();
@@ -329,7 +329,7 @@ public class MainWindow extends JFrame {
 			treedistbuttonPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 			treedistbuttonPane.setOneTouchExpandable(true);
 			treedistbuttonPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			fileTreeDist = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir());
+			fileTreeDist = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir(),2);
 			treedistbuttonPane.setLeftComponent(fileTreeDist.getPane());
 			distautresplitPane.setLeftComponent(treedistbuttonPane);
 			

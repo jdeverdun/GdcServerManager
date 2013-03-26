@@ -57,3 +57,13 @@ constraint niftiimage_pk primary key (id),
 constraint uprot_serie_acqdata_patient_projet_namenifti unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
 constraint serienifti_fk foreign key (id_serie) references Serie(id) on delete cascade);
 
+
+-- INSERTION DE QUELQUES TUPLES
+INSERT INTO `user` (`id`, `nom`, `prenom`, `email`, `login`, `password`, `level`, `firstconnect`) VALUES
+(1, 'deverdun', 'jeremy', 'jeremy.deverdun@neuf.fr', 'jdeverdun', '*80182EDE2802545F7CB3F774677004CC510E85F6', 3, 0);
+
+INSERT INTO `user_view` (`id`, `login_user`, `view_num`) VALUES
+(1, 'jdeverdun', -10);
+ALTER TABLE `user_view`
+  ADD CONSTRAINT `login_user_fk` FOREIGN KEY (`login_user`) REFERENCES `user` (`login`) ON DELETE CASCADE;
+

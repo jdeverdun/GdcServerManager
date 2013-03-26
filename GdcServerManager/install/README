@@ -3,4 +3,14 @@ Installation :
 1. Installer "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files !!! JCE7 !!!" en le telechargeant sur le site d'oracle 
 et en placant le contenu de l'archive dans <java_home>/lib/security
 
+2. Parametrer le serveur distant /!\ la passerelle du reseau doit etre 120.1.100.1 (reseau CHU ou Im@ges.net)
+	Sous Windows :
+		clic droit sur "Ordinateur" -> connecter un lecteur reseau
+	Selectionner la lettre "J:"
+	Dossier : \\172.20.1.7\radio
+	Cocher les 2 checkbox
+	Validez
+	Quand les identifiants sont demandees, rentrez votre login (matricule CHU) precede de CHUMPT\ et votre mot de passe
+	Puis selectionnez memoriser le mot de passe 
+
 Sur le serveur : Installer DavMail

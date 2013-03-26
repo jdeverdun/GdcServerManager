@@ -139,7 +139,6 @@ public class UserCreationPanel extends PopupPanel {
 							// Mot de passe en clair
 							String realPass = u.getPassword();
 							UserDAO udao = new MySQLUserDAO();
-							System.out.println(realPass);
 							try {
 								// on encrypt le mdp
 								u.setPassword(udao.encryptPass(realPass));

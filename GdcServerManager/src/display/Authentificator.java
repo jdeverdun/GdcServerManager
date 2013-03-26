@@ -26,8 +26,12 @@ import settings.UserProfile;
 import settings.WindowManager;
 
 
+import dao.MySQLProjectDAO;
 import dao.MySQLUserDAO;
+import dao.MySQLUserProjectDAO;
+import dao.ProjectDAO;
 import dao.UserDAO;
+import dao.UserProjectDAO;
 import display.containers.ImagePanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
@@ -264,7 +268,9 @@ public class Authentificator extends JFrame {
 						dispose();
 						return;
 					}
-					final User u = udao.connexion(txtUsername.getText(), passwordField.getText());
+					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
+					UserProjectDAO pdao = new MySQLUserProjectDAO();
+					u.setProjects(pdao.getProjectsForUser(u.getId()));
 					if(u!=null){
 						
 						

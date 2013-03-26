@@ -24,6 +24,9 @@ import javax.swing.filechooser.FileSystemView;
 
 import javax.imageio.ImageIO;
 
+import model.Project;
+import model.ServerInfo;
+
 import org.apache.commons.io.FileUtils;
 
 import settings.SystemSettings;
@@ -73,6 +76,7 @@ rename/delete etc. are called that update nodes & file lists.
 */
 public class FileManager {
 
+	
     /** Title of the application */
     public static final String APP_TITLE = "FileMan";
     /** Used to open/edit/print files. */
@@ -96,16 +100,36 @@ public class FileManager {
     private boolean cellSizesSet = false;
     private int rowIconPadding = 6;
 	private boolean continueAction;
+	
+	/** Attributs basiques **/
+	private int mode; //mode definit le fonctionnement du filemanager
 
     public FileManager(JFrame parent,Path defdir){
     	setCurrentDir(defdir.toFile());
     	parentFrame = parent;
     	continueAction = true;
+    	setMode(0);
+    }
+    
+    /**
+     * Le mode definit le fonctionnement du filemanager
+     * 
+     * Mode 0 = explorateur simple (defaut)
+     * Mode 1 = explorateur workspace sur le serveur distant (n'affiche que les workspace autorises)
+     * Mode 2 = explorateur serveur partie sauvegarde (NRI-DICOM, NRI-ANALYSE)
+     * @param parent
+     * @param defdir
+     * @param mode : mode de fonctionnement
+     */
+    public FileManager(JFrame parent,Path defdir,int mode){
+    	this(parent,defdir);
+    	setMode(mode);
     }
     public FileManager(JFrame parent){
     	setCurrentDir(new File(System.getProperty("user.home")));
     	parentFrame = parent;
     	continueAction = true;
+    	setMode(0);
     }
 
     public Container getPane() {
@@ -418,10 +442,40 @@ public class FileManager {
                 setCurrentDir(file);
                 if (file.isDirectory()) {
                     File[] files = fileSystemView.getFiles(file, !UserProfile.SHOW_HIDDEN_FILES); //!!
-                    File[] filesWithParent = new File[files.length+1];
-                    filesWithParent[0] = new File(file.getAbsolutePath() + "/..");
-                    for(int i = 1;i<filesWithParent.length;i++)
-                    	filesWithParent[i] = files[i-1];
+                    File[] filesTemp = new File[files.length+1];
+                    File[] filesWithParent;
+                    filesTemp[0] = new File(file.getAbsolutePath() + "/..");
+                    for(int i = 1;i<filesTemp.length;i++){
+                    	filesTemp[i] = files[i-1];
+                    }
+                    switch(getMode()){
+                    case 1:
+                    	List<File> list = new ArrayList<File>();
+                    	if(file.getAbsolutePath().equals(SystemSettings.SERVER_INFO.getServerDir())){
+                    		for(File fi:filesTemp){
+                    			for(Project p:UserProfile.CURRENT_USER.getProjects()){
+                    				if(p.getNom().equals(fi.getName())){
+                    					list.add(fi);
+                    				}
+                    			}
+                    		}
+                    	}
+                    	filesWithParent = (File[]) list.toArray();
+                    	break;
+                    case 2:
+                    	List<File> list2 = new ArrayList<File>();
+                    	if(file.getAbsolutePath().equals(SystemSettings.SERVER_INFO.getServerDir())){
+                    		for(File fi:filesTemp){
+                				if(fi.getName().equals(ServerInfo.NRI_DICOM_NAME) || fi.getName().equals(ServerInfo.NRI_ANALYSE_NAME)){
+                					list2.add(fi);
+                				}
+                    		}
+                    	}
+                    	filesWithParent = (File[]) list2.toArray();
+                    	break;
+                	default:
+                		filesWithParent = filesTemp;
+                    }
                     setTableData(filesWithParent);
                 }
                 return null;
@@ -429,9 +483,9 @@ public class FileManager {
 
             @Override
             protected void process(List<File> chunks) {
-                for (File child : chunks) {
+                /*for (File child : chunks) {
                   //  node.add(new DefaultMutableTreeNode(child));
-                }
+                }*/
             }
 
             @Override
@@ -497,6 +551,14 @@ public class FileManager {
 	public void setTreeModel(DefaultTreeModel treeModel) {
 		this.treeModel = treeModel;
 	}
+	public int getMode() {
+		return mode;
+	}
+
+	public void setMode(int mode) {
+		this.mode = mode;
+	}
+
 	public JTable getTable() {
 		return table;
 	}
