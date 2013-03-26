@@ -460,7 +460,7 @@ public class FileManager {
                     			}
                     		}
                     	}
-                    	filesWithParent = (File[]) list.toArray();
+                    	filesWithParent = list.toArray(new File[list.size()]);
                     	break;
                     case 2:
                     	List<File> list2 = new ArrayList<File>();
@@ -471,7 +471,7 @@ public class FileManager {
                 				}
                     		}
                     	}
-                    	filesWithParent = (File[]) list2.toArray();
+                    	filesWithParent = list2.toArray(new File[list2.size()]);
                     	break;
                 	default:
                 		filesWithParent = filesTemp;
