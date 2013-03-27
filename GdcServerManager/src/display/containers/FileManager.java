@@ -451,7 +451,7 @@ public class FileManager {
                     switch(getMode()){
                     case 1:
                     	List<File> list = new ArrayList<File>();
-                    	if(file.getAbsolutePath().equals(SystemSettings.SERVER_INFO.getServerDir())){
+                    	if(file.toPath().equals(SystemSettings.SERVER_INFO.getServerDir())){
                     		for(File fi:filesTemp){
                     			for(Project p:UserProfile.CURRENT_USER.getProjects()){
                     				if(p.getNom().equals(fi.getName())){
@@ -459,24 +459,30 @@ public class FileManager {
                     				}
                     			}
                     		}
+                    		filesWithParent = list.toArray(new File[list.size()]);
+                    	}else{
+                    		filesWithParent = filesTemp;
                     	}
-                    	filesWithParent = list.toArray(new File[list.size()]);
+                    	
                     	break;
                     case 2:
                     	List<File> list2 = new ArrayList<File>();
-                    	if(file.getAbsolutePath().equals(SystemSettings.SERVER_INFO.getServerDir())){
+                    	if(file.toPath().equals(SystemSettings.SERVER_INFO.getServerDir())){
                     		for(File fi:filesTemp){
                 				if(fi.getName().equals(ServerInfo.NRI_DICOM_NAME) || fi.getName().equals(ServerInfo.NRI_ANALYSE_NAME)){
                 					list2.add(fi);
                 				}
                     		}
+                    		filesWithParent = list2.toArray(new File[list2.size()]);
+                    	}else{
+                    		filesWithParent = filesTemp;
                     	}
-                    	filesWithParent = list2.toArray(new File[list2.size()]);
                     	break;
                 	default:
                 		filesWithParent = filesTemp;
                     }
-                    setTableData(filesWithParent);
+                    if(filesWithParent != null && filesWithParent.length>0)
+                    	setTableData(filesWithParent);
                 }
                 return null;
             }

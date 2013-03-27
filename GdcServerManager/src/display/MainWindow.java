@@ -245,7 +245,7 @@ public class MainWindow extends JFrame {
 			gbl_btnWorkpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 			btnWorkpanel.setLayout(gbl_btnWorkpanel);
 			
-			fileTreeWork = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir(),2);
+			fileTreeWork = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir(),1);
 			treeworkbuttonPane.setLeftComponent(fileTreeWork.getPane());
 			btnCreateWork = new JButton("create");
 			GridBagConstraints gbc_btnCreateWork = new GridBagConstraints();
