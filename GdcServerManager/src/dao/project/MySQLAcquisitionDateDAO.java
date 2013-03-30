@@ -33,7 +33,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			else
 				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId());
 
-			// boucle sur les resultats de la requête
+			// boucle sur les resultats de la requete
 			while (rset.next()) {
 				AcquisitionDate acq = new AcquisitionDate();
 				acq.setId(rset.getInt("id"));

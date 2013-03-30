@@ -64,6 +64,5 @@ INSERT INTO `user` (`id`, `nom`, `prenom`, `email`, `login`, `password`, `level`
 
 INSERT INTO `user_view` (`id`, `login_user`, `view_num`) VALUES
 (1, 'jdeverdun', -10);
-ALTER TABLE `user_view`
-  ADD CONSTRAINT `login_user_fk` FOREIGN KEY (`login_user`) REFERENCES `user` (`login`) ON DELETE CASCADE;
+
 
