@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -224,16 +225,14 @@ public class DicomSortConvertPanel extends JPanel {
 					}
 					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, false);
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, ndaemon);
-					for(File fi:droppedFiles){
-						ddaemon.addDicomToMove(fi.toPath());
-					}
+
 					
-					ndaemon.start();
-					ddaemon.start();
+					
 					statusThread = new Thread(new Runnable() {
 						
 						@Override
 						public void run() {
+							progressPanel.setVisible(true);
 							while(true){
 								try {
 									Thread.sleep(1000);
@@ -262,16 +261,20 @@ public class DicomSortConvertPanel extends JPanel {
 						}
 					});
 					statusThread.start();
-				}else{
-					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, null);
 					for(File fi:droppedFiles){
 						ddaemon.addDicomToMove(fi.toPath());
 					}
 					ddaemon.start();
+					ndaemon.start();
+				}else{
+					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, null);
+
+					
 					statusThread = new Thread(new Runnable() {
 						
 						@Override
 						public void run() {
+							progressPanel.setVisible(true);
 							while(true){
 								try {
 									Thread.sleep(1000);
@@ -294,6 +297,10 @@ public class DicomSortConvertPanel extends JPanel {
 						}
 					});
 					statusThread.start();
+					for(File fi:droppedFiles){
+						ddaemon.addDicomToMove(fi.toPath());
+					}
+					ddaemon.start();
 				}
 				
 			}

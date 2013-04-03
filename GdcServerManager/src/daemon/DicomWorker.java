@@ -119,7 +119,8 @@ public class DicomWorker extends DaemonWorker {
 			acqDate = getAcquisitionDate();		
 		}catch(Exception e){
 			System.out.println(dicomFile.getFileName() + " not a DICOM.");
-			dicomFile.toFile().delete();
+			if(getDispatcher().isServerMode())
+				dicomFile.toFile().delete();
 			return;
 		}
 		
