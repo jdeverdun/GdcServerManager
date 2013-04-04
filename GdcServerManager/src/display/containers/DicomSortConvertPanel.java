@@ -244,6 +244,7 @@ public class DicomSortConvertPanel extends JPanel {
 									if(ddaemon.getDicomToMove().isEmpty()){
 										ddaemon.setStop(true);
 										ddaemon = null;
+										ndaemon.start();
 									}
 								}else{
 									getLblStatus().setText(ndaemon.getDir2convert().size() + " Niftis left." );
@@ -265,7 +266,6 @@ public class DicomSortConvertPanel extends JPanel {
 						ddaemon.addDicomToMove(fi.toPath());
 					}
 					ddaemon.start();
-					ndaemon.start();
 				}else{
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, null);
 

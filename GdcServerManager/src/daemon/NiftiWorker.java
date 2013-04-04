@@ -216,7 +216,7 @@ public class NiftiWorker extends DaemonWorker {
 		default:
 			System.err.println("Unknow nifti format");
 		}
-		command+=" -o "+niftiPath+" "+dicomPath;
+		command+=" -o \""+niftiPath+"\" \""+dicomPath+"\"";
 		return command;
 	}
 	
