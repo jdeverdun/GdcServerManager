@@ -176,7 +176,7 @@ public class SettingsFrame extends JFrame {
 				int retval = fc.showOpenDialog(SettingsFrame.this);
 	            if (retval == JFileChooser.APPROVE_OPTION) {
 	            	File file = fc.getSelectedFile();
-	            	txtDicomDirectory.setText(file.getAbsolutePath());
+	            	txtTempdir.setText(file.getAbsolutePath());
 	            }
 			}
 		});
@@ -189,7 +189,7 @@ public class SettingsFrame extends JFrame {
 				int retval = fc.showOpenDialog(SettingsFrame.this);
 	            if (retval == JFileChooser.APPROVE_OPTION) {
 	            	File file = fc.getSelectedFile();
-	            	txtDicomDirectory.setText(file.getAbsolutePath());
+	            	niftiField.setText(file.getAbsolutePath());
 	            }
 			}
 		});
