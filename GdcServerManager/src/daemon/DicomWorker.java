@@ -45,17 +45,17 @@ import static java.nio.file.StandardCopyOption.*;
 public class DicomWorker extends DaemonWorker {
 
 	// Attributs
-	private Path dicomFile;
-	private DicomJobDispatcher dispatcher;
-	private DicomImage dicomImage;
-	private ImagePlus imp;
-	private String birthdate;
-	private String sex;
-	private int project_id;
-	private int patient_id;
-	private int acqDate_id;
-	private int protocol_id;
-	private int serie_id;
+	protected Path dicomFile;
+	protected DicomJobDispatcher dispatcher;
+	protected DicomImage dicomImage;
+	protected ImagePlus imp;
+	protected String birthdate;
+	protected String sex;
+	protected int project_id;
+	protected int patient_id;
+	protected int acqDate_id;
+	protected int protocol_id;
+	protected int serie_id;
 	
 	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) {
 		setDispatcher(pDaemon);
@@ -119,8 +119,7 @@ public class DicomWorker extends DaemonWorker {
 			acqDate = getAcquisitionDate();		
 		}catch(Exception e){
 			System.out.println(dicomFile.getFileName() + " not a DICOM.");
-			if(getDispatcher().isServerMode())
-				dicomFile.toFile().delete();
+			dicomFile.toFile().delete();
 			return;
 		}
 		
@@ -135,50 +134,36 @@ public class DicomWorker extends DaemonWorker {
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
 		// sinon recuperer les ID des projets etc
-		boolean isServerMode = getDispatcher().isServerMode();
 		boolean dirExists = checkAndMakeDir(studyFolder);
-		if(isServerMode){
-			if(!dirExists)
-				addEntryToDB(studyFolder.getFileName(),"Project");
-			else
-				setProject_idFromDB(studyFolder.getFileName());
-		}
+		if(!dirExists)
+			addEntryToDB(studyFolder.getFileName(),"Project");
+		else
+			setProject_idFromDB(studyFolder.getFileName());
 		dirExists = checkAndMakeDir(patientFolder);
-		if(isServerMode){
-			if(!dirExists)
-				addEntryToDB(patientFolder.getFileName(),"Patient");
-			else
-				setPatient_idFromDB(patientFolder.getFileName());
-		}
+		if(!dirExists)
+			addEntryToDB(patientFolder.getFileName(),"Patient");
+		else
+			setPatient_idFromDB(patientFolder.getFileName());
 		dirExists = checkAndMakeDir(dateFolder);
-		if(isServerMode){
-			if(!dirExists)
-				addEntryToDB(dateFolder.getFileName(),"AcqDate");
-			else
-				setAcqDate_idFromDB(dateFolder.getFileName());
-		}
+		if(!dirExists)
+			addEntryToDB(dateFolder.getFileName(),"AcqDate");
+		else
+			setAcqDate_idFromDB(dateFolder.getFileName());
 		dirExists = checkAndMakeDir(protocolFolder);
-		if(isServerMode){
-			if(!dirExists)
-				addEntryToDB(protocolFolder.getFileName(),"Protocol");
-			else
-				setProtocol_idFromDB(protocolFolder.getFileName());
-		}
+		if(!dirExists)
+			addEntryToDB(protocolFolder.getFileName(),"Protocol");
+		else
+			setProtocol_idFromDB(protocolFolder.getFileName());
 		dirExists = checkAndMakeDir(serieFolder);
-		if(isServerMode){
-			if(!dirExists)
-				addEntryToDB(serieFolder.getFileName(),"Serie");
-			else
-				setSerie_idFromDB(serieFolder.getFileName());
-		}
+		if(!dirExists)
+			addEntryToDB(serieFolder.getFileName(),"Serie");
+		else
+			setSerie_idFromDB(serieFolder.getFileName());
 		
 		Path newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
 		// On deplace
-		if(isServerMode)
-			moveDicomTo(newPath);
-		else
-			copyDicomTo(newPath);
+		moveDicomTo(newPath);
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
@@ -190,16 +175,9 @@ public class DicomWorker extends DaemonWorker {
 		dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
 		dicomImage.setSerie(new Serie(getSerie_id()));
 		
-		if(isServerMode){
-			// On ajoute le fichier brute dans la liste des fichiers
-			// a encrypter 
-			getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
-		}else{
-			if(getDispatcher().getNiftiDaemon()!=null){
-				getDispatcher().getNiftiDaemon().addDir(newPath.getParent(), dicomImage);
-			}
-				
-		}
+		// On ajoute le fichier brute dans la liste des fichiers
+		// a encrypter 
+		getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
 		
 		// On termine
 		prepareToStop();
@@ -410,7 +388,7 @@ public class DicomWorker extends DaemonWorker {
 
 	// Deplace dicomFile à l'emplacement donné et update la date de modification
 	// du repertoire patient pour la conversion nifti
-	private void moveDicomTo(Path newPath) {
+	protected void moveDicomTo(Path newPath) {
 		try {
 			System.out.println("Moving : " + dicomFile.getFileName() + " to " + newPath);
 			Files.move(dicomFile, newPath, REPLACE_EXISTING);
@@ -423,7 +401,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 	}
 
-	private void copyDicomTo(Path newPath) {
+	protected void copyDicomTo(Path newPath) {
 		try {
 			System.out.println("Copying : " + dicomFile.getFileName() + " to " + newPath);
 			Files.copy(dicomFile, newPath, REPLACE_EXISTING);

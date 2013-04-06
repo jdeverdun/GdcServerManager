@@ -15,6 +15,7 @@ import settings.SystemSettings;
 
 import model.DicomImage;
 import model.ServerInfo;
+import model.daemon.DJDSettings;
 
 
 /**
@@ -35,16 +36,16 @@ public class DicomJobDispatcher extends Thread{
 	private DicomWorker dworker;
 	private boolean stop;
 	private int waitCounter;
-	private boolean serverMode;
+	private DJDSettings settings; // Parametres pour le DicomJobDispatcher 
 	private NiftiDaemon niftiDaemon;
 
 
 
 	public DicomJobDispatcher(DicomDaemon dicomDaemon) {
-		setServerMode(true);
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
 		setDicomDaemon(dicomDaemon);
+		setSettings(new DJDSettings());
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		setMaxWorker(SystemSettings.AVAILABLE_CORES);
@@ -54,14 +55,14 @@ public class DicomJobDispatcher extends Thread{
 	/**
 	 *  principalement pour mode conversion only
 	 * @param si
-	 * @param servermode
+	 * @param settings
 	 * @param nifti
 	 */
-	public DicomJobDispatcher(ServerInfo si,boolean servermode,NiftiDaemon nifti) {
-		setServerMode(servermode);
+	public DicomJobDispatcher(ServerInfo si,DJDSettings settings, NiftiDaemon nifti) {
 		setNiftiDaemon(nifti);
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
+		setSettings(settings);
 		setDicomDaemon(null);
 		setStop(false);
 		setServerInfo(si);
@@ -116,17 +117,6 @@ public class DicomJobDispatcher extends Thread{
 		this.maxWorker = maxWorker;
 	}
 
-
-
-
-	public boolean isServerMode() {
-		return serverMode;
-	}
-
-	public void setServerMode(boolean serverMode) {
-		this.serverMode = serverMode;
-	}
-
 	public DicomWorker getDworker() {
 		return dworker;
 	}
@@ -150,6 +140,14 @@ public class DicomJobDispatcher extends Thread{
 		this.niftiDaemon = niftiDaemon;
 	}
 
+	public DJDSettings getSettings() {
+		return settings;
+	}
+
+	public void setSettings(DJDSettings settings) {
+		this.settings = settings;
+	}
+
 	public boolean isStop() {
 		return stop;
 	}
@@ -165,7 +163,7 @@ public class DicomJobDispatcher extends Thread{
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty() && !isStop()){
-				if(waitCounter>10000 && isServerMode()){
+				if(waitCounter>10000 && getSettings().isServerMode()){
 					//Si aucun fichier n'a ete ajouter depuis plus de 10 sec
 					// on verifie si on a pas rate des event a cause d'overflow
 					try {
@@ -187,8 +185,13 @@ public class DicomJobDispatcher extends Thread{
 			// on lance le deplacement du fichier
 			// on le fait fich/fich (pas multithread) car windows
 			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
-			dworker = new DicomWorker(this, (Path)dicomToMove.pop());
-	        dworker.start();  
+			if(getSettings().isServerMode()){
+				dworker = new DicomWorker(this, (Path)dicomToMove.pop());
+		        dworker.start();
+			}else{
+				dworker = new DicomWorkerClient(this, (Path)dicomToMove.pop());
+		        dworker.start();
+			}
 
 	        numberOfRuns++;
 	        if(numberOfRuns>2000){
