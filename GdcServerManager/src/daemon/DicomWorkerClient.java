@@ -39,11 +39,12 @@ import model.Protocol;
 import model.Serie;
 import model.ServerInfo;
 import model.User;
-import model.daemon.DJDSettings;
+import model.daemon.CustomConversionSettings;
 import static java.nio.file.StandardCopyOption.*;
 
 
 public class DicomWorkerClient extends DicomWorker {
+	public static Path DICOMDIR = null; // Permet de conserver la trace, pour un run du dispatcher du repertoire des dicom 
 	
 	public DicomWorkerClient(DicomJobDispatcher pDaemon, Path filename) {
 		super(pDaemon,filename);
@@ -79,16 +80,37 @@ public class DicomWorkerClient extends DicomWorker {
 		}
 		
 		// On créé les chemins vers les répertoires
-		DJDSettings djdsettings = getDispatcher().getSettings();
+		CustomConversionSettings djdsettings = getDispatcher().getSettings();
 		Path studyFolder;
-		if(djdsettings.isWorkingWithProjectDir())
-			studyFolder = Paths.get(serverInfo.getDicomDir() + File.separator + studyName);
+		Path dateFolder;
+		Path protocolFolder;
+		
+		Path dicomDir;
+		if(djdsettings.keepDicom()){
+			dicomDir = serverInfo.getDicomDir();
+		}else{
+			if(DICOMDIR==null){
+				DICOMDIR = Paths.get(serverInfo.getTempDir() + File.separator + "export" + System.currentTimeMillis());
+			}
+			dicomDir = DICOMDIR;
+		}
+		if(djdsettings.isWorkingWithProjectDir()) // on verifie a chaque fois si on souhaite creer se repetoire
+			studyFolder = Paths.get(dicomDir + File.separator + studyName);
 		else
-			studyFolder = serverInfo.getDicomDir();
+			studyFolder = dicomDir;
 		setProjectFolder(studyFolder);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
-		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
-		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
+		
+		if(djdsettings.isWorkingWithAcqDateDir())
+			dateFolder = Paths.get(patientFolder + File.separator + acqDate);
+		else
+			dateFolder = patientFolder;
+		
+		if(djdsettings.isWorkingWithProtocolDir())
+			protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
+		else
+			protocolFolder = dateFolder;
+		
 		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
 		
 		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin

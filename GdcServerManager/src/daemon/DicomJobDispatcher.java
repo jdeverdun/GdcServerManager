@@ -15,7 +15,7 @@ import settings.SystemSettings;
 
 import model.DicomImage;
 import model.ServerInfo;
-import model.daemon.DJDSettings;
+import model.daemon.CustomConversionSettings;
 
 
 /**
@@ -36,7 +36,7 @@ public class DicomJobDispatcher extends Thread{
 	private DicomWorker dworker;
 	private boolean stop;
 	private int waitCounter;
-	private DJDSettings settings; // Parametres pour le DicomJobDispatcher 
+	private CustomConversionSettings settings; // Parametres pour le DicomJobDispatcher 
 	private NiftiDaemon niftiDaemon;
 
 
@@ -45,7 +45,7 @@ public class DicomJobDispatcher extends Thread{
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
 		setDicomDaemon(dicomDaemon);
-		setSettings(new DJDSettings());
+		setSettings(new CustomConversionSettings());
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		setMaxWorker(SystemSettings.AVAILABLE_CORES);
@@ -58,7 +58,7 @@ public class DicomJobDispatcher extends Thread{
 	 * @param settings
 	 * @param nifti
 	 */
-	public DicomJobDispatcher(ServerInfo si,DJDSettings settings, NiftiDaemon nifti) {
+	public DicomJobDispatcher(ServerInfo si,CustomConversionSettings settings, NiftiDaemon nifti) {
 		setNiftiDaemon(nifti);
 		dicomToMove = new LinkedList<Path>();
 		numberOfRuns = 0;
@@ -67,7 +67,7 @@ public class DicomJobDispatcher extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setMaxWorker(SystemSettings.AVAILABLE_CORES);
-		
+		DicomWorkerClient.DICOMDIR = null;
 	}
 	
 	
@@ -97,21 +97,13 @@ public class DicomJobDispatcher extends Thread{
 	}
 
 
-
-
 	public void setServerInfo(ServerInfo serverInfo) {
 		this.serverInfo = serverInfo;
 	}
 
-
-
-
 	public int getMaxWorker() {
 		return maxWorker;
 	}
-
-
-
 
 	public void setMaxWorker(int maxWorker) {
 		this.maxWorker = maxWorker;
@@ -140,11 +132,11 @@ public class DicomJobDispatcher extends Thread{
 		this.niftiDaemon = niftiDaemon;
 	}
 
-	public DJDSettings getSettings() {
+	public CustomConversionSettings getSettings() {
 		return settings;
 	}
 
-	public void setSettings(DJDSettings settings) {
+	public void setSettings(CustomConversionSettings settings) {
 		this.settings = settings;
 	}
 

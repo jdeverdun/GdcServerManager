@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import model.DicomImage;
 import model.ServerInfo;
+import model.daemon.CustomConversionSettings;
 
 
 /**
@@ -42,20 +43,20 @@ public class NiftiDaemon extends Thread{
 	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
 	private boolean waitingToStop;
-	private boolean serverMode;
+	private CustomConversionSettings settings;
 	private float waitTimeToConvert; // cf setServerMode();
 	
 	
 	// Constructeur
 	public NiftiDaemon(){
-		setServerMode(true);
+		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		waitingToStop = false;
 	}
 
 	public NiftiDaemon(ServerInfo si){
-		setServerMode(true);
+		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
@@ -64,7 +65,7 @@ public class NiftiDaemon extends Thread{
 	
 	// format 
 	public NiftiDaemon(ServerInfo si,int format){
-		setServerMode(true);
+		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
@@ -72,8 +73,14 @@ public class NiftiDaemon extends Thread{
 		waitingToStop = false;
 	}	
 	
-	public NiftiDaemon(ServerInfo si,int format, boolean serverMode){
-		setServerMode(serverMode);
+	/**
+	 * Constructeur pour mode client surtout
+	 * @param si
+	 * @param format
+	 * @param customConvsettings
+	 */
+	public NiftiDaemon(ServerInfo si,int format, CustomConversionSettings customConvsettings){
+		setSettings(customConvsettings);
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
@@ -140,9 +147,13 @@ public class NiftiDaemon extends Thread{
 				if(timeSinceModif(path) > waitTimeToConvert ){
 					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 					// /!\ dcm2nii.exe DOIT etre dans le path
-					
-					NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
-					nworker.start();
+					if(getSettings().isServerMode()){
+						NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
+						nworker.start();
+					}else{
+						NiftiWorkerClient nworker = new NiftiWorkerClient(this, path,dir2convert.get(path));
+						nworker.start();
+					}
 					// on enleve le repertoire qu'on vient de convertir de la liste
 					it.remove();
 				}
@@ -182,13 +193,14 @@ public class NiftiDaemon extends Thread{
 		this.waitTimeToConvert = waitTimeToConvert;
 	}
 
-	public boolean isServerMode() {
-		return serverMode;
+
+	public CustomConversionSettings getSettings() {
+		return settings;
 	}
 
-	public void setServerMode(boolean serverMode) {
-		this.serverMode = serverMode;
-		if(this.serverMode)
+	public void setSettings(CustomConversionSettings settings) {
+		this.settings = settings;
+		if(this.settings.isServerMode())
 			waitTimeToConvert = 120000.0f;
 		else
 			waitTimeToConvert = 1000.0f;

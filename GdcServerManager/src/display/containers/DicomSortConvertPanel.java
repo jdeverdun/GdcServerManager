@@ -26,6 +26,7 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import model.DicomImage;
+import model.daemon.CustomConversionSettings;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 import javax.swing.table.DefaultTableModel;
@@ -33,9 +34,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
+import org.apache.commons.io.FileUtils;
+
 import settings.SystemSettings;
 import daemon.DicomDaemon;
 import daemon.DicomJobDispatcher;
+import daemon.DicomWorkerClient;
 import daemon.NiftiDaemon;
 import daemon.NiftiDaemon.FORMAT;
 import display.SettingsFrame;
@@ -223,8 +227,9 @@ public class DicomSortConvertPanel extends JPanel {
 					default:
 						System.err.println("Unknow NIFTI FORMAT");
 					}
-					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, false);
-					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, ndaemon);
+					final CustomConversionSettings csettings = new CustomConversionSettings(false, workWithProjectDir, workWithAcqDateDir, workWithProtocolDir);
+					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, csettings);
+					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, ndaemon);
 
 					
 					
@@ -259,6 +264,12 @@ public class DicomSortConvertPanel extends JPanel {
 									}
 								}
 							}
+
+							// si on ne doit pas garder les dicoms on les supprime
+							if(!csettings.keepDicom() && DicomWorkerClient.DICOMDIR!=null){
+								FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
+								DicomWorkerClient.DICOMDIR=null;
+							}
 						}
 					});
 					statusThread.start();
@@ -267,7 +278,8 @@ public class DicomSortConvertPanel extends JPanel {
 					}
 					ddaemon.start();
 				}else{
-					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, false, null);
+					CustomConversionSettings csettings = new CustomConversionSettings(false, workWithProjectDir, workWithAcqDateDir, workWithProtocolDir);
+					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, null);
 
 					
 					statusThread = new Thread(new Runnable() {
@@ -379,6 +391,15 @@ public class DicomSortConvertPanel extends JPanel {
 		if(ndaemon!=null){
 			ndaemon.setStop(true);
 			ndaemon = null;
+		}
+		// si on ne doit pas garder les dicoms on les supprime
+		if(DicomWorkerClient.DICOMDIR!=null){
+			try {
+				FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			DicomWorkerClient.DICOMDIR=null;
 		}
 		if(statusThread!=null){
 			setLock(false);

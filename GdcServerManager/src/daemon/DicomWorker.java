@@ -390,7 +390,8 @@ public class DicomWorker extends DaemonWorker {
 	// du repertoire patient pour la conversion nifti
 	protected void moveDicomTo(Path newPath) {
 		try {
-			System.out.println("Moving : " + dicomFile.getFileName() + " to " + newPath);
+			if(getDispatcher().getSettings().isDicomDebugMode())
+				System.out.println("Moving : " + dicomFile.getFileName() + " to " + newPath);
 			Files.move(dicomFile, newPath, REPLACE_EXISTING);
 			// update date de modification du repertoire du patient
 			long currentTimeMillis = System.currentTimeMillis();
@@ -403,7 +404,8 @@ public class DicomWorker extends DaemonWorker {
 
 	protected void copyDicomTo(Path newPath) {
 		try {
-			System.out.println("Copying : " + dicomFile.getFileName() + " to " + newPath);
+			if(getDispatcher().getSettings().isDicomDebugMode())
+				System.out.println("Copying : " + dicomFile.getFileName() + " to " + newPath);
 			Files.copy(dicomFile, newPath, REPLACE_EXISTING);
 			// update date de modification du repertoire du patient
 			long currentTimeMillis = System.currentTimeMillis();
