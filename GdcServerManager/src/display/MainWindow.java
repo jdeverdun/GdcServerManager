@@ -18,6 +18,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JToolBar;
 import javax.swing.JTable;
 
+import org.apache.commons.io.FileUtils;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
@@ -65,6 +66,11 @@ import java.awt.Insets;
 import java.awt.MenuBar;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
 
@@ -828,6 +834,22 @@ public class MainWindow extends JFrame {
 	 * et lancer des daemon au demarrage
 	 */
 	private void init() {
+		// On nettoie le repertoire temporaire quand on quitte le programme
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+		    public void run() {
+		    	try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(SystemSettings.SERVER_INFO.getTempDir())) {
+			    	for(Path p:directoryStream){
+			    		if(!p.endsWith(".") && p.toFile().isDirectory())
+			    			FileUtils.deleteDirectory(p.toFile());
+			    		else
+			    			if(!p.endsWith("."))
+			    				p.toFile().delete();
+			    	}
+		    	}catch(Exception e){
+		    		e.printStackTrace();
+		    	}
+		    }
+		}));
 		WindowManager.MAINWINDOW = this;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setScreenWidth(screenSize.getWidth());
