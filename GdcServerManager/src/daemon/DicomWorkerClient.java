@@ -91,6 +91,7 @@ public class DicomWorkerClient extends DicomWorker {
 		}else{
 			if(DICOMDIR==null){
 				DICOMDIR = Paths.get(serverInfo.getTempDir() + File.separator + "export" + System.currentTimeMillis());
+				checkAndMakeDir(DICOMDIR);
 			}
 			dicomDir = DICOMDIR;
 		}

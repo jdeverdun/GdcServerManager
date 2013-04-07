@@ -55,27 +55,39 @@ public class NiftiWorkerClient extends NiftiWorker {
 		
 		// ---- les entrees (dicom) -----
 		Path serieName = path.getFileName();
+		Path serieDicomPath = path;
+		Path protocolDicomPath;
+		Path acqdateDicomPath;
+		Path patientDicomPath;
+		Path studyDicomPath;
 		Path protocolAcqName;
 		Path acqDate;
 		Path studyName;
 		
-		if(csettings.isWorkingWithProtocolDir()) // on verifie si on veut travailler avec les protocoles
-			protocolAcqName = serieName.getParent().getFileName() ;
-		else
+		if(csettings.isWorkingWithProtocolDir()){ // on verifie si on veut travailler avec les protocoles
+			protocolAcqName = serieDicomPath.getParent().getFileName() ;
+			protocolDicomPath = serieDicomPath.getParent();
+		}else{
 			protocolAcqName = serieName;
+			protocolDicomPath = serieDicomPath;
+		}
 		
-		if(csettings.isWorkingWithAcqDateDir())
-			acqDate = protocolAcqName.getParent().getFileName();
-		else
+		if(csettings.isWorkingWithAcqDateDir()){
+			acqDate = protocolDicomPath.getParent().getFileName();
+			acqdateDicomPath = protocolDicomPath.getParent();
+		}else{
 			acqDate = protocolAcqName;
-		
-		Path patientName = acqDate.getParent().getFileName(); // ce repertoire est obligatoire! ;)
-		
-		if(csettings.isWorkingWithProjectDir())
-			studyName = patientName.getParent().getFileName();
-		else
+			acqdateDicomPath = protocolDicomPath;
+		}
+		Path patientName = acqdateDicomPath.getParent().getFileName(); // ce repertoire est obligatoire! ;)
+		patientDicomPath = acqdateDicomPath.getParent();
+		if(csettings.isWorkingWithProjectDir()){
+			studyName = patientDicomPath.getParent().getFileName();
+			studyDicomPath = patientDicomPath.getParent();
+		}else{
 			studyName = patientName;
-		
+			studyDicomPath = patientDicomPath;
+		}
 		setProjectFolder(studyName);
 
 		

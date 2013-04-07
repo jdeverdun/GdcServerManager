@@ -32,6 +32,7 @@ public class CustomConversionSettings {
 		setWorkingWithProtocolDir(true);
 		setDicomDebugMode(true);
 		setNiftiDebugMode(false);
+		setKeepDicom(true);
 	}
 	
 	public CustomConversionSettings(boolean servermode){
@@ -41,6 +42,7 @@ public class CustomConversionSettings {
 		setWorkingWithProtocolDir(true);
 		setDicomDebugMode(false);
 		setNiftiDebugMode(false);
+		setKeepDicom(true);
 	}
 	
 	public CustomConversionSettings(boolean servermode,boolean workWithProjectDir, boolean workWithAcqDateDir, boolean workWithProtocolDir){
@@ -50,6 +52,17 @@ public class CustomConversionSettings {
 		setWorkingWithProtocolDir(workWithProtocolDir);
 		setDicomDebugMode(false);
 		setNiftiDebugMode(false);
+		setKeepDicom(true);
+	}
+	
+	public CustomConversionSettings(boolean servermode,boolean workWithProjectDir, boolean workWithAcqDateDir, boolean workWithProtocolDir, boolean keepDicom){
+		setServerMode(servermode);
+		setWorkingWithProjectDir(workWithProjectDir);
+		setWorkingWithAcqDateDir(workWithAcqDateDir);
+		setWorkingWithProtocolDir(workWithProtocolDir);
+		setDicomDebugMode(false);
+		setNiftiDebugMode(false);
+		setKeepDicom(keepDicom);
 	}
 	
 	// Accesseurs

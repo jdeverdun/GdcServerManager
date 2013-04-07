@@ -69,6 +69,12 @@ public class DicomSortConvertPanel extends JPanel {
 	private JLabel lblStatus;
 	private JScrollPane scrollPane;
 	private JButton btnOutputDir;
+	private JCheckBox chckbxProject;
+	private JCheckBox chckbxDate;
+	private JCheckBox chckbxProtocol;
+	private JCheckBox chckbxPatientName;
+	private JCheckBox chckbxSerie;
+	private JLabel label;
 	
 	
 	public DicomSortConvertPanel(){
@@ -152,7 +158,6 @@ public class DicomSortConvertPanel extends JPanel {
 		panel.setLayout(new MigLayout("", "[grow][grow]", "[][][][]"));
 		
 		chckbxSortDicom = new JCheckBox("Sort Dicom");
-		chckbxSortDicom.setEnabled(false);
 		chckbxSortDicom.setSelected(true);
 		panel.add(chckbxSortDicom, "flowx,cell 0 0,alignx left");
 		btnStart = new JButton("Start");
@@ -188,6 +193,31 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		btnReset = new JButton("reset");
 		panel.add(btnReset, "cell 1 0,alignx left");
+		
+		label = new JLabel("|");
+		panel.add(label, "cell 0 0");
+		
+		chckbxProject = new JCheckBox("Project");
+		chckbxProject.setSelected(true);
+		panel.add(chckbxProject, "cell 0 0");
+		
+		chckbxPatientName = new JCheckBox("Patient");
+		chckbxPatientName.setEnabled(false);
+		chckbxPatientName.setSelected(true);
+		panel.add(chckbxPatientName, "cell 0 0");
+		
+		chckbxDate = new JCheckBox("Acquisition date");
+		chckbxDate.setSelected(true);
+		panel.add(chckbxDate, "cell 0 0");
+		
+		chckbxProtocol = new JCheckBox("Protocol");
+		chckbxProtocol.setSelected(true);
+		panel.add(chckbxProtocol, "cell 0 0");
+		
+		chckbxSerie = new JCheckBox("Serie");
+		chckbxSerie.setEnabled(false);
+		chckbxSerie.setSelected(true);
+		panel.add(chckbxSerie, "cell 0 0");
 		
 		btnReset.addActionListener(new ActionListener() {
 			
@@ -227,7 +257,8 @@ public class DicomSortConvertPanel extends JPanel {
 					default:
 						System.err.println("Unknow NIFTI FORMAT");
 					}
-					final CustomConversionSettings csettings = new CustomConversionSettings(false, workWithProjectDir, workWithAcqDateDir, workWithProtocolDir);
+					final CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
+							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected());
 					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, csettings);
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, ndaemon);
 
@@ -267,7 +298,11 @@ public class DicomSortConvertPanel extends JPanel {
 
 							// si on ne doit pas garder les dicoms on les supprime
 							if(!csettings.keepDicom() && DicomWorkerClient.DICOMDIR!=null){
-								FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
+								try {
+									FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 								DicomWorkerClient.DICOMDIR=null;
 							}
 						}
@@ -278,7 +313,8 @@ public class DicomSortConvertPanel extends JPanel {
 					}
 					ddaemon.start();
 				}else{
-					CustomConversionSettings csettings = new CustomConversionSettings(false, workWithProjectDir, workWithAcqDateDir, workWithProtocolDir);
+					CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
+							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected());
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, null);
 
 					
