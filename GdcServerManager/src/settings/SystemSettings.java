@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
+import daemon.DicomNode;
 import daemon.NiftiDaemon;
 import model.ServerInfo;
 
@@ -14,4 +15,5 @@ public class SystemSettings {
 	public static DicomDaemon DICOM_DAEMON;
 	public static NiftiDaemon NIFTI_DAEMON;
 	public static DecryptDaemon DECRYPT_DAEMON;
+	public static DicomNode DICOM_NODE;
 }

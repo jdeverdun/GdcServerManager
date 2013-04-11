@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 
+import settings.SystemSettings;
+
 import daemon.dicomnode.DcmRcv;
 
-public class DicomNode extends Thread {
+public class DicomNode {
 
 	// Static
 	private static final int DEFAULT_PORT = 11112;
@@ -40,6 +42,7 @@ public class DicomNode extends Thread {
 		
 	}
 	public void initDcmRcv(){
+		dcmrcv.setDestination(SystemSettings.SERVER_INFO.getIncomingDir().toString());
 		dcmrcv.setStgCmtReuseFrom(false);
         dcmrcv.setStgCmtReuseTo(false);
         dcmrcv.setPackPDV(true);
@@ -47,7 +50,7 @@ public class DicomNode extends Thread {
         dcmrcv.initTransferCapability();
 	}
 	
-	public void run(){
+	public void start(){
         try {
             dcmrcv.start();
         } catch (IOException e) {
@@ -55,6 +58,10 @@ public class DicomNode extends Thread {
         }
 	}
 
+	public void stop(){
+		dcmrcv.stop();
+	}
+	
 	public DcmRcv getDcmrcv() {
 		return dcmrcv;
 	}

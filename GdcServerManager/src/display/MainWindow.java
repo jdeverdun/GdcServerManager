@@ -28,6 +28,7 @@ import settings.WindowManager;
 
 import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
+import daemon.DicomNode;
 import daemon.NiftiDaemon;
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
@@ -1142,8 +1143,10 @@ public class MainWindow extends JFrame {
 		// On lance le daemon Dicom
 		SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO,SystemSettings.NIFTI_DAEMON);
 		SystemSettings.DICOM_DAEMON.start();
+		SystemSettings.DICOM_NODE  = new DicomNode();
+		SystemSettings.DICOM_NODE.start();
 		daemonLaunched = true;
-		mntmStartstop.setText("False");
+		mntmStartstop.setText("Stop");
 	}
 	
 	/**
@@ -1151,6 +1154,10 @@ public class MainWindow extends JFrame {
 	 * l'action a realiser si il reste des donnees dans les listes
 	 */
 	public void stopDaemons(){
+		if(SystemSettings.DICOM_NODE!=null){
+			SystemSettings.DICOM_NODE.stop();
+			SystemSettings.DICOM_NODE = null;
+		}
 		if(SystemSettings.DICOM_DAEMON!=null){
 			SystemSettings.DICOM_DAEMON.setStop(true);
 			if(SystemSettings.DICOM_DAEMON.isStop()){
