@@ -22,6 +22,14 @@
 	<classpathentry kind="lib" path="lib/local_policy.jar"/>
 	<classpathentry kind="lib" path="lib/US_export_policy.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/dcm4che-core-2.0.28rc-INTERMEDIATE.v20130322_1503.jar"/>
+	<classpathentry kind="lib" path="lib/dcm4che-filecache-2.0.28rc-INTERMEDIATE.v20130322_1503.jar"/>
+	<classpathentry kind="lib" path="lib/dcm4che-net-2.0.28rc-INTERMEDIATE.v20130322_1503.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-ext-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-migrator-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
