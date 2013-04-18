@@ -49,6 +49,8 @@ public class RequestPanel extends JPanel {
 	private JTextField txtProtocol;
 	
 	public RequestPanel() {
+		if(UserProfile.CURRENT_USER.getLevel()==0)
+			return;
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		
 		splitPane = new JSplitPane();
@@ -68,6 +70,7 @@ public class RequestPanel extends JPanel {
 			projects[c++] = p.getNom();
 		projectComboBox = new JComboBox(projects);
 		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
+		
 		
 		txtPatient = new JTextField();
 		txtPatient.setText(DEFAULT_PATIENT_TEXT);
