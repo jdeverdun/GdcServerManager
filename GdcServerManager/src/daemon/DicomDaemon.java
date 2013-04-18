@@ -92,10 +92,7 @@ public class DicomDaemon extends Thread{
 		            WatchEvent<Path> ev = (WatchEvent<Path>)event;
 		            Path filename = ev.context();
 		            Path realPath = Paths.get(dir.toString() + File.separator + filename.getFileName());
-		            if(DicomImage.isDicom(realPath.toFile()))
-		            	dicomJobDispatcher.addDicomToMove(realPath);
-		            else
-		            	realPath.toFile().delete();//on supprime le fichier si ce n'est pas un dicom
+	            	dicomJobDispatcher.addDicomToMove(realPath);// on va tester si c'est un dicom ou pas par la suite
 		        }
 
 		        // Reset the key -- this step is critical if you want to
@@ -118,7 +115,7 @@ public class DicomDaemon extends Thread{
 		        }
 		    }
 		} catch (IOException x) {
-		    System.err.println(x);
+			System.out.println(x.toString());
 		}
 	  }
 	public ServerInfo getServerInfo() {

@@ -37,7 +37,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			while (rset.next()) {
 				AcquisitionDate acq = new AcquisitionDate();
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("name"));
+				acq.setDate(rset.getString("date"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 				acqDates.add(acq);
@@ -137,7 +137,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("name"));
+				acq.setDate(rset.getString("date"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 			}
@@ -166,12 +166,12 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			stmt = connection.createStatement();
 			PatientDAO pdao=new MySQLPatientDAO();		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from AcquisitionDate where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
+				rset = stmt.executeQuery("select * from AcquisitionDate where date='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
 			else
-				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
+				rset = stmt.executeQuery("select * from AcquisitionDate_"+UserProfile.CURRENT_USER.getId()+" where date='"+name+"' and id_project="+project_id+" and id_patient="+patient_id);
 			while(rset.next()){
 				acq.setId(rset.getInt("id"));
-				acq.setDate(rset.getString("name"));
+				acq.setDate(rset.getString("date"));
 				acq.setPatient(pdao.retrievePatient(rset.getInt("id_patient")));
 				acq.setProjet(acq.getPatient().getProject());
 			}
@@ -196,7 +196,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update AcquisitionDate set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+" where id="+id);
+			rset = stmt.executeUpdate("update AcquisitionDate set date='"+name+"', id_project="+id_project+", id_patient="+id_patient+" where id="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

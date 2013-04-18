@@ -1,6 +1,8 @@
 package display.containers;
 
 import javax.swing.JPanel;
+
+import model.Project;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JLabel;
@@ -20,17 +22,29 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+
+import settings.SystemSettings;
+import settings.UserProfile;
 
 public class RequestPanel extends JPanel {
+	
+	private static final String DEFAULT_SQL_REQUEST_TEXT = "Put custom SQL request here";
+	private static final String DEFAULT_PATIENT_TEXT = "Patient ID";
 	private JSplitPane splitPane;
 	private JTable table;
 	private JTextField txtPutCustomSql;
 	private JButton btnExecute;
 	private JButton btnCancel;
 	private RequestTableModel rqModel;
+	private JComboBox projectComboBox;
+	private JTextField txtPatient;
 	
 	public RequestPanel() {
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -45,6 +59,14 @@ public class RequestPanel extends JPanel {
 		splitPane.setLeftComponent(requestFieldpanel);
 		requestFieldpanel.setLayout(new MigLayout("", "[grow]", "[][][][grow][]"));
 		
+		// on recupere la liste des projets en string en laissant une case vide au debut
+		String[] projects = new String[UserProfile.CURRENT_USER.getProjects().size()+1];
+		int c=1;
+		for(Project p:UserProfile.CURRENT_USER.getProjects())
+			projects[c++] = p.getNom();
+		projectComboBox = new JComboBox(projects);
+		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
+		
 		txtPutCustomSql = new JTextField();
 		txtPutCustomSql.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtPutCustomSql.setText("Put custom SQL request here");
@@ -57,6 +79,12 @@ public class RequestPanel extends JPanel {
 		btnCancel = new JButton("Cancel");
 		btnCancel.setEnabled(false);
 		requestFieldpanel.add(btnCancel, "cell 0 4");
+		
+		txtPatient = new JTextField();
+		txtPatient.setText(DEFAULT_PATIENT_TEXT);
+		txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		requestFieldpanel.add(txtPatient, "cell 0 1");
+		txtPatient.setColumns(10);
 		
 		table = new JTable();
 		table.setName("");
@@ -76,15 +104,44 @@ public class RequestPanel extends JPanel {
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				if(txtPutCustomSql.getText().equals("")){
-					txtPutCustomSql.setText("Put custom SQL request here");
+					txtPutCustomSql.setText(DEFAULT_SQL_REQUEST_TEXT);
 					txtPutCustomSql.setFont(new Font("Tahoma", Font.ITALIC, 11));
 				}
 			}
 			
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				txtPutCustomSql.setText("");
-				txtPutCustomSql.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				if(txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
+					txtPutCustomSql.setText("");
+					txtPutCustomSql.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
+			}
+		});
+		
+		txtPutCustomSql.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent key) {
+				if(key.getKeyCode() == KeyEvent.VK_ENTER){
+					btnExecute.doClick();
+				}
+			}
+		});
+		txtPatient.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(txtPatient.getText().equals("")){
+					txtPatient.setText(DEFAULT_PATIENT_TEXT);
+					txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if(txtPatient.getText().equals(DEFAULT_PATIENT_TEXT)){
+					txtPatient.setText("");
+					txtPatient.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
 			}
 		});
 		
@@ -113,6 +170,7 @@ public class RequestPanel extends JPanel {
 
 class RequestTableModel extends AbstractTableModel {
 	private File[] files;
+	private static final String[] DEFAULT_COLUMN_NAME =  {"Project", "Patient", "Date", "Protocol", "Serie", "Image"};
 	private String[] columnNames = {"Project", "Patient", "Date", "Protocol", "Serie", "Image"};
     private Object[][] data = {
     {"Crescendo", "30255", "23121980", "ASL", "ASL_PERFUSION", "machine_ASL.nii"}

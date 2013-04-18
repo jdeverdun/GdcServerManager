@@ -178,8 +178,26 @@ public class DicomJobDispatcher extends Thread{
 			// on le fait fich/fich (pas multithread) car windows
 			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
 			if(getSettings().isServerMode()){
-				dworker = new DicomWorker(this, (Path)dicomToMove.pop());
-		        dworker.start();
+				Path locp = (Path)dicomToMove.pop();
+				// tant qu'on ne peut pas lire le fichier on attend
+				// permet de gerer les problemes d'acces
+				while(true){
+					try{
+						if(!DicomImage.isDicom(locp.toFile())){
+							locp.toFile().delete();
+						}else{
+							dworker = new DicomWorker(this, locp);
+					        dworker.start();
+						}
+						break;
+					}catch(Exception e){
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
 			}else{
 				dworker = new DicomWorkerClient(this, (Path)dicomToMove.pop());
 		        dworker.start();

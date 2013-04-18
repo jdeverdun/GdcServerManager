@@ -28,9 +28,9 @@ constraint uprojet_namepat unique(name,id_project),
 constraint projectpatient_fk foreign key (id_project) references Project(id) on delete cascade);
 
 create table AcquisitionDate
-(id integer NOT NULL AUTO_INCREMENT, name varchar(50),id_project integer,id_patient integer,
+(id integer NOT NULL AUTO_INCREMENT, date date,id_project integer,id_patient integer,
 constraint acquisitiondate_pk primary key (id),
-constraint upatient_projet_nameacqdate unique(name,id_project,id_patient),
+constraint upatient_projet_dateacqdate unique(date,id_project,id_patient),
 constraint patientacqdate_fk foreign key (id_patient) references Patient(id) on delete cascade);
 
 create table Protocol

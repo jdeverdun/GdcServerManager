@@ -838,6 +838,7 @@ public class MainWindow extends JFrame {
 		// On nettoie le repertoire temporaire quand on quitte le programme
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
+		    	stopDaemons();
 		    	try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(SystemSettings.SERVER_INFO.getTempDir())) {
 			    	for(Path p:directoryStream){
 			    		if(!p.endsWith(".") && p.toFile().isDirectory())
