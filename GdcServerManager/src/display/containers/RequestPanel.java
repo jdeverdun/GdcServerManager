@@ -37,6 +37,7 @@ public class RequestPanel extends JPanel {
 	
 	private static final String DEFAULT_SQL_REQUEST_TEXT = "Put custom SQL request here";
 	private static final String DEFAULT_PATIENT_TEXT = "Patient ID";
+	private static final String DEFAULT_PROTOCOL_TEXT = "Protocol";
 	private JSplitPane splitPane;
 	private JTable table;
 	private JTextField txtPutCustomSql;
@@ -45,6 +46,7 @@ public class RequestPanel extends JPanel {
 	private RequestTableModel rqModel;
 	private JComboBox projectComboBox;
 	private JTextField txtPatient;
+	private JTextField txtProtocol;
 	
 	public RequestPanel() {
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -57,7 +59,7 @@ public class RequestPanel extends JPanel {
 		JPanel requestFieldpanel = new JPanel();
 		requestFieldpanel.setBorder(new TitledBorder(null, "Request", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		splitPane.setLeftComponent(requestFieldpanel);
-		requestFieldpanel.setLayout(new MigLayout("", "[grow]", "[][][][grow][]"));
+		requestFieldpanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][][]"));
 		
 		// on recupere la liste des projets en string en laissant une case vide au debut
 		String[] projects = new String[UserProfile.CURRENT_USER.getProjects().size()+1];
@@ -67,10 +69,34 @@ public class RequestPanel extends JPanel {
 		projectComboBox = new JComboBox(projects);
 		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
 		
+		txtPatient = new JTextField();
+		txtPatient.setText(DEFAULT_PATIENT_TEXT);
+		txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		requestFieldpanel.add(txtPatient, "cell 1 1,growx");
+		txtPatient.setColumns(10);
+		txtPatient.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(txtPatient.getText().equals("")){
+					txtPatient.setText(DEFAULT_PATIENT_TEXT);
+					txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if(txtPatient.getText().equals(DEFAULT_PATIENT_TEXT)){
+					txtPatient.setText("");
+					txtPatient.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
+			}
+		});
+		
 		txtPutCustomSql = new JTextField();
 		txtPutCustomSql.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtPutCustomSql.setText("Put custom SQL request here");
-		requestFieldpanel.add(txtPutCustomSql, "cell 0 3,growx");
+		requestFieldpanel.add(txtPutCustomSql, "cell 0 3 3 1,growx");
 		txtPutCustomSql.setColumns(10);
 		
 		btnExecute = new JButton("Execute");
@@ -80,11 +106,30 @@ public class RequestPanel extends JPanel {
 		btnCancel.setEnabled(false);
 		requestFieldpanel.add(btnCancel, "cell 0 4");
 		
-		txtPatient = new JTextField();
-		txtPatient.setText(DEFAULT_PATIENT_TEXT);
-		txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		requestFieldpanel.add(txtPatient, "cell 0 1");
-		txtPatient.setColumns(10);
+		txtProtocol = new JTextField();
+		txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
+		txtProtocol.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		txtProtocol.setColumns(10);
+		requestFieldpanel.add(txtProtocol, "cell 2 1,growx");
+		
+		txtProtocol.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(txtProtocol.getText().equals("")){
+					txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
+					txtProtocol.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if(txtProtocol.getText().equals(DEFAULT_PROTOCOL_TEXT)){
+					txtProtocol.setText("");
+					txtProtocol.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
+			}
+		});
 		
 		table = new JTable();
 		table.setName("");
@@ -123,24 +168,6 @@ public class RequestPanel extends JPanel {
 			public void keyReleased(KeyEvent key) {
 				if(key.getKeyCode() == KeyEvent.VK_ENTER){
 					btnExecute.doClick();
-				}
-			}
-		});
-		txtPatient.addFocusListener(new FocusListener() {
-			
-			@Override
-			public void focusLost(FocusEvent arg0) {
-				if(txtPatient.getText().equals("")){
-					txtPatient.setText(DEFAULT_PATIENT_TEXT);
-					txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
-				}
-			}
-			
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				if(txtPatient.getText().equals(DEFAULT_PATIENT_TEXT)){
-					txtPatient.setText("");
-					txtPatient.setFont(new Font("Tahoma", Font.PLAIN, 11));
 				}
 			}
 		});
