@@ -75,8 +75,11 @@ public class DicomSortConvertPanel extends JPanel {
 	private JCheckBox chckbxPatientName;
 	private JCheckBox chckbxSerie;
 	private JLabel label;
+	private JCheckBox chckb4d;
 	
-	
+
+
+
 	public DicomSortConvertPanel(){
 		droppedFiles = new ArrayList<File>();
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -219,6 +222,9 @@ public class DicomSortConvertPanel extends JPanel {
 		chckbxSerie.setSelected(true);
 		panel.add(chckbxSerie, "cell 0 0");
 		
+		chckb4d = new JCheckBox("4D");
+		panel.add(chckb4d, "cell 0 1");
+		
 		btnReset.addActionListener(new ActionListener() {
 			
 			@Override
@@ -258,7 +264,7 @@ public class DicomSortConvertPanel extends JPanel {
 						System.err.println("Unknow NIFTI FORMAT");
 					}
 					final CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
-							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected());
+							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected(),chckb4d.isSelected());
 					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, csettings);
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, ndaemon);
 
@@ -314,7 +320,7 @@ public class DicomSortConvertPanel extends JPanel {
 					ddaemon.start();
 				}else{
 					CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
-							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected());
+							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected(),chckb4d.isSelected());
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, null);
 
 					
@@ -390,7 +396,14 @@ public class DicomSortConvertPanel extends JPanel {
 	public void setLblStatus(JLabel lblStatus) {
 		this.lblStatus = lblStatus;
 	}
+	public JCheckBox getChckb4d() {
+		return chckb4d;
+	}
 
+
+	public void setChckb4d(JCheckBox chckb4d) {
+		this.chckb4d = chckb4d;
+	}
 
 	private void addFile(File fi) throws IOException{
 		if(fi.isDirectory()){

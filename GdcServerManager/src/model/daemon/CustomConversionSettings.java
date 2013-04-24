@@ -18,10 +18,13 @@ public class CustomConversionSettings {
 	private boolean keepDicom;
 	private boolean niftiDebugMode;// les messages du dcm2nii.exe
 	private boolean dicomDebugMode;// les messages de la copie des dicoms
+	private boolean nifti4D; // si vrai, on stock les fichiers en mode 4D sinon 3D FALSE par defaut
 	
 	
 	// Constructeurs
 	
+
+
 	/**
 	 * Par defaut en mode serveur
 	 */
@@ -33,6 +36,7 @@ public class CustomConversionSettings {
 		setDicomDebugMode(true);
 		setNiftiDebugMode(false);
 		setKeepDicom(true);
+		setNifti4D(false);
 	}
 	
 	public CustomConversionSettings(boolean servermode){
@@ -43,6 +47,7 @@ public class CustomConversionSettings {
 		setDicomDebugMode(false);
 		setNiftiDebugMode(false);
 		setKeepDicom(true);
+		setNifti4D(false);
 	}
 	
 	public CustomConversionSettings(boolean servermode,boolean workWithProjectDir, boolean workWithAcqDateDir, boolean workWithProtocolDir){
@@ -53,16 +58,18 @@ public class CustomConversionSettings {
 		setDicomDebugMode(false);
 		setNiftiDebugMode(false);
 		setKeepDicom(true);
+		setNifti4D(false);
 	}
 	
-	public CustomConversionSettings(boolean servermode,boolean workWithProjectDir, boolean workWithAcqDateDir, boolean workWithProtocolDir, boolean keepDicom){
+	public CustomConversionSettings(boolean servermode,boolean workWithProjectDir, boolean workWithAcqDateDir, boolean workWithProtocolDir, boolean keepDicom, boolean nifti4d){
 		setServerMode(servermode);
 		setWorkingWithProjectDir(workWithProjectDir);
 		setWorkingWithAcqDateDir(workWithAcqDateDir);
 		setWorkingWithProtocolDir(workWithProtocolDir);
 		setDicomDebugMode(false);
-		setNiftiDebugMode(false);
+		setNiftiDebugMode(true);
 		setKeepDicom(keepDicom);
+		setNifti4D(nifti4d);
 	}
 	
 	// Accesseurs
@@ -118,6 +125,12 @@ public class CustomConversionSettings {
 		this.keepDicom = keepDicom;
 	}
 
+	public boolean isNifti4D() {
+		return nifti4D;
+	}
+	public void setNifti4D(boolean nifti4d) {
+		nifti4D = nifti4d;
+	}
 	
 	// Methodes 
 	

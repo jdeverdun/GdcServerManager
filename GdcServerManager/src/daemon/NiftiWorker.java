@@ -130,7 +130,7 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			
 			// On cree la commande (on convertie dans un autre repertoire)
-			command = buildConvertCommandFor(tempDicomPath,tempNiftiPath);
+			command = buildConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 
 			// on convertie
 			process = Runtime.getRuntime().exec(command);
@@ -178,7 +178,8 @@ public class NiftiWorker extends DaemonWorker {
 		for(String currNifti:niftis.keySet())
 			try {
 				Files.delete(niftis.get(currNifti));
-				removeDBEntry(niftis.get(currNifti).getFileName());
+				if(getNiftiDaemon().getSettings().isServerMode())
+					removeDBEntry(niftis.get(currNifti).getFileName());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -199,7 +200,8 @@ public class NiftiWorker extends DaemonWorker {
 	}
 	
 	// Construit la commande pour convertir un repertoire dicom (dicomPath) en nifti
-	protected String buildConvertCommandFor(Path dicomPath, Path niftiPath) {
+	// fourDim permet de renseigner si on stocke les fichiers dans un format 4d ou pas
+	protected String buildConvertCommandFor(Path dicomPath, Path niftiPath, boolean fourDim) {
 		// -i id in filename | -p protocol in filename
 		String command = "dcm2nii.exe -i y -p y -e n -a n -d n -e n -f n -l 0 -r n -x n ";
 		switch(getNiftiDaemon().getFormat()){
@@ -214,6 +216,10 @@ public class NiftiWorker extends DaemonWorker {
 		default:
 			System.err.println("Unknow nifti format");
 		}
+		if(fourDim)
+			command+=" -4D y ";
+		else
+			command+=" -4D n ";
 		command+=" -o \""+niftiPath+"\" \""+dicomPath+"\"";
 		return command;
 	}
