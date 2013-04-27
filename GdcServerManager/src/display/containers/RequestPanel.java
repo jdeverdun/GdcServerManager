@@ -26,14 +26,20 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
 import org.jdesktop.swingx.JXDatePicker;
+
+import dao.GenericRequestDAO;
+import dao.MySQLGenericRequestDAO;
 
 import settings.SystemSettings;
 import settings.UserProfile;
@@ -130,7 +136,7 @@ public class RequestPanel extends JPanel {
 		table.setName("");
 		rqModel = new RequestTableModel();
 		table.setModel(rqModel);
-
+		table.setAutoCreateRowSorter(true);
 		// on centre les colonnes
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment( JLabel.CENTER );
@@ -235,8 +241,31 @@ public class RequestPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				getRqModel().setColumns(new String[]{"tata","titi"});
-				getRqModel().setData(new Object[][]{{"lol","kewl"}});
+				if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
+					// On execute la requete custom
+					GenericRequestDAO greq = new MySQLGenericRequestDAO();
+					try {
+						HashMap<String,ArrayList<String>> results = greq.execute(txtPutCustomSql.getText());
+						getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
+						Object[][] data = null;
+						int count = 0;
+						for(String header:results.keySet()){
+							if(data==null)
+								data = new Object[results.get(header).size()][results.keySet().size()];
+							ArrayList<String> cres = results.get(header);
+							for(int j = 0; j < cres.size(); j++){
+								data[j][count] =  cres.get(j);
+							}
+							count++;
+						}
+						getRqModel().setData(data);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}else{
+					getRqModel().setColumns(new String[]{"tata","titi"});
+					getRqModel().setData(new Object[][]{{"lol","kewl"}});
+				}
 				getRqModel().fireTableStructureChanged();
 			}
 		});
