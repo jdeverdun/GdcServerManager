@@ -15,6 +15,11 @@ public class DBCache {
 	private HashMap<String, Integer> idAcqDateList; // stock les id des acqdate identife par nom@@idpatient@@idprojet
 	private HashMap<String, Integer> idProtocolList; // stock les id des protocol identife par nom@@idacqdate@@idpatient@@idprojet
 	private HashMap<String, Integer> idSerieList; // stock les id des series identife par nom@@idprotocol@@idacqdate@@idpatient@@idprojet
+	private HashMap<Integer, String> idToProjectNameList; // stock les nom des projet identifie par leur id
+	private HashMap<Integer, String> idToPatientNameList; // stock les nom des patient identifie par leur id
+	private HashMap<Integer, String> idToAcqDateNameList; // stock les nom des acqdate identifie par leur id
+	private HashMap<Integer, String> idToProtocolNameList; // stock les nom des protocol identifie par leur id
+	private HashMap<Integer, String> idToSerieNameList; // stock les nom des series identifie par leur id
 	
 	public DBCache(){
 		rkeyList = new HashMap<String, String>();
@@ -23,6 +28,11 @@ public class DBCache {
 		idAcqDateList = new HashMap<String, Integer>();
 		idProtocolList = new HashMap<String, Integer>();
 		idSerieList = new HashMap<String, Integer>();
+		idToProjectNameList = new HashMap<Integer,String>();
+		idToPatientNameList = new HashMap<Integer,String>();
+		idToAcqDateNameList = new HashMap<Integer,String>();
+		idToProtocolNameList = new HashMap<Integer,String>();
+		idToSerieNameList = new HashMap<Integer,String>();
 	}
 	
 	public HashMap<String, String> getRkeyList() {
@@ -72,5 +82,56 @@ public class DBCache {
 	}
 	public void setIdSerieList(HashMap<String, Integer> idSerieList) {
 		this.idSerieList = idSerieList;
+	}
+
+	public HashMap<Integer, String> getIdToProjectNameList() {
+		if(idToProjectNameList.size()>500)
+			idToProjectNameList.clear();
+		return idToProjectNameList;
+	}
+
+	public void setIdToProjectNameList(HashMap<Integer, String> idToProjectNameList) {
+		this.idToProjectNameList = idToProjectNameList;
+	}
+
+	public HashMap<Integer, String> getIdToPatientNameList() {
+		if(idToPatientNameList.size()>500)
+			idToPatientNameList.clear();
+		return idToPatientNameList;
+	}
+
+	public void setIdToPatientNameList(HashMap<Integer, String> idToPatientNameList) {
+		this.idToPatientNameList = idToPatientNameList;
+	}
+
+	public HashMap<Integer, String> getIdToAcqDateNameList() {
+		if(idToAcqDateNameList.size()>500)
+			idToAcqDateNameList.clear();
+		return idToAcqDateNameList;
+	}
+
+	public void setIdToAcqDateNameList(HashMap<Integer, String> idToAcqDateNameList) {
+		this.idToAcqDateNameList = idToAcqDateNameList;
+	}
+
+	public HashMap<Integer, String> getIdToProtocolNameList() {
+		if(idToProtocolNameList.size()>500)
+			idToProtocolNameList.clear();
+		return idToProtocolNameList;
+	}
+
+	public void setIdToProtocolNameList(
+			HashMap<Integer, String> idToProtocolNameList) {
+		this.idToProtocolNameList = idToProtocolNameList;
+	}
+
+	public HashMap<Integer, String> getIdToSerieNameList() {
+		if(idToSerieNameList.size()>500)
+			idToSerieNameList.clear();
+		return idToSerieNameList;
+	}
+
+	public void setIdToSerieNameList(HashMap<Integer, String> idToSerieNameList) {
+		this.idToSerieNameList = idToSerieNameList;
 	}
 }

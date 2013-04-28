@@ -44,6 +44,7 @@ import dao.MySQLGenericRequestDAO;
 import settings.SystemSettings;
 import settings.UserProfile;
 import javax.swing.UIManager;
+import java.awt.Color;
 
 public class RequestPanel extends JPanel {
 	
@@ -63,6 +64,7 @@ public class RequestPanel extends JPanel {
 	private JTextField txtProtocol;
 	private JXDatePicker pickerDateBegin;
 	private JXDatePicker pickerDateEnd;
+	private JLabel lblError;
 	
 	public RequestPanel() {
 		if(UserProfile.CURRENT_USER.getLevel()==0)
@@ -72,12 +74,12 @@ public class RequestPanel extends JPanel {
 		splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		add(splitPane, "cell 0 0,grow");
-		splitPane.setResizeWeight(0.5);
+		splitPane.setResizeWeight(0.04);
 		
 		JPanel requestFieldpanel = new JPanel();
 		requestFieldpanel.setBorder(new TitledBorder(null, "Request", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		splitPane.setLeftComponent(requestFieldpanel);
-		requestFieldpanel.setLayout(new MigLayout("", "[][][73.00][][][grow]", "[][][][][]"));
+		requestFieldpanel.setLayout(new MigLayout("", "[][][73.00][][][grow]", "[][][][][][213.00]"));
 		
 		// on recupere la liste des projets en string en laissant une case vide au debut
 		String[] projects = new String[UserProfile.CURRENT_USER.getProjects().size()+1];
@@ -130,6 +132,11 @@ public class RequestPanel extends JPanel {
 		txtProtocol.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtProtocol.setColumns(10);
 		requestFieldpanel.add(txtProtocol, "cell 2 1,growx");
+		
+		lblError = new JLabel("none");
+		lblError.setForeground(Color.RED);
+		lblError.setVisible(false);
+		requestFieldpanel.add(lblError, "cell 0 5 5 1,growx");
 		
 		
 		table = new JTable();
@@ -241,11 +248,12 @@ public class RequestPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				setWarning("");
 				if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 					// On execute la requete custom
 					GenericRequestDAO greq = new MySQLGenericRequestDAO();
 					try {
-						HashMap<String,ArrayList<String>> results = greq.execute(txtPutCustomSql.getText());
+						HashMap<String,ArrayList<String>> results = greq.executeSelect(txtPutCustomSql.getText());
 						getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
 						Object[][] data = null;
 						int count = 0;
@@ -261,6 +269,10 @@ public class RequestPanel extends JPanel {
 						getRqModel().setData(data);
 					} catch (SQLException e) {
 						e.printStackTrace();
+						setWarning("SQL Error : "+e.toString());
+					} catch (exceptions.IllegalSQLRequest e) {
+						e.printStackTrace();
+						setWarning("Unsupported SQL command : "+e.toString());
 					}
 				}else{
 					getRqModel().setColumns(new String[]{"tata","titi"});
@@ -279,6 +291,15 @@ public class RequestPanel extends JPanel {
 		this.rqModel = rqModel;
 	}
 
+	public void setWarning(String txt){
+		if(txt.equals("")){
+			lblError.setText("");
+			lblError.setVisible(false);
+		}else{
+			lblError.setText(txt);
+			lblError.setVisible(true);
+		}
+	}
 }
 
 

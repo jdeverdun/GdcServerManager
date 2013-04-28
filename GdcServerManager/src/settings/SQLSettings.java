@@ -12,6 +12,12 @@ import oracle.ucp.jdbc.PoolDataSourceFactory;
 public class SQLSettings {
 	public static String ADDRESS = "localhost";
 	public static String DATABASE_NAME = "gdcserver";
+	// nom des tables beneficiant de vues pour chaque utilisateur
+	// trie par niveau (le plus bas etant dicomimage puis niftiimage
+	// le plus haut project, le dernier est user
+	public static final String[] LOCAL_VIEW_NAME = new String[]{"dicomimage","niftiimage","serie","protocol",
+		"acquisitiondate","patient","project","user"		
+	};
 	// Pool Data Source pour gerer les connections SQL
 	// en limitant la charge machine
 	public static PoolDataSource PDS = null;
