@@ -1,5 +1,6 @@
 package dao;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,6 +16,14 @@ import exceptions.IllegalSQLRequest;
 import settings.SQLSettings;
 import settings.SystemSettings;
 import settings.UserProfile;
+import settings.sql.DBTables;
+import settings.sql.tables.AcquisitionDateTable;
+import settings.sql.tables.DicomImageTable;
+import settings.sql.tables.NiftiImageTable;
+import settings.sql.tables.PatientTable;
+import settings.sql.tables.ProjectTable;
+import settings.sql.tables.ProtocolTable;
+import settings.sql.tables.SerieTable;
 
 public class MySQLGenericRequestDAO implements GenericRequestDAO {
 
@@ -50,33 +59,52 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				type = i;break;
 			}
 		}
-		
+		DBTables tables = SQLSettings.TABLES;
 		// On cree un cache pour eviter un trop gros nombre de requetes SQL (pr retrouver un nom qu'on connait deja)
 		DBCache dbcache = new DBCache();
 		// On rajoute les champs pour reconstruire un chemin vers un fichier
 		String fieldToAdd = "";
 		switch(type){
-			case 0:case 1:// DicomImage ou NiftiImage
-				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", id_acqdate as idacqdate"+customFieldSuffixe+", " +
-						"id_protocol as idprotocol"+customFieldSuffixe+", id_serie as idserie"+customFieldSuffixe+", name as nameimage"+customFieldSuffixe+" "; 
+			case 0:// DicomImage
+				fieldToAdd = " "+tables.getDicomImage().getId_project()+" as "+tables.getDicomImage().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getDicomImage().getId_patient()+" as "+tables.getDicomImage().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getDicomImage().getId_acqdate()+" as "+tables.getDicomImage().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getDicomImage().getId_protocol()+" as "+tables.getDicomImage().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getDicomImage().getId_serie()+" as "+tables.getDicomImage().getId_serie()+""+customFieldSuffixe+", " +
+										""+tables.getDicomImage().getName()+" as "+tables.getDicomImage().getName()+""+customFieldSuffixe+" "; 
+				break;
+			case 1:// NiftiImage
+				fieldToAdd = " "+tables.getNiftiImage().getId_project()+" as "+tables.getNiftiImage().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getNiftiImage().getId_patient()+" as "+tables.getNiftiImage().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getNiftiImage().getId_acqdate()+" as "+tables.getNiftiImage().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getNiftiImage().getId_protocol()+" as "+tables.getNiftiImage().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getNiftiImage().getId_serie()+" as "+tables.getNiftiImage().getId_serie()+""+customFieldSuffixe+", " +
+										""+tables.getNiftiImage().getName()+" as "+tables.getNiftiImage().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 2://Serie
-				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", " +
-						"id_acqdate as idacqdate"+customFieldSuffixe+", " +
-						"id_protocol as idprotocol"+customFieldSuffixe+", name as nameserie"+customFieldSuffixe+" ";
+				fieldToAdd = " "+tables.getSerie().getId_project()+" as "+tables.getSerie().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getSerie().getId_patient()+" as "+tables.getSerie().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getSerie().getId_acqdate()+" as "+tables.getSerie().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getSerie().getId_protocol()+" as "+tables.getSerie().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getSerie().getName()+" as "+tables.getSerie().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 3://Protocol
-				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", " +
-						"id_acqdate as idacqdate"+customFieldSuffixe+", name as nameproto"+customFieldSuffixe+" ";
+				fieldToAdd = " "+tables.getProtocol().getId_project()+" as "+tables.getProtocol().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getProtocol().getId_patient()+" as "+tables.getProtocol().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getProtocol().getId_acqdate()+" as "+tables.getProtocol().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getProtocol().getName()+" as "+tables.getProtocol().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 4://Acqdate
-				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", name as nameacqdate"+customFieldSuffixe+" ";
+				fieldToAdd = " "+tables.getAcquisitionDate().getId_project()+" as "+tables.getAcquisitionDate().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getAcquisitionDate().getId_patient()+" as "+tables.getAcquisitionDate().getId_patient()+""+customFieldSuffixe+", " +
+						""+tables.getAcquisitionDate().getDate()+" as "+tables.getAcquisitionDate().getDate()+""+customFieldSuffixe+" "; 
 				break;
 			case 5://Patient
-				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", name as namepatient"+customFieldSuffixe+" ";
+				fieldToAdd = " "+tables.getPatient().getId_project()+" as "+tables.getPatient().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getPatient().getName()+" as "+tables.getPatient().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 6://Project
-				fieldToAdd = " name as nameproject"+customFieldSuffixe+" ";
+				fieldToAdd = " "+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
 				break;
 				
 		}
@@ -114,19 +142,68 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				}
 			}
 			while(rset.next()){
-				String[] customFields;
+				String[] customFields = null;
 				switch(type){
-				case 0:case 1:
+				case 0:
+					DicomImageTable dt = tables.getDicomImage();
 					customFields = new String[6];
-					customFields[0] = rset.getString("idproject"+customFieldSuffixe);
-					customFields[1] = rset.getString("idpatient"+customFieldSuffixe);
-					customFields[2] = rset.getString("idacqdate"+customFieldSuffixe);
-					customFields[3] = rset.getString("idprotocol"+customFieldSuffixe);
-					customFields[4] = rset.getString("idserie"+customFieldSuffixe);
-					customFields[5] = rset.getString("nameimage"+customFieldSuffixe);
-					
+					customFields[0] = rset.getString(dt.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(dt.getId_patient()+customFieldSuffixe);
+					customFields[2] = rset.getString(dt.getId_acqdate()+customFieldSuffixe);
+					customFields[3] = rset.getString(dt.getId_protocol()+customFieldSuffixe);
+					customFields[4] = rset.getString(dt.getId_serie()+customFieldSuffixe);
+					customFields[5] = rset.getString(dt.getName()+customFieldSuffixe);
+					break;
+				case 1:
+					NiftiImageTable nt = tables.getNiftiImage();
+					customFields = new String[6];
+					customFields[0] = rset.getString(nt.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(nt.getId_patient()+customFieldSuffixe);
+					customFields[2] = rset.getString(nt.getId_acqdate()+customFieldSuffixe);
+					customFields[3] = rset.getString(nt.getId_protocol()+customFieldSuffixe);
+					customFields[4] = rset.getString(nt.getId_serie()+customFieldSuffixe);
+					customFields[5] = rset.getString(nt.getName()+customFieldSuffixe);
+					break;
+				case 2:
+					SerieTable st = tables.getSerie();
+					customFields = new String[5];
+					customFields[0] = rset.getString(st.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(st.getId_patient()+customFieldSuffixe);
+					customFields[2] = rset.getString(st.getId_acqdate()+customFieldSuffixe);
+					customFields[3] = rset.getString(st.getId_protocol()+customFieldSuffixe);
+					customFields[4] = rset.getString(st.getName()+customFieldSuffixe);
+					break;
+				case 3:
+					ProtocolTable pt = tables.getProtocol();
+					customFields = new String[4];
+					customFields[0] = rset.getString(pt.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(pt.getId_patient()+customFieldSuffixe);
+					customFields[2] = rset.getString(pt.getId_acqdate()+customFieldSuffixe);
+					customFields[3] = rset.getString(pt.getName()+customFieldSuffixe);
+					break;
+				case 7:
+					AcquisitionDateTable at = tables.getAcquisitionDate();
+					customFields = new String[3];
+					customFields[0] = rset.getString(at.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(at.getId_patient()+customFieldSuffixe);
+					customFields[2] = rset.getString(at.getDate()+customFieldSuffixe);
+					break;
+				case 8:
+					PatientTable ppt = tables.getPatient();
+					customFields = new String[2];
+					customFields[0] = rset.getString(ppt.getId_project()+customFieldSuffixe);
+					customFields[1] = rset.getString(ppt.getName()+customFieldSuffixe);
+					break;
+				case 9:
+					ProjectTable prt = tables.getProject();
+					customFields = new String[1];
+					customFields[0] = rset.getString(prt.getName()+customFieldSuffixe);
+					break;
 				}
-				File file = buildPathFromId()
+				// si on est bien sur une requete portant sur les donnees
+				if(type!=-1){
+					File file = buildPathFromIdList(customFields,type,dbcache);
+				}
 				for(String n:indices.keySet()){
 					resultats.get(n).add(rset.getString(indices.get(n)));
 				}
@@ -142,6 +219,19 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			stmt.close();
 			connection.close();
 		}
+	}
+
+	/**
+	 * Envoie des requetes (si donnees ne sont pas en cache)
+	 * pour trouver les nom correspondant aux id donnees 
+	 * @param customFields
+	 * @param type
+	 * @param cache cache sur la db
+	 * @return
+	 */
+	public File buildPathFromIdList(String[] customFields, int type, DBCache cache) {
+		
+		return null;
 	}
 
 	/**
