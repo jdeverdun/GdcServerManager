@@ -253,20 +253,34 @@ public class RequestPanel extends JPanel {
 					// On execute la requete custom
 					GenericRequestDAO greq = new MySQLGenericRequestDAO();
 					try {
-						HashMap<String,ArrayList<String>> results = greq.executeSelect(txtPutCustomSql.getText());
+						HashMap<String,ArrayList<String[]>> results = greq.executeSelect(txtPutCustomSql.getText());
+						if(results.isEmpty()){
+							getRqModel().setColumns(new String[]{"Nothing"});
+							getRqModel().setData(new Object[][]{{"No results found"}});
+							getRqModel().fireTableStructureChanged();
+							return;
+						}
 						getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
 						Object[][] data = null;
 						int count = 0;
+						File[] files = null;
 						for(String header:results.keySet()){
-							if(data==null)
+							if(data==null){
 								data = new Object[results.get(header).size()][results.keySet().size()];
-							ArrayList<String> cres = results.get(header);
+								files = new File[results.keySet().size()];
+							}
+							ArrayList<String[]> cres = results.get(header);
 							for(int j = 0; j < cres.size(); j++){
-								data[j][count] =  cres.get(j);
+								data[j][count] =  cres.get(j)[0];
+								if(cres.get(j)[1]!=null)
+									files[count] = new File(cres.get(j)[1]);
+								else
+									files[count] = null;
 							}
 							count++;
 						}
 						getRqModel().setData(data);
+						getRqModel().setFiles(files);
 					} catch (SQLException e) {
 						e.printStackTrace();
 						setWarning("SQL Error : "+e.toString());
@@ -346,5 +360,8 @@ class RequestTableModel extends AbstractTableModel {
      public void setValueAt(Object value, int row, int col) {            
         data[row][col] = value;
         fireTableCellUpdated(row, col);
+    }
+    public void setFiles(File[] fi){
+    	files = fi;
     }
 }

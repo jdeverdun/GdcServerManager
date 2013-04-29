@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import settings.SQLSettings;
 import settings.SystemSettings;
 import settings.WindowManager;
 
