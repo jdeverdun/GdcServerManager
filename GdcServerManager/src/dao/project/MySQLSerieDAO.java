@@ -28,17 +28,17 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"");
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
 				Serie serie = new Serie();
-				serie.setId(rset.getInt("id"));
-				serie.setName(rset.getString("name"));
-				serie.setHasNifti(rset.getInt("hasnifti"));
-				serie.setProtocole(pdao.retrieveProtocol(rset.getInt("id_protocol")));
+				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
+				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
+				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -68,7 +68,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Serie values (NULL,'"
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getSerie().TNAME+" values (NULL,'"
 						+ nom + "', "+hasnifti+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
 				
 				return true;
@@ -96,9 +96,9 @@ public class MySQLSerieDAO implements SerieDAO{
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from Serie ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getSerie().getId()+") from "+SQLSettings.TABLES.getSerie().TNAME+" ;");
 			else
-				rset = stmt.executeQuery("select max(id) from Serie_"+UserProfile.CURRENT_USER+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getSerie().getId()+") from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER+" ;");
 			
 			if (rset != null) {
 				while(rset.next()){
@@ -131,15 +131,15 @@ public class MySQLSerieDAO implements SerieDAO{
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			
 			while(rset.next()){
-				serie.setId(rset.getInt("id"));
-				serie.setName(rset.getString("name"));
-				serie.setHasNifti(rset.getInt("hasnifti"));
-				serie.setProtocole(pdao.retrieveProtocol(rset.getInt("id_protocol")));
+				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
+				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
+				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -172,17 +172,17 @@ public class MySQLSerieDAO implements SerieDAO{
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
-				rset = stmt.executeQuery("select * from Serie where name='"+name+"' and id_project="+project_id+" and " +
-					" id_patient="+patient_id+" and id_acqdate="+acqDate_id+" and id_protocol="+protocol_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"' and "+SQLSettings.TABLES.getSerie().getId_project()+"="+project_id+" and " +
+					" "+SQLSettings.TABLES.getSerie().getId_patient()+"="+patient_id+" and "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+acqDate_id+" and "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+protocol_id);
 			}else{
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and " +
-						" id_patient="+patient_id+" and id_acqdate="+acqDate_id+" and id_protocol="+protocol_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"' and "+SQLSettings.TABLES.getSerie().getId_project()+"="+project_id+" and " +
+						" "+SQLSettings.TABLES.getSerie().getId_patient()+"="+patient_id+" and "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+acqDate_id+" and "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+protocol_id);
 			}
 			while(rset.next()){
-				serie.setId(rset.getInt("id"));
-				serie.setName(rset.getString("name"));
-				serie.setHasNifti(rset.getInt("hasnifti"));
-				serie.setProtocole(pdao.retrieveProtocol(rset.getInt("id_protocol")));
+				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
+				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
+				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -209,7 +209,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Serie set name='"+name+"',hasnifti="+hasnifti+", id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+" where id="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"',"+SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", "+SQLSettings.TABLES.getSerie().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id_acqdate+", "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id_protocol+" where "+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -232,13 +232,13 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id);
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Serie serie = retrieveSerie(rset.getInt("id"));	
+				Serie serie = retrieveSerie(rset.getInt(SQLSettings.TABLES.getSerie().getId()));	
 				if(serie!=null) 
 					series.add(serie);
 			}
@@ -265,13 +265,13 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getId_project()+"="+id);
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Serie serie = retrieveSerie(rset.getInt("id"));	
+				Serie serie = retrieveSerie(rset.getInt(SQLSettings.TABLES.getSerie().getId()));	
 				if(serie!=null) 
 					series.add(serie);
 			}
@@ -297,13 +297,13 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id);
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Serie serie = retrieveSerie(rset.getInt("id"));	
+				Serie serie = retrieveSerie(rset.getInt(SQLSettings.TABLES.getSerie().getId()));	
 				if(serie!=null) 
 					series.add(serie);
 			}
@@ -330,13 +330,13 @@ public class MySQLSerieDAO implements SerieDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Serie where id_protocol="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Serie_"+UserProfile.CURRENT_USER.getId()+" where id_protocol="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id);
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
-				Serie serie = retrieveSerie(rset.getInt("id"));	
+				Serie serie = retrieveSerie(rset.getInt(SQLSettings.TABLES.getSerie().getId()));	
 				if(serie!=null) 
 					series.add(serie);
 			}

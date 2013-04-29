@@ -32,13 +32,13 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			ProjectDAO pdao=new MySQLProjectDAO();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User_Project where id_user="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_user="+id);
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser_project().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Project proj = pdao.retrieveProject(rset.getInt("id_project"));
+				Project proj = pdao.retrieveProject(rset.getInt(""+SQLSettings.TABLES.getUser_project().getId_project()+""));
 				if(proj!=null)
 					projects.add(proj);
 			}
@@ -66,13 +66,13 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			UserDAO udao=new MySQLUserDAO();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User_Project where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser_project().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser_project().getId_project()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				User us = udao.retrieveUser(rset.getInt("id_user"));
+				User us = udao.retrieveUser(rset.getInt(""+SQLSettings.TABLES.getUser_project().getId_user()+""));
 					// On limite l'instantiation (usage memoire)
 					//us.setProjects(updao.getProjectsForUser(us.getId()));
 					
@@ -99,7 +99,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User_Project where id_user="+u.getId());
+			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+u.getId());
 
 			return true;
 		} catch (SQLException e2) {
@@ -119,7 +119,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User_Project where id_user="+id_user+" and id_project="+id_project);
+			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id_user+" and "+SQLSettings.TABLES.getUser_project().getId_project()+"="+id_project);
 
 			return 0;
 		} catch (SQLException e2) {
@@ -155,11 +155,13 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 		
-			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User_Project where id_user="+user_id+" and id_project="+project_id);
-			else
-				rset = stmt.executeQuery("select * from User_Project_"+UserProfile.CURRENT_USER.getId()+" where id_user="+user_id+" and id_project="+project_id);
-			
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+user_id+" and " +
+						""+SQLSettings.TABLES.getUser_project().getId_project()+"="+project_id);
+			}else{
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser_project().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+user_id+" " +
+						"and "+SQLSettings.TABLES.getUser_project().getId_project()+"="+project_id);
+			}
 			return rset.next();		
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -189,7 +191,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			// Check si le tuple existe deja
 			boolean tupleExists = exists(u.getId(), p.getId());
 			if(!tupleExists){
-				rset = stmt.execute("insert into User_Project values ("
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getUser_project().TNAME+" values ("
 						+ u.getId() + " ," + p.getId() + ")");
 				return 0;
 			}else{

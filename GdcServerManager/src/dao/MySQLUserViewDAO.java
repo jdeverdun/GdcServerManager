@@ -28,7 +28,7 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.execute("insert into User_View values (NULL,'"
+			rset = stmt.execute("insert into "+SQLSettings.TABLES.getUser_view().TNAME+" values (NULL,'"
 					+ login + "' ," + view + ")");
 			
 			return 0;
@@ -60,11 +60,11 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
-			rset = stmt.executeQuery("select * from User_View where login_user='"+login+"'");
+			rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser_view().TNAME+" where "+SQLSettings.TABLES.getUser_view().getLogin_user()+"='"+login+"'");
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				res = rset.getInt("view_num");
+				res = rset.getInt(SQLSettings.TABLES.getUser_view().getView_num());
 			}
 			return res;
 		} catch (Exception e) {
@@ -85,7 +85,7 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User_View where login_user='"+u.getLogin()+"'");
+			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_view().TNAME+" where "+SQLSettings.TABLES.getUser_view().getLogin_user()+"='"+u.getLogin()+"'");
 
 			return true;
 		} catch (SQLException e2) {

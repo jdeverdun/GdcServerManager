@@ -28,17 +28,17 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"");
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
 				DicomImage dicom = new DicomImage();
-				dicom.setId(rset.getInt("id"));
-				dicom.setName(rset.getString("name"));
-				dicom.setMri_name(rset.getString("mri_name"));
-				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
+				dicom.setId(rset.getInt(""+SQLSettings.TABLES.getDicomImage().getId()+""));
+				dicom.setName(rset.getString(SQLSettings.TABLES.getDicomImage().getName()));
+				dicom.setMri_name(rset.getString(SQLSettings.TABLES.getDicomImage().getMri_name()));
+				dicom.setSerie(sdao.retrieveSerie(rset.getInt(SQLSettings.TABLES.getDicomImage().getId_serie())));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace � acquisitiondate
 				dicom.setAcquistionDate(dicom.getProtocole().getAcquisitionDate());
@@ -69,7 +69,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 
-				rset = stmt.execute("insert into DicomImage values (NULL,'"
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getDicomImage().TNAME+" values (NULL,'"
 						+ nom + "','" + mri_name + "',  "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;
@@ -98,9 +98,9 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from DicomImage ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getDicomImage().getId()+") from "+SQLSettings.TABLES.getDicomImage().TNAME+" ;");
 			else
-				rset = stmt.executeQuery("select max(id) from DicomImage_"+UserProfile.CURRENT_USER.getId()+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getDicomImage().getId()+") from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" ;");
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -133,14 +133,14 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId()+"="+id);
 			while(rset.next()){
-				dicom.setId(rset.getInt("id"));
-				dicom.setName(rset.getString("name"));
-				dicom.setMri_name(rset.getString("mri_name"));
-				dicom.setSerie(sdao.retrieveSerie(rset.getInt("id_serie")));
+				dicom.setId(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));
+				dicom.setName(rset.getString(SQLSettings.TABLES.getDicomImage().getName()));
+				dicom.setMri_name(rset.getString(SQLSettings.TABLES.getDicomImage().getMri_name()));
+				dicom.setSerie(sdao.retrieveSerie(rset.getInt(SQLSettings.TABLES.getDicomImage().getId_serie())));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace � acquisitiondate
 				dicom.setAcquistionDate(dicom.getProtocole().getAcquisitionDate());
@@ -171,7 +171,10 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update DicomImage set name='"+name+"',mri_name='"+mri_name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+", id_protocol="+id_protocol+", id_serie="+id_serie+" where id="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getDicomImage().TNAME+" set "+SQLSettings.TABLES.getDicomImage().getName()+"='"+name+"'," +
+					""+SQLSettings.TABLES.getDicomImage().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id_project+", " +
+							""+SQLSettings.TABLES.getDicomImage().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getDicomImage().getId_acqdate()+"="+id_acqdate+", " +
+									""+SQLSettings.TABLES.getDicomImage().getId_protocol()+"="+id_protocol+", "+SQLSettings.TABLES.getDicomImage().getId_serie()+"="+id_serie+" where "+SQLSettings.TABLES.getDicomImage().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
@@ -196,13 +199,13 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId_patient()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId_patient()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				DicomImage dicom = retrieveDicomImage(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));	
 				if(dicom!=null) 
 					dicoms.add(dicom);
 			}
@@ -232,13 +235,13 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				DicomImage dicom = retrieveDicomImage(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));	
 				if(dicom!=null) 
 					dicoms.add(dicom);
 			}
@@ -264,13 +267,13 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId_acqdate()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId_acqdate()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				DicomImage dicom = retrieveDicomImage(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));	
 				if(dicom!=null) 
 					dicoms.add(dicom);
 			}
@@ -297,13 +300,13 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id_protocol="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId_protocol()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id_protocol="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId_protocol()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				DicomImage dicom = retrieveDicomImage(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));	
 				if(dicom!=null) 
 					dicoms.add(dicom);
 			}
@@ -329,13 +332,13 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from DicomImage where id_serie="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+" where "+SQLSettings.TABLES.getDicomImage().getId_serie()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from DicomImage_"+UserProfile.CURRENT_USER.getId()+" where id_serie="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getDicomImage().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getDicomImage().getId_serie()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				DicomImage dicom = retrieveDicomImage(rset.getInt("id"));	
+				DicomImage dicom = retrieveDicomImage(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));	
 				if(dicom!=null) 
 					dicoms.add(dicom);
 			}

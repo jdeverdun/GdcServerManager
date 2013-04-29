@@ -33,18 +33,18 @@ public class MySQLPatientDAO implements PatientDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Patient");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"");
 			else
-				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
 				Patient pat = new Patient();
-				pat.setId(rset.getInt("id"));
-				pat.setNom(rset.getString("name"));
-				pat.setBirthdate(rset.getString("birthdate"));
-				pat.setSex(rset.getString("sex"));
-				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
+				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
+				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
+				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 				patients.add(pat);
 			}
 			return patients;
@@ -70,7 +70,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Patient values (NULL,'"
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getPatient().TNAME+" values (NULL,'"
 						+ nom + "','"+birthdate+"','"+sex+"', "+project_id+")");
 				
 				return true;
@@ -102,9 +102,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from Patient ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getPatient().getId()+") from "+SQLSettings.TABLES.getPatient().TNAME+" ;");
 			else
-				rset = stmt.executeQuery("select max(id) from Patient_"+UserProfile.CURRENT_USER.getId()+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getPatient().getId()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" ;");
 			
 			if (rset != null) {
 				while(rset.next()){
@@ -137,16 +137,16 @@ public class MySQLPatientDAO implements PatientDAO {
 			ProjectDAO projdao=new MySQLProjectDAO();		
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Patient where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
 			
 			while(rset.next()){
-				pat.setNom(rset.getString("name"));
-				pat.setId(rset.getInt("id"));
-				pat.setBirthdate(rset.getString("birthdate"));
-				pat.setSex(rset.getString("sex"));
-				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
+				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
+				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
+				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
 			return pat;
@@ -173,17 +173,17 @@ public class MySQLPatientDAO implements PatientDAO {
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			
-			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Patient where name='"+name+"' and birthdate='"+birthdate+"' and sex='"+sex+"' and id_project="+project_id);
-			else
-				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and birthdate='"+birthdate+"' and sex='"+sex+"' and id_project="+project_id);
-			
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"' and "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			}else{
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"' and "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			}
 			while(rset.next()){
-				pat.setNom(rset.getString("name"));
-				pat.setId(rset.getInt("id"));
-				pat.setBirthdate(rset.getString("birthdate"));
-				pat.setSex(rset.getString("sex"));
-				pat.setProject(projdao.retrieveProject(rset.getInt("id_project")));
+				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
+				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
+				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
 			return pat;
@@ -206,7 +206,8 @@ public class MySQLPatientDAO implements PatientDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Patient set name='"+name+"',birthdate='"+birthdate+"', sex='"+sex+"', id_project="+id_project+" where id="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getPatient().TNAME+" set "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"',"+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"'," +
+					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
@@ -227,13 +228,13 @@ public class MySQLPatientDAO implements PatientDAO {
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Patient where id_project="+project_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select * from Patient_"+UserProfile.CURRENT_USER.getId()+" where id_project="+project_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Patient pat = retrievePatient(rset.getInt("id"));	
+				Patient pat = retrievePatient(rset.getInt(SQLSettings.TABLES.getPatient().getId()));	
 				if(pat!=null) 
 					patients.add(pat);
 			}

@@ -40,21 +40,21 @@ public class MySQLUserDAO implements UserDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME);
 			else
-				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requÃªte
 			while (rset.next()) {
 				User user = new User();
-				user.setId(rset.getInt("id"));
-				user.setEmail(rset.getString("email"));
-				user.setLogin(rset.getString("login"));
-				user.setNom(rset.getString("nom"));
-				user.setPassword(rset.getString("password"));
-				user.setPrenom(rset.getString("prenom"));
-				user.setLevel(rset.getInt("level"));
-				user.setFirstConnect(rset.getInt("firstconnect"));
+				user.setId(rset.getInt(SQLSettings.TABLES.getUser().getId()));
+				user.setEmail(rset.getString(SQLSettings.TABLES.getUser().getEmail()));
+				user.setLogin(rset.getString(SQLSettings.TABLES.getUser().getLogin()));
+				user.setNom(rset.getString(SQLSettings.TABLES.getUser().getNom()));
+				user.setPassword(rset.getString(SQLSettings.TABLES.getUser().getPassword()));
+				user.setPrenom(rset.getString(SQLSettings.TABLES.getUser().getPrenom()));
+				user.setLevel(rset.getInt(SQLSettings.TABLES.getUser().getLevel()));
+				user.setFirstConnect(rset.getInt(SQLSettings.TABLES.getUser().getFirstconnect()));
 				users.add(user);
 			}
 			return users;
@@ -108,22 +108,22 @@ public class MySQLUserDAO implements UserDAO {
 			UserViewDAO uvdao = new MySQLUserViewDAO();
 			int idview = uvdao.getViewForLogin(login);
 			if(idview == UserViewDAO.ADMIN_VIEW_NUM){
-				rset = stmt.executeQuery("select * from User where login='"
-						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser().TNAME+"  where "+SQLSettings.TABLES.getUser().getLogin()+"='"
+						+ login + "' and  "+SQLSettings.TABLES.getUser().getPassword()+"='" + UserProfile.ENCRYPTEDPASS + "'");
 			}else{
-				rset = stmt.executeQuery("select * from User_"+idview+" where login='"
-						+ login + "' and  password='" + UserProfile.ENCRYPTEDPASS + "'");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME+"_"+idview+" where "+SQLSettings.TABLES.getUser().getLogin()+"='"
+						+ login + "' and  "+SQLSettings.TABLES.getUser().getPassword()+"='" + UserProfile.ENCRYPTEDPASS + "'");
 			}
 			if (rset != null) {
 				rset.next();
-				userC.setNom(rset.getString("nom"));
-				userC.setPrenom(rset.getString("prenom"));
-				userC.setEmail(rset.getString("email"));
-				userC.setLogin(rset.getString("login"));
-				userC.setPassword(rset.getString("password"));
-				userC.setId(Integer.parseInt(rset.getString("id")));
-				userC.setLevel(rset.getInt("level"));
-				userC.setFirstConnect(rset.getInt("firstconnect"));
+				userC.setNom(rset.getString(SQLSettings.TABLES.getUser().getNom()));
+				userC.setPrenom(rset.getString(SQLSettings.TABLES.getUser().getPrenom()));
+				userC.setEmail(rset.getString(SQLSettings.TABLES.getUser().getEmail()));
+				userC.setLogin(rset.getString(SQLSettings.TABLES.getUser().getLogin()));
+				userC.setPassword(rset.getString(SQLSettings.TABLES.getUser().getPassword()));
+				userC.setId(Integer.parseInt(rset.getString(SQLSettings.TABLES.getUser().getId())));
+				userC.setLevel(rset.getInt(SQLSettings.TABLES.getUser().getLevel()));
+				userC.setFirstConnect(rset.getInt(SQLSettings.TABLES.getUser().getFirstconnect()));
 				UserProfile.CURRENT_USER = userC;
 				rset.close();
 			}else{
@@ -172,7 +172,7 @@ public class MySQLUserDAO implements UserDAO {
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into User values (NULL,'"
+				rset = stmt.execute("insert into  "+SQLSettings.TABLES.getUser().TNAME+"  values (NULL,'"
 						+ nom + "' ,'" + prenom + "', '"+email+ "', '"+login+"', '"+password+"', "+level+",1)");
 				
 				return 0;
@@ -224,9 +224,9 @@ public class MySQLUserDAO implements UserDAO {
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from User ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getUser().getId()+") from  "+SQLSettings.TABLES.getUser().TNAME+" ;");
 			else
-				rset = stmt.executeQuery("select max(id) from User_"+UserProfile.CURRENT_USER.getId()+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getUser().getId()+") from "+SQLSettings.TABLES.getUser().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" ;");
 				
 			if (rset != null) {
 				while(rset.next()){
@@ -258,7 +258,7 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
-			rset = stmt.executeQuery("SHOW TABLE STATUS LIKE 'user' ;");
+			rset = stmt.executeQuery("SHOW TABLE STATUS LIKE '"+SQLSettings.TABLES.getUser().TNAME+"' ;");
 
 				
 			if (rset != null) {
@@ -281,7 +281,7 @@ public class MySQLUserDAO implements UserDAO {
 		
 	}
 	/**
-     * Récupère l'utilisateur ayant l'id "id"
+     * Récupère l'utilisateur ayant l'id SQLSettings.TABLES.getUser().getId()
      * @param id
      * @return
      * @throws SQLException
@@ -297,19 +297,19 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User where id="+id);
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser().TNAME+"  where "+SQLSettings.TABLES.getUser().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser().getId()+"="+id);
 			
 			while(rset.next()){
-				userC.setNom(rset.getString("nom"));
-				userC.setPrenom(rset.getString("prenom"));
-				userC.setEmail(rset.getString("email"));
-				userC.setLogin(rset.getString("login"));
-				userC.setPassword(rset.getString("password"));
-				userC.setId(Integer.parseInt(rset.getString("id")));
-				userC.setFirstConnect(rset.getInt("firstconnect"));
-				userC.setLevel(rset.getInt("level"));
+				userC.setNom(rset.getString(SQLSettings.TABLES.getUser().getNom()));
+				userC.setPrenom(rset.getString(SQLSettings.TABLES.getUser().getPrenom()));
+				userC.setEmail(rset.getString(SQLSettings.TABLES.getUser().getEmail()));
+				userC.setLogin(rset.getString(SQLSettings.TABLES.getUser().getLogin()));
+				userC.setPassword(rset.getString(SQLSettings.TABLES.getUser().getPassword()));
+				userC.setId(Integer.parseInt(rset.getString(SQLSettings.TABLES.getUser().getId())));
+				userC.setFirstConnect(rset.getInt(SQLSettings.TABLES.getUser().getFirstconnect()));
+				userC.setLevel(rset.getInt(SQLSettings.TABLES.getUser().getLevel()));
 			}
 		
 			return userC;
@@ -327,7 +327,7 @@ public class MySQLUserDAO implements UserDAO {
 	
 	
 	/**
-     * Récupère l'utilisateur ayant le login "login"
+     * Récupère l'utilisateur ayant le login SQLSettings.TABLES.getUser().getLogin()
      * @param id
      * @return
      * @throws SQLException
@@ -343,19 +343,19 @@ public class MySQLUserDAO implements UserDAO {
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from User where login='"+login+"'");
+				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser().TNAME+"  where "+SQLSettings.TABLES.getUser().getLogin()+"='"+login+"'");
 			else
-				rset = stmt.executeQuery("select * from User_"+UserProfile.CURRENT_USER.getId()+" where login='"+login+"'");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser().getLogin()+"='"+login+"'");
 			
 			while(rset.next()){
-				userC.setNom(rset.getString("nom"));
-				userC.setPrenom(rset.getString("prenom"));
-				userC.setEmail(rset.getString("email"));
-				userC.setLogin(rset.getString("login"));
-				userC.setPassword(rset.getString("password"));
-				userC.setId(Integer.parseInt(rset.getString("id")));
-				userC.setLevel(rset.getInt("level"));
-				userC.setFirstConnect(rset.getInt("firstconnect"));
+				userC.setNom(rset.getString(SQLSettings.TABLES.getUser().getNom()));
+				userC.setPrenom(rset.getString(SQLSettings.TABLES.getUser().getPrenom()));
+				userC.setEmail(rset.getString(SQLSettings.TABLES.getUser().getEmail()));
+				userC.setLogin(rset.getString(SQLSettings.TABLES.getUser().getLogin()));
+				userC.setPassword(rset.getString(SQLSettings.TABLES.getUser().getPassword()));
+				userC.setId(Integer.parseInt(rset.getString(SQLSettings.TABLES.getUser().getId())));
+				userC.setLevel(rset.getInt(SQLSettings.TABLES.getUser().getLevel()));
+				userC.setFirstConnect(rset.getInt(SQLSettings.TABLES.getUser().getFirstconnect()));
 			}
 		
 			return userC;
@@ -392,11 +392,15 @@ public class MySQLUserDAO implements UserDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeUpdate("update User set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
-			else
-				rset = stmt.executeUpdate("update User_"+UserProfile.CURRENT_USER.getId()+" set login='"+l+"',password='"+pass+"',prenom='"+pr+"',nom='"+n+"',email='"+e+"', level="+level+", firstconnect="+fconnect+" where id="+i);
-			
+			if(UserProfile.CURRENT_USER.getLevel() == 3){
+				rset = stmt.executeUpdate("update  "+SQLSettings.TABLES.getUser().TNAME+"  set "+SQLSettings.TABLES.getUser().getLogin()+"='"+l+"',"+SQLSettings.TABLES.getUser().getPassword()+"='"+pass+"'," +
+						""+SQLSettings.TABLES.getUser().getPrenom()+"='"+pr+"',"+SQLSettings.TABLES.getUser().getNom()+"='"+n+"',"+SQLSettings.TABLES.getUser().getEmail()+"='"+e+"', " +
+								""+SQLSettings.TABLES.getUser().getLevel()+"="+level+", "+SQLSettings.TABLES.getUser().getFirstconnect()+"="+fconnect+" where id="+i);
+			}else{
+				rset = stmt.executeUpdate("update  "+SQLSettings.TABLES.getUser().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" set "+SQLSettings.TABLES.getUser().getLogin()+"='"+l+"',"+SQLSettings.TABLES.getUser().getPassword()+"='"+pass+"'," +
+						""+SQLSettings.TABLES.getUser().getPrenom()+"='"+pr+"',"+SQLSettings.TABLES.getUser().getNom()+"='"+n+"',"+SQLSettings.TABLES.getUser().getEmail()+"='"+e+"', " +
+								""+SQLSettings.TABLES.getUser().getLevel()+"="+level+", "+SQLSettings.TABLES.getUser().getFirstconnect()+"="+fconnect+" where id="+i);
+			}
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -445,7 +449,7 @@ public class MySQLUserDAO implements UserDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			rset = stmt.executeUpdate("delete from User where id="+u.getId());
+			rset = stmt.executeUpdate("delete from  "+SQLSettings.TABLES.getUser().TNAME+"  where id="+u.getId());
 
 			UserProjectDAO udao = new MySQLUserProjectDAO();
 			udao.removeUser(u);

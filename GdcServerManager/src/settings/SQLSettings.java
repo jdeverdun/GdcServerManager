@@ -8,15 +8,17 @@ import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
+import settings.sql.DBTables;
 
 public class SQLSettings {
 	public static String ADDRESS = "localhost";
 	public static String DATABASE_NAME = "gdcserver";
+	public static DBTables TABLES = new DBTables();
 	// nom des tables beneficiant de vues pour chaque utilisateur
 	// trie par niveau (le plus bas etant dicomimage puis niftiimage
 	// le plus haut project, le dernier est user
-	public static final String[] LOCAL_VIEW_NAME = new String[]{"dicomimage","niftiimage","serie","protocol",
-		"acquisitiondate","patient","project","user"		
+	public static final String[] LOCAL_VIEW_NAME = new String[]{TABLES.getDicomImage().TNAME,TABLES.getNiftiImage().TNAME, TABLES.getSerie().TNAME,
+		TABLES.getProtocol().TNAME, TABLES.getAcquisitionDate().TNAME,TABLES.getPatient().TNAME, TABLES.getProject().TNAME, TABLES.getUser().TNAME
 	};
 	// Pool Data Source pour gerer les connections SQL
 	// en limitant la charge machine

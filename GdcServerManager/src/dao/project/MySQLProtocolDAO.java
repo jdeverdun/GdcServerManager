@@ -28,16 +28,16 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Protocol");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"");
 			else
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
 				Protocol prot = new Protocol();
-				prot.setId(rset.getInt("id"));
-				prot.setName(rset.getString("name"));
-				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
+				prot.setId(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));
+				prot.setName(rset.getString(SQLSettings.TABLES.getProtocol().getName()));
+				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt(SQLSettings.TABLES.getProtocol().getId_acqdate())));
 				prot.setPatient(prot.getAcquisitionDate().getPatient());
 				prot.setProjet(prot.getPatient().getProject());
 				protocols.add(prot);
@@ -65,7 +65,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 				connection = SQLSettings.PDS.getConnection();
 				stmt = connection.createStatement();
 				
-				rset = stmt.execute("insert into Protocol values (NULL,'"
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getProtocol().TNAME+" values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+")");
 				
 				return true;
@@ -97,9 +97,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from Protocol ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getProtocol().getId()+") from "+SQLSettings.TABLES.getProtocol().TNAME+" ;");
 			else
-				rset = stmt.executeQuery("select max(id) from Protocol_"+UserProfile.CURRENT_USER.getId()+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getProtocol().getId()+") from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" ;");
 			
 			if (rset != null) {
 				while(rset.next()){
@@ -132,15 +132,15 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Protocol where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId()+"="+id);
 			
 			
 			while(rset.next()){
-				prot.setId(rset.getInt("id"));
-				prot.setName(rset.getString("name"));
-				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
+				prot.setId(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));
+				prot.setName(rset.getString(SQLSettings.TABLES.getProtocol().getName()));
+				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt(SQLSettings.TABLES.getProtocol().getId_acqdate())));
 				prot.setPatient(prot.getAcquisitionDate().getPatient());
 				prot.setProjet(prot.getPatient().getProject());
 			}
@@ -171,16 +171,16 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
-				rset = stmt.executeQuery("select * from Protocol where name='"+name+"' and id_project="+project_id+" and " +
-					" id_patient="+patient_id+" and id_acqdate="+acqDate_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getName()+"='"+name+"' and "+SQLSettings.TABLES.getProtocol().getId_project()+"="+project_id+" and " +
+					" "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+patient_id+" and "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+acqDate_id);
 			}else{
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"' and id_project="+project_id+" and " +
-						" id_patient="+patient_id+" and id_acqdate="+acqDate_id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getName()+"='"+name+"' and "+SQLSettings.TABLES.getProtocol().getId_project()+"="+project_id+" and " +
+						" "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+patient_id+" and "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+acqDate_id);
 			}
 			while(rset.next()){
-				prot.setId(rset.getInt("id"));
-				prot.setName(rset.getString("name"));
-				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt("id_acqdate")));
+				prot.setId(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));
+				prot.setName(rset.getString(SQLSettings.TABLES.getProtocol().getName()));
+				prot.setAcquisitionDate(adao.retrieveAcqDate(rset.getInt(SQLSettings.TABLES.getProtocol().getId_acqdate())));
 				prot.setPatient(prot.getAcquisitionDate().getPatient());
 				prot.setProjet(prot.getPatient().getProject());
 			}
@@ -205,7 +205,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Protocol set name='"+name+"', id_project="+id_project+", id_patient="+id_patient+", id_acqdate="+id_acqdate+" where id="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProtocol().TNAME+" set "+SQLSettings.TABLES.getProtocol().getName()+"='"+name+"', "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+id_acqdate+" where "+SQLSettings.TABLES.getProtocol().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);
@@ -229,13 +229,13 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Protocol where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_patient="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Protocol prot = retrieveProtocol(rset.getInt("id"));	
+				Protocol prot = retrieveProtocol(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));	
 				if(prot!=null) 
 					prots.add(prot);
 			}
@@ -263,13 +263,13 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Protocol where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_project="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Protocol prot = retrieveProtocol(rset.getInt("id"));	
+				Protocol prot = retrieveProtocol(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));	
 				if(prot!=null) 
 					prots.add(prot);
 			}
@@ -295,13 +295,13 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Protocol where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Protocol_"+UserProfile.CURRENT_USER.getId()+" where id_acqdate="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Protocol prot = retrieveProtocol(rset.getInt("id"));	
+				Protocol prot = retrieveProtocol(rset.getInt(SQLSettings.TABLES.getProtocol().getId()));	
 				if(prot!=null) 
 					prots.add(prot);
 			}

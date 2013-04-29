@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import daemon.DBCache;
+
 import exceptions.IllegalSQLRequest;
 
 import settings.SQLSettings;
@@ -18,6 +20,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 
 	private final String[] excludeBegin = new String[]{"id_"};
 	private final String[] excludeEquals = new String[]{"id","rkey","password"};
+	// Prefixe des champs (dans les requetes) rajoute par le logiciel
+	private final String customFieldSuffixe = "panthercustfieldpref";
 	
 	/**
 	 * Renvoi le header du result SQL + les lignes de resultats
@@ -46,16 +50,41 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				type = i;break;
 			}
 		}
-		// On rajoute les champs pour recuperer un chemin vers un fichier
+		
+		// On cree un cache pour eviter un trop gros nombre de requetes SQL (pr retrouver un nom qu'on connait deja)
+		DBCache dbcache = new DBCache();
+		// On rajoute les champs pour reconstruire un chemin vers un fichier
 		String fieldToAdd = "";
 		switch(type){
-			case 0:case 1:
-				fieldToAdd = " id_serie as idserie1 "; 
+			case 0:case 1:// DicomImage ou NiftiImage
+				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", id_acqdate as idacqdate"+customFieldSuffixe+", " +
+						"id_protocol as idprotocol"+customFieldSuffixe+", id_serie as idserie"+customFieldSuffixe+", name as nameimage"+customFieldSuffixe+" "; 
 				break;
-			case 2:
-				fieldToAdd = " id_"+SQLSettings.LOCAL_VIEW_NAME[type+1];
+			case 2://Serie
+				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", " +
+						"id_acqdate as idacqdate"+customFieldSuffixe+", " +
+						"id_protocol as idprotocol"+customFieldSuffixe+", name as nameserie"+customFieldSuffixe+" ";
+				break;
+			case 3://Protocol
+				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", " +
+						"id_acqdate as idacqdate"+customFieldSuffixe+", name as nameproto"+customFieldSuffixe+" ";
+				break;
+			case 4://Acqdate
+				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", id_patient as idpatient"+customFieldSuffixe+", name as nameacqdate"+customFieldSuffixe+" ";
+				break;
+			case 5://Patient
+				fieldToAdd = " id_project as idproject"+customFieldSuffixe+", name as namepatient"+customFieldSuffixe+" ";
+				break;
+			case 6://Project
+				fieldToAdd = " name as nameproject"+customFieldSuffixe+" ";
+				break;
 				
 		}
+		splitFrom[0] = splitFrom[0] + fieldToAdd;
+		String temp  = "";
+		for(int i = 0; i < splitFrom.length-1; i++)
+			temp = temp + splitFrom[i] + " from " + splitFrom[i+1];
+		nrequest = temp;
 		// --------------- RAJOUTER LA REQUETE POUR RECUP LE CHEMIN COMPLET --- et terminer ligne ci dessus
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -73,8 +102,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			HashMap<String,Integer> indices = new HashMap<String,Integer>();
 			for(int i = 1; i <= rsmd.getColumnCount(); i++){
 				String name = rsmd.getColumnLabel(i);
-				// on evite d'afficher les champs id etc
-				if(!isIllegalHeader(name)){
+				String cname = rsmd.getColumnName(i);
+				// on evite d'afficher les champs id etc et les champs rajouter par le logiciel
+				if(!isIllegalHeader(cname) && !name.endsWith(customFieldSuffixe)){
 					// si le nom de la colonne existe deja on 
 					// rajoute le nom de la table pour preciser
 					if(resultats.containsKey(name))
@@ -84,6 +114,19 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				}
 			}
 			while(rset.next()){
+				String[] customFields;
+				switch(type){
+				case 0:case 1:
+					customFields = new String[6];
+					customFields[0] = rset.getString("idproject"+customFieldSuffixe);
+					customFields[1] = rset.getString("idpatient"+customFieldSuffixe);
+					customFields[2] = rset.getString("idacqdate"+customFieldSuffixe);
+					customFields[3] = rset.getString("idprotocol"+customFieldSuffixe);
+					customFields[4] = rset.getString("idserie"+customFieldSuffixe);
+					customFields[5] = rset.getString("nameimage"+customFieldSuffixe);
+					
+				}
+				File file = buildPathFromId()
 				for(String n:indices.keySet()){
 					resultats.get(n).add(rset.getString(indices.get(n)));
 				}

@@ -40,9 +40,9 @@ public class MySQLProjectDAO implements ProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Project");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME);
 			else
-				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId());
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId());
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
@@ -90,7 +90,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		        String rkey = sb.toString();  
 		        
 		        
-				rset = stmt.execute("insert into Project values (NULL,'"
+				rset = stmt.execute("insert into "+SQLSettings.TABLES.getProject().TNAME+" values (NULL,'"
 						+ nom + "','"+rkey+"')");
 				
 				return true;
@@ -124,9 +124,9 @@ public class MySQLProjectDAO implements ProjectDAO {
 			int ident=-1;		
 	
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select max(id) from Project ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getProject().getId()+") from Project ;");
 			else
-				rset = stmt.executeQuery("select max(id) from Project_"+UserProfile.CURRENT_USER.getId()+" ;");
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getProject().getId()+") from "+SQLSettings.TABLES.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" ;");
 			if (rset != null) {
 				while(rset.next()){
 					//System.out.println("id max= "+rset.getInt(1));
@@ -164,14 +164,14 @@ public class MySQLProjectDAO implements ProjectDAO {
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Project where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME+" where "+SQLSettings.TABLES.getProject().getId()+"="+id);
 			else
-				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId()+" where id="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProject().getId()+"="+id);
 			
 			while(rset.next()){
-				projectC.setNom(rset.getString("name"));
-				projectC.setId(rset.getInt("id"));
-				projectC.setRemoteKey(rset.getString("rkey"));
+				projectC.setNom(rset.getString(SQLSettings.TABLES.getProject().getName()));
+				projectC.setId(rset.getInt(SQLSettings.TABLES.getProject().getId()));
+				projectC.setRemoteKey(rset.getString(SQLSettings.TABLES.getProject().getRkey()));
 			}
 		
 			
@@ -203,14 +203,14 @@ public class MySQLProjectDAO implements ProjectDAO {
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from Project where name='"+name+"'");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME+" where "+SQLSettings.TABLES.getProject().getName()+"='"+name+"'");
 			else
-				rset = stmt.executeQuery("select * from Project_"+UserProfile.CURRENT_USER.getId()+" where name='"+name+"'");
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProject().getName()+"='"+name+"'");
 			
 			while(rset.next()){
-				projectC.setNom(rset.getString("name"));
-				projectC.setId(rset.getInt("id"));
-				projectC.setRemoteKey(rset.getString("rkey"));
+				projectC.setNom(rset.getString(SQLSettings.TABLES.getProject().getName()));
+				projectC.setId(rset.getInt(SQLSettings.TABLES.getProject().getId()));
+				projectC.setRemoteKey(rset.getString(SQLSettings.TABLES.getProject().getRkey()));
 			}
 		
 			
@@ -235,7 +235,8 @@ public class MySQLProjectDAO implements ProjectDAO {
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update Project set name='"+name+"', rkey='"+rkey+"' where id="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProject().TNAME+" set "+SQLSettings.TABLES.getProject().getName()+"='"+name+"', "+SQLSettings.TABLES.getProject().getRkey()+"='"+rkey+"' where " +
+					""+SQLSettings.TABLES.getProject().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
