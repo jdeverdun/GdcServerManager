@@ -55,8 +55,13 @@ public class DicomEncryptWorker extends DaemonWorker {
 			addEntryToDB(dicomFile.getFileName(),"DicomImage");
 			
 			
-		} catch (GeneralSecurityException | IOException e) {
-			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
+		} catch (Exception e) {
+			// Si le cryptage ne reussi pas je supprime le fichier
+			try {
+				Files.deleteIfExists(dicomFile);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		

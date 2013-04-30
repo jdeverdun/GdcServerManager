@@ -767,7 +767,7 @@ public class MainWindow extends JFrame {
 							  "Folder creation",
 							  "Folder name ?",
 							  JOptionPane.QUESTION_MESSAGE);
-					if(!response.equals("")){
+					if(response!=null && !response.equals("")){
 						File fi = new File(getFileTreeLocal().getCurrentDir() + "/" + response);
 						if(!fi.exists()){
 							fi.mkdir();
@@ -786,6 +786,9 @@ public class MainWindow extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					if(getFileTreeWork().getCurrentDir().getAbsolutePath().equals(SystemSettings.SERVER_INFO.getServerDir().toString())){
+						return;
+					}
 					setLock(true);
 					String response = JOptionPane.showInputDialog(null,
 							  "Folder creation",

@@ -6,8 +6,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+
+import model.AcquisitionDate;
 
 import daemon.DBCache;
 
@@ -207,6 +212,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				// si on est bien sur une requete portant sur les donnees
 				if(type!=-1){
 					File file = buildPathFromIdList(customFields,type);
+					System.out.println(file.getAbsolutePath());
 					for(String n:indices.keySet()){
 						resultats.get(n).add(new String[]{rset.getString(indices.get(n)),file.getAbsolutePath()});
 					}
@@ -367,7 +373,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 								patient = rset.getString(i);
 								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
 							case "item2":
-								acqdate = rset.getString(i);
+								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
 								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
 							case "item3":
 								protocol = rset.getString(i);
@@ -498,7 +504,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 								patient = rset.getString(i);
 								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
 							case "item2":
-								acqdate = rset.getString(i);
+								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
 								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
 							case "item3":
 								protocol = rset.getString(i);
@@ -611,7 +617,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 								patient = rset.getString(i);
 								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
 							case "item2":
-								acqdate = rset.getString(i);
+								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
 								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
 							case "item3":
 								protocol = rset.getString(i);
@@ -705,7 +711,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 								patient = rset.getString(i);
 								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
 							case "item2":
-								acqdate = rset.getString(i);
+								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
 								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
 						}
 					}

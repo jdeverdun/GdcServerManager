@@ -27,4 +27,6 @@ public interface NiftiImageDAO {
 
 	public void removeEntry(String string, String mri_name, int id_project, int id_patient, int id_acqdate, int id_protocol,
 			int id_serie) throws SQLException; 
+	public void removeNifti(String project, String patient, String acqdate,
+			String protocol, String serie, String image) throws SQLException;
 }

@@ -83,7 +83,7 @@ public class NiftiWorker extends DaemonWorker {
 		Path protocolAcqName = path.getParent().getFileName() ;
 		Path serieName = path.getFileName();
 		
-		Path studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
+		Path studyDir = Paths.get(serverInfo.getServerDir()+"/"+serverInfo.NRI_ANALYSE_NAME + File.separator + studyName);
 		Path patientDir = Paths.get(studyDir + File.separator +  patientName);
 		Path acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
 		Path protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);

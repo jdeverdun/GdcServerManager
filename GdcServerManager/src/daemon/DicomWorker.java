@@ -124,7 +124,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 		
 		// On créé les chemins vers les répertoires
-		Path studyFolder = Paths.get(serverInfo.getDicomDir() + File.separator + studyName);
+		Path studyFolder = Paths.get(serverInfo.getServerDir()+"/"+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
 		setProjectFolder(studyFolder);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
 		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);

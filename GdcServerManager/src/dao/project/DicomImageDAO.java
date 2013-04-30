@@ -22,6 +22,9 @@ public interface DicomImageDAO {
 	public Set<DicomImage> getDicomImageForProject(int id) throws SQLException; 
 	public Set<DicomImage> getDicomImageForAcqDate(int id) throws SQLException; 
 	public Set<DicomImage> getDicomImageForProtocol(int id) throws SQLException; 
-	public Set<DicomImage> getDicomImageForSerie(int id) throws SQLException; 
+	public Set<DicomImage> getDicomImageForSerie(int id) throws SQLException;
+
+	public void removeDicom(String project, String patient, String acqdate,
+			String protocol, String serie, String image) throws SQLException; 
 	
 }

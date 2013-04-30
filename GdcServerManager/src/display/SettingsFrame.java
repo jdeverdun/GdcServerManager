@@ -63,7 +63,7 @@ public class SettingsFrame extends JFrame {
 		JButton btnSelectserverdir = new JButton(icon2);
 		serverSettingPanel.add(btnSelectserverdir, "cell 2 0");
 		tabbedPane.addTab("Converter", null, filesSettingPanel, null);
-		filesSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[][][][][][]"));
+		filesSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[][][][][][][]"));
 		
 		JLabel lblDicomDirectory = new JLabel("Dicom directory ");
 		filesSettingPanel.add(lblDicomDirectory, "cell 0 0,alignx left");
@@ -90,25 +90,38 @@ public class SettingsFrame extends JFrame {
 		filesSettingPanel.add(niftiSelectbutton, "cell 2 1");
 		
 		JLabel lblBufferDirectory = new JLabel("Buffer directory");
-		filesSettingPanel.add(lblBufferDirectory, "cell 0 2,alignx left");
+		serverSettingPanel.add(lblBufferDirectory, "cell 0 2,alignx left");
 		
 		txtBufferdir = new JTextField(SystemSettings.SERVER_INFO.getIncomingDir().toString());
-		filesSettingPanel.add(txtBufferdir, "cell 1 2,growx");
+		serverSettingPanel.add(txtBufferdir, "cell 1 2,growx");
 		txtBufferdir.setColumns(10);
 		
 		JButton btnbufferselect = new JButton(icon2);
-		filesSettingPanel.add(btnbufferselect, "cell 2 2");
+		serverSettingPanel.add(btnbufferselect, "cell 2 2");
 		
 		JLabel lblTempDirectory = new JLabel("Temp directory");
-		filesSettingPanel.add(lblTempDirectory, "cell 0 3,alignx left");
+		filesSettingPanel.add(lblTempDirectory, "cell 0 2,alignx left");
 		
 		txtTempdir = new JTextField(SystemSettings.SERVER_INFO.getTempDir().toString());
 		txtTempdir.setToolTipText("Directory for temp files.");
-		filesSettingPanel.add(txtTempdir, "cell 1 3,growx");
+		filesSettingPanel.add(txtTempdir, "cell 1 2,growx");
 		txtTempdir.setColumns(10);
 		
 		JButton btnSelecttemp = new JButton(icon2);
-		filesSettingPanel.add(btnSelecttemp, "cell 2 3");
+		filesSettingPanel.add(btnSelecttemp, "cell 2 2");
+		btnSelecttemp.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getTempDir().toString());
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int retval = fc.showOpenDialog(SettingsFrame.this);
+	            if (retval == JFileChooser.APPROVE_OPTION) {
+	            	File file = fc.getSelectedFile();
+	            	txtTempdir.setText(file.getAbsolutePath());
+	            }
+			}
+		});
 		
 		JPanel panel = new JPanel();
 		splitPane.setRightComponent(panel);
@@ -164,19 +177,6 @@ public class SettingsFrame extends JFrame {
 	            if (retval == JFileChooser.APPROVE_OPTION) {
 	            	File file = fc.getSelectedFile();
 	            	txtDicomDirectory.setText(file.getAbsolutePath());
-	            }
-			}
-		});
-		btnSelecttemp.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getTempDir().toString());
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int retval = fc.showOpenDialog(SettingsFrame.this);
-	            if (retval == JFileChooser.APPROVE_OPTION) {
-	            	File file = fc.getSelectedFile();
-	            	txtTempdir.setText(file.getAbsolutePath());
 	            }
 			}
 		});

@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Set;
@@ -114,7 +115,18 @@ public class AcquisitionDate {
 		String yyyy = date.substring(4);
 		return yyyy+"-"+MM+"-"+dd;
 	}
-	
+	public static String yyyy_MM_dd_To_yyyyMMdd(String date){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date d;
+		try {
+			d = sdf.parse(date);
+			sdf.applyPattern("yyyyMMdd");
+			return sdf.format(d);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	public static void main(String[] args){
 		AcquisitionDate ad = new AcquisitionDate();
 		ad.setDate("23062013");

@@ -29,12 +29,29 @@ import model.ServerInfo;
 
 import org.apache.commons.io.FileUtils;
 
+import dao.MySQLProjectDAO;
+import dao.ProjectDAO;
+import dao.project.AcquisitionDateDAO;
+import dao.project.DicomImageDAO;
+import dao.project.MySQLAcquisitionDateDAO;
+import dao.project.MySQLDicomImageDAO;
+import dao.project.MySQLNiftiImageDAO;
+import dao.project.MySQLPatientDAO;
+import dao.project.MySQLProtocolDAO;
+import dao.project.MySQLSerieDAO;
+import dao.project.NiftiImageDAO;
+import dao.project.PatientDAO;
+import dao.project.ProtocolDAO;
+import dao.project.SerieDAO;
+import display.MainWindow;
+
 import settings.SystemSettings;
 import settings.UserProfile;
 
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -89,7 +106,7 @@ public class FileManager {
 
     /** Main GUI container */
     private DefaultTreeModel treeModel;
-    private JFrame parentFrame;
+    private MainWindow parentFrame;
     
     /** Directory listing */
     private JTable table;
@@ -104,7 +121,7 @@ public class FileManager {
 	/** Attributs basiques **/
 	private int mode; //mode definit le fonctionnement du filemanager
 
-    public FileManager(JFrame parent,Path defdir){
+    public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
     	parentFrame = parent;
     	continueAction = true;
@@ -121,11 +138,11 @@ public class FileManager {
      * @param defdir
      * @param mode : mode de fonctionnement
      */
-    public FileManager(JFrame parent,Path defdir,int mode){
+    public FileManager(MainWindow parent,Path defdir,int mode){
     	this(parent,defdir);
     	setMode(mode);
     }
-    public FileManager(JFrame parent){
+    public FileManager(MainWindow parent){
     	setCurrentDir(new File(System.getProperty("user.home")));
     	parentFrame = parent;
     	continueAction = true;
@@ -159,7 +176,57 @@ public class FileManager {
                   }
                 }
               });
-            
+            table.addKeyListener(new KeyListener() {
+				
+				@Override
+				public void keyTyped(KeyEvent arg0) {
+					
+				}
+				
+				@Override
+				public void keyReleased(KeyEvent arg0) {
+					if(KeyEvent.VK_DELETE == arg0.getKeyCode()){
+						if(mode!=2){
+							parentFrame.setLock(true);
+							try {
+								deleteSelectedFiles();
+							} catch (IOException e) {
+								parentFrame.setLock(false);
+								JOptionPane.showMessageDialog(parentFrame,
+									    "Error during the deletion.",
+									    "Copy error",
+									    JOptionPane.ERROR_MESSAGE);
+								e.printStackTrace();
+							}
+							refresh();
+							parentFrame.setLock(false);	
+						}else{
+							if(UserProfile.CURRENT_USER.getLevel()==3){
+								int[] rows = table.getSelectedRows();
+								int[] columns = table.getSelectedColumns();
+								for(int i = 0; i<rows.length;i++){
+									if(!continueAction){
+										continueAction = true;
+										return;
+									}
+									int row = table.convertRowIndexToModel(rows[i]);
+									try {
+										deleteServerFile(row);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}	
+					}
+				}
+				
+				@Override
+				public void keyPressed(KeyEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
             table.getSelectionModel().addListSelectionListener(listSelectionListener);
             JScrollPane tableScroll = new JScrollPane(table);
             Dimension d = tableScroll.getPreferredSize();
@@ -289,7 +356,6 @@ public class FileManager {
 
 	/**
      * Supprime les fichiers / repertoire selectionnees vers 
-     * @param currentDir2
      * @throws IOException 
      */
 	public void deleteSelectedFiles() throws IOException {
@@ -313,6 +379,94 @@ public class FileManager {
 		}
 	}
 	
+	/**
+     * Supprime les fichiers / repertoire sur le serveur
+	 * @throws Exception 
+     */
+	public void deleteServerFile(int row) throws Exception {
+		File fi = ((FileTableModel)table.getModel()).getFile(row);
+		String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return;
+		if(!fi.getName().contains("..")){
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}else{
+					throw new Exception("Error with file path structure.");
+				}
+			}
+			String project = null;
+			String patient = null;
+			String acqdate = null;
+			String protocol = null;
+			String serie = null;
+			String image = null;
+			switch(count){
+			/*case 1:// on delete un projet complet
+				project = parts[serverdirlen];
+				ProjectDAO pdao = new MySQLProjectDAO();
+				pdao.removeProject(project);
+				break;
+			case 2: // delete d'un patient
+				project = parts[serverdirlen];
+				patient = parts[serverdirlen+1];
+				PatientDAO patdao = new MySQLPatientDAO();
+				patdao.removePatient(project,patient);
+				break;
+			case 3://acqdate
+				project = parts[serverdirlen];
+				patient = parts[serverdirlen+1];
+				acqdate = parts[serverdirlen+2];
+				AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
+				adao.removeAcqDate(project,patient,acqdate);
+				break;
+			case 4://protocol
+				project = parts[serverdirlen];
+				patient = parts[serverdirlen+1];
+				acqdate = parts[serverdirlen+2];
+				protocol = parts[serverdirlen+3];
+				ProtocolDAO prdao = new MySQLProtocolDAO();
+				prdao.removeProtocol(project,patient,acqdate,protocol);
+				break;
+			case 5://serie
+				project = parts[serverdirlen];
+				patient = parts[serverdirlen+1];
+				acqdate = parts[serverdirlen+2];
+				protocol = parts[serverdirlen+3];
+				serie = parts[serverdirlen+4];
+				SerieDAO sdao = new MySQLSerieDAO();
+				sdao.removeSerie(project,patient,acqdate,protocol,serie);
+				break;*/
+			case 6://Image
+				project = parts[serverdirlen];
+				patient = parts[serverdirlen+1];
+				acqdate = parts[serverdirlen+2];
+				protocol = parts[serverdirlen+3];
+				serie = parts[serverdirlen+4];
+				image = parts[serverdirlen+5];
+				image = image.substring(0, image.length()-4);
+				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
+				case ServerInfo.NRI_DICOM_NAME:
+					DicomImageDAO ddao = new MySQLDicomImageDAO();
+					ddao.removeDicom(project,patient,acqdate,protocol,serie,image);
+					break;
+				case ServerInfo.NRI_ANALYSE_NAME:
+					NiftiImageDAO ndao = new MySQLNiftiImageDAO();
+					ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
+					break;
+				}
+				
+				break;
+			}
+			if(fi.isDirectory())
+				FileUtils.deleteQuietly(fi);
+			else
+				fi.delete();
+		}
+	}
 	/**
      * Deplace les fichiers / repertoire selectionnees vers le dossier dir
      * et decrypte
