@@ -216,7 +216,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				// si on est bien sur une requete portant sur les donnees
 				if(type!=-1){
 					File file = buildPathFromIdList(customFields,type);
-					System.out.println(file.getAbsolutePath());
 					for(String n:indices.keySet()){
 						resultats.get(n).add(new String[]{rset.getString(indices.get(n)),file.getAbsolutePath()});
 					}
@@ -959,9 +958,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			from += ", "+tab.getProject().TNAME+opt;
 			if(!project.equals("")){
 				if(where.equals(" where "))
-					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+"='"+project+"'";
+					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
 				else
-					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+"='"+project+"'";
+					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
 				whereopt= " and ";
 			}
 			// selon la table qu'on recupere (dicom ou nifti)
@@ -977,9 +976,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			from += ", "+tab.getPatient().TNAME+opt;
 			if(!patient.equals("")){
 				if(where.equals(" where "))
-					where += tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+"='"+patient+"'";
+					where += tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
 				else
-					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+"='"+patient+"'";
+					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
 			}
 			switch(imagetype){
 			case DICOM:
@@ -1018,9 +1017,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			from += ", "+tab.getProtocol().TNAME+opt;
 			if(!protocol.equals("")){
 				if(where.equals(" where "))
-					where += tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+"='"+protocol+"'";
+					where += tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
 				else
-					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+"='"+protocol+"'";
+					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
 			}
 			switch(imagetype){
 			case DICOM:
@@ -1035,9 +1034,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			from += ", "+tab.getSerie().TNAME+opt;
 			if(!serie.equals("")){
 				if(where.equals(" where "))
-					where += tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+"="+serie;
+					where += tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+" regexp '"+serie+"'";
 				else
-					where += " and "+tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+"="+serie;
+					where += " and "+tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+" regexp '"+serie+"'";
 			}
 			switch(imagetype){
 			case DICOM:
@@ -1047,7 +1046,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			
 			// ----------- REQUETE -------------
-			System.out.println(select+" "+from+" "+where);
 			rset = stmt.executeQuery(select+" "+from+" "+where);
 
 			
@@ -1070,7 +1068,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				File file = null;
 				String projname = rset.getString(tab.getProject().TNAME);
 				String patname = rset.getString(tab.getPatient().TNAME);
-				String date = rset.getString(tab.getAcquisitionDate().TNAME);
+				String date = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(tab.getAcquisitionDate().TNAME));
 				String protname = rset.getString(tab.getProtocol().TNAME);
 				String sname = rset.getString(tab.getSerie().TNAME);
 				switch(imagetype){

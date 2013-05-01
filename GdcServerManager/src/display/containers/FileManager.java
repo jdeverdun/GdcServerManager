@@ -506,7 +506,7 @@ public class FileManager {
 	 * @param fi
 	 * @param dir
 	 */
-	private void copyAndDecrypt(File fi, File dir) {
+	public static void copyAndDecrypt(File fi, File dir) {
 		if(fi.isDirectory()){
 			File ndir = new File(dir.getAbsolutePath()+ "/" + fi.getName());
 			ndir.mkdir();

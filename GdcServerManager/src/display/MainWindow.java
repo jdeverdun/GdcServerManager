@@ -33,8 +33,10 @@ import daemon.NiftiDaemon;
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
+import dao.MySQLUserProjectDAO;
 import dao.MySQLUserViewDAO;
 import dao.UserDAO;
+import dao.UserProjectDAO;
 import dao.UserViewDAO;
 import display.containers.DeleteUserPanel;
 import display.containers.DicomSortConvertPanel;
@@ -71,6 +73,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
@@ -381,6 +384,12 @@ public class MainWindow extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					UserProjectDAO pdao = new MySQLUserProjectDAO();
+					try {
+						UserProfile.CURRENT_USER.setProjects(pdao.getProjectsForUser(UserProfile.CURRENT_USER.getId()));
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
 					getFileTreeDist().refresh();
 					getFileTreeLocal().refresh();
 					getFileTreeWork().refresh();

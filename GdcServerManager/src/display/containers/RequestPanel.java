@@ -5,11 +5,19 @@ import javax.swing.JPanel;
 import model.Project;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.DropMode;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.JTable;
@@ -17,6 +25,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextField;
+
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,17 +35,22 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXDatePicker;
 
 import dao.GenericRequestDAO;
@@ -44,6 +59,7 @@ import dao.MySQLGenericRequestDAO;
 import settings.SQLSettings;
 import settings.SystemSettings;
 import settings.UserProfile;
+import settings.WindowManager;
 import settings.sql.DBTables;
 
 import javax.swing.UIManager;
@@ -59,6 +75,8 @@ public class RequestPanel extends JPanel {
 	private static final String DEFAULT_BEGIN_DATE = "From";
 	private static final String DEFAULT_END_DATE = "To";
 	public static enum IMAGE_TYPE{DICOM,NIFTI};
+	private boolean islock;// a t'on lock l'affichage
+	private boolean continueAction;
 	private JSplitPane splitPane;
 	private JTable table;
 	private JTextField txtPutCustomSql;
@@ -73,12 +91,16 @@ public class RequestPanel extends JPanel {
 	private JLabel lblError;
 	private JTextField textSerie;
 	private JComboBox comboBoxImageType;
+	private ProgressPanel progressPanel;
+	private JPopupMenu Pmenu;
+	private JMenuItem Mitem;
 	
 	public RequestPanel() {
 		if(UserProfile.CURRENT_USER.getLevel()==0)
 			return;
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
-		
+		islock=false;
+		continueAction=true;
 		splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		add(splitPane, "cell 0 0,grow");
@@ -87,7 +109,7 @@ public class RequestPanel extends JPanel {
 		JPanel requestFieldpanel = new JPanel();
 		requestFieldpanel.setBorder(new TitledBorder(null, "Request", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		splitPane.setLeftComponent(requestFieldpanel);
-		requestFieldpanel.setLayout(new MigLayout("", "[][][73.00][][][][grow][grow]", "[][][][][][213.00]"));
+		requestFieldpanel.setLayout(new MigLayout("", "[][][73.00][][][][grow][grow]", "[][][][][][][213.00][]"));
 		
 		// on recupere la liste des projets en string en laissant une case vide au debut
 		String[] projects = new String[UserProfile.CURRENT_USER.getProjects().size()+1];
@@ -103,13 +125,18 @@ public class RequestPanel extends JPanel {
 		txtPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		requestFieldpanel.add(txtPatient, "cell 1 1,growx");
 		txtPatient.setColumns(10);
+		//------ Menu -------
+		Pmenu = new JPopupMenu();
+		Mitem = new JMenuItem("Import");
+		Pmenu.add(Mitem);
+
 		
+		// --------
 		textSerie = new JTextField();
 		textSerie.setText(DEFAULT_SERIE_TEXT);
 		textSerie.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		textSerie.setColumns(10);
 		requestFieldpanel.add(textSerie, "cell 3 1,growx");
-
 		pickerDateBegin = new JXDatePicker();
 		pickerDateBegin.getEditor().setFont(new Font("Tahoma", Font.ITALIC, 11));
 		pickerDateBegin.getEditor().setBorder(UIManager.getBorder("TextField.border"));
@@ -155,7 +182,11 @@ public class RequestPanel extends JPanel {
 		lblError = new JLabel("none");
 		lblError.setForeground(Color.RED);
 		lblError.setVisible(false);
-		requestFieldpanel.add(lblError, "cell 0 5 6 1,growx");
+		requestFieldpanel.add(lblError, "cell 0 6 6 1,growx");
+		progressPanel = new ProgressPanel();
+		progressPanel.setPreferredSize(new Dimension(160, 10));
+		progressPanel.setVisible(false);
+		requestFieldpanel.add(progressPanel, "cell 0 7");
 		
 		
 		table = new JTable();
@@ -257,7 +288,125 @@ public class RequestPanel extends JPanel {
 				
 			}
 		});
-		
+		Mitem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser = new JFileChooser(); 
+			    chooser.setCurrentDirectory(new java.io.File("."));
+			    chooser.setDialogTitle("Select directory destination for import");
+			    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			    chooser.setAcceptAllFileFilterUsed(false);
+			    //    
+			    if (chooser.showOpenDialog(RequestPanel.this) == JFileChooser.APPROVE_OPTION) { 
+			    	System.out.println("getCurrentDirectory(): " 
+			    			+  chooser.getCurrentDirectory());
+			    	System.out.println("getSelectedFile() : " 
+			    			+  chooser.getSelectedFile());
+			    }else {
+			    	System.out.println("No Selection ");
+			    }
+			    final File dirsave = chooser.getSelectedFile();
+			    final File[] selectedFiles = new File[table.getSelectedRowCount()];
+			    int[] indices = table.getSelectedRows();
+				for(int i = 0; i < indices.length; i++){
+					int row = table.convertRowIndexToModel(indices[i]);
+					selectedFiles[i] = getRqModel().getFileAt(row);
+				}
+				
+				// on copie
+				setLock(true);
+				final WaitingBarPanel ppanel = new WaitingBarPanel(RequestPanel.this); // mode creation de liens
+				final String title = "Import & Decrypt ...";
+				ppanel.setTitle(title);
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(RequestPanel.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread copyThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						for(File fi:selectedFiles){
+							if(!continueAction){
+								continueAction = true;
+								return;
+							}
+							if(!fi.getName().contains("..")){
+								FileManager.copyAndDecrypt(fi, dirsave);
+							}
+						}
+						while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						continueAction = true;
+						SystemSettings.DECRYPT_DAEMON.cleanList();
+						popup.hide();
+						setLock(false);
+					}
+					
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(copyThread);
+				popup.show();
+				
+				copyThread.start();	
+				
+				// On attend que tout se termine
+				Thread updateStatusThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(islock){
+							ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				updateStatusThread.start();
+				
+			}
+		});
+		table.addMouseListener(new MouseListener(){
+			public void mouseReleased(MouseEvent Me){
+				if(Me.isPopupTrigger() && table.getSelectedRowCount()>0){
+					Pmenu.show(Me.getComponent(), Me.getX(), Me.getY());
+				}
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		pickerDateEnd.getEditor().addFocusListener(new FocusListener() {
 			
 			
@@ -286,116 +435,142 @@ public class RequestPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setWarning("");
-				if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
-					// On execute la requete custom
-					GenericRequestDAO greq = new MySQLGenericRequestDAO();
-					try {
-						HashMap<String,ArrayList<String[]>> results = greq.executeSelect(txtPutCustomSql.getText());
-						if(results.isEmpty()){
-							getRqModel().setColumns(new String[]{"Nothing"});
-							getRqModel().setData(new Object[][]{{"No results found"}});
-							getRqModel().fireTableStructureChanged();
-							return;
-						}
-						getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
-						Object[][] data = null;
-						int count = 0;
-						File[] files = null;
-						for(String header:results.keySet()){
-							if(data==null){
-								data = new Object[results.get(header).size()][results.keySet().size()];
-								files = new File[results.keySet().size()];
+				setLock(true);
+				progressPanel.setVisible(true);
+				SwingUtilities.invokeLater(new Runnable(){
+					public void run(){
+						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
+							// On execute la requete custom
+							GenericRequestDAO greq = new MySQLGenericRequestDAO();
+							try {
+								HashMap<String,ArrayList<String[]>> results = greq.executeSelect(txtPutCustomSql.getText());
+								if(results.isEmpty()){
+									getRqModel().setColumns(new String[]{"Nothing"});
+									getRqModel().setData(new Object[][]{{"No results found"}});
+									getRqModel().fireTableStructureChanged();
+									setLock(false);
+									progressPanel.setVisible(false);
+									return;
+								}
+								getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
+								Object[][] data = null;
+								int count = 0;
+								File[] files = null;
+								for(String header:results.keySet()){
+									if(data==null){
+										data = new Object[results.get(header).size()][results.keySet().size()];
+										files = new File[results.get(header).size()];
+									}
+									ArrayList<String[]> cres = results.get(header);
+									for(int j = 0; j < cres.size(); j++){
+										data[j][count] =  cres.get(j)[0];
+										if(cres.get(j)[1]!=null)
+											files[j] = new File(cres.get(j)[1]);
+										else
+											files[j] = null;
+									}
+									count++;
+								}
+								getRqModel().setData(data);
+								getRqModel().setFiles(files);
+							} catch (SQLException e) {
+								e.printStackTrace();
+								setWarning("SQL Error : "+e.toString());
+							} catch (exceptions.IllegalSQLRequest e) {
+								e.printStackTrace();
+								setWarning("Unsupported SQL command : "+e.toString());
 							}
-							ArrayList<String[]> cres = results.get(header);
-							for(int j = 0; j < cres.size(); j++){
-								data[j][count] =  cres.get(j)[0];
-								if(cres.get(j)[1]!=null)
-									files[count] = new File(cres.get(j)[1]);
-								else
-									files[count] = null;
+						}else{
+							// requete 
+							GenericRequestDAO greq = new MySQLGenericRequestDAO();
+							String begin="";
+							String end="";
+							if(pickerDateBegin.getEditor().getText().equals(DEFAULT_BEGIN_DATE) || pickerDateBegin.getEditor().getText().equals("")){
+								begin = "";
+							}else{
+								String[] begina = pickerDateBegin.getEditor().getText().split("-");
+								begin = begina[2]+begina[1]+begina[0];
 							}
-							count++;
-						}
-						getRqModel().setData(data);
-						getRqModel().setFiles(files);
-					} catch (SQLException e) {
-						e.printStackTrace();
-						setWarning("SQL Error : "+e.toString());
-					} catch (exceptions.IllegalSQLRequest e) {
-						e.printStackTrace();
-						setWarning("Unsupported SQL command : "+e.toString());
-					}
-				}else{
-					// requete 
-					GenericRequestDAO greq = new MySQLGenericRequestDAO();
-					String begin="";
-					String end="";
-					if(pickerDateBegin.getEditor().getText().equals(DEFAULT_BEGIN_DATE) || pickerDateBegin.getEditor().getText().equals("")){
-						begin = "";
-					}else{
-						String[] begina = pickerDateBegin.getEditor().getText().split("-");
-						begin = begina[2]+begina[1]+begina[0];
-					}
-					if(pickerDateEnd.getEditor().getText().equals(DEFAULT_END_DATE) || pickerDateEnd.getEditor().getText().equals("")){
-						end = "";
-					}else{
-						String[] enda = pickerDateEnd.getEditor().getText().split("-");
-						end = enda[2]+enda[1]+enda[0];
-					}
-					if(!end.equals("") && !begin.equals("") && (Integer.parseInt(end)-Integer.parseInt(begin)) < 0){
-						setWarning("Begin date should be older than end date.");
-						return;
-					}
-					if(txtPatient.getText().equals(DEFAULT_PATIENT_TEXT))
-						txtPatient.setText("");
-					if(txtProtocol.getText().equals(DEFAULT_PROTOCOL_TEXT))
-						txtProtocol.setText("");
-					if(textSerie.getText().equals(DEFAULT_SERIE_TEXT))
-						textSerie.setText("");
-					try {
-						HashMap<String,ArrayList<String[]>> results = greq.executeFromRequestPanel((String)projectComboBox.getSelectedItem(),txtPatient.getText(),txtProtocol.getText(),textSerie.getText(),begin,end,(IMAGE_TYPE)comboBoxImageType.getSelectedItem());
-						if(results.isEmpty()){
-							getRqModel().setColumns(new String[]{"Nothing"});
-							getRqModel().setData(new Object[][]{{"No results found"}});
-							getRqModel().fireTableStructureChanged();
-							return;
-						}
-						DBTables tab = SQLSettings.TABLES;
-						String[] headerarray = new String[]{tab.getProject().TNAME,tab.getPatient().TNAME,tab.getAcquisitionDate().TNAME,tab.getProtocol().TNAME,tab.getSerie().TNAME};
-						getRqModel().setColumns(headerarray);//results.keySet().toArray(new String[results.keySet().size()]));
-						Object[][] data = null;
-						int count = 0;
-						File[] files = null;
-						for(String header:headerarray){
-							if(data==null){
-								data = new Object[results.get(header).size()][results.keySet().size()];
-								files = new File[results.keySet().size()];
+							if(pickerDateEnd.getEditor().getText().equals(DEFAULT_END_DATE) || pickerDateEnd.getEditor().getText().equals("")){
+								end = "";
+							}else{
+								String[] enda = pickerDateEnd.getEditor().getText().split("-");
+								end = enda[2]+enda[1]+enda[0];
 							}
-							ArrayList<String[]> cres = results.get(header);
-							for(int j = 0; j < cres.size(); j++){
-								data[j][count] =  cres.get(j)[0];
-								if(cres.get(j)[1]!=null)
-									files[count] = new File(cres.get(j)[1]);
-								else
-									files[count] = null;
+							if(!end.equals("") && !begin.equals("") && (Integer.parseInt(end)-Integer.parseInt(begin)) < 0){
+								setWarning("Begin date should be older than end date.");
+								return;
 							}
-							count++;
+							if(txtPatient.getText().equals(DEFAULT_PATIENT_TEXT))
+								txtPatient.setText("");
+							if(txtProtocol.getText().equals(DEFAULT_PROTOCOL_TEXT))
+								txtProtocol.setText("");
+							if(textSerie.getText().equals(DEFAULT_SERIE_TEXT))
+								textSerie.setText("");
+							try {
+								HashMap<String,ArrayList<String[]>> results = greq.executeFromRequestPanel((String)projectComboBox.getSelectedItem(),txtPatient.getText(),txtProtocol.getText(),textSerie.getText(),begin,end,(IMAGE_TYPE)comboBoxImageType.getSelectedItem());
+								if(results.isEmpty()){
+									getRqModel().setColumns(new String[]{"Nothing"});
+									getRqModel().setData(new Object[][]{{"No results found"}});
+									getRqModel().fireTableStructureChanged();
+									setLock(false);
+									progressPanel.setVisible(false);
+									return;
+								}
+								DBTables tab = SQLSettings.TABLES;
+								String[] headerarray = new String[]{tab.getProject().TNAME,tab.getPatient().TNAME,tab.getAcquisitionDate().TNAME,tab.getProtocol().TNAME,tab.getSerie().TNAME};
+								getRqModel().setColumns(headerarray);//results.keySet().toArray(new String[results.keySet().size()]));
+								Object[][] data = null;
+								int count = 0;
+								File[] files = null;
+								for(String header:headerarray){
+									if(data==null){
+										data = new Object[results.get(header).size()][results.keySet().size()];
+										files = new File[results.get(header).size()];
+									}
+									ArrayList<String[]> cres = results.get(header);
+									for(int j = 0; j < cres.size(); j++){
+										data[j][count] =  cres.get(j)[0];
+										if(cres.get(j)[1]!=null)
+											files[j] = new File(cres.get(j)[1]);
+										else
+											files[j] = null;
+									}
+									count++;
+								}
+								getRqModel().setData(data);
+								getRqModel().setFiles(files);
+								txtPatient.setText(DEFAULT_PATIENT_TEXT);
+								txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
+								textSerie.setText(DEFAULT_SERIE_TEXT);
+							} catch (SQLException e) {
+								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
+								e.printStackTrace();
+							}
 						}
-						getRqModel().setData(data);
-						getRqModel().setFiles(files);
-						txtPatient.setText(DEFAULT_PATIENT_TEXT);
-						txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
-						textSerie.setText(DEFAULT_SERIE_TEXT);
-					} catch (SQLException e) {
-						setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
-						e.printStackTrace();
+						setLock(false);
+						progressPanel.setVisible(false);
+						getRqModel().fireTableStructureChanged();
 					}
-				}
-				getRqModel().fireTableStructureChanged();
+				});
 			}
 		});
 	}
 
+	public void setLock(boolean b){
+		btnExecute.setEnabled(!b);
+		table.setEnabled(!b);
+		txtPatient.setEnabled(!b);
+		txtProtocol.setEnabled(!b);
+		txtPutCustomSql.setEnabled(!b);
+		textSerie.setEnabled(!b);
+		comboBoxImageType.setEnabled(!b);
+		projectComboBox.setEnabled(!b);
+		btnCancel.setEnabled(b);
+		pickerDateBegin.setEnabled(!b);
+		pickerDateEnd.setEnabled(!b);
+		islock=b;
+	}
 	public RequestTableModel getRqModel() {
 		return rqModel;
 	}
@@ -413,16 +588,21 @@ public class RequestPanel extends JPanel {
 			lblError.setVisible(true);
 		}
 	}
+
+	public void terminateAction() {
+		continueAction = false;
+		setLock(false);
+	}
 }
 
 
 
 class RequestTableModel extends AbstractTableModel {
 	private File[] files;
-	private static final String[] DEFAULT_COLUMN_NAME =  {"Project", "Patient", "Date", "Protocol", "Serie", "Image"};
-	private String[] columnNames = {"Project", "Patient", "Date", "Protocol", "Serie", "Image"};
+	private static final String[] DEFAULT_COLUMN_NAME =  {"Project", "Patient", "Date", "Protocol", "Serie"};
+	private String[] columnNames = {"Project", "Patient", "AcquisitionDate", "Protocol", "Serie"};
     private Object[][] data = {
-    {"Crescendo", "30255", "23121980", "ASL", "ASL_PERFUSION", "machine_ASL.nii"}
+    {"", "", "", "", ""}
     };
 
     public int getColumnCount() {
@@ -444,6 +624,9 @@ class RequestTableModel extends AbstractTableModel {
         return columnNames[col];
     }
 
+    public File getFileAt(int row){
+    	return files[row];
+    }
     public Object getValueAt(int row, int col) {
         return data[row][col];
     }

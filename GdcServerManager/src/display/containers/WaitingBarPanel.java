@@ -20,11 +20,16 @@ public class WaitingBarPanel extends JPanel{
 	private Popup popup;
 	private Thread runningThread;
 	private FileManager filetree; // celui qui tourne dans le thread
-	
+	private RequestPanel rpanel;
 	
 	public WaitingBarPanel(FileManager fileManager){
 		this();
 		setFiletree(fileManager);
+	}
+	public WaitingBarPanel(RequestPanel rq){
+		this();
+		filetree=null;
+		rpanel = rq;
 	}
 	public WaitingBarPanel(){
 		
@@ -45,8 +50,13 @@ public class WaitingBarPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				getPopup().hide();
-				getFiletree().terminateAction();
-				WindowManager.MAINWINDOW.setLock(false);
+				if(getFiletree()!=null){
+					getFiletree().terminateAction();
+					WindowManager.MAINWINDOW.setLock(false);
+				}
+				if(rpanel!=null){
+					rpanel.terminateAction();
+				}
 			}
 		});
 	}
