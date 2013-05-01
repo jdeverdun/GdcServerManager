@@ -35,5 +35,11 @@ public interface SerieDAO {
 	public Set<Serie> getSerieForAcqDate(int id) throws SQLException; 
 	public Set<Serie> getSerieForProtocol(int id) throws SQLException;
 
+	void removeSerie(String project, String patient, String acqdate,
+			String protocol, String serie) throws SQLException;
+
+	String getSerieIdFor(String project, String patient, String acqdate,
+			String protocol, String serie) throws SQLException;
+
 	
 }

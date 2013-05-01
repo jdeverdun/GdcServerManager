@@ -29,4 +29,7 @@ public interface NiftiImageDAO {
 			int id_serie) throws SQLException; 
 	public void removeNifti(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException;
+	public String getNiftiIdFor(String project, String patient, String acqdate,
+			String protocol, String serie, String image) throws SQLException;
+
 }

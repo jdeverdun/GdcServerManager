@@ -12,6 +12,9 @@ import java.util.Set;
 
 import settings.SQLSettings;
 import settings.UserProfile;
+import settings.sql.DBTables;
+import settings.sql.tables.NiftiImageTable;
+import settings.sql.tables.SerieTable;
 
 
 import model.Serie;
@@ -351,4 +354,84 @@ public class MySQLSerieDAO implements SerieDAO{
 		}
 	}
 
+	/**
+	 * Supprime une entree serie via ses noms de serie, patient etc
+	 */
+	@Override
+	public void removeSerie(String project, String patient, String acqdate,
+			String protocol, String serie) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			SerieTable nt = tab.getSerie();
+			// id
+			String id = getSerieIdFor(project, patient, acqdate, protocol, serie);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"=" +id);
+			
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	@Override
+	/**
+	 * Permet de recuperer les id associés a une serie de noms de projets etc
+	 * utilisable que par un admin
+	 * @param project
+	 * @param patient
+	 * @param acqdate
+	 * @param protocol
+	 * @param serie
+	 * @throws SQLException
+	 */
+	public String getSerieIdFor(String project, String patient, String acqdate,
+			String protocol, String serie) throws SQLException {
+		String idr = null; 
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			DBTables tab = SQLSettings.TABLES;
+			SerieTable nt = tab.getSerie();
+			rset = stmt.executeQuery("select "+nt.TNAME+"."+nt.getId()+" from "+nt.TNAME+", "+tab.getProtocol().TNAME+", "+tab.getAcquisitionDate().TNAME+", " +
+					""+tab.getPatient().TNAME+", "+tab.getProject().TNAME+" where "+nt.TNAME+"."+nt.getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId()+" and "+
+					""+nt.TNAME+"."+nt.getId_protocol()+"="+tab.getProtocol().TNAME+"."+tab.getProtocol().getId()+" and " +
+					""+nt.TNAME+"."+nt.getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getId()+" and " +
+					"" +nt.TNAME+"."+nt.getId_patient()+"="+tab.getPatient().TNAME+"."+tab.getPatient().getId()+" and " +
+					""+tab.getProject().TNAME+"."+tab.getProject().getName()+"='"+project+"' and "
+					+tab.getPatient().TNAME+"."+tab.getPatient().getName()+"='"+patient+"' and " +
+					""+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getDate()+"="+acqdate+" and " +
+					""+tab.getProtocol().TNAME+"."+tab.getProtocol().getName()+"='"+protocol+"' and " +
+					""+tab.getSerie().TNAME+"."+tab.getSerie().getName()+"='"+serie+"'");
+			
+			// boucle sur les resultats de la requÃªte
+			while (rset.next()) {
+				idr = rset.getString(1);	
+			}
+			return idr;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
 }

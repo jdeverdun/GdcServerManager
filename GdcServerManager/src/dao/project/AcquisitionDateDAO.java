@@ -37,6 +37,14 @@ public interface AcquisitionDateDAO {
 	public Set<AcquisitionDate> getAcqDateForProject(int id) throws SQLException;
 
 
+	void removeAcqdate(String project, String patient, String acqdate)
+			throws SQLException;
+
+
+	String getAcqdateIdFor(String project, String patient, String acqdate)
+			throws SQLException;
+
+
 
 
 }

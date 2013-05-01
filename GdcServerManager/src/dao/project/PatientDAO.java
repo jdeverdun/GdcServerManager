@@ -62,5 +62,10 @@ public interface PatientDAO {
 
       public Set<Patient> getPatientsForProject(int project_id)  throws SQLException;
 
+	void removePatient(String project, String patient) throws SQLException;
+
+	String getPatientIdFor(String project, String patient)
+			throws SQLException;
+
 	
 }

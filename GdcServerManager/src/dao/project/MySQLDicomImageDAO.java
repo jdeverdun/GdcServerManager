@@ -359,6 +359,9 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 
 
 
+	/**
+	 * Supprime une entree dicom via ses noms de serie, patient etc
+	 */
 	@Override
 	public void removeDicom(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException {
@@ -374,9 +377,43 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			 */
 			DBTables tab = SQLSettings.TABLES;
 			DicomImageTable nt = tab.getDicomImage();
-// ------------- FAIRE 2 REQUETES AU LIEU D'UNE SEULE ! -------
-			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"in (" +
-					"select "+nt.getId()+" from (select "+nt.TNAME+"."+nt.getId()+" from "+nt.TNAME+", " +
+			// id
+			String id = getDicomIdFor(project, patient, acqdate, protocol, serie, image);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+" = " +id);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	/**
+	 * Permet de recuperer les id associés a une serie de noms de projets etc
+	 * utilisable que par un admin
+	 * @param project
+	 * @param patient
+	 * @param acqdate
+	 * @param protocol
+	 * @param serie
+	 * @param image
+	 * @throws SQLException
+	 */
+	public String getDicomIdFor(String project, String patient, String acqdate,
+			String protocol, String serie, String image) throws SQLException {
+		String idr = null; 
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			DBTables tab = SQLSettings.TABLES;
+			DicomImageTable nt = tab.getDicomImage();
+			rset = stmt.executeQuery("select "+nt.TNAME+"."+nt.getId()+" from "+nt.TNAME+", " +
 					""+tab.getSerie().TNAME+", "+tab.getProtocol().TNAME+", "+tab.getAcquisitionDate().TNAME+", " +
 					""+tab.getPatient().TNAME+", "+tab.getProject().TNAME+" where "+nt.TNAME+"."+nt.getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId()+" and "+
 					""+nt.TNAME+"."+nt.getId_serie()+"="+tab.getSerie().TNAME+"."+tab.getSerie().getId()+" and " +
@@ -388,14 +425,21 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 					""+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getDate()+"="+acqdate+" and " +
 					""+tab.getProtocol().TNAME+"."+tab.getProtocol().getName()+"='"+protocol+"' and " +
 					""+tab.getSerie().TNAME+"."+tab.getSerie().getName()+"='"+serie+"' and " +
-					""+nt.TNAME+"."+nt.getName()+"='"+image+"') as tmp)");
-			return;
-		} catch (SQLException e2) {
-			e2.printStackTrace();
-			throw e2;
+					""+nt.TNAME+"."+nt.getName()+"='"+image+"'");
+			
+			// boucle sur les resultats de la requÃªte
+			while (rset.next()) {
+				idr = rset.getString(1);	
+			}
+			return idr;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
 		} finally {
+			rset.close();
 			stmt.close();
 			connection.close();
 		}
 	}
+
 }

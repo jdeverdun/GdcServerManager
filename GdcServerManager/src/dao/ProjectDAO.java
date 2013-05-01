@@ -35,6 +35,8 @@ public interface ProjectDAO {
 
       public Project retrieveProject(String name)  throws SQLException;
 
+	void removeProject(String project) throws SQLException;
+
 	
 
 }

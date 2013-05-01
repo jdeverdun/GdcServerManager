@@ -162,13 +162,11 @@ public class FileManager {
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             table.setAutoCreateRowSorter(true);
             table.setShowVerticalLines(false);
-
             table.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
-                  if (e.getClickCount() == 2) {
-                    Point p = e.getPoint();
-         
-                    int row = table.convertRowIndexToModel(table.rowAtPoint(p));
+                  if (e.getClickCount() >= 2) {
+                  	Point p = e.getPoint();
+                  	int row = table.convertRowIndexToModel(table.rowAtPoint(p));
                     int column = table.convertColumnIndexToModel(table.columnAtPoint(p));
                     if (row >= 0 && column >= 0) {
                       mouseDblClicked(row, column);
@@ -202,6 +200,7 @@ public class FileManager {
 							parentFrame.setLock(false);	
 						}else{
 							if(UserProfile.CURRENT_USER.getLevel()==3){
+								parentFrame.setLock(true);
 								int[] rows = table.getSelectedRows();
 								int[] columns = table.getSelectedColumns();
 								for(int i = 0; i<rows.length;i++){
@@ -216,6 +215,8 @@ public class FileManager {
 										e.printStackTrace();
 									}
 								}
+								refresh();
+								parentFrame.setLock(false);
 							}
 						}	
 					}
@@ -405,7 +406,7 @@ public class FileManager {
 			String serie = null;
 			String image = null;
 			switch(count){
-			/*case 1:// on delete un projet complet
+			case 1:// on delete un projet complet
 				project = parts[serverdirlen];
 				ProjectDAO pdao = new MySQLProjectDAO();
 				pdao.removeProject(project);
@@ -421,7 +422,7 @@ public class FileManager {
 				patient = parts[serverdirlen+1];
 				acqdate = parts[serverdirlen+2];
 				AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
-				adao.removeAcqDate(project,patient,acqdate);
+				adao.removeAcqdate(project,patient,acqdate);
 				break;
 			case 4://protocol
 				project = parts[serverdirlen];
@@ -439,7 +440,7 @@ public class FileManager {
 				serie = parts[serverdirlen+4];
 				SerieDAO sdao = new MySQLSerieDAO();
 				sdao.removeSerie(project,patient,acqdate,protocol,serie);
-				break;*/
+				break;
 			case 6://Image
 				project = parts[serverdirlen];
 				patient = parts[serverdirlen+1];
