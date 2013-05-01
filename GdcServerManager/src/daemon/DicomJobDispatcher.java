@@ -1,6 +1,7 @@
 package daemon;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import settings.SystemSettings;
 
@@ -30,7 +32,7 @@ public class DicomJobDispatcher extends Thread{
 	
 	private DicomDaemon dicomDaemon;
 	private ServerInfo serverInfo;
-	private LinkedList<Path> dicomToMove;
+	private ConcurrentLinkedQueue<Path> dicomToMove;
 	private int numberOfRuns; // nombre de threads qui ont été lancé
 	private int maxWorker; // nombre de coeurs disponibles [obsolete]
 	private DicomWorker dworker;
@@ -42,7 +44,7 @@ public class DicomJobDispatcher extends Thread{
 
 
 	public DicomJobDispatcher(DicomDaemon dicomDaemon) {
-		dicomToMove = new LinkedList<Path>();
+		dicomToMove = new ConcurrentLinkedQueue<Path>();
 		numberOfRuns = 0;
 		setDicomDaemon(dicomDaemon);
 		setSettings(new CustomConversionSettings());
@@ -60,7 +62,7 @@ public class DicomJobDispatcher extends Thread{
 	 */
 	public DicomJobDispatcher(ServerInfo si,CustomConversionSettings settings, NiftiDaemon nifti) {
 		setNiftiDaemon(nifti);
-		dicomToMove = new LinkedList<Path>();
+		dicomToMove = new ConcurrentLinkedQueue<Path>();
 		numberOfRuns = 0;
 		setSettings(settings);
 		setDicomDaemon(null);
@@ -82,12 +84,12 @@ public class DicomJobDispatcher extends Thread{
 	}
 
 
-	public LinkedList<Path> getDicomToMove() {
+	public ConcurrentLinkedQueue<Path> getDicomToMove() {
 		return dicomToMove;
 	}
 
 
-	public void setDicomToMove(LinkedList<Path> dicomToMove) {
+	public void setDicomToMove(ConcurrentLinkedQueue<Path> dicomToMove) {
 		this.dicomToMove = dicomToMove;
 	}
 
@@ -178,18 +180,23 @@ public class DicomJobDispatcher extends Thread{
 			// on le fait fich/fich (pas multithread) car windows
 			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
 			if(getSettings().isServerMode()){
-				Path locp = (Path)dicomToMove.pop();
+				Path locp = (Path)dicomToMove.poll();
 				// tant qu'on ne peut pas lire le fichier on attend
 				// permet de gerer les problemes d'acces
-				while(true){
+				boolean cont=true;
+				while(cont){
 					try{
-						if(!DicomImage.isDicom(locp.toFile())){
-							locp.toFile().delete();
-						}else{
-							dworker = new DicomWorker(this, locp);
-					        dworker.start();
+						try{
+							if(!DicomImage.isDicom(locp.toFile())){
+								locp.toFile().delete();
+							}else{
+								dworker = new DicomWorker(this, locp);
+						        dworker.start();
+							}
+							cont=false;
+						}catch(FileNotFoundException fe){
+							cont=false;
 						}
-						break;
 					}catch(Exception e){
 						try {
 							Thread.sleep(50);
@@ -199,7 +206,7 @@ public class DicomJobDispatcher extends Thread{
 					}
 				}
 			}else{
-				dworker = new DicomWorkerClient(this, (Path)dicomToMove.pop());
+				dworker = new DicomWorkerClient(this, (Path)dicomToMove.poll());
 		        dworker.start();
 			}
 
@@ -224,11 +231,15 @@ public class DicomJobDispatcher extends Thread{
 		for(String name:filesInInc){
 			File lfile = new File(getServerInfo().getIncomingDir() + "/" + name);
 			if(name.length()>2){
-				if(DicomImage.isDicom(lfile)){
-					String fullpath = getServerInfo().getIncomingDir() + "/" + name;
-					addDicomToMove(Paths.get(fullpath));
-				}else{
-					lfile.delete();
+				try{
+					if(DicomImage.isDicom(lfile)){
+						String fullpath = getServerInfo().getIncomingDir() + "/" + name;
+						addDicomToMove(Paths.get(fullpath));
+					}else{
+						lfile.delete();
+					}
+				}catch(Exception e){
+					continue;
 				}
 			}
 		}
@@ -236,7 +247,8 @@ public class DicomJobDispatcher extends Thread{
 
 	
 	public void addDicomToMove(Path p){
-		if(!dicomToMove.contains(p))
-			dicomToMove.push(p);
+		if(!dicomToMove.contains(p)){
+			dicomToMove.add(p);
+		}
 	}
 }

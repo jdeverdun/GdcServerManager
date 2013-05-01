@@ -11,10 +11,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import model.AcquisitionDate;
+import model.ServerInfo;
 
 import daemon.DBCache;
+import display.containers.RequestPanel.IMAGE_TYPE;
 
 import exceptions.IllegalSQLRequest;
 
@@ -911,6 +915,188 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 		}
 		return isIllegalHeader;
+	}
+
+	/**
+	 * Permet de gerer la requete du requestpanel
+	 * @throws SQLException 
+	 */
+	@Override
+	public HashMap<String,ArrayList<String[]>> executeFromRequestPanel(String project, String patient,
+			String protocol, String serie, String begin, String end,
+			IMAGE_TYPE imagetype) throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			DBTables tab = SQLSettings.TABLES;
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			String select = "select ";
+			String from = " from ";
+			String where = " where ";
+			String opt = "";// chaine de caractere optionnelle pour gerer les vues utilisateurs
+			String whereopt = " "; // devient " and " quand on a commence a remplir les donnees
+			if(project==null)
+				project = "";
+			if(UserProfile.CURRENT_USER.getLevel()!=3)
+				opt="_"+UserProfile.CURRENT_USER.getId();
+			
+			switch(imagetype){
+			case DICOM:
+				from += tab.getDicomImage().TNAME+opt;break;
+			case NIFTI:
+				from += tab.getNiftiImage().TNAME+opt;break;
+			}
+			
+
+			// ----------  project --------------
+			if(select.equals("select "))
+				select += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" as "+tab.getProject().TNAME;
+			else
+				select += ", "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" as "+tab.getProject();
+
+			from += ", "+tab.getProject().TNAME+opt;
+			if(!project.equals("")){
+				if(where.equals(" where "))
+					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+"='"+project+"'";
+				else
+					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+"='"+project+"'";
+				whereopt= " and ";
+			}
+			// selon la table qu'on recupere (dicom ou nifti)
+			switch(imagetype){
+			case DICOM:
+				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId();break;
+			case NIFTI:
+				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId();break;
+			}
+			whereopt= " and ";
+			// ----------  patient --------------
+			select += ", "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" as "+tab.getPatient().TNAME;
+			from += ", "+tab.getPatient().TNAME+opt;
+			if(!patient.equals("")){
+				if(where.equals(" where "))
+					where += tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+"='"+patient+"'";
+				else
+					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+"='"+patient+"'";
+			}
+			switch(imagetype){
+			case DICOM:
+				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_patient()+"="+tab.getPatient().TNAME+"."+tab.getPatient().getId();break;
+			case NIFTI:
+				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_patient()+"="+tab.getPatient().TNAME+"."+tab.getPatient().getId();break;
+			}
+			
+			// ----------  AcqDate --------------
+			
+			
+			select += ", "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+" as "+tab.getAcquisitionDate().TNAME;
+			from += ", "+tab.getAcquisitionDate().TNAME+opt;
+			if(!begin.equals("")){
+				if(where.equals(" where "))
+					where += tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+">="+begin;
+				else
+					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+">="+begin;
+			}
+			if(!end.equals("")){
+				if(where.equals(" where "))
+					where += tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
+				else
+					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
+			}
+			switch(imagetype){
+			case DICOM:
+				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getId();break;
+			case NIFTI:
+				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getId();break;
+			}
+			
+			// ----------  protocol --------------
+			
+			select += ", "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" as "+tab.getProtocol().TNAME;
+			from += ", "+tab.getProtocol().TNAME+opt;
+			if(!protocol.equals("")){
+				if(where.equals(" where "))
+					where += tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+"='"+protocol+"'";
+				else
+					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+"='"+protocol+"'";
+			}
+			switch(imagetype){
+			case DICOM:
+				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_protocol()+"="+tab.getProtocol().TNAME+"."+tab.getProtocol().getId();break;
+			case NIFTI:
+				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_protocol()+"="+tab.getProtocol().TNAME+"."+tab.getProtocol().getId();break;
+			}
+			
+			// ----------  serie --------------
+
+			select += ", "+tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+" as "+tab.getSerie().TNAME;
+			from += ", "+tab.getSerie().TNAME+opt;
+			if(!serie.equals("")){
+				if(where.equals(" where "))
+					where += tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+"="+serie;
+				else
+					where += " and "+tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+"="+serie;
+			}
+			switch(imagetype){
+			case DICOM:
+				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_serie()+"="+tab.getSerie().TNAME+"."+tab.getSerie().getId();break;
+			case NIFTI:
+				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_serie()+"="+tab.getSerie().TNAME+"."+tab.getSerie().getId();break;
+			}
+			
+			// ----------- REQUETE -------------
+			System.out.println(select+" "+from+" "+where);
+			rset = stmt.executeQuery(select+" "+from+" "+where);
+
+			
+			ResultSetMetaData rsmd = rset.getMetaData();
+			// on stock les indices des colonnes associe a un label
+			// pour eviter les erreur avec 2 colonnes portant le meme nom
+			HashMap<String,Integer> indices = new HashMap<String,Integer>();
+			HashMap<String,ArrayList<String[]>> resultats = new HashMap<String,ArrayList<String[]>>();
+			for(int i = 1; i <= rsmd.getColumnCount(); i++){
+				String name = rsmd.getColumnLabel(i);
+				String cname = rsmd.getColumnName(i);
+
+				indices.put(name, i);
+				resultats.put(name, new ArrayList<String[]>());
+			}
+			boolean isempty=true;
+			Set<String> res = new HashSet<String>();//permet d'eviter les resultats doublons 
+			while(rset.next()){
+				isempty = false;
+				File file = null;
+				String projname = rset.getString(tab.getProject().TNAME);
+				String patname = rset.getString(tab.getPatient().TNAME);
+				String date = rset.getString(tab.getAcquisitionDate().TNAME);
+				String protname = rset.getString(tab.getProtocol().TNAME);
+				String sname = rset.getString(tab.getSerie().TNAME);
+				switch(imagetype){
+				case DICOM:
+					file = new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+ServerInfo.NRI_DICOM_NAME+"/"+projname+"/"+patname+"/"+date+"/" +
+							""+protname+"/"+sname);break;
+				case NIFTI:
+					file = new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+ServerInfo.NRI_ANALYSE_NAME+"/"+projname+"/"+patname+"/"+date+"/" +
+							""+protname+"/"+sname);break;
+				}
+				
+				if(!res.contains(file.getAbsolutePath())){
+					res.add(file.getAbsolutePath());
+					for(String n:indices.keySet()){
+						resultats.get(n).add(new String[]{rset.getString(indices.get(n)),file.getAbsolutePath()});
+					}
+				}
+
+				
+			}
+			if(isempty)
+				resultats.clear();
+			return resultats;
+		}catch(SQLException e){
+			throw e;
+		}
 	}
 }
 

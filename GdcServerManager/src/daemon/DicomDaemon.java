@@ -83,9 +83,9 @@ public class DicomDaemon extends Thread{
 		            // but an OVERFLOW event can
 		            // occur regardless if events
 		            // are lost or discarded.
-		            if (kind == OVERFLOW) {
+		            /*if (kind == OVERFLOW) {
 		                continue;
-		            }
+		            }*/
 
 		            // The filename is the
 		            // context of the event.
