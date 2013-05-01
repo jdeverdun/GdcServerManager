@@ -12,6 +12,14 @@ import javax.swing.JButton;
 
 import settings.WindowManager;
 
+/**
+ * Panel qui affiche un bouton cancel et une progressbar
+ * fonctionne avec requestpanel et filetree
+ * les fonctions appelee dependent du fait que filetree soit null
+ * ou requestpanel null
+ * @author Mobilette
+ *
+ */
 public class WaitingBarPanel extends JPanel{
 
 	private JLabel lblTitle;
@@ -51,10 +59,12 @@ public class WaitingBarPanel extends JPanel{
 			public void actionPerformed(ActionEvent arg0) {
 				getPopup().hide();
 				if(getFiletree()!=null){
+					// si on est sur un job d'un filetree
 					getFiletree().terminateAction();
 					WindowManager.MAINWINDOW.setLock(false);
 				}
 				if(rpanel!=null){
+					// si on est sur un import depuis la bdd
 					rpanel.terminateAction();
 				}
 			}

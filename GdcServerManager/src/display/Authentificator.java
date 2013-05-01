@@ -151,7 +151,15 @@ public class Authentificator extends JFrame {
 				}
 			}
 		});
-		
+		// idem pour username
+		txtUsername.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent key) {
+				if(key.getKeyCode() == KeyEvent.VK_ENTER){
+					btnLogin.doClick();
+				}
+			}
+		});
 		// on se log (grise les 2 boutons login/cancel)
 		btnLogin.addActionListener(new ActionListener() {
 		  public void actionPerformed(ActionEvent evt) {

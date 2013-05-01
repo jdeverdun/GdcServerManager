@@ -232,7 +232,7 @@ public class MainWindow extends JFrame {
 		ongletPane.addTab("Sort & convert", null, dicomSortConvertPanel,
                 "Sort DICOM & convert to nifti");
 
-		ongletPane.setEnabledAt(2, false); 
+		//ongletPane.setEnabledAt(2, false); 
 		if(i!=0){
 			
 			distworklocalPane = new JSplitPane();
