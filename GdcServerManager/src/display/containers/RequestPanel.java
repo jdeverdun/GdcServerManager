@@ -81,7 +81,7 @@ public class RequestPanel extends JPanel {
 	private JTable table;
 	private JTextField txtPutCustomSql;
 	private JButton btnExecute;
-	private JButton btnCancel;
+	private JButton btnReset;
 	private RequestTableModel rqModel;
 	private JComboBox projectComboBox;
 	private JTextField txtPatient;
@@ -169,9 +169,18 @@ public class RequestPanel extends JPanel {
 		btnExecute = new JButton("Execute");
 		requestFieldpanel.add(btnExecute, "flowx,cell 0 4");
 		
-		btnCancel = new JButton("Cancel");
-		btnCancel.setEnabled(false);
-		requestFieldpanel.add(btnCancel, "cell 0 4");
+		btnReset = new JButton("Reset");
+		btnReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				txtPatient.setText(DEFAULT_PATIENT_TEXT);
+				txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
+				textSerie.setText(DEFAULT_SERIE_TEXT);
+				pickerDateBegin.getEditor().setText(DEFAULT_BEGIN_DATE);
+				pickerDateEnd.getEditor().setText(DEFAULT_END_DATE);
+				txtPutCustomSql.setText(DEFAULT_SQL_REQUEST_TEXT);
+			}
+		});
+		requestFieldpanel.add(btnReset, "cell 0 4");
 		
 		txtProtocol = new JTextField();
 		txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
@@ -643,9 +652,6 @@ public class RequestPanel extends JPanel {
 								}
 								getRqModel().setData(data);
 								getRqModel().setFiles(files);
-								txtPatient.setText(DEFAULT_PATIENT_TEXT);
-								txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
-								textSerie.setText(DEFAULT_SERIE_TEXT);
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
 								e.printStackTrace();
@@ -669,7 +675,7 @@ public class RequestPanel extends JPanel {
 		textSerie.setEnabled(!b);
 		comboBoxImageType.setEnabled(!b);
 		projectComboBox.setEnabled(!b);
-		btnCancel.setEnabled(b);
+		btnReset.setEnabled(!b);
 		pickerDateBegin.setEnabled(!b);
 		pickerDateEnd.setEnabled(!b);
 		islock=b;
@@ -700,6 +706,7 @@ public class RequestPanel extends JPanel {
 	
 	/**
 	 * Construit l'arborescende de fi dans dirsave a partir du repertoire vmin de fi
+	 * renvoi  le path 
 	 * @param fi
 	 * @param dirsave
 	 * @param vmin
