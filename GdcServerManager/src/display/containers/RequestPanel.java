@@ -390,11 +390,30 @@ public class RequestPanel extends JPanel {
 			    final File dirsave = chooser.getSelectedFile();
 			    final File[] selectedFiles = new File[table.getSelectedRowCount()];
 			    int[] indices = table.getSelectedRows();
+			    int vmin = 10000;
 				for(int i = 0; i < indices.length; i++){
 					int row = table.convertRowIndexToModel(indices[i]);
 					selectedFiles[i] = getRqModel().getFileAt(row);
+					System.out.println(selectedFiles[i].getAbsolutePath());
+					if(selectedFiles[i].getAbsolutePath().split(Pattern.quote(File.separator)).length<vmin);
+						vmin = selectedFiles[i].getAbsolutePath().split(Pattern.quote(File.separator)).length;
+						
 				}
-				
+				// on recupere l'indice du premier nom de repertoire qui differe
+				String[] parts = selectedFiles[0].getAbsolutePath().split(Pattern.quote(File.separator));
+				for(int i = 1;i < selectedFiles.length; i++){
+					String[] parts_loc = selectedFiles[i].getAbsolutePath().split(Pattern.quote(File.separator));
+					for(int j=0;j<vmin; j++){
+						if(!parts[j].equals(parts_loc[j])){
+							vmin=j;break;
+						}
+					}
+				}
+				final HashMap<File, String> fromTo = new HashMap<File, String>();
+				for(File fi:selectedFiles){
+					fromTo.put(fi, buildDirFor(fi,dirsave,vmin));
+					
+				}
 				// on copie
 				setLock(true);
 				final WaitingBarPanel ppanel = new WaitingBarPanel(RequestPanel.this); // mode creation de liens
@@ -415,7 +434,8 @@ public class RequestPanel extends JPanel {
 								return;
 							}
 							if(!fi.getName().contains("..")){
-								FileManager.copyAndDecrypt(fi, dirsave);
+								
+								FileManager.copyAndDecrypt(fi, new File(fromTo.get(fi)));
 							}
 						}
 						while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
@@ -456,6 +476,8 @@ public class RequestPanel extends JPanel {
 				updateStatusThread.start();
 				
 			}
+
+
 		});
 		table.addMouseListener(new MouseListener(){
 			public void mouseReleased(MouseEvent Me){
@@ -674,6 +696,30 @@ public class RequestPanel extends JPanel {
 		continueAction = false;
 		setLock(false);
 	}
+	
+	
+	/**
+	 * Construit l'arborescende de fi dans dirsave a partir du repertoire vmin de fi
+	 * @param fi
+	 * @param dirsave
+	 * @param vmin
+	 * @return 
+	 */
+	private String buildDirFor(File fi, File dirsave, int vmin) {
+		String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		String path = dirsave.getAbsolutePath();
+		String bpath = path;
+		for(int i = vmin ; i < parts.length; i++){
+			path +=  File.separator + parts[i];
+			if(i>vmin)
+				bpath += File.separator + parts[i-1];
+			
+		}
+		File tmp = new File(path);
+		tmp.mkdirs();
+		return bpath;
+	}
+	
 }
 
 
