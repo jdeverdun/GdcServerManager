@@ -4,6 +4,8 @@ import ij.ImagePlus;
 import ij.util.DicomTools;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -30,8 +32,10 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
+import exceptions.DicomException;
 
 import model.AcquisitionDate;
+import model.DICOM;
 import model.DicomImage;
 import model.Patient;
 import model.Project;
@@ -48,7 +52,7 @@ public class DicomWorker extends DaemonWorker {
 	protected Path dicomFile;
 	protected DicomJobDispatcher dispatcher;
 	protected DicomImage dicomImage;
-	protected ImagePlus imp;
+	protected String header;
 	protected String birthdate;
 	protected String sex;
 	protected int project_id;
@@ -57,7 +61,7 @@ public class DicomWorker extends DaemonWorker {
 	protected int protocol_id;
 	protected int serie_id;
 	
-	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) {
+	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException{
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
 		setServerInfo(getDispatcher().getServerInfo());
@@ -70,18 +74,17 @@ public class DicomWorker extends DaemonWorker {
 		return dicomFile;
 	}
 
-	public void setDicomFile(Path dicomFile) {
+	public void setDicomFile(Path dicomFile) throws FileNotFoundException, DicomException {
 		this.dicomFile = dicomFile;
-		setImp(new ImagePlus(dicomFile.toFile().getAbsolutePath()));
-	}
-
-	public ImagePlus getImp() {
-		return imp;
-	}
-
-
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
+		FileInputStream fis = new FileInputStream(dicomFile.toString());
+		header = new DICOM(fis).getInfo(dicomFile);
+		if(header == null)
+			throw new DicomException("Empty DICOM header");
+		try {
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -97,34 +100,29 @@ public class DicomWorker extends DaemonWorker {
 	
 	// Methodes
 
-	public void start(){
+	public void start() throws DicomException{
 		String studyName = null;
 		String patientName = null;
 		String protocolName = null;
 		String serieName = null;
 		String acqDate = null;
-		try{
-			// On recupere le nom du protocole medical
-			studyName = getStudyDescription();
-			// Si le protocole est null alors le fichier est encore en cours de copie
-			if(studyName == null){
-				prepareToStop();
-				return;
-			}	
-			patientName = getPatientName();
-			birthdate = getBirthdate();
-			sex = getSex();
-			protocolName = getProtocolName();
-			serieName = getSeriesDescription();
-			acqDate = getAcquisitionDate();		
-		}catch(Exception e){
-			System.out.println(dicomFile.getFileName() + " not a DICOM.");
-			dicomFile.toFile().delete();
+		
+		// On recupere le nom du protocole medical
+		studyName = getStudyDescription();
+		// Si le protocole est null alors le fichier est encore en cours de copie
+		if(studyName == null){
+			prepareToStop();
 			return;
-		}
+		}	
+		patientName = getPatientName();
+		birthdate = getBirthdate();
+		sex = getSex();
+		protocolName = getProtocolName();
+		serieName = getSeriesDescription();
+		acqDate = getAcquisitionDate();		
 		
 		// On créé les chemins vers les répertoires
-		Path studyFolder = Paths.get(serverInfo.getServerDir()+"/"+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
+		Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
 		setProjectFolder(studyFolder);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
 		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
@@ -182,13 +180,6 @@ public class DicomWorker extends DaemonWorker {
 		// On termine
 		prepareToStop();
 	}
-
-	
-
-
-
-
-
 
 	// Set des ID serie // protocol // projet etc depuis la BDD
 	private void setSerie_idFromDB(Path fileName) {
@@ -430,10 +421,10 @@ public class DicomWorker extends DaemonWorker {
 	
 	
 	// Renvoi le nom du protocole medical
-	public String getStudyDescription(){
-		String prot = DicomTools.getTag(imp, "0008,1030");
+	public String getStudyDescription() throws DicomException{
+		String prot = getTag("0008,1030");
 		if(prot == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0008,1030");
 		}
 		if(prot.isEmpty())
 			return "Unknown";
@@ -446,10 +437,10 @@ public class DicomWorker extends DaemonWorker {
 	}
 	
 	// Nom du patient
-	public String getPatientName(){
-		String pname = DicomTools.getTag(imp, "0010,0010");
+	public String getPatientName() throws DicomException{
+		String pname = getTag("0010,0010");
 		if(pname == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0010,0010");
 		}
 		if(pname.isEmpty())
 			return "Unknown";
@@ -463,10 +454,10 @@ public class DicomWorker extends DaemonWorker {
 	
 	
 	// Nom de la sequence (ex:  Series Description: PHA_IMAGES)
-	public String getSeriesDescription(){
-		String sdesc = DicomTools.getTag(imp, "0008,103E");
+	public String getSeriesDescription() throws DicomException{
+		String sdesc = getTag("0008,103E");
 		if(sdesc == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0008,103E");
 		}
 		if(sdesc.isEmpty())
 			return "Unknown";
@@ -479,10 +470,10 @@ public class DicomWorker extends DaemonWorker {
 	}
 	
 	// Date de naissance
-	public String getBirthdate(){
-		String bdate = DicomTools.getTag(imp, "0010,0030");
+	public String getBirthdate() throws DicomException{
+		String bdate = getTag("0010,0030");
 		if(bdate == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0010,0030");
 		}
 		if(bdate.isEmpty())
 			return "Unknown";
@@ -494,10 +485,10 @@ public class DicomWorker extends DaemonWorker {
 		return bdate;
 	}
 	// Sexe du patient
-	public String getSex(){
-		String psex = DicomTools.getTag(imp, "0010,0040");
+	public String getSex() throws DicomException{
+		String psex = getTag("0010,0040");
 		if(psex == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0010,0040");
 		}
 		if(psex.isEmpty())
 			return "Unknown";
@@ -510,10 +501,10 @@ public class DicomWorker extends DaemonWorker {
 	}	
 	
 	// Nom de l'IRM
-	public String getMri_name(){
-		String iname = DicomTools.getTag(imp, "0008,1090");
+	public String getMri_name() throws DicomException{
+		String iname = getTag("0008,1090");
 		if(iname == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0008,1090");
 		}
 		if(iname.isEmpty())
 			return "Unknown";
@@ -526,10 +517,10 @@ public class DicomWorker extends DaemonWorker {
 	}
 		
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
-	public String getProtocolName(){
-		String pprot = DicomTools.getTag(imp, "0018,1030");
+	public String getProtocolName() throws DicomException{
+		String pprot = getTag("0018,1030");
 		if(pprot == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0018,1030");
 		}
 		if(pprot.isEmpty())
 			return "Unknown";
@@ -541,10 +532,10 @@ public class DicomWorker extends DaemonWorker {
 		return pprot;
 	}
 	// Date de l'acquisition ex : 20130122
-	public String getAcquisitionDate(){
-		String pdate = DicomTools.getTag(imp, "0008,0022");
+	public String getAcquisitionDate() throws DicomException{
+		String pdate = getTag("0008,0022");
 		if(pdate == null){
-			return null;
+			throw new DicomException("Unable to decode DICOM header 0008,0022");
 		}
 		if(pdate.isEmpty())
 			return "Unknown";
@@ -621,6 +612,28 @@ public class DicomWorker extends DaemonWorker {
 
 	public void prepareToStop(){
 		// On libere de la memoire
-		setImp(null);
+		header = null;
+	}
+	
+	/**
+	 * Permet de recupere un champ dicom
+	 * @param tag
+	 * @return
+	 */
+	private String getTag(String tag) {
+		if (header==null) return null;
+		int index1 = header.indexOf(tag);
+		if (index1==-1) return null;
+		//IJ.log(hdr.charAt(index1+11)+"   "+hdr.substring(index1,index1+20));
+		if (header.charAt(index1+11)=='>') {
+			// ignore tags in sequences
+			index1 = header.indexOf(tag, index1+10);
+			if (index1==-1) return null;
+		}
+		index1 = header.indexOf(":", index1);
+		if (index1==-1) return null;
+		int index2 = header.indexOf("\n", index1);
+		String value = header.substring(index1+1, index2);
+		return value;
 	}
 }

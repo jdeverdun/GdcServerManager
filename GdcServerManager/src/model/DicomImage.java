@@ -1,6 +1,7 @@
 package model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -79,10 +80,10 @@ public class DicomImage {
 	 * Check si le fichier est un dicom
 	 * @param fi
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static boolean isDicom(File fi) throws IOException {
-		if(fi.getName().endsWith(".enc"))
+		if(fi.getName().endsWith(".enc") || !fi.canRead())
 			return false;
 		RandomAccessFile in = new RandomAccessFile(fi.getAbsolutePath(), "r");
 		// on se place sur le byte 128
@@ -92,10 +93,12 @@ public class DicomImage {
 		try{
 			key = in.readLine().substring(0, 4);
 		}catch(Exception e){
+			e.printStackTrace();
 			in.close();
 			return false;
 		}
 		in.close();
+		in = null;
 		return key.equals("DICM");
 	}
 	public String getMri_name() {

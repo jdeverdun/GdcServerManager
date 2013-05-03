@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
+import exceptions.DicomException;
 
 import model.Project;
 import model.ServerInfo;
@@ -62,7 +63,7 @@ public abstract class DaemonWorker {
 	}
 
 
-	abstract public void start();
+	abstract public void start() throws DicomException;
 	
 	
 	

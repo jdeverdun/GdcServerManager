@@ -1,6 +1,7 @@
 package daemon;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,6 +12,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.apache.commons.io.FileUtils;
+
+import exceptions.DicomException;
 
 import settings.SystemSettings;
 
@@ -190,14 +195,21 @@ public class DicomJobDispatcher extends Thread{
 							if(!DicomImage.isDicom(locp.toFile())){
 								locp.toFile().delete();
 							}else{
-								dworker = new DicomWorker(this, locp);
-						        dworker.start();
+								try {
+									dworker = new DicomWorker(this, locp);
+									dworker.start();
+								} catch (DicomException e) {
+									if(settings.isDicomDebugMode())
+										System.out.println(locp+" : corrupted ... deleted");
+									locp.toFile().delete();
+									cont=false;
+								}
 							}
 							cont=false;
 						}catch(FileNotFoundException fe){
 							cont=false;
 						}
-					}catch(Exception e){
+					}catch(IOException e){
 						try {
 							Thread.sleep(50);
 						} catch (InterruptedException e1) {
@@ -206,8 +218,19 @@ public class DicomJobDispatcher extends Thread{
 					}
 				}
 			}else{
-				dworker = new DicomWorkerClient(this, (Path)dicomToMove.poll());
-		        dworker.start();
+				Path locp = (Path)dicomToMove.poll();
+				try {
+					try {
+						dworker = new DicomWorkerClient(this, locp);
+						dworker.start();
+					} catch (DicomException e) {
+						if(settings.isDicomDebugMode())
+							System.out.println(locp+" : corrupted");
+					}
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+		        
 			}
 
 	        numberOfRuns++;

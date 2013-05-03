@@ -4,32 +4,13 @@ import ij.ImagePlus;
 import ij.util.DicomTools;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.FileNotFoundException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
-import java.security.GeneralSecurityException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
-import dao.MySQLProjectDAO;
-import dao.ProjectDAO;
-import dao.project.AcquisitionDateDAO;
-import dao.project.DicomImageDAO;
-import dao.project.MySQLAcquisitionDateDAO;
-import dao.project.MySQLDicomImageDAO;
-import dao.project.MySQLPatientDAO;
-import dao.project.MySQLProtocolDAO;
-import dao.project.MySQLSerieDAO;
-import dao.project.PatientDAO;
-import dao.project.ProtocolDAO;
-import dao.project.SerieDAO;
-import es.vocali.util.AESCrypt;
+import exceptions.DicomException;
 
 import model.AcquisitionDate;
 import model.DicomImage;
@@ -37,16 +18,14 @@ import model.Patient;
 import model.Project;
 import model.Protocol;
 import model.Serie;
-import model.ServerInfo;
-import model.User;
 import model.daemon.CustomConversionSettings;
-import static java.nio.file.StandardCopyOption.*;
+
 
 
 public class DicomWorkerClient extends DicomWorker {
 	public static Path DICOMDIR = null; // Permet de conserver la trace, pour un run du dispatcher du repertoire des dicom 
 	
-	public DicomWorkerClient(DicomJobDispatcher pDaemon, Path filename) {
+	public DicomWorkerClient(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException {
 		super(pDaemon,filename);
 	}
 	
@@ -54,30 +33,27 @@ public class DicomWorkerClient extends DicomWorker {
 	
 	// Methodes
 
-	public void start(){
+	public void start() throws DicomException{
 		String studyName = null;
 		String patientName = null;
 		String protocolName = null;
 		String serieName = null;
 		String acqDate = null;
-		try{
-			// On recupere le nom du protocole medical
-			studyName = getStudyDescription();
-			// Si le protocole est null alors le fichier est encore en cours de copie
-			if(studyName == null){
-				prepareToStop();
-				return;
-			}	
-			patientName = getPatientName();
-			birthdate = getBirthdate();
-			sex = getSex();
-			protocolName = getProtocolName();
-			serieName = getSeriesDescription();
-			acqDate = getAcquisitionDate();		
-		}catch(Exception e){
-			System.out.println(dicomFile.getFileName() + " not a DICOM.");
+
+		// On recupere le nom du protocole medical
+		studyName = getStudyDescription();
+		// Si le protocole est null alors le fichier est encore en cours de copie
+		if(studyName == null){
+			prepareToStop();
 			return;
-		}
+		}	
+		patientName = getPatientName();
+		birthdate = getBirthdate();
+		sex = getSex();
+		protocolName = getProtocolName();
+		serieName = getSeriesDescription();
+		acqDate = getAcquisitionDate();		
+
 		
 		// On créé les chemins vers les répertoires
 		CustomConversionSettings djdsettings = getDispatcher().getSettings();
@@ -164,6 +140,6 @@ public class DicomWorkerClient extends DicomWorker {
 
 	public void prepareToStop(){
 		// On libere de la memoire
-		setImp(null);
+		header = null;
 	}
 }
