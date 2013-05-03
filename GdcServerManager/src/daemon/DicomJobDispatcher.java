@@ -120,9 +120,6 @@ public class DicomJobDispatcher extends Thread{
 		return dworker;
 	}
 
-
-
-
 	public void setDworker(DicomWorker dworker) {
 		this.dworker = dworker;
 	}
@@ -158,7 +155,7 @@ public class DicomJobDispatcher extends Thread{
 	
 	// Methodes
 	public void run(){
-		System.out.println("Dispatcher Online with "+getMaxWorker()+" CPU cores.");
+		System.out.println("Dispatcher Online.");
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty() && !isStop()){
@@ -199,6 +196,8 @@ public class DicomJobDispatcher extends Thread{
 									dworker = new DicomWorker(this, locp);
 									dworker.start();
 								} catch (DicomException e) {
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									// a cause d'une erreur de copie ne contiennent pas tout les champs
 									if(settings.isDicomDebugMode())
 										System.out.println(locp+" : corrupted ... deleted");
 									locp.toFile().delete();

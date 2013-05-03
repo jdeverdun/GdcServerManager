@@ -29,6 +29,7 @@ import model.ServerInfo;
 
 import org.apache.commons.io.FileUtils;
 
+import daemon.DecryptDaemon;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -475,6 +476,10 @@ public class FileManager {
      * @throws IOException 
      */
 	public void copySelectedFilesAndDecryptTo(File dir) throws IOException {
+		if(!SystemSettings.DECRYPT_DAEMON.isAlive()){
+			SystemSettings.DECRYPT_DAEMON = new DecryptDaemon();
+			SystemSettings.DECRYPT_DAEMON.start();
+		}
 		// Recupere les lignes selectionnees
 		int[] indices = table.getSelectedRows();
 		// On recupere les fichiers correspondants

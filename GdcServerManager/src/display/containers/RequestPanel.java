@@ -53,6 +53,7 @@ import javax.swing.JComboBox;
 import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXDatePicker;
 
+import daemon.DecryptDaemon;
 import dao.GenericRequestDAO;
 import dao.MySQLGenericRequestDAO;
 
@@ -437,6 +438,10 @@ public class RequestPanel extends JPanel {
 					
 					@Override
 					public void run() {
+						if(!SystemSettings.DECRYPT_DAEMON.isAlive()){
+							SystemSettings.DECRYPT_DAEMON = new DecryptDaemon();
+							SystemSettings.DECRYPT_DAEMON.start();
+						}
 						for(File fi:selectedFiles){
 							if(!continueAction){
 								continueAction = true;

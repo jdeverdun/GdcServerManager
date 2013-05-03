@@ -1,7 +1,11 @@
 package daemon;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
+
+import es.vocali.util.AESCrypt;
 
 import model.DicomImage;
 import model.ServerInfo;
@@ -29,7 +33,7 @@ public class DecryptDaemon extends Thread {
 	public void run() {
 		System.out.println("Decrypter Online.");
 		while(!isStop()){
-			// check si il y a des donnees a encrypter
+			// check si il y a des donnees a decrypter
 			while(fileToDecrypt.isEmpty()){
 				try {
 					Thread.sleep(5000);
@@ -84,6 +88,9 @@ public class DecryptDaemon extends Thread {
 
 
 	public void addFileToDecrypt(Path source, Path to){
+		// Si le fichier ne contient pas l'extension ".enc" on la rajoute
+		if(!source.toString().endsWith(AESCrypt.ENCRYPTSUFFIX))
+			source = Paths.get(source.getParent().toString()+File.separator+source.getFileName()+AESCrypt.ENCRYPTSUFFIX);
 		fileToDecrypt.push(new Path[]{source,to});
 	}
 
