@@ -273,4 +273,12 @@ public class DicomJobDispatcher extends Thread{
 			dicomToMove.add(p);
 		}
 	}
+
+	/**
+	 * Force l'arret du dispatcher
+	 * @param b
+	 */
+	public void forceStop(boolean b) {
+		this.stop = true;
+	}
 }

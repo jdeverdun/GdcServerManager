@@ -153,6 +153,10 @@ public class DicomDaemon extends Thread{
     		setStop(false);
     	}
 	}
+	public void forceStop(){
+		encryptDaemon.forceStop(true);
+		dicomJobDispatcher.forceStop(true);
+	}
 	public boolean isStop() {
 		return stop;
 	}

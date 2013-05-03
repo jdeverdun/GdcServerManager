@@ -144,4 +144,13 @@ public class EncryptDaemon extends Thread {
 		dEncryptWorker = null;
 	}
 
+
+	/**
+	 * Force l'arret de l'encrypteur
+	 * @param b
+	 */
+	public void forceStop(boolean b) {
+		this.stop = true;
+	}
+
 }

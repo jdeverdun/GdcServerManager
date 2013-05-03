@@ -206,7 +206,12 @@ public class NiftiDaemon extends Thread{
 			waitTimeToConvert = 1000.0f;
 	}
 	
-
+	/**
+	 * Force l'arret du daemon
+	 */
+	public void forceStop(){
+		this.stop = true;
+	}
 	
 	
 }

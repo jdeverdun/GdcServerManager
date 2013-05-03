@@ -850,7 +850,11 @@ public class MainWindow extends JFrame {
 		// On nettoie le repertoire temporaire quand on quitte le programme
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
-		    	stopDaemons();
+		    	SwingUtilities.invokeLater(new Runnable(){
+					public void run(){
+						forceStopDaemons();
+					}
+		    	});
 		    	try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(SystemSettings.SERVER_INFO.getTempDir())) {
 			    	for(Path p:directoryStream){
 			    		if(!p.endsWith(".") && p.toFile().isDirectory())
@@ -1171,7 +1175,7 @@ public class MainWindow extends JFrame {
 			SystemSettings.DICOM_NODE.stop();
 			SystemSettings.DICOM_NODE = null;
 		}
-		if(SystemSettings.DICOM_DAEMON!=null){
+		if(SystemSettings.DICOM_DAEMON!=null && SystemSettings.DICOM_DAEMON.isAlive()){
 			SystemSettings.DICOM_DAEMON.setStop(true);
 			if(SystemSettings.DICOM_DAEMON.isStop()){
 				if(SystemSettings.NIFTI_DAEMON!=null){
@@ -1180,17 +1184,32 @@ public class MainWindow extends JFrame {
 				daemonLaunched = false;
 				mntmStartstop.setText("Start");
 			}else{
-				if(SystemSettings.DICOM_DAEMON.isWaitingToStop()){
+				if(SystemSettings.DICOM_DAEMON.isWaitingToStop()  && SystemSettings.DICOM_DAEMON.isAlive()){
 					SystemSettings.NIFTI_DAEMON.setWaitingToStop(true);
-					while(SystemSettings.DICOM_DAEMON.isStop() && SystemSettings.NIFTI_DAEMON.isStop()){
-						
-					}
 					daemonLaunched = false;
 					mntmStartstop.setText("Start");
 				}
 			}
 		}
 	}
+	
+	/**
+	 * Coupe les daemons sans rien demander a l'utilisateur
+	 */
+	public void forceStopDaemons(){
+		if(SystemSettings.DICOM_NODE!=null){
+			SystemSettings.DICOM_NODE.stop();
+			SystemSettings.DICOM_NODE = null;
+		}
+		if(SystemSettings.DICOM_DAEMON!=null){
+				SystemSettings.DICOM_DAEMON.forceStop();
+		}
+		if(SystemSettings.NIFTI_DAEMON!=null){
+			SystemSettings.NIFTI_DAEMON.forceStop();
+		}
+		daemonLaunched = false;
+	}
+	
 	
 	public void setLock(boolean b) {
 		isLock = b;

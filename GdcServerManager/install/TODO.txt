@@ -1,0 +1,2 @@
+Changer le champs birthdate dans la bdd de varchar a date
+Rajouter l'enregistrement des fichiers en attente de conversion pour reprendre le traitement la ou on en ete idem pr encrypt etc
