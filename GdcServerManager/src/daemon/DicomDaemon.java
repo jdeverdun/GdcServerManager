@@ -144,6 +144,14 @@ public class DicomDaemon extends Thread{
 	}
 	public void setStop(boolean b) {
 		stop = b;
+		encryptDaemon.setStop(true);
+    	if(encryptDaemon.isStop() || encryptDaemon.isWaitingToStop()){
+    		dicomJobDispatcher.setStop(true);
+    		if(encryptDaemon.isWaitingToStop())
+    			waitingToStop = true;
+    	}else{
+    		setStop(false);
+    	}
 	}
 	public boolean isStop() {
 		return stop;

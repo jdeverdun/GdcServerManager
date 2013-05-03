@@ -5,6 +5,10 @@ import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
+import display.MainWindow;
+
+import settings.WindowManager;
+
 import model.DicomImage;
 import model.ServerInfo;
 
@@ -64,17 +68,18 @@ public class EncryptDaemon extends Thread {
 			if(!dicomToEncrypt.isEmpty()){
 				Object[] options = {"Finish & stop",
 	                    "Force stop"};
-				final JOptionPane optionPane = new JOptionPane(
+				int r = JOptionPane.showOptionDialog(WindowManager.MAINWINDOW,
 					    ""+dicomToEncrypt.size() + " need to be encrypt ...",
+					    "Warning",
 					    JOptionPane.YES_NO_CANCEL_OPTION,
 					    JOptionPane.QUESTION_MESSAGE,
 					    null,
 					    options,
 					    options[0]);
-				String result = (String)optionPane.getValue();
-				if(result==null)
-					return;
-				if(result.equals(options[1]))
+				//String result = (String)optionPane.getValue();
+				/*if(r==null)
+					return;*/
+				if(r == 0)
 					waitingToStop = true;
 				else
 					this.stop = true;
