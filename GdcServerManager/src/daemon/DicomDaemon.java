@@ -34,19 +34,16 @@ public class DicomDaemon extends Thread{
 	private EncryptDaemon encryptDaemon;
 	private NiftiDaemon niftiDaemon;
 	private boolean stop;
-	private boolean waitingToStop;
 	
 	public DicomDaemon(ServerInfo si){
 		setServerInfo(si);
 		dicomJobDispatcher = new DicomJobDispatcher(this);
-		waitingToStop = false;
 	}
 	public DicomDaemon(ServerInfo si, NiftiDaemon ndaemon) {
 		setServerInfo(si);
 		setNiftiDaemon(ndaemon);
 		dicomJobDispatcher = new DicomJobDispatcher(this);
 		encryptDaemon = new EncryptDaemon(this);
-		waitingToStop = false;
 	}
 	
 	/*
@@ -104,10 +101,8 @@ public class DicomDaemon extends Thread{
 		        }
 		        if(isStop()){
 		        	encryptDaemon.setStop(true);
-		        	if(encryptDaemon.isStop() || encryptDaemon.isWaitingToStop()){
+		        	if(encryptDaemon.isStop()){
 		        		dicomJobDispatcher.setStop(true);
-		        		if(encryptDaemon.isWaitingToStop())
-		        			waitingToStop = true;
 		        		break;
 		        	}else{
 		        		setStop(false);
@@ -145,23 +140,18 @@ public class DicomDaemon extends Thread{
 	public void setStop(boolean b) {
 		stop = b;
 		encryptDaemon.setStop(true);
-    	if(encryptDaemon.isStop() || encryptDaemon.isWaitingToStop()){
+    	if(encryptDaemon.isStop()){
     		dicomJobDispatcher.setStop(true);
-    		if(encryptDaemon.isWaitingToStop())
-    			waitingToStop = true;
     	}else{
     		setStop(false);
     	}
 	}
 	public void forceStop(){
-		encryptDaemon.forceStop(true);
+		encryptDaemon.setStop(true);
 		dicomJobDispatcher.forceStop(true);
 	}
 	public boolean isStop() {
 		return stop;
-	}
-	public boolean isWaitingToStop() {
-		return waitingToStop;
 	}
 
 }

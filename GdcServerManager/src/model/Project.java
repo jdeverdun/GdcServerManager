@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,8 +14,12 @@ import java.util.Set;
  * @created 03-Nov-2009 16:58:21
  */
 
-public class Project {
+public class Project implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String nom;
 	private String remoteKey;

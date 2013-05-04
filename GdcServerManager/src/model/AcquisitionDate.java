@@ -1,13 +1,18 @@
 package model;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Set;
 
-public class AcquisitionDate {
+public class AcquisitionDate implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// Champs statiques, format par defaut sql
 	public static String SQL_DATE_FORMAT = "yyyyMMdd";
 	public static String DICOM_DATE_FORMAT = "yyyyMMdd";

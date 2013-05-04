@@ -850,11 +850,7 @@ public class MainWindow extends JFrame {
 		// On nettoie le repertoire temporaire quand on quitte le programme
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
-		    	SwingUtilities.invokeLater(new Runnable(){
-					public void run(){
-						forceStopDaemons();
-					}
-		    	});
+		    	forceStopDaemons();
 		    	try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(SystemSettings.SERVER_INFO.getTempDir())) {
 			    	for(Path p:directoryStream){
 			    		if(!p.endsWith(".") && p.toFile().isDirectory())
@@ -1184,8 +1180,8 @@ public class MainWindow extends JFrame {
 				daemonLaunched = false;
 				mntmStartstop.setText("Start");
 			}else{
-				if(SystemSettings.DICOM_DAEMON.isWaitingToStop()  && SystemSettings.DICOM_DAEMON.isAlive()){
-					SystemSettings.NIFTI_DAEMON.setWaitingToStop(true);
+				if(SystemSettings.DICOM_DAEMON.isAlive()){
+					SystemSettings.NIFTI_DAEMON.setStop(true);
 					daemonLaunched = false;
 					mntmStartstop.setText("Start");
 				}
@@ -1202,10 +1198,10 @@ public class MainWindow extends JFrame {
 			SystemSettings.DICOM_NODE = null;
 		}
 		if(SystemSettings.DICOM_DAEMON!=null){
-				SystemSettings.DICOM_DAEMON.forceStop();
+				SystemSettings.DICOM_DAEMON.setStop(true);
 		}
 		if(SystemSettings.NIFTI_DAEMON!=null){
-			SystemSettings.NIFTI_DAEMON.forceStop();
+			SystemSettings.NIFTI_DAEMON.setStop(true);
 		}
 		daemonLaunched = false;
 	}

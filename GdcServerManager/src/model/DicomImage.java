@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 
-public class DicomImage {
+public class DicomImage implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String mri_name;
 	private Project projet;
@@ -107,4 +112,5 @@ public class DicomImage {
 	public void setMri_name(String mri_name) {
 		this.mri_name = mri_name;
 	}
+
 }

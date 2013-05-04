@@ -1,9 +1,14 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class Patient {
+public class Patient implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String birthdate;
 	private String sex;

@@ -1,13 +1,23 @@
 package daemon;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import es.vocali.util.AESCrypt;
+
+import settings.SystemSettings;
 
 
 
@@ -36,13 +46,14 @@ public class NiftiDaemon extends Thread{
 	public static final int FSL_NIFTI = 3; // nifti FSL nii.gz
 	public static int defaultFormat = NIFTI_4D;
 	
+	// fichier de backup
+	private static final String BACKUP_FILE = "niftiDaemon.bak";
 	
 	// la hashmap qui contient les repertoires a convertir et la date de la derniere modif de ce repertoire
 	private ConcurrentHashMap<Path, DicomImage> dir2convert; 
 	private ServerInfo serverInfo;
 	private int format = defaultFormat; // ANALYZE, NIFTI etc 
 	private boolean stop;
-	private boolean waitingToStop;
 	private CustomConversionSettings settings;
 	private float waitTimeToConvert; // cf setServerMode();
 	
@@ -52,7 +63,8 @@ public class NiftiDaemon extends Thread{
 		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
-		waitingToStop = false;
+		if(getSettings().isServerMode())
+			loadBackup();
 	}
 
 	public NiftiDaemon(ServerInfo si){
@@ -60,7 +72,8 @@ public class NiftiDaemon extends Thread{
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
-		waitingToStop = false;
+		if(getSettings().isServerMode())
+			loadBackup();
 	}
 	
 	// format 
@@ -70,7 +83,8 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
-		waitingToStop = false;
+		if(getSettings().isServerMode())
+			loadBackup();
 	}	
 	
 	/**
@@ -85,7 +99,6 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
-		waitingToStop = false;
 	}
 	
 	// Accesseurs
@@ -106,6 +119,8 @@ public class NiftiDaemon extends Thread{
 
 	public void setStop(boolean stop) {
 		this.stop = stop;
+		if(!dir2convert.isEmpty())
+			saveBackup();
 	}
 
 
@@ -130,6 +145,10 @@ public class NiftiDaemon extends Thread{
 	// Methodes
 	public void run(){
 		System.out.println("Nifti Daemon Online.");
+		// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
+		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+		if(backupfile.exists())
+			backupfile.delete();
 		while(!isStop()){
 			// On evite une utilisation trop importante du CPU
 			// avec des boucles infini
@@ -138,8 +157,6 @@ public class NiftiDaemon extends Thread{
 			} catch (InterruptedException e2) {
 				e2.printStackTrace();
 			}
-			if(dir2convert.isEmpty() && waitingToStop)
-				setStop(true);
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
 			while(it.hasNext() && !isStop()){
@@ -148,6 +165,10 @@ public class NiftiDaemon extends Thread{
 					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					if(getSettings().isServerMode()){
+						// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
+						// si ce n'est pas le cas on
+						if(!isDirFullyEncrypted(path)) 
+							continue;
 						NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
 						nworker.start();
 					}else{
@@ -162,6 +183,19 @@ public class NiftiDaemon extends Thread{
 	}
 	
 
+
+	/**
+	 * Test si le repertoire path ne contient que des fichiers encrypte (termine par l'extension .enc)
+	 * @param path
+	 * @return
+	 */
+	public boolean isDirFullyEncrypted(Path path) {
+		for(String p:path.toFile().list()){
+			if(!p.endsWith(AESCrypt.ENCRYPTSUFFIX))
+				return false;
+		}
+		return true;
+	}
 
 	public void addDir(Path dir,DicomImage di){
 		if(dir2convert.containsKey(dir)) return;
@@ -179,10 +213,6 @@ public class NiftiDaemon extends Thread{
 		}
 		long time = System.currentTimeMillis() - attrs.lastModifiedTime().toMillis();
 		return time;
-	}
-
-	public void setWaitingToStop(boolean b) {
-		waitingToStop = b;
 	}
 
 	public float getWaitTimeToConvert() {
@@ -213,5 +243,65 @@ public class NiftiDaemon extends Thread{
 		this.stop = true;
 	}
 	
+	/**
+	 * Sauvegarde le daemon pour une reprise ulterieure
+	 * sauvegarde dans le repertoire du programme "/cache"
+	 */
+	private void saveBackup(){
+		Path savePath = Paths.get(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR);
+		if(!savePath.toFile().exists())
+			savePath.toFile().mkdir();
+		
+		try{
+			// Open a file to write to
+			FileOutputStream saveFile=new FileOutputStream(savePath+File.separator+BACKUP_FILE);
 	
+			// Create an ObjectOutputStream to put objects into save file.
+			ObjectOutputStream save = new ObjectOutputStream(saveFile);
+			
+			// sauvegarde des donnees dans une structure serializable
+			ConcurrentHashMap<String, DicomImage> toSave = new ConcurrentHashMap<String, DicomImage>();
+			for(Path p:dir2convert.keySet()){
+				toSave.put(p.toString(), dir2convert.get(p));
+			}
+			save.writeObject(toSave);
+			
+			save.close();
+		}catch(IOException e){
+			e.printStackTrace();
+			new File(savePath+File.separator+BACKUP_FILE).delete();
+		}
+	}
+
+	/**
+	 * Charge des donnees de backup
+	 */
+	private void loadBackup(){
+		Path savePath = Paths.get(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+		if(!savePath.toFile().exists())
+			return;
+		
+		try{
+			// Open file to read from, named SavedObj.sav.
+			FileInputStream saveFile = new FileInputStream(savePath.toString());
+	
+			// Create an ObjectInputStream to get objects from save file.
+			ObjectInputStream save = new ObjectInputStream(saveFile);
+			
+			ConcurrentHashMap<String, DicomImage> dir2convertbak = (ConcurrentHashMap<String, DicomImage>) save.readObject();
+			save.close();
+			
+			// On rajoute les donnnees sauvegardees 
+			for(String p:dir2convertbak.keySet()){
+				Path lp = Paths.get(p);
+				if(!dir2convert.contains(lp))
+					dir2convert.put(lp,dir2convertbak.get(p));
+			}
+
+			
+		}catch(IOException | ClassNotFoundException e){
+			e.printStackTrace();
+		}
+		
+	}
 }

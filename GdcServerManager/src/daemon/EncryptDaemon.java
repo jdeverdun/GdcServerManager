@@ -1,12 +1,20 @@
 package daemon;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
 import display.MainWindow;
 
+import settings.SystemSettings;
 import settings.WindowManager;
 
 import model.DicomImage;
@@ -20,13 +28,13 @@ import model.ServerInfo;
  */
 public class EncryptDaemon extends Thread {
 
+	private static final String BACKUP_FILE = "encryptDaemon.bak";
 	private LinkedList<Path> dicomToEncrypt;
 	private LinkedList<DicomImage> dicomImageToEncrypt;
 	private DicomEncryptWorker dEncryptWorker;
 	private ServerInfo serverInfo;
 	private DicomDaemon dicomDaemon;
 	private boolean stop;
-	private boolean waitingToStop;
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -34,18 +42,20 @@ public class EncryptDaemon extends Thread {
 		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
-		waitingToStop = false;
+		loadBackup();
 	}
 	
 	
 	@Override
 	public void run() {
 		System.out.println("Encrypter Online.");
+		// on supprime le fichier backup si il existe (car on l'a deja charge)
+		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+		if(backupfile.exists())
+			backupfile.delete();
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty()){
-				if(waitingToStop)
-					setStop(true);
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -65,39 +75,80 @@ public class EncryptDaemon extends Thread {
 	}
 	public void setStop(boolean stop) {
 		if(stop = true){
-			if(!dicomToEncrypt.isEmpty()){
-				Object[] options = {"Finish & stop",
-	                    "Force stop"};
-				int r = JOptionPane.showOptionDialog(WindowManager.MAINWINDOW,
-					    ""+dicomToEncrypt.size() + " need to be encrypt ...",
-					    "Warning",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[0]);
-				//String result = (String)optionPane.getValue();
-				/*if(r==null)
-					return;*/
-				if(r == 0)
-					waitingToStop = true;
-				else
-					this.stop = true;
-			}
+			this.stop = true;
+			if(!dicomToEncrypt.isEmpty())
+				saveBackup();
 		}else{
 			this.stop = stop;
 		}
 	}
-	public boolean isWaitingToStop() {
-		return waitingToStop;
+
+	/**
+	 * Sauvegarde le daemon pour une reprise ulterieure
+	 * sauvegarde dans le repertoire du programme "/cache"
+	 */
+	private void saveBackup(){
+		Path savePath = Paths.get(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR);
+		if(!savePath.toFile().exists())
+			savePath.toFile().mkdir();
+		
+		try{
+			// Open a file to write to
+			FileOutputStream saveFile=new FileOutputStream(savePath+File.separator+BACKUP_FILE);
+	
+			// Create an ObjectOutputStream to put objects into save file.
+			ObjectOutputStream save = new ObjectOutputStream(saveFile);
+			
+			// sauvegarde des donnees
+			LinkedList<String> toSave = new LinkedList<String>();
+			for(Path p:dicomToEncrypt){
+				toSave.add(p.toString());
+			}
+			save.writeObject(toSave);
+			save.writeObject(dicomImageToEncrypt);
+			
+			save.close();
+		}catch(IOException e){
+			e.printStackTrace();
+			new File(savePath+File.separator+BACKUP_FILE).delete();
+		}
 	}
 
-
-	public void setWaitingToStop(boolean waitingToStop) {
-		this.waitingToStop = waitingToStop;
+	/**
+	 * Charge des donnees de backup
+	 */
+	private void loadBackup(){
+		Path savePath = Paths.get(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+		if(!savePath.toFile().exists())
+			return;
+		
+		try{
+			// Open file to read from, named SavedObj.sav.
+			FileInputStream saveFile = new FileInputStream(savePath.toString());
+	
+			// Create an ObjectInputStream to get objects from save file.
+			ObjectInputStream save = new ObjectInputStream(saveFile);
+			
+			LinkedList<String> dicomToEncryptBak = (LinkedList<String>) save.readObject();
+			LinkedList<DicomImage> dicomImageToEncryptBak = (LinkedList<DicomImage>) save.readObject();
+			save.close();
+			
+			// On rajoute les donnnees sauvegardees 
+			for(String p:dicomToEncryptBak){
+				Path lp = Paths.get(p);
+				if(!dicomToEncrypt.contains(lp))
+					dicomToEncrypt.add(lp);
+			}
+			for(DicomImage di:dicomImageToEncryptBak){
+				if(!dicomImageToEncrypt.contains(di))
+					dicomImageToEncrypt.add(di);
+			}
+			
+		}catch(IOException | ClassNotFoundException e){
+			e.printStackTrace();
+		}
+		
 	}
-
-
 	public LinkedList<Path> getDicomToEncrypt() {
 		return dicomToEncrypt;
 	}
