@@ -431,6 +431,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(prot.charAt(0) == ' ')
 			prot = prot.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
+			prot = prot.substring(0,prot.length()-1);	
 		// on remplace les caracteres complique par "_"
 		prot = prot.replaceAll("[^A-Za-z0-9]" , "_");
 		return prot;
@@ -446,7 +449,10 @@ public class DicomWorker extends DaemonWorker {
 			return "Unknown";
 		// On enleve les espace en debut de chaine
 		while(pname.charAt(0) == ' ')
-			pname = pname.substring(1);			
+			pname = pname.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9]" , "_");
 		return pname;
@@ -464,6 +470,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(sdesc.charAt(0) == ' ')
 			sdesc = sdesc.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
+			sdesc = sdesc.substring(0,sdesc.length()-1);
 		// on remplace les caracteres complique par "_"
 		sdesc = sdesc.replaceAll("[^A-Za-z0-9]" , "_");
 		return sdesc;
@@ -480,6 +489,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(bdate.charAt(0) == ' ')
 			bdate = bdate.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
+			bdate = bdate.substring(0,bdate.length()-1);
 		// on remplace les caracteres complique par "_"
 		bdate = bdate.replaceAll("[^A-Za-z0-9]" , "_");
 		return bdate;
@@ -495,6 +507,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(psex.charAt(0) == ' ')
 			psex = psex.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
+			psex = psex.substring(0,psex.length()-1);
 		// on remplace les caracteres complique par "_"
 		psex = psex.replaceAll("[^A-Za-z0-9]" , "_");
 		return psex;
@@ -511,6 +526,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(iname.charAt(0) == ' ')
 			iname = iname.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
+			iname = iname.substring(0,iname.length()-1);
 		// on remplace les caracteres complique par "_"
 		iname = iname.replaceAll("[^A-Za-z0-9]" , "_");
 		return iname;
@@ -527,6 +545,9 @@ public class DicomWorker extends DaemonWorker {
 		// On enleve les espace en debut de chaine
 		while(pprot.charAt(0) == ' ')
 			pprot = pprot.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
+			pprot = pprot.substring(0,pprot.length()-1);
 		// on remplace les caracteres complique par "_"
 		pprot = pprot.replaceAll("[^A-Za-z0-9]" , "_");
 		return pprot;
@@ -541,6 +562,9 @@ public class DicomWorker extends DaemonWorker {
 			return "Unknown";
 		while(pdate.charAt(0) == ' ')
 			pdate = pdate.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+			pdate = pdate.substring(0,pdate.length()-1);
 		// on remplace les caracteres complique par "_"
 		pdate = pdate.replaceAll("[^A-Za-z0-9]" , "_");
 		return pdate;

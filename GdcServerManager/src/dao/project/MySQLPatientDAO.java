@@ -45,7 +45,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				Patient pat = new Patient();
 				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
 				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
-				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 				patients.add(pat);
@@ -147,7 +147,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			while(rset.next()){
 				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
 				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
-				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
@@ -184,7 +184,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			while(rset.next()){
 				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
 				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
-				pat.setBirthdate(rset.getString(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}

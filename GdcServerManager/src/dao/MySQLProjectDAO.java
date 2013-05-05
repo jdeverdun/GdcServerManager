@@ -262,15 +262,15 @@ public class MySQLProjectDAO implements ProjectDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			
-			/*
-			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
-			 */
 			DBTables tab = SQLSettings.TABLES;
 			ProjectTable nt = tab.getProject();
 
-
-			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getName()+"='" +project+"'");
+			// on recupere l'id du projet
+			Project temp = retrieveProject(project);
 			
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getName()+"='" +project+"'");
+			UserProjectDAO udao = new MySQLUserProjectDAO();
+			udao.removeProject(temp.getId());
 			return;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

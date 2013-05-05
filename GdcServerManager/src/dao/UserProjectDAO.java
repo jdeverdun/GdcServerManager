@@ -15,4 +15,5 @@ public interface UserProjectDAO {
 	public boolean exists(int user_id, int project_id) throws SQLException;
 	public int removeLink(String login, String projectname) throws SQLException;
 	public int removeLink(int id_user, int id_project) throws SQLException;
+	public boolean removeProject(int idproject) throws SQLException;
 }

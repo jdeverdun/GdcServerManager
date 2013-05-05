@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Set;
 
 public class Patient implements Serializable{
@@ -10,7 +11,7 @@ public class Patient implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private int id;
-	private String birthdate;
+	private Date birthdate;
 	private String sex;
 	private Project project;
 	private String nom;
@@ -70,12 +71,12 @@ public class Patient implements Serializable{
 	}
 
 
-	public String getBirthdate() {
+	public Date getBirthdate() {
 		return birthdate;
 	}
 
 
-	public void setBirthdate(String birthdate) {
+	public void setBirthdate(Date birthdate) {
 		this.birthdate = birthdate;
 	}
 

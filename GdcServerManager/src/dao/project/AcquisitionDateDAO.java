@@ -23,15 +23,15 @@ public interface AcquisitionDateDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-    public AcquisitionDate retrieveAcqDate(String name, int project_id, int patient_id) throws SQLException; 
+    public AcquisitionDate retrieveAcqDate(String date, int project_id, int patient_id) throws SQLException; 
       
 
     public int idmax() throws SQLException;
       
 
-    public boolean newAcqDate(String name, int projet_id, int patient_id) throws SQLException;
+    public boolean newAcqDate(String date, int projet_id, int patient_id) throws SQLException;
       
-    public boolean updateAcqDate(int id, String name, int projet_id, int patient_id) throws SQLException;
+    public boolean updateAcqDate(int id, String date, int projet_id, int patient_id) throws SQLException;
       
 	public Set<AcquisitionDate> getAcqDateForPatient(int id) throws SQLException;
 	public Set<AcquisitionDate> getAcqDateForProject(int id) throws SQLException;

@@ -161,7 +161,13 @@ public class NiftiDaemon extends Thread{
 			Iterator<Path> it = keys.iterator();
 			while(it.hasNext() && !isStop()){
 				Path path = it.next();
-				if(timeSinceModif(path) > waitTimeToConvert ){
+				long timeSincemod = timeSinceModif(path);
+				// Si == -1 alors le dicom d'origine a ete supprime entre temps -> pas besoin de convertir le repertoire
+				if(timeSincemod==-1){
+					dir2convert.remove(path);
+					continue;
+				}
+				if( timeSincemod > waitTimeToConvert ){
 					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 					// /!\ dcm2nii.exe DOIT etre dans le path
 					if(getSettings().isServerMode()){
@@ -208,11 +214,13 @@ public class NiftiDaemon extends Thread{
 		BasicFileAttributes attrs = null;
 		try {
 			attrs = Files.readAttributes(dir, BasicFileAttributes.class);
+			long time = System.currentTimeMillis() - attrs.lastModifiedTime().toMillis();
+			return time;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return -1;
 		}
-		long time = System.currentTimeMillis() - attrs.lastModifiedTime().toMillis();
-		return time;
+		
 	}
 
 	public float getWaitTimeToConvert() {

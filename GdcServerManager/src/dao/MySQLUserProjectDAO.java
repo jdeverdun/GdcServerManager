@@ -209,4 +209,25 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 	
 	}
 
+	@Override
+	public boolean removeProject(int idproject) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			
+			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_project()+"="+idproject);
+
+			return true;
+		} catch (SQLException e2) {
+			System.err.println("Erreur SQL " + e2);
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+
 }

@@ -22,7 +22,7 @@ constraint id_project_fk foreign key (id_project) references Project(id) on dele
 constraint user_project_pk primary key (id_user, id_project));
 
 create table Patient
-(id integer NOT NULL AUTO_INCREMENT, name varchar(50), birthdate varchar(50), sex varchar(3), id_project integer,
+(id integer NOT NULL AUTO_INCREMENT, name varchar(50), birthdate date, sex varchar(3), id_project integer,
 constraint patient_pk primary key (id),
 constraint uprojet_namepat unique(name,id_project),
 constraint projectpatient_fk foreign key (id_project) references Project(id) on delete cascade);

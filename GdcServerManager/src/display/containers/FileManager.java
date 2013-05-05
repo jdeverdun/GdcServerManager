@@ -45,6 +45,7 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import display.MainWindow;
+import es.vocali.util.AESCrypt;
 
 import settings.SystemSettings;
 import settings.UserProfile;
@@ -449,7 +450,8 @@ public class FileManager {
 				protocol = parts[serverdirlen+3];
 				serie = parts[serverdirlen+4];
 				image = parts[serverdirlen+5];
-				image = image.substring(0, image.length()-4);
+				image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
+				System.out.println(AESCrypt.ENCRYPTSUFFIX.length());
 				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
 				case ServerInfo.NRI_DICOM_NAME:
 					DicomImageDAO ddao = new MySQLDicomImageDAO();
@@ -463,10 +465,28 @@ public class FileManager {
 				
 				break;
 			}
-			if(fi.isDirectory())
+			if(fi.isDirectory()){
 				FileUtils.deleteQuietly(fi);
-			else
+				// on supprime l'equivalent dans l'autre repertoire (DICOM ou NIFTI)
+				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
+				case ServerInfo.NRI_DICOM_NAME:
+					parts[serverdirlen-1] = ServerInfo.NRI_ANALYSE_NAME;
+					break;
+				case ServerInfo.NRI_ANALYSE_NAME:
+					parts[serverdirlen-1] = ServerInfo.NRI_DICOM_NAME;
+					break;
+				}
+				String opath = "";
+				for(String p:parts)
+					opath += p+File.separator;
+				// on enleve le dernier separator 
+				opath = opath.substring(0,opath.length()-1);
+				File temp = new File(opath);
+				if(temp.exists())
+					FileUtils.deleteQuietly(new File(opath));
+			}else{
 				fi.delete();
+			}
 		}
 	}
 	/**

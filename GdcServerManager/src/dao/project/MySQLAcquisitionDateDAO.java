@@ -59,7 +59,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	
 	
 
-	public boolean newAcqDate(String nom, int project_id, int patient_id) throws SQLException {
+	public boolean newAcqDate(String date, int project_id, int patient_id) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -69,7 +69,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" values (NULL,'"
-						+ nom + "', "+project_id+","+patient_id+")");
+						+ date + "', "+project_id+","+patient_id+")");
 				
 				return true;
 				
@@ -159,7 +159,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	}
 	
 	@Override
-	public AcquisitionDate retrieveAcqDate(String name, int project_id, int patient_id) throws SQLException {
+	public AcquisitionDate retrieveAcqDate(String date, int project_id, int patient_id) throws SQLException {
 		AcquisitionDate acq = new AcquisitionDate();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -169,11 +169,11 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			stmt = connection.createStatement();
 			PatientDAO pdao=new MySQLPatientDAO();		
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
-				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+name+"' " +
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+date+"' " +
 						"and "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+project_id+" and " +
 								""+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+patient_id);
 			}else{
-				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+name+"' " +
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+date+"' " +
 						"and "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+project_id+" and " +
 								""+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+patient_id);
 			}
@@ -197,14 +197,14 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	}
 
 	@Override
-	public boolean updateAcqDate(int id, String name, int id_project, int id_patient) throws SQLException {
+	public boolean updateAcqDate(int id, String date, int id_project, int id_patient) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" set "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+name+"'," +
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" set "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+date+"'," +
 					" "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+id_patient+" " +
 							"where "+SQLSettings.TABLES.getAcquisitionDate().getId()+"="+id);
 			return true;
