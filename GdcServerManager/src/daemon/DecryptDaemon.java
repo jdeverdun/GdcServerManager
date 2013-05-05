@@ -35,6 +35,8 @@ public class DecryptDaemon extends Thread {
 		while(!isStop()){
 			// check si il y a des donnees a decrypter
 			while(fileToDecrypt.isEmpty()){
+				if(isStop())
+					return;
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -55,6 +57,8 @@ public class DecryptDaemon extends Thread {
 	}
 	public void setStop(boolean stop) {
 		this.stop = stop;
+		if(stop)
+			System.out.println("Decrypter offline");
 	}
 
 	public LinkedList<Path[]> getFileToDecrypt() {
@@ -97,6 +101,14 @@ public class DecryptDaemon extends Thread {
 
 	public void cleanList() {
 		fileToDecrypt.clear();
+	}
+
+
+	public String getStatus() {
+		if(isAlive())
+			return fileToDecrypt.size()+" files to decrypt.";
+		else
+			return "";
 	}
 	
 

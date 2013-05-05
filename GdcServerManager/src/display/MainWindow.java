@@ -26,6 +26,7 @@ import settings.SystemSettings;
 import settings.UserProfile;
 import settings.WindowManager;
 
+import daemon.DaemonStatusThread;
 import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
 import daemon.DicomNode;
@@ -44,6 +45,7 @@ import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
+import display.containers.ServerStatusPanel;
 import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
@@ -120,6 +122,7 @@ public class MainWindow extends JFrame {
 	private JMenuItem mntmLinkProject;
 	private JMenuItem mntmUnlinkProject;
 	private RequestPanel requetePanel;
+	private ServerStatusPanel sstatusPanel;
 	private JMenu mnDicom;
 	private JMenuItem mntmSort;
 	private DicomSortConvertPanel dicomSortConvertPanel;
@@ -379,6 +382,11 @@ public class MainWindow extends JFrame {
 			gbc_btndistToWorkspace.gridy = 0;
 			buttonsDistpanel.add(btndistToWorkspace, gbc_btndistToWorkspace);
 			
+			sstatusPanel = new ServerStatusPanel();
+			ongletPane.addTab("Monitor", null, sstatusPanel,
+	                "Status of daemons Threads");
+			SystemSettings.DAEMON_STATUS_THREAD = new DaemonStatusThread(sstatusPanel);
+			SystemSettings.DAEMON_STATUS_THREAD.start();
 			// Listeners
 			btnRefresh.addActionListener(new ActionListener() {
 				
@@ -996,6 +1004,18 @@ public class MainWindow extends JFrame {
 		return treelocalbuttonPane;
 	}
 
+	public ServerStatusPanel getSstatusPanel() {
+		return sstatusPanel;
+	}
+
+
+
+	public void setSstatusPanel(ServerStatusPanel sstatusPanel) {
+		this.sstatusPanel = sstatusPanel;
+	}
+
+
+
 	public void setTreelocalbuttonPane(JSplitPane treelocalbuttonPane) {
 		this.treelocalbuttonPane = treelocalbuttonPane;
 	}
@@ -1154,7 +1174,7 @@ public class MainWindow extends JFrame {
 		SystemSettings.NIFTI_DAEMON = new NiftiDaemon(SystemSettings.SERVER_INFO);
 		SystemSettings.NIFTI_DAEMON.start();
 		// On lance le daemon Dicom
-		SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO,SystemSettings.NIFTI_DAEMON);
+		SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO);
 		SystemSettings.DICOM_DAEMON.start();
 		SystemSettings.DICOM_NODE  = new DicomNode();
 		SystemSettings.DICOM_NODE.start();
@@ -1203,6 +1223,10 @@ public class MainWindow extends JFrame {
 		if(SystemSettings.NIFTI_DAEMON!=null){
 			SystemSettings.NIFTI_DAEMON.setStop(true);
 		}
+		if(SystemSettings.DECRYPT_DAEMON!=null)
+			SystemSettings.DECRYPT_DAEMON.setStop(true);
+		if(SystemSettings.DAEMON_STATUS_THREAD!=null)
+			SystemSettings.DAEMON_STATUS_THREAD.setStop(true);
 		daemonLaunched = false;
 	}
 	

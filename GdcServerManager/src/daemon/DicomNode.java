@@ -17,6 +17,7 @@ public class DicomNode {
 	private DcmRcv dcmrcv;
 	private int port;
 	private String hostname;
+	private boolean alive;
 	
 	public DicomNode(){
 		dcmrcv = new DcmRcv("DCMRCV");
@@ -42,6 +43,7 @@ public class DicomNode {
 		
 	}
 	public void initDcmRcv(){
+		alive = false;
 		dcmrcv.setDestination(SystemSettings.SERVER_INFO.getIncomingDir().toString());
 		dcmrcv.setStgCmtReuseFrom(false);
         dcmrcv.setStgCmtReuseTo(false);
@@ -53,6 +55,7 @@ public class DicomNode {
 	public void start(){
         try {
             dcmrcv.start();
+            alive = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,6 +63,7 @@ public class DicomNode {
 
 	public void stop(){
 		dcmrcv.stop();
+		alive = false;
 	}
 	
 	public DcmRcv getDcmrcv() {
@@ -84,5 +88,15 @@ public class DicomNode {
 
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
+	}
+
+	public boolean isAlive() {
+		return alive;
+	}
+	public String getStatus() {
+		if(isAlive())
+			return "Running";
+		else
+			return "";
 	}
 }

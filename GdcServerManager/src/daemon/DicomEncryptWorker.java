@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 
+import settings.WindowManager;
+
 import model.DicomImage;
 
 import dao.project.DicomImageDAO;
@@ -62,7 +64,8 @@ public class DicomEncryptWorker extends DaemonWorker {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
+			System.out.println("Exception with encrypter : "+e.toString());
 		}
 		
 		
@@ -105,7 +108,8 @@ public class DicomEncryptWorker extends DaemonWorker {
 							dicomImage.getAcquistionDate().getId(),dicomImage.getProtocole().getId(),dicomImage.getSerie().getId());
 					dicomImage.setId(dicdao.idmax());
 				} catch (SQLException e) {
-					e.printStackTrace();
+					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
+					System.out.println("SQL Error : "+e.toString());
 				}
 				
 				break;

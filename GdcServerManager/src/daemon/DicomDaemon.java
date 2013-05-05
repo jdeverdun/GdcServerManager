@@ -12,6 +12,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 
+import settings.SystemSettings;
+
 import static java.nio.file.StandardWatchEventKinds.*;
 
 import model.DicomImage;
@@ -32,18 +34,23 @@ public class DicomDaemon extends Thread{
 	private ServerInfo serverInfo;
 	private DicomJobDispatcher dicomJobDispatcher;
 	private EncryptDaemon encryptDaemon;
-	private NiftiDaemon niftiDaemon;
 	private boolean stop;
+	private WatchService watcher;
 	
-	public DicomDaemon(ServerInfo si){
+	
+	public DicomDaemon(ServerInfo si) {
 		setServerInfo(si);
-		dicomJobDispatcher = new DicomJobDispatcher(this);
-	}
-	public DicomDaemon(ServerInfo si, NiftiDaemon ndaemon) {
-		setServerInfo(si);
-		setNiftiDaemon(ndaemon);
+		
+		// on stop les daemons si ils tournent deja
+		if(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive())
+			SystemSettings.ENCRYPT_DAEMON.setStop(true);
+		if(SystemSettings.DICOM_DISPATCHER!=null && SystemSettings.DICOM_DISPATCHER.isAlive())
+			SystemSettings.DICOM_DISPATCHER.setStop(true);
+		
 		dicomJobDispatcher = new DicomJobDispatcher(this);
 		encryptDaemon = new EncryptDaemon(this);
+		SystemSettings.ENCRYPT_DAEMON = encryptDaemon;
+		SystemSettings.DICOM_DISPATCHER = dicomJobDispatcher;
 	}
 	
 	/*
@@ -60,7 +67,7 @@ public class DicomDaemon extends Thread{
 		
 		Path dir = serverInfo.getIncomingDir();
 		try {
-			WatchService watcher = FileSystems.getDefault().newWatchService();
+			watcher = FileSystems.getDefault().newWatchService();
 		    WatchKey key2 = dir.register(watcher,
 		                           ENTRY_MODIFY);
 		    for (;;) {
@@ -72,7 +79,6 @@ public class DicomDaemon extends Thread{
 		        } catch (InterruptedException x) {
 		            return;
 		        }
-
 		        for (WatchEvent<?> event: key.pollEvents()) {
 		            WatchEvent.Kind<?> kind = event.kind();
 		            // This key is registered only
@@ -101,12 +107,8 @@ public class DicomDaemon extends Thread{
 		        }
 		        if(isStop()){
 		        	encryptDaemon.setStop(true);
-		        	if(encryptDaemon.isStop()){
-		        		dicomJobDispatcher.setStop(true);
-		        		break;
-		        	}else{
-		        		setStop(false);
-		        	}
+		        	dicomJobDispatcher.setStop(true);
+		        	break;
 		        }
 		    }
 		} catch (IOException x) {
@@ -124,34 +126,41 @@ public class DicomDaemon extends Thread{
 	}
 	public void setDicomJobDispatcher(DicomJobDispatcher dicomJobDispatcher) {
 		this.dicomJobDispatcher = dicomJobDispatcher;
-	}
-	public NiftiDaemon getNiftiDaemon() {
-		return niftiDaemon;
-	}
-	public void setNiftiDaemon(NiftiDaemon niftiDaemon) {
-		this.niftiDaemon = niftiDaemon;
+		SystemSettings.DICOM_DISPATCHER = this.dicomJobDispatcher;
 	}
 	public EncryptDaemon getEncryptDaemon() {
 		return encryptDaemon;
 	}
 	public void setEncryptDaemon(EncryptDaemon encryptDaemon) {
 		this.encryptDaemon = encryptDaemon;
+		SystemSettings.ENCRYPT_DAEMON = this.encryptDaemon;
 	}
 	public void setStop(boolean b) {
 		stop = b;
-		encryptDaemon.setStop(true);
-    	if(encryptDaemon.isStop()){
-    		dicomJobDispatcher.setStop(true);
-    	}else{
-    		setStop(false);
-    	}
+		if(b){
+			try {
+				watcher.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			encryptDaemon.setStop(true);
+	    	dicomJobDispatcher.setStop(true);
+	    	System.out.println("DicomDaemon offline");
+		}
 	}
 	public void forceStop(){
 		encryptDaemon.setStop(true);
 		dicomJobDispatcher.forceStop(true);
+		System.out.println("DicomDaemon offline");
 	}
 	public boolean isStop() {
 		return stop;
 	}
 
+	public String getStatus() {
+		if(this.isAlive())
+			return "Running";
+		else
+			return "";
+	}
 }

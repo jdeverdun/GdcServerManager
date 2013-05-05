@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import es.vocali.util.AESCrypt;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 
 
@@ -119,8 +120,11 @@ public class NiftiDaemon extends Thread{
 
 	public void setStop(boolean stop) {
 		this.stop = stop;
-		if(!dir2convert.isEmpty())
-			saveBackup();
+		if(stop){
+			System.out.println("NiftiDaemon offline");
+			if(!dir2convert.isEmpty())
+				saveBackup();
+		}
 	}
 
 
@@ -249,6 +253,7 @@ public class NiftiDaemon extends Thread{
 	 */
 	public void forceStop(){
 		this.stop = true;
+		System.out.println("Nifti Daemon offline");
 	}
 	
 	/**
@@ -308,8 +313,16 @@ public class NiftiDaemon extends Thread{
 
 			
 		}catch(IOException | ClassNotFoundException e){
-			e.printStackTrace();
+			System.out.println("IOException | ClassNotFoundException  with niftiDaemon : "+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		}
 		
+	}
+	
+	public String getStatus() {
+		if(isAlive())
+			return dir2convert.size()+" directories to convert.";
+		else
+			return "";
 	}
 }

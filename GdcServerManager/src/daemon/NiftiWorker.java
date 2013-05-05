@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import settings.WindowManager;
+
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
 
@@ -164,11 +166,14 @@ public class NiftiWorker extends DaemonWorker {
 
 			
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("IOException with niftiWorker : "+e1.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e1.toString().substring(0, Math.min(e1.toString().length(), 100)));
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("InterruptedException with niftiWorker : "+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
+			System.out.println("GeneralSecurityException with niftiWorker : "+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		}
 
 	}
@@ -194,7 +199,8 @@ public class NiftiWorker extends DaemonWorker {
 			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("SQLException with niftiWorker : "+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		}
 		
 	}
@@ -233,7 +239,8 @@ public class NiftiWorker extends DaemonWorker {
 				dicdao.newNiftiImage(name.getFileName().toString(), sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println("SQLException with niftiWorker : "+e.toString());
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 			}
 			break;
 		default:

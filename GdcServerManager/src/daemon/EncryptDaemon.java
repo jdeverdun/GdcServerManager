@@ -78,6 +78,7 @@ public class EncryptDaemon extends Thread {
 			this.stop = true;
 			if(!dicomToEncrypt.isEmpty())
 				saveBackup();
+			System.out.println("Encrypter offline");
 		}else{
 			this.stop = stop;
 		}
@@ -190,7 +191,18 @@ public class EncryptDaemon extends Thread {
 	 */
 	public void sendToNiftiDaemon(DicomEncryptWorker dEncryptWorker) {
 		if(dEncryptWorker.getPatientFolder() != null){
-			getDicomDaemon().getNiftiDaemon().addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
+			if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive()){
+				SystemSettings.NIFTI_DAEMON.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
+			}else{
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
+				while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		dEncryptWorker = null;
 	}
@@ -204,4 +216,10 @@ public class EncryptDaemon extends Thread {
 		this.stop = true;
 	}
 
+	public String getStatus() {
+		if(isAlive())
+			return dicomToEncrypt.size()+" files to encrypt.";
+		else
+			return "";
+	}
 }

@@ -19,6 +19,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import settings.SystemSettings;
+import settings.WindowManager;
+
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -175,7 +178,18 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On ajoute le fichier brute dans la liste des fichiers
 		// a encrypter 
-		getDispatcher().getDicomDaemon().getEncryptDaemon().addDicomToEncrypt(newPath, dicomImage);
+		if(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive()){
+			SystemSettings.ENCRYPT_DAEMON.addDicomToEncrypt(newPath, dicomImage);
+		}else{
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblCommentdicomdispatcher().setText("Critical error : Encrypt Daemon offline, can't forward ... Please restart");
+			while(!(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive())){
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		
 		// On termine
 		prepareToStop();
@@ -330,7 +344,8 @@ public class DicomWorker extends DaemonWorker {
 				pdao.newProject(name.toString());
 				setProject_id(pdao.idmax());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+				System.out.println("SQL Error : "+e.toString());
 			}
 			break;
 		case "Patient":
@@ -339,7 +354,8 @@ public class DicomWorker extends DaemonWorker {
 				patdao.newPatient(name.toString(),this.birthdate,this.sex, getProject_id());
 				setPatient_id(patdao.idmax());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+				System.out.println("SQL Error : "+e.toString());
 			}
 			break;
 		case "AcqDate":
@@ -348,7 +364,8 @@ public class DicomWorker extends DaemonWorker {
 				acqdao.newAcqDate(name.toString(), getProject_id(), getPatient_id());
 				setAcqDate_id(acqdao.idmax());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+				System.out.println("SQL Error : "+e.toString());
 			}
 			break;
 		case "Protocol":
@@ -357,7 +374,8 @@ public class DicomWorker extends DaemonWorker {
 				protdao.newProtocol(name.toString(), getProject_id(), getPatient_id(),getAcqDate_id());
 				setProtocol_id(protdao.idmax());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+				System.out.println("SQL Error : "+e.toString());
 			}
 			break;
 		case "Serie":
@@ -366,7 +384,8 @@ public class DicomWorker extends DaemonWorker {
 				sdao.newSerie(name.toString(), 0, getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id());
 				setSerie_id(sdao.idmax());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+				System.out.println("SQL Error : "+e.toString());
 			}
 			break;
 		default:

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 import es.vocali.util.AESCrypt;
 
@@ -72,7 +73,8 @@ public class FileDecryptWorker extends DaemonWorker {
 			
 		} catch (GeneralSecurityException | IOException e) {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
-			e.printStackTrace();
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+			System.out.println("Decrypt error : "+e.toString());
 		}
 		
 		
@@ -87,7 +89,6 @@ public class FileDecryptWorker extends DaemonWorker {
 
 	@Override
 	protected void addEntryToDB(Path name, String table) {
-		// TODO Auto-generated method stub
 		
 	}
 	

@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import exceptions.DicomException;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 
 import model.DicomImage;
@@ -151,6 +152,8 @@ public class DicomJobDispatcher extends Thread{
 
 	public void setStop(boolean stop) {
 		this.stop = stop;
+		if(stop)
+			System.out.println("Dispatcher offline");
 	}
 	
 	// Methodes
@@ -200,6 +203,7 @@ public class DicomJobDispatcher extends Thread{
 									// a cause d'une erreur de copie ne contiennent pas tout les champs
 									if(settings.isDicomDebugMode())
 										System.out.println(locp+" : corrupted ... deleted");
+									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 									locp.toFile().delete();
 									cont=false;
 								}
@@ -280,5 +284,13 @@ public class DicomJobDispatcher extends Thread{
 	 */
 	public void forceStop(boolean b) {
 		this.stop = true;
+		System.out.println("Dispatcher offline");
+	}
+	
+	public String getStatus() {
+		if(isAlive())
+			return dicomToMove.size()+" files to move.";
+		else
+			return "";
 	}
 }
