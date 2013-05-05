@@ -194,7 +194,8 @@ public class EncryptDaemon extends Thread {
 			if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive()){
 				SystemSettings.NIFTI_DAEMON.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}else{
-				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
+				WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
 				while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
 					try {
 						Thread.sleep(5000);

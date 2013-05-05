@@ -1,1 +1,1 @@
-Changer le champs birthdate dans la bdd de varchar a date
+Faire les logs

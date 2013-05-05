@@ -484,6 +484,42 @@ public class ServerStatusPanel extends JPanel {
 	public void setRefreshTime(int refreshTime) {
 		this.refreshTime = refreshTime;
 	}
+	public JButton getBtnDicomdaemonstatus() {
+		return btnDicomdaemonstatus;
+	}
+	public void setBtnDicomdaemonstatus(JButton btnDicomdaemonstatus) {
+		this.btnDicomdaemonstatus = btnDicomdaemonstatus;
+	}
+	public JLabel getBtnDicomdispatcherstatus() {
+		return btnDicomdispatcherstatus;
+	}
+	public void setBtnDicomdispatcherstatus(JLabel btnDicomdispatcherstatus) {
+		this.btnDicomdispatcherstatus = btnDicomdispatcherstatus;
+	}
+	public JButton getBtnDicomnodestatus() {
+		return btnDicomnodestatus;
+	}
+	public void setBtnDicomnodestatus(JButton btnDicomnodestatus) {
+		this.btnDicomnodestatus = btnDicomnodestatus;
+	}
+	public JButton getBtnNiftidaemonstatus() {
+		return btnNiftidaemonstatus;
+	}
+	public void setBtnNiftidaemonstatus(JButton btnNiftidaemonstatus) {
+		this.btnNiftidaemonstatus = btnNiftidaemonstatus;
+	}
+	public JLabel getBtnEncrypterdaemonstatus() {
+		return btnEncrypterdaemonstatus;
+	}
+	public void setBtnEncrypterdaemonstatus(JLabel btnEncrypterdaemonstatus) {
+		this.btnEncrypterdaemonstatus = btnEncrypterdaemonstatus;
+	}
+	public JButton getBtnDecrypterdaemonstatus() {
+		return btnDecrypterdaemonstatus;
+	}
+	public void setBtnDecrypterdaemonstatus(JButton btnDecrypterdaemonstatus) {
+		this.btnDecrypterdaemonstatus = btnDecrypterdaemonstatus;
+	}
 	public boolean isDicomDaemonAlive() {
 		return dicomDaemonAlive;
 	}
@@ -627,6 +663,24 @@ public class ServerStatusPanel extends JPanel {
 	}
 	public void setLblWarningdecrypter(JLabel lblWarningdecrypter) {
 		this.lblWarningdecrypter = lblWarningdecrypter;
+	}
+	
+	/**
+	 * Permet de gerer les erreurs critiques (de passer le bouton en jaune)
+	 * @param string
+	 */
+	public void setCritical(JButton btn) {
+		btn.setIcon(iconYellow);
+		
+	}
+	
+	/**
+	 * Permet de gerer les erreurs critiques (de passer le bouton en jaune)
+	 * @param string
+	 */
+	public void setCritical(JLabel btn) {
+		btn.setIcon(iconYellow);
+		
 	}
 	
 	

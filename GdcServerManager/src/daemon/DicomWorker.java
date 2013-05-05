@@ -182,6 +182,7 @@ public class DicomWorker extends DaemonWorker {
 			SystemSettings.ENCRYPT_DAEMON.addDicomToEncrypt(newPath, dicomImage);
 		}else{
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblCommentdicomdispatcher().setText("Critical error : Encrypt Daemon offline, can't forward ... Please restart");
+			WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnDicomdispatcherstatus());
 			while(!(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive())){
 				try {
 					Thread.sleep(5000);
