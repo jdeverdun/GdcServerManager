@@ -76,7 +76,8 @@ public class DicomDaemon extends Thread{
 		        WatchKey key;
 		        try {
 		            key = watcher.take();
-		        } catch (InterruptedException x) {
+		        } catch (Exception x) {
+		        	System.out.println("Exception with DicomDaemon : "+x.toString());
 		            return;
 		        }
 		        for (WatchEvent<?> event: key.pollEvents()) {

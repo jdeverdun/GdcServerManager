@@ -396,6 +396,7 @@ public class RequestPanel extends JPanel {
 			    			+  chooser.getSelectedFile());
 			    }else {
 			    	System.out.println("No Selection ");
+			    	return;
 			    }
 			    final File dirsave = chooser.getSelectedFile();
 			    final File[] selectedFiles = new File[table.getSelectedRowCount()];
