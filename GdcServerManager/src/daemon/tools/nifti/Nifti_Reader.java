@@ -25,7 +25,7 @@ import ij.measure.*;
 */
 
 
-public class Nifti_Reader extends ImagePlus implements PlugIn {
+public class Nifti_Reader extends ImagePlus {
   
 	private boolean littleEndian = false;
 	private boolean isNiftiData = false;
@@ -40,13 +40,8 @@ public class Nifti_Reader extends ImagePlus implements PlugIn {
 
 	private NiftiHeader nfti_hdr;
 
-	public void run(String arg) {
-		OpenDialog od = new OpenDialog("Open Nifti...", arg);
-		String directory = od.getDirectory();
-		String name = od.getFileName();
-		if (name==null) return;
-		IJ.showStatus("Opening: " + directory + name);
-		ImagePlus imp = load(directory, name);
+	public Nifti_Reader(File fi) {
+		ImagePlus imp = load(fi.getParent(), fi.getName());
 		if (imp!=null) {
 			if (complex && imp.getStackSize()==1)
 				imp = splitComplexImage(imp);
@@ -108,7 +103,6 @@ public class Nifti_Reader extends ImagePlus implements PlugIn {
 			setDimensions(nChannels, depth, frames);
 			if (nChannels!=1) reshuffleStack( stack.getImageArray(), depth*frames, stack.getSize() ); 
 			if (nChannels*frames!=1) setOpenAsHyperStack(true);
-			if (arg.equals("")) show();
 		}
 	}
 

@@ -47,6 +47,7 @@ import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
 import display.containers.ServerStatusPanel;
 import display.containers.UserCreationPanel;
+import display.containers.ViewerPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
 
@@ -128,6 +129,7 @@ public class MainWindow extends JFrame {
 	private DicomSortConvertPanel dicomSortConvertPanel;
 	private JMenu mnEdit;
 	private JMenuItem mntmPreferences;
+	private ViewerPanel viewerPanel;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -231,10 +233,15 @@ public class MainWindow extends JFrame {
 		ongletPane.addTab("Selecter", null, requetePanel,
                 "Retrieve selective DATA");
 
+		// nifti viewer
+		viewerPanel = new ViewerPanel();
+		ongletPane.addTab("Viewer", null, viewerPanel,
+                "Viewer for images");
+		// converter
 		dicomSortConvertPanel = new DicomSortConvertPanel();
 		ongletPane.addTab("Sort & convert", null, dicomSortConvertPanel,
                 "Sort DICOM & convert to nifti");
-
+		
 		//ongletPane.setEnabledAt(2, false); 
 		if(i!=0){
 			
@@ -385,6 +392,7 @@ public class MainWindow extends JFrame {
 			sstatusPanel = new ServerStatusPanel();
 			ongletPane.addTab("Monitor", null, sstatusPanel,
 	                "Status of daemons Threads");
+			
 			SystemSettings.DAEMON_STATUS_THREAD = new DaemonStatusThread(sstatusPanel);
 			SystemSettings.DAEMON_STATUS_THREAD.start();
 			// Listeners
