@@ -47,9 +47,9 @@ import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
 import display.containers.ServerStatusPanel;
 import display.containers.UserCreationPanel;
-import display.containers.ViewerPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
+import display.containers.viewer.ViewerPanel;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;

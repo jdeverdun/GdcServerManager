@@ -15,8 +15,9 @@ public class Coordinate_Viewer extends PlugInFrame implements MouseMotionListene
 	private CoordinateMapper[] mapper;
 	private Label[] coors; 
 	
-	public Coordinate_Viewer() { 
+	public Coordinate_Viewer(ImagePlus imp) { 
 		super("Coordinate Viewer");
+		currentImage = imp;
 		setUpWindow();
 		setVisible(true); // show();
 	}
@@ -38,7 +39,7 @@ public class Coordinate_Viewer extends PlugInFrame implements MouseMotionListene
 		add(new Label("Image: "), gbc); 
 		gbc.gridx = 1; 
 		gbc.weightx = 1; 
-		currentImage = WindowManager.getCurrentImage(); 
+		//currentImage = WindowManager.getCurrentImage(); 
 		imageName = new Label( currentImage!=null ? currentImage.getTitle() : "" ); 
 		add(imageName, gbc); 
 	
@@ -116,7 +117,7 @@ public class Coordinate_Viewer extends PlugInFrame implements MouseMotionListene
 	
 		gbc.weighty = 1;
 		add(new Panel(), gbc);
-		
+		currentImage.show();
 		currentCanvas = currentImage.getWindow().getCanvas();
 		currentCanvas.addMouseMotionListener(this);
 		
