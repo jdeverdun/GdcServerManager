@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import daemon.tools.nifti.Coordinate_Viewer;
 import daemon.tools.nifti.Nifti_Reader;
+import daemon.tools.nifti.Slicer;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 
@@ -33,6 +34,7 @@ public class ViewerPanel extends JPanel{
 	private JSplitPane splitRight;
 	private JSplitPane splitLeft;
 	private JSplitPane splitLeftRight;
+	
 	public ViewerPanel(){
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		coord = new int[]{-1,-1,-1};
@@ -100,8 +102,10 @@ public class ViewerPanel extends JPanel{
 			close();
 		niftiAxial = new Nifti_Reader(path.toFile());
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
-		System.out.println("wtf");
-		Nifti_Reader niftiCoro = (Nifti_Reader) niftiAxial.clone();
+		niftiAxial.setSlice(40);
+		Slicer slicer = new Slicer(niftiAxial);
+		Nifti_Reader niftiCoro = slicer.flip(false, true, "Top");
+		getCoronalPanel().setImagePlus(niftiCoro);
 		Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 		revalidate();
 		//Nifti_Reader niftiSag = (Nifti_Reader) niftiAxial.clone();
@@ -118,7 +122,7 @@ public class ViewerPanel extends JPanel{
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();
-		v.open(Paths.get("C:/Users/Mobilette/Downloads/c2r30362_____20120503_14994592_028_T1_MPRAGE_3D.nii"));
+		v.open(Paths.get("Y:/EPILEPSIE/CONVERSION_NIFTI-Sauvergarde/AT_129____/20130415/T1_MPRAGE_3D_GADO_/T1_MPRAGE_3D_GADO_/T1MPRAGE3DGADOAT129.nii"));
 		JFrame testf = new JFrame("test");
 		testf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		testf.setSize(400,400);
