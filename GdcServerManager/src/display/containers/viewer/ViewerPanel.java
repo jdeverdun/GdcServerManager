@@ -105,7 +105,7 @@ public class ViewerPanel extends JPanel{
 		niftiAxial.setSlice(40);
 		Slicer slicer = new Slicer(niftiAxial);
 		Nifti_Reader niftiCoro = slicer.flip(false, true, "Top");
-		getCoronalPanel().setImagePlus(niftiCoro);
+		//getCoronalPanel().setImagePlus(niftiCoro);
 		Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 		revalidate();
 		//Nifti_Reader niftiSag = (Nifti_Reader) niftiAxial.clone();
