@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import daemon.tools.nifti.Coordinate_Viewer;
 import daemon.tools.nifti.Nifti_Reader;
 import daemon.tools.nifti.Slicer;
+import display.containers.viewer.NiftiImagePanel.Plan;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 
@@ -39,9 +40,9 @@ public class ViewerPanel extends JPanel{
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		coord = new int[]{-1,-1,-1};
 		niftiAxial = null;
-		axialPanel = new NiftiImagePanel();
-		coronalPanel = new NiftiImagePanel();
-		sagittalPanel = new NiftiImagePanel();
+		axialPanel = new NiftiImagePanel(this,Plan.AXIAL);
+		coronalPanel = new NiftiImagePanel(this,Plan.CORONAL);
+		sagittalPanel = new NiftiImagePanel(this,Plan.SAGITTAL);
 		
 		
 		splitLeftRight = new JSplitPane();
@@ -65,6 +66,7 @@ public class ViewerPanel extends JPanel{
 		splitRight.setLeftComponent(coronalPanel);
 		splitRight.setRightComponent(infoViewer);
 		splitRight.setResizeWeight(0.5f);
+		open(Paths.get("C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
 	}
 	
 	public NiftiImagePanel getAxialPanel() {
@@ -104,9 +106,12 @@ public class ViewerPanel extends JPanel{
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
 		niftiAxial.setSlice(40);
 		Slicer slicer = new Slicer(niftiAxial);
-		Nifti_Reader niftiCoro = slicer.flip(false, true, "Top");
-		//getCoronalPanel().setImagePlus(niftiCoro);
-		Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
+		ImagePlus niftiCoro = slicer.flip(false, true, "Top");
+		ImagePlus niftiSag = slicer.flip(false, true, "Right");
+		getCoronalPanel().setNiftiImage(niftiCoro);
+		getAxialPanel().setNiftiImage(niftiAxial);
+		getSagittalPanel().setNiftiImage(niftiSag);
+		Coordinate_Viewer c = new Coordinate_Viewer(niftiSag);
 		revalidate();
 		//Nifti_Reader niftiSag = (Nifti_Reader) niftiAxial.clone();
 	}
@@ -122,7 +127,7 @@ public class ViewerPanel extends JPanel{
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();
-		v.open(Paths.get("Y:/EPILEPSIE/CONVERSION_NIFTI-Sauvergarde/AT_129____/20130415/T1_MPRAGE_3D_GADO_/T1_MPRAGE_3D_GADO_/T1MPRAGE3DGADOAT129.nii"));
+		v.open(Paths.get(" C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
 		JFrame testf = new JFrame("test");
 		testf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		testf.setSize(400,400);

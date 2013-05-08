@@ -17,9 +17,9 @@ import java.util.*;
 public class Slicer {
 
 	private static final String[] starts = {"Top", "Left", "Bottom", "Right"};
-	private static String startAt = starts[0];
-	private static boolean rotate;
-	private static boolean flip;
+	private String startAt = starts[0];
+	private boolean rotate;
+	private boolean flip;
 	private static int sliceCount = 1;
 	private boolean nointerpolate = true;//Prefs.avoidResliceInterpolation;
 	private double inputZSpacing = 1.0;
@@ -46,7 +46,7 @@ public class Slicer {
 	public Slicer(Nifti_Reader nr){
 		imp = nr;
 	}
-	public Nifti_Reader flip(boolean rotate, boolean flip, String start) {//right flip = sagittal | top flip  = coronal 
+	public ImagePlus flip(boolean rotate, boolean flip, String start) {//right flip = sagittal | top flip  = coronal 
 		if (imp==null) {
 			return null;
 		}
@@ -90,7 +90,7 @@ public class Slicer {
 		double min = ip.getMin();
 		double max = ip.getMax();
 		if (!rgb) imp2.getProcessor().setMinAndMax(min, max);
-		return imp;
+		return imp2;
 	}
 
 	public ImagePlus reslice(ImagePlus imp) {
