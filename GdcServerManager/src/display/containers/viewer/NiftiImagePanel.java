@@ -5,6 +5,7 @@ import ij.ImagePlus;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
@@ -23,12 +24,13 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 	public static final int AXIAL = 1;
 	
 	private ImagePlus niftiImage = null;
+	private BufferedImage image = null; // on stock l'image courante
 	private ViewerPanel viewer = null;
 	private boolean isMousePressed = false;
 	private int slice = 1;
 	private Plan orientation; // vue associe a ce panel (axial sagital etc)
 	private Dimension imageDim; // dimension de l'ImagePlus (dim 2D)
-
+	private Point currentLocation; // dernier point clique
 	
     public NiftiImagePanel(ViewerPanel v, ImagePlus nr, Plan plan) {
     	this.setOrientation(plan);
@@ -87,6 +89,7 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		this.slice = slice;
 		if(niftiImage!=null){
 			niftiImage.setSlice(this.slice);
+			image = niftiImage.getBufferedImage();
 			repaint();
 		}
 	}
@@ -115,15 +118,20 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
         if (niftiImage != null) { //there is a picture: draw it
             int height = this.getSize().height;
             int width = this.getSize().width;      
-            g.drawImage(niftiImage.getBufferedImage(),0,0, width, height, this);
+            g.drawImage(image,0,0, width, height, this);
+            if(currentLocation!=null){
+            	g.setColor(Color.BLUE);
+            	g.drawLine((int) currentLocation.getX(), 0, (int) currentLocation.getX(), getHeight());
+            	g.drawLine(0, (int) currentLocation.getY(), getWidth(), (int) currentLocation.getY());
+            }
         }
     }
 
 	public void mouseDragged(MouseEvent e) {
-		System.out.println(isMousePressed);
 		if(isMousePressed){
+			currentLocation = e.getPoint();
 			Point p = panelXYtoImageXY(e.getPoint());
-			/*switch(this.orientation){
+			switch(this.orientation){
 			case AXIAL:
 				getViewer().setXY(p);
 				break;
@@ -133,8 +141,8 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 			case CORONAL:
 				getViewer().setXZ(p);
 				break;
-			}*/
-			
+			}
+			repaint();
 		}
 	}
 
@@ -145,7 +153,22 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 
 
 	public void mouseClicked(MouseEvent e) {
-
+		if(e.getButton()==MouseEvent.BUTTON1){
+			currentLocation = e.getPoint();
+			Point p = panelXYtoImageXY(e.getPoint());
+			switch(this.orientation){
+			case AXIAL:
+				getViewer().setXY(p);
+				break;
+			case SAGITTAL:
+				getViewer().setYZ(p);
+				break;
+			case CORONAL:
+				getViewer().setXZ(p);
+				break;
+			}
+			repaint();
+		}
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -190,7 +213,6 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 			impt.y = (int)imageDim.getHeight();
 		if(impt.getY()<0)
 			impt.y = 0;
-		System.out.println(impt.getX()+"-"+impt.getY());
 		return impt;
 	}
 }

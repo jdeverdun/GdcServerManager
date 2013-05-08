@@ -3,9 +3,13 @@ package display.containers.viewer;
 
 
 import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.filter.Rotator;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
+import java.awt.Label;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
@@ -16,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import daemon.tools.nifti.CoordinateMapper;
 import daemon.tools.nifti.Coordinate_Viewer;
 import daemon.tools.nifti.Nifti_Reader;
 import daemon.tools.nifti.Slicer;
@@ -58,12 +63,12 @@ public class ViewerPanel extends JPanel{
 		splitRight.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitLeftRight.setRightComponent(splitRight);
 		
-		splitLeft.setLeftComponent(sagittalPanel);
+		splitLeft.setLeftComponent(coronalPanel);
 		splitLeft.setRightComponent(axialPanel);
 		splitLeft.setResizeWeight(0.5f);
 		
-
-		splitRight.setLeftComponent(coronalPanel);
+		
+		splitRight.setLeftComponent(sagittalPanel);
 		splitRight.setRightComponent(infoViewer);
 		splitRight.setResizeWeight(0.5f);
 		open(Paths.get("C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
@@ -103,22 +108,69 @@ public class ViewerPanel extends JPanel{
 		if(niftiAxial!=null)
 			close();
 		niftiAxial = new Nifti_Reader(path.toFile());
+		niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
-		niftiAxial.setSlice(40);
+		//niftiAxial.setSlice(40);
 		Slicer slicer = new Slicer(niftiAxial);
 		ImagePlus niftiCoro = slicer.flip(false, true, "Top");
 		ImagePlus niftiSag = slicer.flip(false, true, "Right");
 		getCoronalPanel().setNiftiImage(niftiCoro);
 		getAxialPanel().setNiftiImage(niftiAxial);
 		getSagittalPanel().setNiftiImage(niftiSag);
-		Coordinate_Viewer c = new Coordinate_Viewer(niftiSag);
+		
+		// on met a jours les coord actuelles
+		coord[0] = getSagittalPanel().getSlice();
+		coord[1] = getCoronalPanel().getSlice();
+		coord[2] = getAxialPanel().getSlice();
+		
+		
+		//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
+		//niftiAxial.show();
 		revalidate();
-		//Nifti_Reader niftiSag = (Nifti_Reader) niftiAxial.clone();
 	}
 
 	
 	
-	
+	/**
+	 * Verifie  si l'image est bien positionne (c a d point de coordonnee minimale 
+	 * en X Y en bas a gauche de l'image). Si ce n'est pas le cas on fait les flip en consequence
+	 * @param im
+	 * @return
+	 */
+	private Nifti_Reader checkAndRotate(Nifti_Reader im) {
+		Nifti_Reader nr = (Nifti_Reader) im.clone();
+		Object prop = im.getProperty("coors");
+		if (prop == null) return null;
+
+		CoordinateMapper[] mapper = (CoordinateMapper[] ) prop;
+		// on test les 3 position mauvaises (en haut a gauche / droite, et en bas a droite)
+		if(mapper[mapper.length-1].getX(1, 1, 1)<0 && mapper[mapper.length-1].getY(1, 1, 1)<0){
+			ImageStack is = im.getImageStack();
+			for(int i = 1 ; i <= im.getNSlices();i++){
+				is.getProcessor(i).flipVertical();
+			}
+			nr.setStack(is);
+		}else{
+			if(mapper[mapper.length-1].getX(im.getProcessor().getWidth()-1, 1, 1)<0 && mapper[mapper.length-1].getY(im.getProcessor().getWidth()-1, 1, 1)<0){
+				ImageStack is = im.getImageStack();
+				for(int i = 1 ; i <= im.getNSlices();i++){
+					is.getProcessor(i).flipVertical();
+					is.getProcessor(i).flipHorizontal();
+				}
+				nr.setStack(is);
+			}else{
+				if(mapper[mapper.length-1].getX(im.getProcessor().getWidth()-1, im.getProcessor().getHeight()-1, 1)<0 && mapper[mapper.length-1].getY(im.getProcessor().getWidth()-1, im.getProcessor().getHeight()-1, 1)<0){
+					ImageStack is = im.getImageStack();
+					for(int i = 1 ; i <= im.getNSlices();i++){
+						is.getProcessor(i).flipHorizontal();
+					}
+					nr.setStack(is);
+				}
+			}
+		}
+		return nr;
+	}
+
 	/**
 	 * Ferme l'image actuellement ouverte
 	 */
@@ -127,7 +179,7 @@ public class ViewerPanel extends JPanel{
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();
-		v.open(Paths.get(" C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
+		v.open(Paths.get("C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
 		JFrame testf = new JFrame("test");
 		testf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		testf.setSize(400,400);
@@ -135,6 +187,39 @@ public class ViewerPanel extends JPanel{
 		testf.setVisible(true);
 		
 		
+	}
+
+	/**
+	 * Changement dans la vue axiale
+	 * @param p
+	 */
+	public void setXY(Point p) {
+		getCoronalPanel().setSlice((int)Math.round(p.getY()));
+		getSagittalPanel().setSlice((int)Math.round(p.getX()));
+		coord[0] = getSagittalPanel().getSlice();
+		coord[1] = getCoronalPanel().getSlice();
+	}
+
+	/**
+	 * Changement dans la vue sagittale
+	 * @param p
+	 */
+	public void setYZ(Point p) {
+		getAxialPanel().setSlice(niftiAxial.getNSlices()-(int)Math.round(p.getY()));
+		getCoronalPanel().setSlice((int)Math.round(p.getX()));
+		coord[2] = getAxialPanel().getSlice();
+		coord[1] = getCoronalPanel().getSlice();
+	}
+
+	/**
+	 * Changement dans la vue coronole
+	 * @param p
+	 */
+	public void setXZ(Point p) {
+		getAxialPanel().setSlice(niftiAxial.getNSlices()-(int)Math.round(p.getY()));
+		getSagittalPanel().setSlice((int)Math.round(p.getX()));
+		coord[2] = getAxialPanel().getSlice();
+		coord[0] = getSagittalPanel().getSlice();
 	}
 
 
