@@ -11,22 +11,37 @@ import java.awt.Graphics;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
+import javax.swing.SwingUtilities;
 
 import daemon.tools.nifti.CoordinateMapper;
 import daemon.tools.nifti.Coordinate_Viewer;
 import daemon.tools.nifti.Nifti_Reader;
 import daemon.tools.nifti.Slicer;
+import display.MainWindow;
+import display.containers.UserCreationPanel;
+import display.containers.WarningPanel;
 import display.containers.viewer.NiftiImagePanel.Plan;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
+
+import settings.WindowManager;
 
 public class ViewerPanel extends JPanel{
 
@@ -71,6 +86,49 @@ public class ViewerPanel extends JPanel{
 		splitRight.setLeftComponent(sagittalPanel);
 		splitRight.setRightComponent(infoViewer);
 		splitRight.setResizeWeight(0.5f);
+		
+		this.setDropTarget(new DropTarget() {
+	        public synchronized void drop(DropTargetDropEvent evt) {
+	            try{
+	                evt.acceptDrop(DnDConstants.ACTION_COPY);
+	                WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
+	                final List<File> listFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+	                Thread openThread = new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							boolean ok = false;
+							for(File fi:listFiles){
+			                	ok = open(Paths.get(fi.getAbsolutePath()));
+								if(ok)
+									break;
+			                }
+							if(!ok){
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										WarningPanel wmess = new WarningPanel("Not a nifti");
+										Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
+										wmess.setPopupWindow(popup);
+										popup.show();
+									}
+								});
+								
+							}
+								
+							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+						}
+					});
+	                openThread.start();
+	            } catch (Exception ex) {
+	                System.out.println(ex.toString());
+	                WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+	            }
+	        }
+	    });
+		
+		
 		open(Paths.get("C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
 	}
 	
@@ -102,11 +160,14 @@ public class ViewerPanel extends JPanel{
 	 * Ouvre un fichier nifti
 	 * @param path
 	 */
-	public void open(Path path) {
-		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
-			return;
+	public boolean open(Path path) {
 		if(niftiAxial!=null)
-			close();
+			reset();
+		getCoronalPanel().reset();
+		getAxialPanel().reset();
+		getSagittalPanel().reset();
+		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
+			return false;
 		niftiAxial = new Nifti_Reader(path.toFile());
 		niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
@@ -127,6 +188,7 @@ public class ViewerPanel extends JPanel{
 		//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 		//niftiAxial.show();
 		revalidate();
+		return true;
 	}
 
 	
@@ -174,8 +236,9 @@ public class ViewerPanel extends JPanel{
 	/**
 	 * Ferme l'image actuellement ouverte
 	 */
-	public void close(){
+	public void reset(){
 		niftiAxial = null;
+		coord = new int[]{-1,-1,-1};
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();
@@ -190,6 +253,15 @@ public class ViewerPanel extends JPanel{
 	}
 
 	/**
+	 * Met a jours le crosshair dans toutes les figures
+	 */
+	private void updateCrosshair() {
+		getCoronalPanel().updateCrosshair(coord);
+		getSagittalPanel().updateCrosshair(coord);
+		getAxialPanel().updateCrosshair(coord);
+	}
+	
+	/**
 	 * Changement dans la vue axiale
 	 * @param p
 	 */
@@ -198,7 +270,9 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().setSlice((int)Math.round(p.getX()));
 		coord[0] = getSagittalPanel().getSlice();
 		coord[1] = getCoronalPanel().getSlice();
+		updateCrosshair();
 	}
+
 
 	/**
 	 * Changement dans la vue sagittale
@@ -209,6 +283,7 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().setSlice((int)Math.round(p.getX()));
 		coord[2] = getAxialPanel().getSlice();
 		coord[1] = getCoronalPanel().getSlice();
+		updateCrosshair();
 	}
 
 	/**
@@ -220,6 +295,7 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().setSlice((int)Math.round(p.getX()));
 		coord[2] = getAxialPanel().getSlice();
 		coord[0] = getSagittalPanel().getSlice();
+		updateCrosshair();
 	}
 
 

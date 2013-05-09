@@ -31,7 +31,12 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 	private Plan orientation; // vue associe a ce panel (axial sagital etc)
 	private Dimension imageDim; // dimension de l'ImagePlus (dim 2D)
 	private Point currentLocation; // dernier point clique
+	private boolean showCrosshair = true; // si on montre le crosshair ou pas
+	private boolean keepRatio = false; // si on contraint l'affichage pourver le ratio original
 	
+    /**
+     * @wbp.parser.constructor
+     */
     public NiftiImagePanel(ViewerPanel v, ImagePlus nr, Plan plan) {
     	this.setOrientation(plan);
         this.setNiftiImage(nr); 
@@ -67,9 +72,8 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
    
     public void init(){
     	setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+    	setBackground(Color.BLACK);
        	isMousePressed = false;
-       	addMouseMotionListener(this);
-       	addMouseListener(this);
     }
     public ImagePlus getNiftiImage() {
 		return niftiImage;
@@ -79,6 +83,8 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		this.niftiImage = niftiImage;
 		setSlice(Math.round(this.niftiImage.getNSlices()/2));
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
+		addMouseMotionListener(this);
+       	addMouseListener(this);
 	}
 
 	public int getSlice() {
@@ -118,8 +124,13 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
         if (niftiImage != null) { //there is a picture: draw it
             int height = this.getSize().height;
             int width = this.getSize().width;      
-            g.drawImage(image,0,0, width, height, this);
-            if(currentLocation!=null){
+            if(!keepRatio){
+            	g.drawImage(image,0,0, width, height, this);
+            }else{
+            	// on garde le ratio A FAIRE
+            	g.drawImage(image,0,0, width, height, this);
+            }
+            if(showCrosshair && currentLocation!=null){
             	g.setColor(Color.BLUE);
             	g.drawLine((int) currentLocation.getX(), 0, (int) currentLocation.getX(), getHeight());
             	g.drawLine(0, (int) currentLocation.getY(), getWidth(), (int) currentLocation.getY());
@@ -214,5 +225,63 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		if(impt.getY()<0)
 			impt.y = 0;
 		return impt;
+	}
+
+	/**
+	 * convertie une coordonnee dans le referentiel image 
+	 * au referentiel panel
+	 * @param point
+	 * @return
+	 */
+	private Point imageXYtoPanelXY(Point p) {
+		Point impt = null;
+		int pwidth = this.getWidth();
+		int pheight = this.getHeight();
+		double ws = (float)pwidth / imageDim.getWidth();
+		double hs = (float)pheight / imageDim.getHeight();
+		impt = new Point((int)Math.round(ws*p.getX()),getHeight()-(int)Math.round(hs*p.getY()));
+		if(impt.getX()>getWidth())
+			impt.x = (int)getWidth();
+		if(impt.getX()<0)
+			impt.x = 0;
+		if(impt.getY()>getHeight())
+			impt.y = (int)getHeight();
+		if(impt.getY()<0)
+			impt.y = 0;
+		return impt;
+	}
+	
+	/**
+	 * Met a jours le crosshair 
+	 * a partir de coordonnees dans l'espace image
+	 * @param coord
+	 */
+	public void updateCrosshair(int[] coord) {
+		Point p = null;
+		switch(this.orientation){
+		case AXIAL:
+			p = new Point(coord[0],coord[1]);
+			break;
+		case SAGITTAL:
+			p = new Point(coord[1],coord[2]);
+			break;
+		case CORONAL:
+			p = new Point(coord[0],coord[2]);
+			break;
+		}
+		currentLocation = imageXYtoPanelXY(p);
+		repaint();
+	}
+
+	/**
+	 * Remet le panel a 0 
+	 */
+	public void reset() {
+		niftiImage = null;
+		currentLocation = null;
+		image = null;
+		removeMouseMotionListener(this);
+		removeMouseListener(this);
+		repaint();
 	}
 }

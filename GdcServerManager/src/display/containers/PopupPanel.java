@@ -30,6 +30,16 @@ public abstract class PopupPanel extends JPanel{
 		mainPanel.setLayout(new MigLayout("", "[100.00,grow,fill]", "[65.00,grow,fill]"));
 		
 	}
+	protected PopupPanel(String header){
+		setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		setLayout(new MigLayout("", "[89.00,grow][117.00,grow]", "[44.00,grow][][][][10.00]"));
+		
+		mainPanel = new JPanel();
+		mainPanel.setBorder(new TitledBorder(null, header, TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		add(mainPanel, "cell 0 0 2 1,grow");
+		mainPanel.setLayout(new MigLayout("", "[100.00,grow,fill]", "[65.00,grow,fill]"));
+		
+	}
 	public void setPopupWindow(Popup popup) {
 		this.popup = popup;
 	}

@@ -130,6 +130,7 @@ public class MainWindow extends JFrame {
 	private JMenu mnEdit;
 	private JMenuItem mntmPreferences;
 	private ViewerPanel viewerPanel;
+	private ProgressPanel progressBarPanel;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -221,10 +222,10 @@ public class MainWindow extends JFrame {
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, "cell 1 1 30 23,grow");
-		panel.setLayout(new MigLayout("", "[410.00px,grow,fill]", "[171.00,grow]"));
+		panel.setLayout(new MigLayout("", "[][129.00,left][719px,grow]", "[525px,grow][][2px]"));
 		
 		ongletPane = new JTabbedPane(JTabbedPane.RIGHT);
-		panel.add(ongletPane, "cell 0 0,grow");
+		panel.add(ongletPane, "cell 0 0 3 1,grow");
 		
 		distautresplitPane = new JSplitPane();
 		distautresplitPane.setResizeWeight(0.35);
@@ -241,6 +242,11 @@ public class MainWindow extends JFrame {
 		dicomSortConvertPanel = new DicomSortConvertPanel();
 		ongletPane.addTab("Sort & convert", null, dicomSortConvertPanel,
                 "Sort DICOM & convert to nifti");
+		
+		progressBarPanel = new ProgressPanel();
+		progressBarPanel.setSize(50, 20);
+		progressBarPanel.setVisible(false);
+		panel.add(progressBarPanel, "cell 1 1,grow");
 		
 		//ongletPane.setEnabledAt(2, false); 
 		if(i!=0){
@@ -975,6 +981,18 @@ public class MainWindow extends JFrame {
 	public void setToolBar(JToolBar toolBar) {
 		this.toolBar = toolBar;
 	}
+
+	public ProgressPanel getProgressBarPanel() {
+		return progressBarPanel;
+	}
+
+
+
+	public void setProgressBarPanel(ProgressPanel progressBarPanel) {
+		this.progressBarPanel = progressBarPanel;
+	}
+
+
 
 	public JSplitPane getDistautresplitPane() {
 		return distautresplitPane;
