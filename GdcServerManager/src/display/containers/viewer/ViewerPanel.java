@@ -129,7 +129,7 @@ public class ViewerPanel extends JPanel{
 	    });
 		
 		
-		open(Paths.get("C:/Users/serge/Desktop/T1MPRAGE3DGADOC-C110.nii"));
+		open(Paths.get("C:/Users/serge/Desktop/filetesto.nii"));//T1MPRAGE3DGADOC-C110.nii"));
 	}
 	
 	public NiftiImagePanel getAxialPanel() {
@@ -174,7 +174,8 @@ public class ViewerPanel extends JPanel{
 		//niftiAxial.setSlice(40);
 		Slicer slicer = new Slicer(niftiAxial);
 		ImagePlus niftiCoro = slicer.flip(false, true, "Top");
-		ImagePlus niftiSag = slicer.flip(false, true, "Right");
+		ImagePlus niftiSag = slicer.flip(false, true, "Left");
+		
 		getCoronalPanel().setNiftiImage(niftiCoro);
 		getAxialPanel().setNiftiImage(niftiAxial);
 		getSagittalPanel().setNiftiImage(niftiSag);
@@ -259,6 +260,7 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().updateCrosshair(coord);
 		getSagittalPanel().updateCrosshair(coord);
 		getAxialPanel().updateCrosshair(coord);
+		System.out.println("GLOBAL :"+coord[0]+"-"+coord[1]+"-"+coord[2]);
 	}
 	
 	/**
@@ -270,6 +272,7 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().setSlice((int)Math.round(p.getX()));
 		coord[0] = getSagittalPanel().getSlice();
 		coord[1] = getCoronalPanel().getSlice();
+		coord[2] = getAxialPanel().getSlice();
 		updateCrosshair();
 	}
 
@@ -279,10 +282,11 @@ public class ViewerPanel extends JPanel{
 	 * @param p
 	 */
 	public void setYZ(Point p) {
-		getAxialPanel().setSlice(niftiAxial.getNSlices()-(int)Math.round(p.getY()));
+		getAxialPanel().setSlice((int)Math.round(p.getY()));
 		getCoronalPanel().setSlice((int)Math.round(p.getX()));
-		coord[2] = getAxialPanel().getSlice();
+		coord[0] = getSagittalPanel().getSlice();
 		coord[1] = getCoronalPanel().getSlice();
+		coord[2] = getAxialPanel().getSlice();
 		updateCrosshair();
 	}
 
@@ -291,10 +295,11 @@ public class ViewerPanel extends JPanel{
 	 * @param p
 	 */
 	public void setXZ(Point p) {
-		getAxialPanel().setSlice(niftiAxial.getNSlices()-(int)Math.round(p.getY()));
+		getAxialPanel().setSlice((int)Math.round(p.getY()));
 		getSagittalPanel().setSlice((int)Math.round(p.getX()));
-		coord[2] = getAxialPanel().getSlice();
 		coord[0] = getSagittalPanel().getSlice();
+		coord[1] = getCoronalPanel().getSlice();
+		coord[2] = getAxialPanel().getSlice();
 		updateCrosshair();
 	}
 

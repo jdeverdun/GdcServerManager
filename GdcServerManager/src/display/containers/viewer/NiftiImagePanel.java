@@ -2,6 +2,10 @@ package display.containers.viewer;
 
 
 import ij.ImagePlus;
+import ij.process.ByteProcessor;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +23,7 @@ import java.io.*;
  * @author Jérémy DEVERDUN
  *
  */
-public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotionListener {
+public class NiftiImagePanel extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
 	public static enum Plan{AXIAL, SAGITTAL, CORONAL}; // les differents plan possible
 	public static final int AXIAL = 1;
 	
@@ -30,10 +34,14 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 	private int slice = 1;
 	private Plan orientation; // vue associe a ce panel (axial sagital etc)
 	private Dimension imageDim; // dimension de l'ImagePlus (dim 2D)
-	private Point currentLocation; // dernier point clique
+	private Point currentLocation; // dernier point clique dans referentiel panel
+	private Point imageCurrentLocation; // dernier point clique dans referentiel image
 	private boolean showCrosshair = true; // si on montre le crosshair ou pas
-	private boolean keepRatio = false; // si on contraint l'affichage pourver le ratio original
-	
+	private boolean keepRatio = true;//false; // si on contraint l'affichage pourver le ratio original
+	private int zoom = 1;//zoom (multiplicateur)
+	private Point zoomlocation; // coordonnees du zoom
+	private double displayScaleFactor = 1d;
+	private Dimension offsets; // quand on est en mode keepRatio les offsets
     /**
      * @wbp.parser.constructor
      */
@@ -72,8 +80,13 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
    
     public void init(){
     	setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    	setBackground(Color.BLACK);
+    	setBackground(new Color(0, 0, 0));
        	isMousePressed = false;
+       	setZoom(1);
+       	keepRatio = true;
+       	displayScaleFactor = 1d;
+       	offsets = new Dimension(0,0);
+       	imageCurrentLocation = null;
     }
     public ImagePlus getNiftiImage() {
 		return niftiImage;
@@ -85,6 +98,7 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
 		addMouseMotionListener(this);
        	addMouseListener(this);
+       	addMouseWheelListener(this);
 	}
 
 	public int getSlice() {
@@ -94,9 +108,11 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 	public void setSlice(int slice) {
 		this.slice = slice;
 		if(niftiImage!=null){
+			System.out.println("Orientation:"+this.orientation+"---slice:"+slice);
 			niftiImage.setSlice(this.slice);
 			image = niftiImage.getBufferedImage();
 			repaint();
+			
 		}
 	}
 
@@ -116,6 +132,14 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		this.orientation = orientation;
 	}
 
+	public int getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(int zoom) {
+		this.zoom = zoom;
+	}
+
 	/**
      * 
      */
@@ -124,20 +148,77 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
         if (niftiImage != null) { //there is a picture: draw it
             int height = this.getSize().height;
             int width = this.getSize().width;      
-            if(!keepRatio){
-            	g.drawImage(image,0,0, width, height, this);
+            if(keepRatio){
+            	int scaleWidth;
+                int scaleHeight;
+            	if(height>image.getHeight() && width>image.getWidth()){
+            		displayScaleFactor = Math.max(1d, getScaleFactorToFit(new Dimension(image.getWidth(), image.getHeight()),getSize()));
+            		scaleWidth = (int) Math.round(image.getWidth() * displayScaleFactor);
+                    scaleHeight = (int) Math.round(image.getHeight() * displayScaleFactor);
+            	}else{
+            		displayScaleFactor = Math.min(1d, getScaleFactorToFit(new Dimension(image.getWidth(), image.getHeight()), getSize()));
+            		scaleWidth = (int) Math.round(image.getWidth() * displayScaleFactor);
+                    scaleHeight = (int) Math.round(image.getHeight() * displayScaleFactor);
+            	}
+                //Image scaled = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH);
+
+                int widthloc = getWidth() - 1;
+                int heightloc = getHeight() - 1;
+
+                int x = (widthloc - scaleWidth) / 2;
+                int y = (heightloc - scaleHeight) / 2;
+                offsets.setSize(x, y);
+                //g.drawImage(scaled, x, y, this);
+                if(zoom > 1 && zoomlocation !=null)// si on a zoome on se centre sur le pt zoome
+                	g.drawImage(image,(int)(x*zoom-zoomlocation.getX()),(int)(y*zoom-zoomlocation.getY()), scaleWidth*zoom, scaleHeight*zoom, this);
+                else
+                	g.drawImage(image,x,y, scaleWidth*zoom, scaleHeight*zoom, this);
             }else{
-            	// on garde le ratio A FAIRE
-            	g.drawImage(image,0,0, width, height, this);
+            	g.drawImage(image,0,0, width*zoom, height*zoom, this);
             }
+            if(imageCurrentLocation!=null)
+				System.out.println(orientation+" // "+getValueAt(imageCurrentLocation));
             if(showCrosshair && currentLocation!=null){
             	g.setColor(Color.BLUE);
-            	g.drawLine((int) currentLocation.getX(), 0, (int) currentLocation.getX(), getHeight());
-            	g.drawLine(0, (int) currentLocation.getY(), getWidth(), (int) currentLocation.getY());
+            	
+            	
+            	g.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
+            	g.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));
             }
         }
     }
 
+    /**
+     * Recupere la valeur du pixel p pour la slice courrante
+     * qunad on est pas en AXIAL les y sont inverse attention
+     * @param p
+     */
+    public double getValueAt(Point p){
+    	System.out.println(orientation+" // "+getSlice()+" -- "+p.toString());
+    	switch(niftiImage.getBitDepth()){
+    	case 8:
+    		ByteProcessor bp = (ByteProcessor) niftiImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return (double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return (double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    	case 16:
+    		ShortProcessor sp = (ShortProcessor) niftiImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return (double)sp.getPixelValue((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return (double)sp.getPixelValue((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    	case 32:
+    		FloatProcessor fp = (FloatProcessor) niftiImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return (double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    		else
+    			return (double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    	default:
+    		return -1;
+    	}
+    	
+    }
 	public void mouseDragged(MouseEvent e) {
 		if(isMousePressed){
 			currentLocation = e.getPoint();
@@ -153,6 +234,7 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 				getViewer().setXZ(p);
 				break;
 			}
+			imageCurrentLocation = p;
 			repaint();
 		}
 	}
@@ -165,6 +247,7 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 
 	public void mouseClicked(MouseEvent e) {
 		if(e.getButton()==MouseEvent.BUTTON1){
+			
 			currentLocation = e.getPoint();
 			Point p = panelXYtoImageXY(e.getPoint());
 			switch(this.orientation){
@@ -178,7 +261,10 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 				getViewer().setXZ(p);
 				break;
 			}
+			System.out.println(orientation+"@@"+p.toString());
+			imageCurrentLocation = p;
 			repaint();
+			
 		}
 	}
 
@@ -203,6 +289,18 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 			isMousePressed = false;
 	}
 	
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL){
+			zoom = Math.max(1, zoom - e.getWheelRotation());
+			if(zoom>2)//zoom max x2
+				zoom = 2;
+			if(zoom == 1)
+				zoomlocation = null;
+			else
+				zoomlocation = e.getPoint();
+			repaint();
+		}
+	}
 	/**
 	 * convertie une coordonnee dans le referentiel panel 
 	 * au referentiel ImagePlus
@@ -213,17 +311,39 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		Point impt = null;
 		int pwidth = this.getWidth();
 		int pheight = this.getHeight();
-		double ws = imageDim.getWidth() / (float)pwidth ;
-		double hs = imageDim.getHeight() / (float)pheight;
-		impt = new Point((int)Math.round(ws*point.getX()),(int)Math.round(hs*point.getY()));
-		if(impt.getX()>imageDim.getWidth())
-			impt.x = (int)imageDim.getWidth();
-		if(impt.getX()<0)
-			impt.x = 0;
-		if(impt.getY()>imageDim.getHeight())
-			impt.y = (int)imageDim.getHeight();
-		if(impt.getY()<0)
-			impt.y = 0;
+		if(!keepRatio){
+			double ws = imageDim.getWidth() / (float)pwidth ;
+			double hs = imageDim.getHeight() / (float)pheight;
+			if(orientation != Plan.AXIAL)
+				impt = new Point((int)Math.round(ws*point.getX()),(int)imageDim.getHeight()-(int)Math.round(hs*point.getY()));
+			else
+				impt = new Point((int)Math.round(ws*point.getX()),(int)Math.round(hs*point.getY()));
+			if(impt.getX()>imageDim.getWidth())
+				impt.x = (int)imageDim.getWidth();
+			if(impt.getX()<=0)
+				impt.x = 1;
+			if(impt.getY()>imageDim.getHeight())
+				impt.y = (int)imageDim.getHeight();
+			if(impt.getY()<=0)
+				impt.y = 1;
+		}else{
+			double x = (point.getX() - offsets.width)/displayScaleFactor;
+			double y = (point.getY() - offsets.height)/displayScaleFactor;
+			if(orientation != Plan.AXIAL)
+				impt = new Point((int)Math.round(x),(int)imageDim.getHeight()-(int)Math.round(y));
+			else
+				impt = new Point((int)Math.round(x),(int)Math.round(y));
+			if(impt.getX()>imageDim.getWidth())
+				impt.x = (int)imageDim.getWidth();
+			if(impt.getX()<=0)
+				impt.x = 1;
+			if(impt.getY()>imageDim.getHeight()){
+				impt.y = (int)imageDim.getHeight();
+			}
+			if(impt.getY()<=0){
+				impt.y = 1;
+			}
+		}
 		return impt;
 	}
 
@@ -237,17 +357,38 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		Point impt = null;
 		int pwidth = this.getWidth();
 		int pheight = this.getHeight();
-		double ws = (float)pwidth / imageDim.getWidth();
-		double hs = (float)pheight / imageDim.getHeight();
-		impt = new Point((int)Math.round(ws*p.getX()),getHeight()-(int)Math.round(hs*p.getY()));
-		if(impt.getX()>getWidth())
-			impt.x = (int)getWidth();
-		if(impt.getX()<0)
-			impt.x = 0;
-		if(impt.getY()>getHeight())
-			impt.y = (int)getHeight();
-		if(impt.getY()<0)
-			impt.y = 0;
+		if(!keepRatio){
+			double ws = (float)pwidth / imageDim.getWidth();
+			double hs = (float)pheight / imageDim.getHeight();
+			if(orientation != Plan.AXIAL)
+				impt = new Point((int)Math.round(ws*p.getX()),getHeight()-(int)Math.round(hs*p.getY()));
+			else
+				impt = new Point((int)Math.round(ws*p.getX()),(int)Math.round(hs*p.getY()));
+			if(impt.getX()>getWidth())
+				impt.x = (int)getWidth();
+			if(impt.getX()<=0)
+				impt.x = 1;
+			if(impt.getY()>getHeight())
+				impt.y = (int)getHeight();
+			if(impt.getY()<=0)
+				impt.y = 1;
+		}else{
+			double x = (p.getX()*displayScaleFactor) + offsets.width;
+			double y = (p.getY()*displayScaleFactor) + offsets.height;
+			if(orientation != Plan.AXIAL)
+				impt = new Point((int)Math.round(x),(int)Math.round(pheight-(y)-1));
+			else
+				impt = new Point((int)Math.round(x),(int)Math.round(y));
+			if(impt.getX()>=(getWidth()-offsets.width))
+				impt.x = (int)getWidth()-offsets.width;
+			if(impt.getX()<=offsets.width)
+				impt.x = offsets.width;
+			if(impt.getY()>=(getHeight()-offsets.height))
+				impt.y = (int)getHeight()-offsets.height;
+			if(impt.getY()<=offsets.height){
+				impt.y = offsets.height;
+			}
+		}
 		return impt;
 	}
 	
@@ -269,6 +410,7 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 			p = new Point(coord[0],coord[2]);
 			break;
 		}
+		imageCurrentLocation = p;
 		currentLocation = imageXYtoPanelXY(p);
 		repaint();
 	}
@@ -280,8 +422,59 @@ public class NiftiImagePanel extends JPanel implements MouseListener, MouseMotio
 		niftiImage = null;
 		currentLocation = null;
 		image = null;
+		imageCurrentLocation = null;
 		removeMouseMotionListener(this);
 		removeMouseListener(this);
+		removeMouseWheelListener(this);
 		repaint();
 	}
+	
+	/**
+	 * Recupere le facteur de scaling
+	 * @param iMasterSize
+	 * @param iTargetSize
+	 * @return
+	 */
+	public double getScaleFactor(int iMasterSize, int iTargetSize) {
+
+	    double dScale = 1;
+	    if (iMasterSize > iTargetSize) {
+
+	        dScale = (double) iTargetSize / (double) iMasterSize;
+
+	    } else {
+
+	        dScale = (double) iTargetSize / (double) iMasterSize;
+
+	    }
+
+	    return dScale;
+
+	}
+	
+	/**
+	 * Recupere le facteur de scaling en fonction de la taille du panel
+	 * et de l'image
+	 * @param original
+	 * @param toFit
+	 * @return
+	 */
+	public double getScaleFactorToFit(Dimension original, Dimension toFit) {
+
+	    double dScale = 1d;
+
+	    if (original != null && toFit != null) {
+
+	        double dScaleWidth = getScaleFactor(original.width, toFit.width);
+	        double dScaleHeight = getScaleFactor(original.height, toFit.height);
+
+	        dScale = Math.min(dScaleHeight, dScaleWidth);
+
+	    }
+
+	    return dScale;
+
+	}
+
+
 }
