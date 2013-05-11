@@ -20,6 +20,9 @@ import java.io.*;
  
 /**
  * Display image (ImagePlus) in a panel
+ * 
+ * ATTTENTION : utiliser getMricronCoord pour repasser dans l'espace de 
+ * coordonnee MRICRON like
  * @author Jérémy DEVERDUN
  *
  */
@@ -83,7 +86,7 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
     	setBackground(new Color(0, 0, 0));
        	isMousePressed = false;
        	setZoom(1);
-       	keepRatio = true;
+       	keepRatio = false;
        	displayScaleFactor = 1d;
        	offsets = new Dimension(0,0);
        	imageCurrentLocation = null;
@@ -108,7 +111,6 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 	public void setSlice(int slice) {
 		this.slice = slice;
 		if(niftiImage!=null){
-			System.out.println("Orientation:"+this.orientation+"---slice:"+slice);
 			niftiImage.setSlice(this.slice);
 			image = niftiImage.getBufferedImage();
 			repaint();
@@ -176,12 +178,8 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
             }else{
             	g.drawImage(image,0,0, width*zoom, height*zoom, this);
             }
-            if(imageCurrentLocation!=null)
-				System.out.println(orientation+" // "+getValueAt(imageCurrentLocation));
             if(showCrosshair && currentLocation!=null){
             	g.setColor(Color.BLUE);
-            	
-            	
             	g.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
             	g.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));
             }
@@ -194,7 +192,6 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
      * @param p
      */
     public double getValueAt(Point p){
-    	System.out.println(orientation+" // "+getSlice()+" -- "+p.toString());
     	switch(niftiImage.getBitDepth()){
     	case 8:
     		ByteProcessor bp = (ByteProcessor) niftiImage.getProcessor();
@@ -261,7 +258,6 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 				getViewer().setXZ(p);
 				break;
 			}
-			System.out.println(orientation+"@@"+p.toString());
 			imageCurrentLocation = p;
 			repaint();
 			
@@ -329,9 +325,9 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 		}else{
 			double x = (point.getX() - offsets.width)/displayScaleFactor;
 			double y = (point.getY() - offsets.height)/displayScaleFactor;
-			if(orientation != Plan.AXIAL)
+			if(orientation != Plan.AXIAL){
 				impt = new Point((int)Math.round(x),(int)imageDim.getHeight()-(int)Math.round(y));
-			else
+			}else
 				impt = new Point((int)Math.round(x),(int)Math.round(y));
 			if(impt.getX()>imageDim.getWidth())
 				impt.x = (int)imageDim.getWidth();
@@ -429,6 +425,22 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 		repaint();
 	}
 	
+	/**
+	 * Permet de repasser dans l'espace de coordonnee mricron (pt 0,0,0 en bas a gauche dans toute les vue)
+	 * @return
+	 */
+	public Integer[] getMricronCoord(){
+		switch(orientation){
+		case AXIAL:
+			return new Integer[]{(int) imageCurrentLocation.getX(),(int) (imageDim.height - imageCurrentLocation.getY()+1),getSlice()};
+		case CORONAL:
+			return new Integer[]{(int) imageCurrentLocation.getX(),(int) imageCurrentLocation.getY(),niftiImage.getNSlices()-getSlice()+1};
+		case SAGITTAL:
+			return new Integer[]{(int) ( imageDim.width - imageCurrentLocation.getX()+1),(int) (imageCurrentLocation.getY()),getSlice()};
+		default:
+			return null;
+		}
+	}
 	/**
 	 * Recupere le facteur de scaling
 	 * @param iMasterSize

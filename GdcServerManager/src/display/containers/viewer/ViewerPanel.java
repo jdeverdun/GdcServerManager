@@ -260,7 +260,6 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().updateCrosshair(coord);
 		getSagittalPanel().updateCrosshair(coord);
 		getAxialPanel().updateCrosshair(coord);
-		System.out.println("GLOBAL :"+coord[0]+"-"+coord[1]+"-"+coord[2]);
 	}
 	
 	/**
