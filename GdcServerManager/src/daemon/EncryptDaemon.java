@@ -78,6 +78,7 @@ public class EncryptDaemon extends Thread {
 			this.stop = true;
 			if(!dicomToEncrypt.isEmpty())
 				saveBackup();
+			dicomToEncrypt.clear();
 			System.out.println("Encrypter offline");
 		}else{
 			this.stop = stop;
