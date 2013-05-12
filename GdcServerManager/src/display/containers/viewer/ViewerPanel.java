@@ -310,5 +310,23 @@ public class ViewerPanel extends JPanel{
 		updateCrosshair();
 	}
 
+	public void setKeepRatio(boolean b) {
+		getAxialPanel().setKeepRatio(b);
+		getCoronalPanel().setKeepRatio(b);
+		getSagittalPanel().setKeepRatio(b);
+		updateCrosshair();
+	}
+
+	public boolean isCrosshairVisible() {
+		return getAxialPanel().isShowCrosshair() && getCoronalPanel().isShowCrosshair() && getSagittalPanel().isShowCrosshair();
+	}
+
+	public void setCrosshairVisible(boolean b) {
+		getAxialPanel().setShowCrosshair(b);
+		getCoronalPanel().setShowCrosshair(b);
+		getSagittalPanel().setShowCrosshair(b);
+		updateCrosshair();
+	}
+
 
 }

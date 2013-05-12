@@ -83,7 +83,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
    
     public void init(){
     	setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    	setBackground(new Color(0, 0, 0));
+    	setBackground(Color.BLACK);
        	isMousePressed = false;
        	setZoom(1);
        	keepRatio = true;
@@ -143,6 +143,22 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		this.zoom = zoom;
 	}
 
+	public boolean isKeepRatio() {
+		return keepRatio;
+	}
+
+	public boolean isShowCrosshair() {
+		return showCrosshair;
+	}
+
+	public void setShowCrosshair(boolean showCrosshair) {
+		this.showCrosshair = showCrosshair;
+	}
+
+	public void setKeepRatio(boolean keepRatio) {
+		this.keepRatio = keepRatio;
+	}
+
 	/**
      * 
      */
@@ -156,31 +172,34 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
                 int scaleHeight;
             	if(height>image.getHeight() && width>image.getWidth()){
             		displayScaleFactor = Math.max(1d, getScaleFactorToFit(new Dimension(image.getWidth(), image.getHeight()),getSize()));
+            		displayScaleFactor *= zoom;// on gere le zoom
             		scaleWidth = (int) Math.round(image.getWidth() * displayScaleFactor);
                     scaleHeight = (int) Math.round(image.getHeight() * displayScaleFactor);
             	}else{
             		displayScaleFactor = Math.min(1d, getScaleFactorToFit(new Dimension(image.getWidth(), image.getHeight()), getSize()));
+            		displayScaleFactor *= zoom;// on gere le zoom
             		scaleWidth = (int) Math.round(image.getWidth() * displayScaleFactor);
                     scaleHeight = (int) Math.round(image.getHeight() * displayScaleFactor);
             	}
                 //Image scaled = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH);
-
+            	
                 int widthloc = getWidth() - 1;
                 int heightloc = getHeight() - 1;
 
                 int x = (widthloc - scaleWidth) / 2;
                 int y = (heightloc - scaleHeight) / 2;
                 offsets.setSize(x, y);
-                //g.drawImage(scaled, x, y, this);
-                if(zoom > 1 && zoomlocation !=null)// si on a zoome on se centre sur le pt zoome
-                	g.drawImage(image,(int)(x*zoom-zoomlocation.getX()),(int)(y*zoom-zoomlocation.getY()), scaleWidth*zoom, scaleHeight*zoom, this);
-                else
-                	g.drawImage(image,x,y, scaleWidth*zoom, scaleHeight*zoom, this);
+
+                g.drawImage(image,x,y, scaleWidth, scaleHeight, this);
             }else{
             	g.drawImage(image,0,0, width*zoom, height*zoom, this);
             }
             if(showCrosshair && currentLocation!=null){
             	g.setColor(Color.BLUE);
+            	if(orientation != Plan.SAGITTAL)
+            		g.drawString("L", offsets.width+10, getHeight()-offsets.height-20);
+            	else
+            		g.drawString("P", getWidth()-offsets.width-20, getHeight()-offsets.height-20);
             	//System.out.println(orientation+"@@"+imageCurrentLocation.x+"-"+imageCurrentLocation.y+"-"+getSlice());
             	g.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
             	g.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));

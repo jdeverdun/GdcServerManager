@@ -50,6 +50,7 @@ import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
 import display.containers.viewer.ViewerPanel;
+import display.containers.viewer.ViewerToolbar;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -80,6 +81,8 @@ import java.sql.SQLException;
 
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainWindow extends JFrame {
 	
@@ -131,7 +134,7 @@ public class MainWindow extends JFrame {
 	private JMenuItem mntmPreferences;
 	private ViewerPanel viewerPanel;
 	private ProgressPanel progressBarPanel;
-	
+	private ViewerToolbar viewerToolbar;
 	/**
 	 * Si i = 0 : mode offline
 	 * i = 1 : mode online
@@ -219,12 +222,13 @@ public class MainWindow extends JFrame {
 		btnRefresh.setToolTipText("Refresh");
 		//btnRefresh = new JButton("Refresh");
 		toolBar.add(btnRefresh);
-		
+
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, "cell 1 1 30 23,grow");
 		panel.setLayout(new MigLayout("", "[][129.00,left][719px,grow]", "[525px,grow][][2px]"));
 		
 		ongletPane = new JTabbedPane(JTabbedPane.RIGHT);
+
 		panel.add(ongletPane, "cell 0 0 3 1,grow");
 		
 		distautresplitPane = new JSplitPane();
@@ -236,8 +240,24 @@ public class MainWindow extends JFrame {
 
 		// nifti viewer
 		viewerPanel = new ViewerPanel();
+		viewerToolbar = new ViewerToolbar(viewerPanel);
+		viewerToolbar.setVisible(false);
+		
+		toolBar.add(viewerToolbar);
 		ongletPane.addTab("Viewer", null, viewerPanel,
                 "Viewer for images");
+		
+		ongletPane.addChangeListener(new ChangeListener() {
+		      public void stateChanged(ChangeEvent changeEvent) {
+		        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+		        int index = sourceTabbedPane.getSelectedIndex();
+		        if(index == 2){
+		        	viewerToolbar.setVisible(true);
+		        }else{
+		        	viewerToolbar.setVisible(false);
+		        }
+		      }
+		    });
 		// converter
 		dicomSortConvertPanel = new DicomSortConvertPanel();
 		ongletPane.addTab("Sort & convert", null, dicomSortConvertPanel,
