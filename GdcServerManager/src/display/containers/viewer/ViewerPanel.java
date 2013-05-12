@@ -156,6 +156,14 @@ public class ViewerPanel extends JPanel{
 		this.sagittalPanel = sagittalPanel;
 	}
 
+	public int[] getCoord() {
+		return coord;
+	}
+
+	public void setCoord(int[] coord) {
+		this.coord = coord;
+	}
+
 	/**
 	 * Ouvre un fichier nifti
 	 * @param path

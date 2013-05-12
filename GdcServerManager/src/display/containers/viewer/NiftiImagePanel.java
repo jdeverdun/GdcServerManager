@@ -26,7 +26,7 @@ import java.io.*;
  * @author Jérémy DEVERDUN
  *
  */
-public class NiftiImagePanel extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
+public class NiftiImagePanel extends JPanel implements ComponentListener, MouseWheelListener, MouseListener, MouseMotionListener {
 	public static enum Plan{AXIAL, SAGITTAL, CORONAL}; // les differents plan possible
 	public static final int AXIAL = 1;
 	
@@ -86,7 +86,7 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
     	setBackground(new Color(0, 0, 0));
        	isMousePressed = false;
        	setZoom(1);
-       	keepRatio = false;
+       	keepRatio = true;
        	displayScaleFactor = 1d;
        	offsets = new Dimension(0,0);
        	imageCurrentLocation = null;
@@ -102,6 +102,7 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 		addMouseMotionListener(this);
        	addMouseListener(this);
        	addMouseWheelListener(this);
+       	addComponentListener(this);
 	}
 
 	public int getSlice() {
@@ -180,6 +181,7 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
             }
             if(showCrosshair && currentLocation!=null){
             	g.setColor(Color.BLUE);
+            	//System.out.println(orientation+"@@"+imageCurrentLocation.x+"-"+imageCurrentLocation.y+"-"+getSlice());
             	g.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
             	g.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));
             }
@@ -369,19 +371,19 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 			if(impt.getY()<=0)
 				impt.y = 1;
 		}else{
-			double x = (p.getX()*displayScaleFactor) + offsets.width;
-			double y = (p.getY()*displayScaleFactor) + offsets.height;
+			double x = (p.getX()*displayScaleFactor) + offsets.width-1;
+			double y = (p.getY()*displayScaleFactor) + offsets.height-1;
 			if(orientation != Plan.AXIAL)
 				impt = new Point((int)Math.round(x),(int)Math.round(pheight-(y)-1));
 			else
 				impt = new Point((int)Math.round(x),(int)Math.round(y));
 			if(impt.getX()>=(getWidth()-offsets.width))
 				impt.x = (int)getWidth()-offsets.width;
-			if(impt.getX()<=offsets.width)
+			if(impt.getX()<offsets.width)
 				impt.x = offsets.width;
 			if(impt.getY()>=(getHeight()-offsets.height))
 				impt.y = (int)getHeight()-offsets.height;
-			if(impt.getY()<=offsets.height){
+			if(impt.getY()<offsets.height){
 				impt.y = offsets.height;
 			}
 		}
@@ -422,6 +424,7 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 		removeMouseMotionListener(this);
 		removeMouseListener(this);
 		removeMouseWheelListener(this);
+		removeComponentListener(this);
 		repaint();
 	}
 	
@@ -437,6 +440,23 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 			return new Integer[]{(int) imageCurrentLocation.getX(),(int) imageCurrentLocation.getY(),niftiImage.getNSlices()-getSlice()+1};
 		case SAGITTAL:
 			return new Integer[]{(int) ( imageDim.width - imageCurrentLocation.getX()+1),(int) (imageCurrentLocation.getY()),getSlice()};
+		default:
+			return null;
+		}
+	}
+	
+	/**
+	 * Permet de passer de l'espace mricron a l'espace local image
+	 * @return
+	 */
+	public Integer[] mricronCoordToLocal(Integer[] mric){
+		switch(orientation){
+		case AXIAL:
+			return new Integer[]{mric[0],(int) (imageDim.height - mric[1]),mric[2]};
+		case CORONAL:
+			return new Integer[]{mric[0],mric[1],niftiImage.getNSlices()-mric[2]};
+		case SAGITTAL:
+			return new Integer[]{(int) ( imageDim.width - mric[0]),mric[1],mric[2]};
 		default:
 			return null;
 		}
@@ -486,6 +506,25 @@ public class NiftiImagePanel extends JPanel implements MouseWheelListener, Mouse
 
 	    return dScale;
 
+	}
+
+	public void componentHidden(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void componentMoved(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void componentResized(ComponentEvent arg0) {
+		updateCrosshair(getViewer().getCoord());
+	}
+
+	public void componentShown(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 
