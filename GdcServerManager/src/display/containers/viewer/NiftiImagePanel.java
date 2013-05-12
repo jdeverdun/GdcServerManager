@@ -98,6 +98,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	public void setNiftiImage(ImagePlus niftiImage) {
 		this.niftiImage = niftiImage;
 		setSlice(Math.round(this.niftiImage.getNSlices()/2));
+		imageCurrentLocation = new Point((int)this.niftiImage.getWidth()/2,(int)this.niftiImage.getHeight()/2);
+		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
 		addMouseMotionListener(this);
        	addMouseListener(this);
@@ -471,11 +473,11 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	public Integer[] mricronCoordToLocal(Integer[] mric){
 		switch(orientation){
 		case AXIAL:
-			return new Integer[]{mric[0],(int) (imageDim.height - mric[1]),mric[2]};
+			return new Integer[]{mric[0],(int) Math.round(imageDim.height - mric[1]+1),mric[2]};
 		case CORONAL:
-			return new Integer[]{mric[0],mric[1],niftiImage.getNSlices()-mric[2]};
+			return new Integer[]{mric[0],mric[1],niftiImage.getNSlices()-mric[2]+1};
 		case SAGITTAL:
-			return new Integer[]{(int) ( imageDim.width - mric[0]),mric[1],mric[2]};
+			return new Integer[]{(int) ( imageDim.width - mric[0]+1),mric[1],mric[2]};
 		default:
 			return null;
 		}

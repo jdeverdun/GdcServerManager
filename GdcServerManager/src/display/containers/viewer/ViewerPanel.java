@@ -66,7 +66,7 @@ public class ViewerPanel extends JPanel{
 		
 		
 		splitLeftRight = new JSplitPane();
-		infoViewer = new InformationViewer();
+		infoViewer = new InformationViewer(this);
 		
 		add(splitLeftRight, "cell 0 0,grow");
 		
@@ -193,6 +193,8 @@ public class ViewerPanel extends JPanel{
 		coord[1] = getCoronalPanel().getSlice();
 		coord[2] = getAxialPanel().getSlice();
 		
+		// update infoViewer a partir des donnees du plan axial
+		infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord());
 		
 		//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 		//niftiAxial.show();
@@ -268,6 +270,7 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().updateCrosshair(coord);
 		getSagittalPanel().updateCrosshair(coord);
 		getAxialPanel().updateCrosshair(coord);
+		infoViewer.setRawCoord(getAxialPanel().getMricronCoord());
 	}
 	
 	/**
@@ -325,6 +328,20 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().setShowCrosshair(b);
 		getCoronalPanel().setShowCrosshair(b);
 		getSagittalPanel().setShowCrosshair(b);
+		updateCrosshair();
+	}
+
+	/**
+	 * Modifie la valeur en XYZ (issue de coordonnee MRI cron like)
+	 * @param value
+	 */
+	public void setXYZfromMricron(Integer[] value) {
+		Integer[] val = getAxialPanel().mricronCoordToLocal(value);
+		for(int i = 0; i<3;i++)
+			coord[i] = val[i];
+		getAxialPanel().setSlice(coord[2]);
+		getCoronalPanel().setSlice(coord[1]);
+		getSagittalPanel().setSlice(coord[0]);
 		updateCrosshair();
 	}
 
