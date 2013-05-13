@@ -129,7 +129,7 @@ public class ViewerPanel extends JPanel{
 	    });
 		
 		
-		open(Paths.get("C:/Users/serge/Desktop/filetesto.nii"));//T1MPRAGE3DGADOC-C110.nii"));
+		//open(Paths.get("C:/Users/serge/Desktop/filetesto.nii"));//T1MPRAGE3DGADOC-C110.nii"));
 	}
 	
 	public NiftiImagePanel getAxialPanel() {

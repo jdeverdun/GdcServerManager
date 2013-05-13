@@ -55,18 +55,18 @@ public class EncryptDaemon extends Thread {
 			backupfile.delete();
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
-			while(dicomToEncrypt.isEmpty()){
+			while(dicomToEncrypt.isEmpty() && !isStop()){
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
+			if(isStop())
+				return;
 			// on lance l'encryptage du fichier
 			dEncryptWorker = new DicomEncryptWorker(this, (Path)dicomToEncrypt.pop(), (DicomImage)dicomImageToEncrypt.pop());
 			dEncryptWorker.start();  
-
 		}
 	}
 
