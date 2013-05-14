@@ -11,6 +11,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 
 /**
  * Classe gerant l'affichage des infos sur le nifti en cours de vue
@@ -30,10 +31,8 @@ public class InformationViewer extends JPanel {
 	private JSpinner spinnerXraw;
 	private JSpinner spinnerYraw;
 	private JSpinner spinnerZraw;
-	private JSpinner spinnerXaligned;
-	private JSpinner spinnerYaligned;
-	private JSpinner spinnerZaligned;
 	private JLabel lblValue;
+	private JLabel lblAlignedval;
 	
 	public InformationViewer(ViewerPanel v){
 		setViewer(v);
@@ -46,11 +45,14 @@ public class InformationViewer extends JPanel {
 		JPanel panelValue = new JPanel();
 		add(panelValue, "cell 0 0,growx");
 		panelValue.setBorder(new TitledBorder(null, "Value", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelValue.setLayout(new MigLayout("", "[26px,grow]", "[14px]"));
+		panelValue.setLayout(new MigLayout("", "[26px,grow][grow]", "[14px]"));
 		
 		lblValue = new JLabel("NaN");
 		lblValue.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panelValue.add(lblValue, "cell 0 0,alignx center,aligny center");
+		
+		lblAlignedval = new JLabel("(NaN,NaN,NaN)");
+		panelValue.add(lblAlignedval, "cell 1 0,alignx center");
 		
 		JPanel panelCoord = new JPanel();
 		panelCoord.setBorder(new TitledBorder(null, "Coordinates", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -83,21 +85,6 @@ public class InformationViewer extends JPanel {
 		spinnerZraw.setMinimumSize(new Dimension(40, 20));
 		spinnerZraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
 		panelCoord.add(spinnerZraw, "cell 5 0,growx,aligny center");
-		
-		spinnerXaligned = new JSpinner();
-		spinnerXaligned.setMaximumSize(new Dimension(70, 20));
-		spinnerXaligned.setMinimumSize(new Dimension(40, 20));
-		panelCoord.add(spinnerXaligned, "cell 1 1,growx");
-		
-		spinnerYaligned = new JSpinner();
-		spinnerYaligned.setMaximumSize(new Dimension(70, 20));
-		spinnerYaligned.setMinimumSize(new Dimension(40, 20));
-		panelCoord.add(spinnerYaligned, "cell 3 1,growx");
-		
-		spinnerZaligned = new JSpinner();
-		spinnerZaligned.setMaximumSize(new Dimension(70, 20));
-		spinnerZaligned.setMinimumSize(new Dimension(40, 20));
-		panelCoord.add(spinnerZaligned, "cell 5 1,growx");
 		
 		
 		//event
@@ -176,34 +163,6 @@ public class InformationViewer extends JPanel {
 		this.viewer = viewer;
 	}
 	
-	public JSpinner getSpinnerXAligned() {
-		return spinnerXaligned;
-	}
-
-
-	public void setSpinnerXAligned(JSpinner spinnerXAligned) {
-		this.spinnerXaligned = spinnerXAligned;
-	}
-
-
-	public JSpinner getSpinnerYAligned() {
-		return spinnerYaligned;
-	}
-
-
-	public void setSpinnerYAligned(JSpinner spinnerYAligned) {
-		this.spinnerYaligned = spinnerYAligned;
-	}
-
-
-	public JSpinner getSpinnerZAligned() {
-		return spinnerZaligned;
-	}
-
-
-	public void setSpinnerZAligned(JSpinner spinnerZAligned) {
-		this.spinnerZaligned = spinnerZAligned;
-	}
 
 
 	public JLabel getLblValue() {
@@ -253,5 +212,8 @@ public class InformationViewer extends JPanel {
 
 	public void setVoxelValue(float voxelValue) {
 		getLblValue().setText(""+voxelValue);
+	}
+	public void setAlignedCoord(float[] coord){
+		lblAlignedval.setText("("+new DecimalFormat("#.##").format(coord[0])+" , "+new DecimalFormat("#.##").format(coord[1])+" , "+new DecimalFormat("#.##").format(coord[2])+")");
 	}
 }

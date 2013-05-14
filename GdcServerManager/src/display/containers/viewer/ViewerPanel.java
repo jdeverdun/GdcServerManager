@@ -48,6 +48,7 @@ public class ViewerPanel extends JPanel{
 	// Attributs
 	private Nifti_Reader niftiAxial;
 	private int[] coord; // coordonnee actuelle du pointeur (x,y,z)
+	private CoordinateMapper[] coordinateMapper;
 	private NiftiImagePanel axialPanel;//XY
 	private NiftiImagePanel coronalPanel;//XZ
 	private NiftiImagePanel sagittalPanel;//YZ
@@ -165,6 +166,20 @@ public class ViewerPanel extends JPanel{
 	}
 
 	/**
+	 * @return the coordinateMapper
+	 */
+	public CoordinateMapper[] getCoordinateMapper() {
+		return coordinateMapper;
+	}
+
+	/**
+	 * @param coordinateMapper the coordinateMapper to set
+	 */
+	public void setCoordinateMapper(CoordinateMapper[] coordinateMapper) {
+		this.coordinateMapper = coordinateMapper;
+	}
+
+	/**
 	 * Ouvre un fichier nifti
 	 * @param path
 	 */
@@ -182,6 +197,9 @@ public class ViewerPanel extends JPanel{
 			return false;
 		niftiAxial = new Nifti_Reader(path.toFile());
 		niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
+		
+		// on update le mapper
+		coordinateMapper = (CoordinateMapper[]) niftiAxial.getProperty("coors");	
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
 		//niftiAxial.setSlice(40);
 		Slicer slicer = new Slicer(niftiAxial);
@@ -277,6 +295,7 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().updateCrosshair(coord);
 		infoViewer.setRawCoord(getAxialPanel().getMricronCoord());
 		infoViewer.setVoxelValue((float) getAxialPanel().getVoxelValue());
+		infoViewer.setAlignedCoord(new float[]{(float) coordinateMapper[coordinateMapper.length-1].getX(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getY(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getZ(coord[0],coord[1],coord[2])});
 	}
 	
 	/**
