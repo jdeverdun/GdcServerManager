@@ -197,7 +197,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
             	g.drawImage(image,0,0, width*zoom, height*zoom, this);
             }
             if(showCrosshair && currentLocation!=null){
-            	g.setColor(Color.BLUE);
+            	g.setColor(new Color(255,140,0));
             	if(orientation != Plan.SAGITTAL)
             		g.drawString("L", offsets.width+10, getHeight()-offsets.height-20);
             	else
@@ -546,6 +546,10 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	public void componentShown(ComponentEvent arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public double getVoxelValue() {
+		return getValueAt(imageCurrentLocation);
 	}
 
 

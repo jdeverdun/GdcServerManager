@@ -86,7 +86,7 @@ public class ViewerPanel extends JPanel{
 		splitRight.setLeftComponent(sagittalPanel);
 		splitRight.setRightComponent(infoViewer);
 		splitRight.setResizeWeight(0.5f);
-		
+
 		this.setDropTarget(new DropTarget() {
 	        public synchronized void drop(DropTargetDropEvent evt) {
 	            try{
@@ -171,6 +171,10 @@ public class ViewerPanel extends JPanel{
 	public boolean open(Path path) {
 		if(niftiAxial!=null)
 			reset();
+		splitLeftRight.setDividerLocation(splitLeftRight.getWidth()/2);
+		splitRight.setDividerLocation(splitRight.getHeight()/2);
+		splitLeft.setDividerLocation(splitLeft.getHeight()/2);
+
 		getCoronalPanel().reset();
 		getAxialPanel().reset();
 		getSagittalPanel().reset();
@@ -199,6 +203,7 @@ public class ViewerPanel extends JPanel{
 		//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 		//niftiAxial.show();
 		revalidate();
+
 		return true;
 	}
 
@@ -271,6 +276,7 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().updateCrosshair(coord);
 		getAxialPanel().updateCrosshair(coord);
 		infoViewer.setRawCoord(getAxialPanel().getMricronCoord());
+		infoViewer.setVoxelValue((float) getAxialPanel().getVoxelValue());
 	}
 	
 	/**

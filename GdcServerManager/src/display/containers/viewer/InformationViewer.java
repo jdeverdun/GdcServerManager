@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Dimension;
 
 /**
  * Classe gerant l'affichage des infos sur le nifti en cours de vue
@@ -28,6 +30,10 @@ public class InformationViewer extends JPanel {
 	private JSpinner spinnerXraw;
 	private JSpinner spinnerYraw;
 	private JSpinner spinnerZraw;
+	private JSpinner spinnerXaligned;
+	private JSpinner spinnerYaligned;
+	private JSpinner spinnerZaligned;
+	private JLabel lblValue;
 	
 	public InformationViewer(ViewerPanel v){
 		setViewer(v);
@@ -35,33 +41,63 @@ public class InformationViewer extends JPanel {
 		interceptYrawSpinner = false;
 		interceptZrawSpinner = false;
 		
-		setLayout(new MigLayout("", "[grow]", "[grow]"));
+		setLayout(new MigLayout("", "[grow]", "[][grow]"));
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Coordinates", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		add(panel, "cell 0 0,grow");
-		panel.setLayout(new MigLayout("", "[grow][grow][grow][grow][grow][grow]", "[]"));
+		JPanel panelValue = new JPanel();
+		add(panelValue, "cell 0 0,growx");
+		panelValue.setBorder(new TitledBorder(null, "Value", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelValue.setLayout(new MigLayout("", "[26px,grow]", "[14px]"));
+		
+		lblValue = new JLabel("NaN");
+		lblValue.setAlignmentX(Component.CENTER_ALIGNMENT);
+		panelValue.add(lblValue, "cell 0 0,alignx center,aligny center");
+		
+		JPanel panelCoord = new JPanel();
+		panelCoord.setBorder(new TitledBorder(null, "Coordinates", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		add(panelCoord, "cell 0 1,grow");
+		panelCoord.setLayout(new MigLayout("", "[grow][grow][grow][grow][grow][grow]", "[][]"));
 		
 		JLabel lblX = new JLabel("X");
-		panel.add(lblX, "cell 0 0,alignx center,aligny center");
+		panelCoord.add(lblX, "cell 0 0,alignx center,aligny center");
 		
 		spinnerXraw = new JSpinner();
+		spinnerXraw.setMaximumSize(new Dimension(70, 20));
+		spinnerXraw.setMinimumSize(new Dimension(40, 20));
 		spinnerXraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
-		panel.add(spinnerXraw, "cell 1 0,growx,aligny center");
+		panelCoord.add(spinnerXraw, "cell 1 0,growx,aligny center");
 		
 		JLabel lblY = new JLabel("Y");
-		panel.add(lblY, "cell 2 0,alignx center,aligny center");
+		panelCoord.add(lblY, "cell 2 0,alignx center,aligny center");
 		
 		spinnerYraw = new JSpinner();
+		spinnerYraw.setMaximumSize(new Dimension(70, 20));
+		spinnerYraw.setMinimumSize(new Dimension(40, 20));
 		spinnerYraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
-		panel.add(spinnerYraw, "flowx,cell 3 0,growx,aligny center");
+		panelCoord.add(spinnerYraw, "flowx,cell 3 0,growx,aligny center");
 		
 		JLabel lblZ = new JLabel("Z");
-		panel.add(lblZ, "cell 4 0,alignx center,aligny center");
+		panelCoord.add(lblZ, "cell 4 0,alignx center,aligny center");
 		
 		spinnerZraw = new JSpinner();
+		spinnerZraw.setMaximumSize(new Dimension(70, 20));
+		spinnerZraw.setMinimumSize(new Dimension(40, 20));
 		spinnerZraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
-		panel.add(spinnerZraw, "cell 5 0,growx,aligny center");
+		panelCoord.add(spinnerZraw, "cell 5 0,growx,aligny center");
+		
+		spinnerXaligned = new JSpinner();
+		spinnerXaligned.setMaximumSize(new Dimension(70, 20));
+		spinnerXaligned.setMinimumSize(new Dimension(40, 20));
+		panelCoord.add(spinnerXaligned, "cell 1 1,growx");
+		
+		spinnerYaligned = new JSpinner();
+		spinnerYaligned.setMaximumSize(new Dimension(70, 20));
+		spinnerYaligned.setMinimumSize(new Dimension(40, 20));
+		panelCoord.add(spinnerYaligned, "cell 3 1,growx");
+		
+		spinnerZaligned = new JSpinner();
+		spinnerZaligned.setMaximumSize(new Dimension(70, 20));
+		spinnerZaligned.setMinimumSize(new Dimension(40, 20));
+		panelCoord.add(spinnerZaligned, "cell 5 1,growx");
 		
 		
 		//event
@@ -140,6 +176,46 @@ public class InformationViewer extends JPanel {
 		this.viewer = viewer;
 	}
 	
+	public JSpinner getSpinnerXAligned() {
+		return spinnerXaligned;
+	}
+
+
+	public void setSpinnerXAligned(JSpinner spinnerXAligned) {
+		this.spinnerXaligned = spinnerXAligned;
+	}
+
+
+	public JSpinner getSpinnerYAligned() {
+		return spinnerYaligned;
+	}
+
+
+	public void setSpinnerYAligned(JSpinner spinnerYAligned) {
+		this.spinnerYaligned = spinnerYAligned;
+	}
+
+
+	public JSpinner getSpinnerZAligned() {
+		return spinnerZaligned;
+	}
+
+
+	public void setSpinnerZAligned(JSpinner spinnerZAligned) {
+		this.spinnerZaligned = spinnerZAligned;
+	}
+
+
+	public JLabel getLblValue() {
+		return lblValue;
+	}
+
+
+	public void setLblValue(JLabel lblValue) {
+		this.lblValue = lblValue;
+	}
+
+
 	/**
 	 * reset l'infoviewer
 	 */
@@ -172,5 +248,10 @@ public class InformationViewer extends JPanel {
 		spinnerXraw.setValue(mricronCoord[0]);
 		spinnerYraw.setValue(mricronCoord[1]);
 		spinnerZraw.setValue(mricronCoord[2]);
+	}
+
+
+	public void setVoxelValue(float voxelValue) {
+		getLblValue().setText(""+voxelValue);
 	}
 }
