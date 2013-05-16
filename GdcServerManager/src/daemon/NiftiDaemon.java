@@ -164,6 +164,8 @@ public class NiftiDaemon extends Thread{
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
 			while(it.hasNext() && !isStop()){
+				if(isStop())
+					break;
 				Path path = it.next();
 				long timeSincemod = timeSinceModif(path);
 				// Si == -1 alors le dicom d'origine a ete supprime entre temps -> pas besoin de convertir le repertoire
@@ -201,7 +203,7 @@ public class NiftiDaemon extends Thread{
 	 */
 	public boolean isDirFullyEncrypted(Path path) {
 		for(String p:path.toFile().list()){
-			if(!p.endsWith(AESCrypt.ENCRYPTSUFFIX))
+			if(p.length()>2 && !p.endsWith(AESCrypt.ENCRYPTSUFFIX))
 				return false;
 		}
 		return true;

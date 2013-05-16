@@ -12,7 +12,8 @@ import daemon.dicomnode.DcmRcv;
 public class DicomNode {
 
 	// Static
-	private static final int DEFAULT_PORT = 11112;
+	private static final int DEFAULT_PORT = 104;//11112;
+	private static final String DEFAULT_HOSTNAME = "120.40.30.110";
 	// Attributs
 	private DcmRcv dcmrcv;
 	private int port;
@@ -23,12 +24,14 @@ public class DicomNode {
 		dcmrcv = new DcmRcv("DCMRCV");
 		dcmrcv.setPort(DEFAULT_PORT);
 		setPort(DEFAULT_PORT);
+		setHostname(DEFAULT_HOSTNAME);
 		initDcmRcv();
 	}
 	
 	public DicomNode(int port){
 		dcmrcv = new DcmRcv("DCMRCV");
 		dcmrcv.setPort(port);
+		setHostname(DEFAULT_HOSTNAME);
 		setPort(port);
 		initDcmRcv();
 	}
@@ -50,6 +53,7 @@ public class DicomNode {
         dcmrcv.setPackPDV(true);
         dcmrcv.setTcpNoDelay(true);
         dcmrcv.initTransferCapability();
+        dcmrcv.setHostname(getHostname());
 	}
 	
 	public void start(){

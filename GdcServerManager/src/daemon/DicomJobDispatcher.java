@@ -256,7 +256,7 @@ public class DicomJobDispatcher extends Thread{
 		String[] filesInInc = getServerInfo().getIncomingDir().toFile().list();
 		for(String name:filesInInc){
 			File lfile = new File(getServerInfo().getIncomingDir() + "/" + name);
-			if(name.length()>2){
+			if(name.length()>2 && !name.endsWith(".part")){//on s'assure que ce n'est pas des fichiers en cours de copie ".part" ni des ..
 				try{
 					if(DicomImage.isDicom(lfile)){
 						String fullpath = getServerInfo().getIncomingDir() + "/" + name;

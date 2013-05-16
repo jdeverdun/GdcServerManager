@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.io.FileUtils;
+
 import settings.WindowManager;
 
 import model.DicomImage;
@@ -291,8 +293,13 @@ public class NiftiWorker extends DaemonWorker {
 	 */
 	public void buildIfNotExist(Path p){
 		try {
-			if(Files.exists(p))
-				Files.delete(p);
+			if(Files.exists(p)){
+				try{
+					FileUtils.deleteDirectory(p.toFile());
+				}catch(Exception e){
+					Files.delete(p);
+				}
+			}
 			Files.createDirectories(p);
 		} catch (IOException e) {
 			e.printStackTrace();

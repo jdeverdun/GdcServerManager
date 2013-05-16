@@ -87,6 +87,9 @@ public class ViewerPanel extends JPanel{
 		splitRight.setLeftComponent(sagittalPanel);
 		splitRight.setRightComponent(infoViewer);
 		splitRight.setResizeWeight(0.5f);
+		splitLeftRight.setDividerLocation(900/2);
+		splitRight.setDividerLocation(525/2);
+		splitLeft.setDividerLocation(525/2);
 
 		this.setDropTarget(new DropTarget() {
 	        public synchronized void drop(DropTargetDropEvent evt) {
@@ -189,7 +192,7 @@ public class ViewerPanel extends JPanel{
 		splitLeftRight.setDividerLocation(splitLeftRight.getWidth()/2);
 		splitRight.setDividerLocation(splitRight.getHeight()/2);
 		splitLeft.setDividerLocation(splitLeft.getHeight()/2);
-
+		infoViewer.reset();
 		getCoronalPanel().reset();
 		getAxialPanel().reset();
 		getSagittalPanel().reset();
@@ -198,6 +201,12 @@ public class ViewerPanel extends JPanel{
 		niftiAxial = new Nifti_Reader(path.toFile());
 		niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
 		
+		// on definit la taille du voxel
+		double pixelWidth = niftiAxial.getCalibration().pixelWidth; 
+		double pixelHeight = niftiAxial.getCalibration().pixelHeight; 
+		double pixelDepth = niftiAxial.getCalibration().pixelDepth; 
+		infoViewer.setVoxelSize(new double[]{pixelWidth,pixelHeight,pixelDepth});
+		infoViewer.setFilename(path.getFileName().toString());
 		// on update le mapper
 		coordinateMapper = (CoordinateMapper[]) niftiAxial.getProperty("coors");	
 		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));

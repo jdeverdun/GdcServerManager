@@ -148,7 +148,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 		// On ne le ratjoute que si le workspace du protocole existe
 		
 		/* /!\  A decommenter dans la version finale */
-		//if(new File(getServerInfo().getServerDir() + "/" + dicomImage.getProjet().getNom()).exists())
+		if(new File(getServerInfo().getServerDir() + "/" + dicomImage.getProjet().getNom()).exists())
 			encryptDaemon.sendToNiftiDaemon(this);
 	}
 
