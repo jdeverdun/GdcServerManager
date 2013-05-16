@@ -251,15 +251,15 @@ public class DicomSortConvertPanel extends JPanel {
 				if(chckbxConvertToNifti.isSelected()){
 					int fmt = -1;
 					switch((FORMAT)comboBox.getSelectedItem()){
-					case SPM2:
-						fmt = NiftiDaemon.ANALYZE_7_5;
+					case ANALYZE:
+						fmt = NiftiDaemon.ANALYZE;
 						break;
-					case SPM5:
-						fmt = NiftiDaemon.SPM5_NIFTI;break;
+					case SPM:
+						fmt = NiftiDaemon.SPM;break;
 					case NIFTI:
-						fmt = NiftiDaemon.NIFTI_4D;break;
-					case cNIFTI:
-						fmt = NiftiDaemon.FSL_NIFTI;break;
+						fmt = NiftiDaemon.NIFTI;break;
+					case FSL:
+						fmt = NiftiDaemon.FSL;break;
 					default:
 						System.err.println("Unknow NIFTI FORMAT");
 					}

@@ -250,6 +250,6 @@ public class InformationViewer extends JPanel {
 		lblVoxelsize.setText("Voxel size (mm): "+new DecimalFormat("#.##").format(size[0])+"   "+new DecimalFormat("#.##").format(size[1])+"   "+new DecimalFormat("#.##").format(size[2]));
 	}
 	public void setFilename(String name){
-		titleValue.setTitle(name);
+		titleValue.setTitle(name.substring(0,Math.min(50, name.length())));
 	}
 }

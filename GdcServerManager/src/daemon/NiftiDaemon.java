@@ -40,12 +40,12 @@ import model.daemon.CustomConversionSettings;
 public class NiftiDaemon extends Thread{
 
 	// Attributs
-	public static enum FORMAT{SPM2,SPM5,NIFTI,cNIFTI};
-	public static final int ANALYZE_7_5 = 0; //SPM2 img/hdr
-	public static final int SPM5_NIFTI = 1; //SPM5 img/hdr
-	public static final int NIFTI_4D = 2; // Nifti 4D nii
-	public static final int FSL_NIFTI = 3; // nifti FSL nii.gz
-	public static int defaultFormat = NIFTI_4D;
+	public static enum FORMAT{ANALYZE,SPM,NIFTI,FSL};
+	public static final int ANALYZE = 0; //SPM2 style
+	public static final int SPM = 1; //SPM5 style
+	public static final int NIFTI = 2; // Nifti format
+	public static final int FSL = 3; // FSL format (la gauche est a gauche?)
+	public static int defaultFormat = FSL;
 	// liste des suffixes permettant de determiner lors de la suppression d'un nifti 
 	// les fichiers associes a supprimer : ex : DTI les fichiers bval ...
 	public static final String[] suffixeToRemoveWithNifti = new String[]{"_bvecs.txt","_bvals.txt","_moco.txt"};

@@ -134,7 +134,8 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			
 			// On cree la commande (on convertie dans un autre repertoire)
-			command = buildConvertCommandFor(tempDicomPath,tempNiftiPath,false);
+			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
+			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 
 			// on convertie
 			process = Runtime.getRuntime().exec(command);
@@ -217,17 +218,17 @@ public class NiftiWorker extends DaemonWorker {
 	
 	// Construit la commande pour convertir un repertoire dicom (dicomPath) en nifti
 	// fourDim permet de renseigner si on stocke les fichiers dans un format 4d ou pas
-	protected String buildConvertCommandFor(Path dicomPath, Path niftiPath, boolean fourDim) {
+	protected String buildDcm2niiConvertCommandFor(Path dicomPath, Path niftiPath, boolean fourDim) {
 		// -i id in filename | -p protocol in filename
 		String command = "dcm2nii.exe -i y -p y -e n -a n -d n -e n -f n -l 0 -r n -x n ";
 		switch(getNiftiDaemon().getFormat()){
-		case NiftiDaemon.ANALYZE_7_5:
+		case NiftiDaemon.ANALYZE:
 			command+=" -n n -s y -g n ";break;
-		case NiftiDaemon.SPM5_NIFTI:
+		case NiftiDaemon.SPM:
 			command+=" -n n -g n ";break;
-		case NiftiDaemon.NIFTI_4D://A selectionner en prio ?
+		case NiftiDaemon.NIFTI://A selectionner en prio ?
 			command+=" -n y -g n ";break;
-		case NiftiDaemon.FSL_NIFTI:
+		case NiftiDaemon.FSL:
 			command+=" -n y -g y ";break;
 		default:
 			System.err.println("Unknow nifti format");
@@ -237,6 +238,28 @@ public class NiftiWorker extends DaemonWorker {
 		else
 			command+=" -4D n ";
 		command+=" -o \""+niftiPath+"\" \""+dicomPath+"\"";
+		return command;
+	}
+	
+	protected String buildConvertizerConvertCommandFor(Path dicomPath, Path niftiPath, boolean fourDim) {
+		// -i id in filename | -p protocol in filename
+		String command = "convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+		command+= " -r "; // apply rescale slope & intercept
+		command+= " -n "; //save as .nii files
+		switch(getNiftiDaemon().getFormat()){
+		case NiftiDaemon.ANALYZE:
+			command+=" -f analyze ";break;
+		case NiftiDaemon.SPM:
+			command+=" -f spm ";break;
+		case NiftiDaemon.NIFTI://A selectionner en prio ?
+			command+=" -f nifti ";break;
+		case NiftiDaemon.FSL:
+			command+=" -f fsl ";break;
+		default:
+			System.err.println("Unknow nifti format");
+		}
+		if(fourDim)
+			command+=" -d ";
 		return command;
 	}
 	
@@ -280,12 +303,12 @@ public class NiftiWorker extends DaemonWorker {
 		String[] list = niftiPath.toFile().list();
 		String ext;
 		switch(getNiftiDaemon().getFormat()){
-		case NiftiDaemon.NIFTI_4D:
+		case NiftiDaemon.NIFTI:
 			ext = ".nii";break;
-		case NiftiDaemon.FSL_NIFTI:
-			ext = ".nii.gz";break;
+		case NiftiDaemon.FSL:
+			ext = ".nii";break;
 		default:
-			ext = ".img";
+			ext = ".nii";break;
 		}
 		for(String name:list){
 			String fullpath = niftiPath + "/" + name;

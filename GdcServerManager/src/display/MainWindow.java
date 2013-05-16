@@ -225,7 +225,7 @@ public class MainWindow extends JFrame {
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, "cell 1 1 30 23,grow");
-		panel.setLayout(new MigLayout("", "[][66.00,grow,left][292.00,grow][719px,grow]", "[525px,grow][][2px]"));
+		panel.setLayout(new MigLayout("", "[][144.00,left][158.00][719px,grow]", "[525px,grow][][2px]"));
 		
 		ongletPane = new JTabbedPane(JTabbedPane.RIGHT);
 
@@ -266,8 +266,11 @@ public class MainWindow extends JFrame {
 		progressBarPanel = new ProgressPanel();
 		progressBarPanel.setSize(50, 20);
 		progressBarPanel.setVisible(false);
-		panel.add(progressBarPanel, "cell 1 1 2 1,grow");
 		
+		if(i==0)
+			panel.add(progressBarPanel, "cell 1 1,grow");
+		else
+			panel.add(progressBarPanel, "cell 1 1 2 1,grow");
 		//ongletPane.setEnabledAt(2, false); 
 		if(i!=0){
 			
