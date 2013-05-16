@@ -160,25 +160,33 @@ public class NiftiWorker extends DaemonWorker {
 				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
 				addEntryToDB(finalNiftiPath,"NiftiImage");
 			}
-		
-		
+			// On recupere les noms des fichiers associe aux nifti cree (bval pour dti etc (cf niftiDaemon.suffixe...)
+			// on les encrypt et on les deplace dans leur repertoire final (mais pas d'ajout dans la bdd)
+			HashMap<String,Path> associatedInfoFiles = getAssociatedNiftiListIn(tempNiftiPath);
+			for(String assocNifti:associatedInfoFiles.keySet()){
+				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(assocNifti).getFileName());
+				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
+				aes.encrypt(2,associatedInfoFiles.get(assocNifti).toString(), newPath.toString());
+			}
+			
 			// On supprime tous les fichiers cree dans tempDir
 			delete(tempDicomPath.toFile());
 			delete(tempNiftiPath.toFile());
 
 			
 		} catch (IOException e1) {
-			System.out.println("IOException with niftiWorker : "+e1.toString());
-			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e1.toString().substring(0, Math.min(e1.toString().length(), 100)));
+			System.out.println("IOException with niftiWorker ("+path+"):"+e1.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e1.toString()).substring(0, Math.min(e1.toString().length(), 100)));
 		} catch (InterruptedException e) {
-			System.out.println("InterruptedException with niftiWorker : "+e.toString());
-			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+			System.out.println("InterruptedException with niftiWorker ("+path+"):"+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e.toString()).substring(0, Math.min(e.toString().length(), 100)));
 		} catch (GeneralSecurityException e) {
-			System.out.println("GeneralSecurityException with niftiWorker : "+e.toString());
-			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+			System.out.println("GeneralSecurityException with niftiWorker ("+path+"):"+e.toString());
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e.toString()).substring(0, Math.min(e.toString().length(), 100)));
 		}
 
 	}
+
 
 	// supprime les fichiers renseignes dans une hashmap
 	protected void removeFiles(HashMap<String, Path> niftis) {
@@ -285,6 +293,24 @@ public class NiftiWorker extends DaemonWorker {
 				niftiList.put(name+"_"+(new File(fullpath).lastModified()),Paths.get(fullpath));
 		}
 		return niftiList;
+	}
+	
+	/**
+	 * Recupere les fichiers associee a des nifti (type bval.txt etc)
+	 * @param tempNiftiPath
+	 * @return
+	 */
+	private HashMap<String, Path> getAssociatedNiftiListIn(Path tempNiftiPath) {
+		HashMap<String, Path> assocNiftiList = new HashMap<String, Path>();
+		String[] list = tempNiftiPath.toFile().list();
+		for(String name:list){
+			String fullpath = tempNiftiPath + "/" + name;
+			for(String suf:NiftiDaemon.suffixeToRemoveWithNifti){
+				if(name.endsWith(suf))
+					assocNiftiList.put(name+"_"+(new File(fullpath).lastModified()),Paths.get(fullpath));
+			}
+		}
+		return assocNiftiList;
 	}
 	
 	/**

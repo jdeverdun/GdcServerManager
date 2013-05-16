@@ -46,6 +46,10 @@ public class NiftiDaemon extends Thread{
 	public static final int NIFTI_4D = 2; // Nifti 4D nii
 	public static final int FSL_NIFTI = 3; // nifti FSL nii.gz
 	public static int defaultFormat = NIFTI_4D;
+	// liste des suffixes permettant de determiner lors de la suppression d'un nifti 
+	// les fichiers associes a supprimer : ex : DTI les fichiers bval ...
+	public static final String[] suffixeToRemoveWithNifti = new String[]{"_bvecs.txt","_bvals.txt","_moco.txt"};
+	
 	
 	// fichier de backup
 	private static final String BACKUP_FILE = "niftiDaemon.bak";

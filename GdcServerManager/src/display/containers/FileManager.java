@@ -30,6 +30,7 @@ import model.ServerInfo;
 import org.apache.commons.io.FileUtils;
 
 import daemon.DecryptDaemon;
+import daemon.NiftiDaemon;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -451,7 +452,6 @@ public class FileManager {
 				serie = parts[serverdirlen+4];
 				image = parts[serverdirlen+5];
 				image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
-				System.out.println(AESCrypt.ENCRYPTSUFFIX.length());
 				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
 				case ServerInfo.NRI_DICOM_NAME:
 					DicomImageDAO ddao = new MySQLDicomImageDAO();
@@ -486,6 +486,28 @@ public class FileManager {
 					FileUtils.deleteQuietly(new File(opath));
 			}else{
 				fi.delete();
+				if(parts[serverdirlen-1].equals(ServerInfo.NRI_ANALYSE_NAME)){
+					// si c'est un nifti on supprime aussi les fichiers associes
+					try{
+						// on verifie si il n'y a pas des fichiers associe a supprimer (fichiers texte genre bval)
+						String path = fi.getParent();
+						String rootname = fi.getName();
+						if(rootname.endsWith(AESCrypt.ENCRYPTSUFFIX)){
+							rootname = fi.getName().substring(0,fi.getName().lastIndexOf("."));//sans le .enc
+							rootname = rootname.substring(0,rootname.lastIndexOf("."));//sans le .nii
+						}else{
+							rootname = fi.getName().substring(0,fi.getName().lastIndexOf(".")-1);
+						}
+						// on essai de supprimer les fichiers si ils existent
+						for(String suf:NiftiDaemon.suffixeToRemoveWithNifti){
+							if(new File(path+File.separator+rootname+suf).exists())
+								new File(path+File.separator+rootname+suf).delete();
+							else
+								if(new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX).exists())
+									new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX).delete();
+						}
+					}catch(Exception e){}
+				}
 			}
 		}
 	}

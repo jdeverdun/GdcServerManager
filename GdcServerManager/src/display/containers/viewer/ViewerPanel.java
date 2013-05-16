@@ -25,6 +25,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
@@ -112,7 +113,7 @@ public class ViewerPanel extends JPanel{
 									
 									@Override
 									public void run() {
-										WarningPanel wmess = new WarningPanel("Not a nifti");
+										WarningPanel wmess = new WarningPanel("Error with opening. Is it a Nifti?");
 										Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
 										wmess.setPopupWindow(popup);
 										popup.show();
@@ -198,40 +199,54 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().reset();
 		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
 			return false;
-		niftiAxial = new Nifti_Reader(path.toFile());
-		niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
-		
-		// on definit la taille du voxel
-		double pixelWidth = niftiAxial.getCalibration().pixelWidth; 
-		double pixelHeight = niftiAxial.getCalibration().pixelHeight; 
-		double pixelDepth = niftiAxial.getCalibration().pixelDepth; 
-		infoViewer.setVoxelSize(new double[]{pixelWidth,pixelHeight,pixelDepth});
-		infoViewer.setFilename(path.getFileName().toString());
-		// on update le mapper
-		coordinateMapper = (CoordinateMapper[]) niftiAxial.getProperty("coors");	
-		//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
-		//niftiAxial.setSlice(40);
-		Slicer slicer = new Slicer(niftiAxial);
-		ImagePlus niftiCoro = slicer.flip(false, true, "Top");
-		ImagePlus niftiSag = slicer.flip(false, true, "Left");
-		
-		getCoronalPanel().setNiftiImage(niftiCoro);
-		getAxialPanel().setNiftiImage(niftiAxial);
-		getSagittalPanel().setNiftiImage(niftiSag);
-		
-		// on met a jours les coord actuelles
-		coord[0] = getSagittalPanel().getSlice();
-		coord[1] = getCoronalPanel().getSlice();
-		coord[2] = getAxialPanel().getSlice();
-		
-		// update infoViewer a partir des donnees du plan axial
-		infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord());
-		
-		//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
-		//niftiAxial.show();
-		revalidate();
-
-		return true;
+		try{
+			niftiAxial = new Nifti_Reader(path.toFile());
+			niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
+			
+			// on definit la taille du voxel
+			double pixelWidth = niftiAxial.getCalibration().pixelWidth; 
+			double pixelHeight = niftiAxial.getCalibration().pixelHeight; 
+			double pixelDepth = niftiAxial.getCalibration().pixelDepth; 
+			infoViewer.setVoxelSize(new double[]{pixelWidth,pixelHeight,pixelDepth});
+			infoViewer.setFilename(path.getFileName().toString());
+			// on update le mapper
+			coordinateMapper = (CoordinateMapper[]) niftiAxial.getProperty("coors");	
+			//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
+			//niftiAxial.setSlice(40);
+			Slicer slicer = new Slicer(niftiAxial);
+			ImagePlus niftiCoro = slicer.flip(false, true, "Top");
+			ImagePlus niftiSag = slicer.flip(false, true, "Left");
+			
+			getCoronalPanel().setNiftiImage(niftiCoro);
+			getAxialPanel().setNiftiImage(niftiAxial);
+			getSagittalPanel().setNiftiImage(niftiSag);
+			
+			// on met a jours les coord actuelles
+			coord[0] = getSagittalPanel().getSlice();
+			coord[1] = getCoronalPanel().getSlice();
+			coord[2] = getAxialPanel().getSlice();
+			
+			// update infoViewer a partir des donnees du plan axial
+			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord());
+			
+			//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
+			//niftiAxial.show();
+			revalidate();
+	
+			return true;
+		}catch(final Exception e){
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(ViewerPanel.this,
+						    "Exception : "+e.toString(),
+						    "Openning error",
+						    JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			return false;
+		}
 	}
 
 	
