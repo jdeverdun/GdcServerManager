@@ -46,10 +46,12 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import display.MainWindow;
+import display.containers.viewer.ViewerPanel;
 import es.vocali.util.AESCrypt;
 
 import settings.SystemSettings;
 import settings.UserProfile;
+import settings.WindowManager;
 
 import java.util.Date;
 import java.util.List;
@@ -375,7 +377,7 @@ public class FileManager {
      * @param column
      */
     protected void mouseDblClicked(int row, int column) {
-		File file = ((FileTableModel)table.getModel()).getFile(row);
+		final File file = ((FileTableModel)table.getModel()).getFile(row);
 		if(file.isDirectory()){
 			try {
 				setCurrentDir(file.getCanonicalFile());
@@ -384,11 +386,72 @@ public class FileManager {
 				e.printStackTrace();
 			}
 		}else{
-			try {
-                desktop.open(file);
-            } catch(Throwable t) {
-                showThrowable(t);
-            }
+			// si on est dans la vue admin et qu'on clic sur un nifti encrypte
+			if(file.getName().endsWith(".nii"+AESCrypt.ENCRYPTSUFFIX) && mode == 2){
+				WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
+				Thread tr = new Thread(new Runnable() {
+						
+					@Override
+					public void run() {
+						try {
+							copySelectedFilesAndDecryptTo(SystemSettings.SERVER_INFO.getTempDir().toFile());
+							File copiedFile = new File(SystemSettings.SERVER_INFO.getTempDir()+File.separator+file.getName().substring(0, file.getName().length()-4));
+							WindowManager.MAINWINDOW.getViewerPanel().open(copiedFile.toPath());
+							WindowManager.MAINWINDOW.getOngletPane().setSelectedComponent(WindowManager.MAINWINDOW.getViewerPanel());
+							copiedFile.deleteOnExit();
+							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+						} catch (final Exception e) {
+							SwingUtilities.invokeLater(new Runnable() {
+								
+								@Override
+								public void run() {
+									JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+										    "Exception : "+e.toString(),
+										    "Openning error",
+										    JOptionPane.ERROR_MESSAGE);
+								}
+							});
+							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+						}
+					}
+				});
+				tr.start();
+			}else{
+				// si c'est un nifti non crypte
+				if(file.getName().endsWith(".nii") || file.getName().endsWith(".img") || file.getName().endsWith(".nii.gz") || file.getName().endsWith(".hdr")){
+					WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
+					WindowManager.MAINWINDOW.getOngletPane().setSelectedComponent(WindowManager.MAINWINDOW.getViewerPanel());
+					Thread tr = new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							try {
+								WindowManager.MAINWINDOW.getViewerPanel().open(file.toPath());
+								WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+							} catch (final Exception e) {
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+											    "Exception : "+e.toString(),
+											    "Openning error",
+											    JOptionPane.ERROR_MESSAGE);
+									}
+								});
+								WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+							}
+						}
+					});
+					tr.start();
+				}else{
+					try {
+		                desktop.open(file);
+		            } catch(Throwable t) {
+		                showThrowable(t);
+		            }
+				}
+			}
 		}
 	}
 

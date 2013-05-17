@@ -35,6 +35,8 @@ import javax.swing.SwingUtilities;
 
 import daemon.tools.nifti.CoordinateMapper;
 import daemon.tools.nifti.Coordinate_Viewer;
+import daemon.tools.nifti.LutLoader;
+import daemon.tools.nifti.LutLoader.ALUT;
 import daemon.tools.nifti.Nifti_Reader;
 import daemon.tools.nifti.Slicer;
 import display.MainWindow;
@@ -59,9 +61,11 @@ public class ViewerPanel extends JPanel{
 	private JSplitPane splitRight;
 	private JSplitPane splitLeft;
 	private JSplitPane splitLeftRight;
+	private LutLoader lutLoader; // loader qui permet de changer de colormap
 	
 	public ViewerPanel(){
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
+		lutLoader = new LutLoader();
 		coord = new int[]{-1,-1,-1};
 		niftiAxial = null;
 		axialPanel = new NiftiImagePanel(this,Plan.AXIAL);
@@ -201,14 +205,22 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().reset();
 		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
 			return false;
-		//try{
+		try{
 			niftiAxial = new Nifti_Reader(path.toFile());
 			niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
-			
+			if(niftiAxial == null)
+				throw new Exception("Error with image ... not a real nifti.");
+			// on applique la colormap par defaut
+			lutLoader.run(niftiAxial, ALUT.grays);
 			// on definit la taille du voxel
-			double pixelWidth = niftiAxial.getCalibration().pixelWidth; 
-			double pixelHeight = niftiAxial.getCalibration().pixelHeight; 
-			double pixelDepth = niftiAxial.getCalibration().pixelDepth; 
+			double pixelWidth = -1; 
+			double pixelHeight = -1;
+			double pixelDepth = -1;
+			if(niftiAxial.getCalibration() != null){
+				pixelWidth = niftiAxial.getCalibration().pixelWidth; 
+				pixelHeight = niftiAxial.getCalibration().pixelHeight; 
+				pixelDepth = niftiAxial.getCalibration().pixelDepth; 
+			}
 			infoViewer.setVoxelSize(new double[]{pixelWidth,pixelHeight,pixelDepth});
 			infoViewer.setFilename(path.getFileName().toString());
 			// on update le mapper
@@ -218,10 +230,11 @@ public class ViewerPanel extends JPanel{
 			Slicer slicer = new Slicer(niftiAxial);
 			ImagePlus niftiCoro = slicer.flip(false, true, "Top");
 			ImagePlus niftiSag = slicer.flip(false, true, "Left");
-			
+
 			getCoronalPanel().setNiftiImage(niftiCoro);
 			getAxialPanel().setNiftiImage(niftiAxial);
 			getSagittalPanel().setNiftiImage(niftiSag);
+			
 			
 			// on met a jours les coord actuelles
 			coord[0] = getSagittalPanel().getSlice();
@@ -236,13 +249,6 @@ public class ViewerPanel extends JPanel{
 
 			max = niftiAxial.getDisplayRangeMax();
 			min = niftiAxial.getDisplayRangeMin();
-			/*for(int i = 1;i<=niftiAxial.getNSlices();i++){
-				if(is.getProcessor(i).getMax()>max)
-					max = is.getProcessor(i).getMax();
-				if(is.getProcessor(i).getMin()<min)
-					min = is.getProcessor(i).getMin();
-			}
-			*/
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),
 					niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord(),new double[]{min,max});
@@ -252,7 +258,7 @@ public class ViewerPanel extends JPanel{
 			revalidate();
 	
 			return true;
-		/*}catch(final Exception e){
+		}catch(final Exception e){
 			SwingUtilities.invokeLater(new Runnable() {
 				
 				@Override
@@ -264,7 +270,7 @@ public class ViewerPanel extends JPanel{
 				}
 			});
 			return false;
-		}*/
+		}
 	}
 
 	
@@ -427,4 +433,16 @@ public class ViewerPanel extends JPanel{
 	}
 
 
+	/**
+	 * Change la colormap
+	 * @param lut
+	 */
+	public void setLUT(ALUT lut){
+		lutLoader.run(getAxialPanel().getNiftiImage(), lut);
+		lutLoader.run(getCoronalPanel().getNiftiImage(), lut);
+		lutLoader.run(getSagittalPanel().getNiftiImage(), lut);
+		getAxialPanel().refreshImage();
+		getCoronalPanel().refreshImage();
+		getSagittalPanel().refreshImage();
+	}
 }

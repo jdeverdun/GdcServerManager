@@ -1059,6 +1059,42 @@ public class MainWindow extends JFrame {
 
 
 
+	public RequestPanel getRequetePanel() {
+		return requetePanel;
+	}
+
+
+
+	public void setRequetePanel(RequestPanel requetePanel) {
+		this.requetePanel = requetePanel;
+	}
+
+
+
+	public DicomSortConvertPanel getDicomSortConvertPanel() {
+		return dicomSortConvertPanel;
+	}
+
+
+
+	public void setDicomSortConvertPanel(DicomSortConvertPanel dicomSortConvertPanel) {
+		this.dicomSortConvertPanel = dicomSortConvertPanel;
+	}
+
+
+
+	public ViewerPanel getViewerPanel() {
+		return viewerPanel;
+	}
+
+
+
+	public void setViewerPanel(ViewerPanel viewerPanel) {
+		this.viewerPanel = viewerPanel;
+	}
+
+
+
 	public void setSstatusPanel(ServerStatusPanel sstatusPanel) {
 		this.sstatusPanel = sstatusPanel;
 	}

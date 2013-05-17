@@ -11,11 +11,16 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.JSlider;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import daemon.tools.nifti.LutLoader.ALUT;
 
 /**
  * Classe gerant l'affichage des infos sur le nifti en cours de vue
@@ -42,7 +47,7 @@ public class InformationViewer extends JPanel {
 	private JLabel lblVoxelsize;
 	private JSpinner spinnerMin;
 	private JSpinner spinnerMax;
-	
+	private JComboBox comboBoxLUT;
 	public InformationViewer(ViewerPanel v){
 		setViewer(v);
 		interceptXrawSpinner = false;
@@ -125,6 +130,13 @@ public class InformationViewer extends JPanel {
 		spinnerMax.setModel(new SpinnerNumberModel(0, 0, 0, 1));
 		panelCoord.add(spinnerMax, "cell 3 1,grow");
 		
+		comboBoxLUT = new JComboBox();
+		comboBoxLUT.setMinimumSize(new Dimension(40, 20));
+		comboBoxLUT.setMaximumSize(new Dimension(100, 20));
+		comboBoxLUT.setModel(new DefaultComboBoxModel(ALUT.values()));
+		comboBoxLUT.setSelectedIndex(2);
+		panelCoord.add(comboBoxLUT, "cell 4 1,growx,aligny center");
+		
 		
 		//event
 		spinnerXraw.addChangeListener(new ChangeListener() {
@@ -179,6 +191,15 @@ public class InformationViewer extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent c) {
 				getViewer().setDisplayMinMax((double) spinnerMin.getValue(), (double) spinnerMax.getValue());
+			}
+		});
+		comboBoxLUT.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				ALUT selectedLut = (ALUT) comboBoxLUT.getSelectedItem();
+				getViewer().setLUT(selectedLut);
+				
 			}
 		});
 	}
