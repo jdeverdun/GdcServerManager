@@ -13,4 +13,6 @@ et en placant le contenu de l'archive dans <java_home>/lib/security
 	Quand les identifiants sont demandees, rentrez votre login (matricule CHU) precede de CHUMPT\ et votre mot de passe
 	Puis selectionnez memoriser le mot de passe 
 
+3. Mettre convertizer.exe dans le path de windows
+
 Sur le serveur : Installer DavMail

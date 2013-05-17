@@ -121,6 +121,13 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		}
 	}
 
+	/**
+	 * Refresh l'image affiche avec les nouveaux parametres de Min/Max
+	 */
+	public void refreshImage(){
+		image = niftiImage.getBufferedImage();
+		repaint();
+	}
 	public ViewerPanel getViewer() {
 		return viewer;
 	}

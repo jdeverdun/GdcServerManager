@@ -123,7 +123,10 @@ public class FileManager {
 	
 	/** Attributs basiques **/
 	private int mode; //mode definit le fonctionnement du filemanager
-
+	private JPopupMenu Pmenu;
+	private JMenuItem twitem;
+	private JMenuItem tlitem;
+	
     public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
     	parentFrame = parent;
@@ -160,6 +163,7 @@ public class FileManager {
 
             JPanel detailView = new JPanel(new BorderLayout(3,3));
             //fileTableModel = new FileTableModel();
+
 
             table = new JTable();
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -290,6 +294,76 @@ public class FileManager {
             //table.setDragEnabled(true);
             table.setColumnSelectionAllowed(false);
     
+            // Menu popup
+            Pmenu = new JPopupMenu();
+    		twitem = new JMenuItem("To workspace");
+    		tlitem = new JMenuItem("To local");
+    		switch(mode){
+    		case 0:
+    			Pmenu.add(twitem);
+    			twitem.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						parentFrame.getBtnlocalTowork().doClick();
+					}
+				});
+    			break;
+    		case 1:
+    			Pmenu.add(tlitem);
+    			tlitem.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						parentFrame.getBtnWorkTolocal().doClick();
+					}
+				});
+				break;
+    		case 2:
+    			Pmenu.add(twitem);
+    			twitem.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						parentFrame.getBtndistToWorkspace().doClick();
+					}
+				});
+    			Pmenu.add(tlitem);
+    			tlitem.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						parentFrame.getBtndistToLocal().doClick();
+					}
+				});
+				break;
+    		}
+    		
+			table.addMouseListener(new MouseListener() {
+
+				public void mouseClicked(MouseEvent me) {
+					
+				}
+
+				public void mouseEntered(MouseEvent e) {
+				}
+
+				public void mouseExited(MouseEvent e) {
+				}
+
+
+				public void mousePressed(MouseEvent e) {
+				}
+
+
+				public void mouseReleased(MouseEvent me) {
+					if(me.isPopupTrigger() && table.getSelectedRowCount()>0){
+						Pmenu.show(me.getComponent(), me.getX(), me.getY());
+					}
+				}
+			});
+    		//
+            
         //}
         return tableScroll;
     }

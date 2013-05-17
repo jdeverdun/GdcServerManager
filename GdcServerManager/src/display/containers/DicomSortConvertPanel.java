@@ -172,7 +172,7 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(FORMAT.values()));
-		comboBox.setSelectedIndex(2);
+		comboBox.setSelectedIndex(3);
 		panel.add(comboBox, "cell 0 1,growx");
 		
 		progressPanel = new ProgressPanel();

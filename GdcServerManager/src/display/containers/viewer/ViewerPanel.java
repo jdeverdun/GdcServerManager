@@ -4,7 +4,9 @@ package display.containers.viewer;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.LookUpTable;
 import ij.plugin.filter.Rotator;
+import ij.process.LUT;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
@@ -199,7 +201,7 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().reset();
 		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
 			return false;
-		try{
+		//try{
 			niftiAxial = new Nifti_Reader(path.toFile());
 			niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
 			
@@ -226,15 +228,31 @@ public class ViewerPanel extends JPanel{
 			coord[1] = getCoronalPanel().getSlice();
 			coord[2] = getAxialPanel().getSlice();
 			
+			// on calcul les min et max de l'image
+			ImageStack is = niftiAxial.getImageStack();
+			double min = -Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			LookUpTable lut = niftiAxial.createLut();
+
+			max = niftiAxial.getDisplayRangeMax();
+			min = niftiAxial.getDisplayRangeMin();
+			/*for(int i = 1;i<=niftiAxial.getNSlices();i++){
+				if(is.getProcessor(i).getMax()>max)
+					max = is.getProcessor(i).getMax();
+				if(is.getProcessor(i).getMin()<min)
+					min = is.getProcessor(i).getMin();
+			}
+			*/
 			// update infoViewer a partir des donnees du plan axial
-			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord());
+			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),
+					niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord(),new double[]{min,max});
 			
 			//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 			//niftiAxial.show();
 			revalidate();
 	
 			return true;
-		}catch(final Exception e){
+		/*}catch(final Exception e){
 			SwingUtilities.invokeLater(new Runnable() {
 				
 				@Override
@@ -246,7 +264,7 @@ public class ViewerPanel extends JPanel{
 				}
 			});
 			return false;
-		}
+		}*/
 	}
 
 	
@@ -392,6 +410,20 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().setSlice(coord[1]);
 		getSagittalPanel().setSlice(coord[0]);
 		updateCrosshair();
+	}
+	
+	/**
+	 * Definit les min et max poru la colormap
+	 * @param min
+	 * @param max
+	 */
+	public void setDisplayMinMax(double min,double max){
+		getAxialPanel().getNiftiImage().setDisplayRange(min, max);
+		getCoronalPanel().getNiftiImage().setDisplayRange(min, max);
+		getSagittalPanel().getNiftiImage().setDisplayRange(min, max);
+		getAxialPanel().refreshImage();
+		getCoronalPanel().refreshImage();
+		getSagittalPanel().refreshImage();
 	}
 
 

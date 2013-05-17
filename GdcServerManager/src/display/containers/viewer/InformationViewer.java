@@ -40,6 +40,8 @@ public class InformationViewer extends JPanel {
 	private JLabel lblValue;
 	private JLabel lblAlignedval;
 	private JLabel lblVoxelsize;
+	private JSpinner spinnerMin;
+	private JSpinner spinnerMax;
 	
 	public InformationViewer(ViewerPanel v){
 		setViewer(v);
@@ -108,8 +110,20 @@ public class InformationViewer extends JPanel {
 		JLabel lblMin = new JLabel("Min");
 		panelCoord.add(lblMin, "cell 0 1,alignx center");
 		
-		JSlider slider = new JSlider();
-		panelCoord.add(slider, "cell 1 1 5 1,growx");
+		spinnerMin = new JSpinner();
+		spinnerMin.setMinimumSize(new Dimension(40, 20));
+		spinnerMin.setMaximumSize(new Dimension(70, 20));
+		spinnerMin.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+		panelCoord.add(spinnerMin, "cell 1 1,growx,aligny center");
+		
+		JLabel lblMax = new JLabel("Max");
+		panelCoord.add(lblMax, "cell 2 1,alignx center,aligny center");
+		
+		spinnerMax = new JSpinner();
+		spinnerMax.setMinimumSize(new Dimension(40, 20));
+		spinnerMax.setMaximumSize(new Dimension(70, 20));
+		spinnerMax.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+		panelCoord.add(spinnerMax, "cell 3 1,grow");
 		
 		
 		//event
@@ -151,6 +165,20 @@ public class InformationViewer extends JPanel {
 				}
 				getViewer().setXYZfromMricron(new Integer[]{(int) spinnerXraw.getValue(),(int) spinnerYraw.getValue(),(int) spinnerZraw.getValue()});
 				interceptZrawSpinner = false;
+			}
+		});
+		spinnerMin.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent c) {
+				getViewer().setDisplayMinMax((double) spinnerMin.getValue(), (double) spinnerMax.getValue());
+			}
+		});
+		spinnerMax.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent c) {
+				getViewer().setDisplayMinMax((double) spinnerMin.getValue(), (double) spinnerMax.getValue());
 			}
 		});
 	}
@@ -210,13 +238,24 @@ public class InformationViewer extends JPanel {
 		setVoxelSize(new double[]{0.0,0.0,0.0});
 		setFilename("None");
 		setAlignedCoord(new float[]{0.0f,0.0f,0.0f});
-		setSpinnerParams(new Integer[]{1,1,1}, new Integer[]{1,1,1});
+		setSpinnerParams(new Integer[]{1,1,1}, new Integer[]{1,1,1},new double[]{1,1,1});
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				spinnerXraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+				spinnerYraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+				spinnerZraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+				spinnerMin.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+				spinnerMax.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+			}
+		});
+			
 	}
 	/**
 	 * Parametre les spinner en fonction de la taille de l'image
 	 * @param imageDim
 	 */
-	public void setSpinnerParams(final Integer[] imageDim,final Integer[] coord){
+	public void setSpinnerParams(final Integer[] imageDim,final Integer[] coord, final double[] minMax){
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
@@ -224,6 +263,8 @@ public class InformationViewer extends JPanel {
 				spinnerZraw.setModel(new SpinnerNumberModel((int)coord[2], 1, (int)imageDim[2], 1));
 				spinnerYraw.setModel(new SpinnerNumberModel((int)coord[1], 1, (int)imageDim[1], 1));
 				spinnerXraw.setModel(new SpinnerNumberModel((int)coord[0], 1, (int)imageDim[0], 1));
+				spinnerMin.setModel(new SpinnerNumberModel((double)minMax[0], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
+				spinnerMax.setModel(new SpinnerNumberModel((double)minMax[1], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
 			}
 		});
 	}
