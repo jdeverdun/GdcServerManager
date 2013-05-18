@@ -526,6 +526,14 @@ public class FileManager {
      */
 	public void deleteServerFile(int row) throws Exception {
 		File fi = ((FileTableModel)table.getModel()).getFile(row);
+		deleServerFile(fi);
+	}
+
+	/**
+     * Supprime les fichiers / repertoire sur le serveur
+	 * @throws Exception 
+     */
+	public void deleServerFile(File fi) throws Exception {
 		String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
 		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
 		if(parts.length==(serverdirlen)) 

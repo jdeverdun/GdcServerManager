@@ -207,9 +207,23 @@ public class ViewerPanel extends JPanel{
 			return false;
 		try{
 			niftiAxial = new Nifti_Reader(path.toFile());
-			niftiAxial = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
-			if(niftiAxial == null)
-				throw new Exception("Error with image ... not a real nifti.");
+			Nifti_Reader nr = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
+			if((nr == null || niftiAxial.getProperty("coors")==null) && niftiAxial!=null){
+				// si le nifti a pas un format correct on affiche un warning
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(ViewerPanel.this,
+							    "Data has incorrect header ... attempt to continue",
+							    "Openning error",
+							    JOptionPane.WARNING_MESSAGE);
+					}
+				});
+			}else{
+				niftiAxial = nr;
+				nr = null;
+			}
 			// on applique la colormap par defaut
 			lutLoader.run(niftiAxial, ALUT.grays);
 			// on definit la taille du voxel
@@ -284,7 +298,7 @@ public class ViewerPanel extends JPanel{
 	private Nifti_Reader checkAndRotate(Nifti_Reader im) {
 		Nifti_Reader nr = (Nifti_Reader) im.clone();
 		Object prop = im.getProperty("coors");
-		if (prop == null) return null;
+		if (prop == null) return nr;
 
 		CoordinateMapper[] mapper = (CoordinateMapper[] ) prop;
 		// on test les 3 position mauvaises (en haut a gauche / droite, et en bas a droite)
@@ -343,7 +357,10 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().updateCrosshair(coord);
 		infoViewer.setRawCoord(getAxialPanel().getMricronCoord());
 		infoViewer.setVoxelValue((float) getAxialPanel().getVoxelValue());
-		infoViewer.setAlignedCoord(new float[]{(float) coordinateMapper[coordinateMapper.length-1].getX(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getY(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getZ(coord[0],coord[1],coord[2])});
+		if(coordinateMapper!=null)
+			infoViewer.setAlignedCoord(new float[]{(float) coordinateMapper[coordinateMapper.length-1].getX(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getY(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getZ(coord[0],coord[1],coord[2])});
+		else
+			infoViewer.setAlignedCoord("NaN","NaN","NaN");
 	}
 	
 	/**

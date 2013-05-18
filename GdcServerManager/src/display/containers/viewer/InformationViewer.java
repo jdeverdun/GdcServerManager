@@ -21,6 +21,7 @@ import javax.swing.JSlider;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import daemon.tools.nifti.LutLoader.ALUT;
+import java.awt.Color;
 
 /**
  * Classe gerant l'affichage des infos sur le nifti en cours de vue
@@ -59,7 +60,7 @@ public class InformationViewer extends JPanel {
 		JPanel panelValue = new JPanel();
 		add(panelValue, "cell 0 0,growx");
 		titleValue = new TitledBorder(null, "None", TitledBorder.LEADING, TitledBorder.TOP, null, null);
-		panelValue.setBorder(titleValue);
+		panelValue.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "None", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30)));
 		panelValue.setLayout(new MigLayout("", "[42.00px][][248.00,grow][28.00,left][]", "[14px]"));
 		
 		lblValue = new JLabel("NaN");
@@ -81,7 +82,7 @@ public class InformationViewer extends JPanel {
 		panelValue.add(lblVoxelsize, "cell 4 0,growx,aligny center");
 		
 		JPanel panelCoord = new JPanel();
-		panelCoord.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelCoord.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30)));
 		add(panelCoord, "cell 0 1,grow");
 		panelCoord.setLayout(new MigLayout("", "[grow][grow][grow][grow][grow][grow]", "[][]"));
 		
@@ -313,5 +314,10 @@ public class InformationViewer extends JPanel {
 	}
 	public void setFilename(String name){
 		titleValue.setTitle(name.substring(0,Math.min(50, name.length())));
+	}
+
+
+	public void setAlignedCoord(String x, String y, String z) {
+		lblAlignedval.setText("("+x+" , "+y+" , "+z+")");
 	}
 }

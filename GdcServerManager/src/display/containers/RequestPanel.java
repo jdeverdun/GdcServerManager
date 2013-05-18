@@ -54,8 +54,10 @@ import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXDatePicker;
 
 import daemon.DecryptDaemon;
+import daemon.NiftiDaemon;
 import dao.GenericRequestDAO;
 import dao.MySQLGenericRequestDAO;
+import es.vocali.util.AESCrypt;
 
 import settings.SQLSettings;
 import settings.SystemSettings;
@@ -95,6 +97,7 @@ public class RequestPanel extends JPanel {
 	private ProgressPanel progressPanel;
 	private JPopupMenu Pmenu;
 	private JMenuItem Mitem;
+	private JMenuItem MDelitem;
 	
 	public RequestPanel() {
 		if(UserProfile.CURRENT_USER.getLevel()==0)
@@ -129,8 +132,10 @@ public class RequestPanel extends JPanel {
 		//------ Menu -------
 		Pmenu = new JPopupMenu();
 		Mitem = new JMenuItem("Import");
+		MDelitem = new JMenuItem("Delete");
 		Pmenu.add(Mitem);
-
+		Pmenu.add(MDelitem);
+		MDelitem.setVisible(false);
 		
 		// --------
 		textSerie = new JTextField();
@@ -379,6 +384,70 @@ public class RequestPanel extends JPanel {
 				
 			}
 		});
+		MDelitem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final File[] selectedFiles = new File[table.getSelectedRowCount()];
+			    int[] indices = table.getSelectedRows();
+			    int vmin = Integer.MAX_VALUE;
+				for(int i = 0; i < indices.length; i++){
+					int row = table.convertRowIndexToModel(indices[i]);
+					selectedFiles[i] = getRqModel().getFileAt(row);				
+				}
+
+				// on delete
+				setLock(true);
+				final WaitingBarPanel ppanel = new WaitingBarPanel(RequestPanel.this); // mode creation de liens
+				final String title = "Deleting ...";
+				ppanel.setTitle(title);
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(RequestPanel.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread delThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						for(File fi:selectedFiles){
+							if(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX).exists()){
+								try {
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX));
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+						popup.hide();
+						setLock(false);
+					}
+					
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(delThread);
+				popup.show();
+				
+				delThread.start();	
+				
+				// On attend que tout se termine
+				Thread updateStatusThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(islock){
+							ppanel.setTitle(title);
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				updateStatusThread.start();
+			}
+		});
 		Mitem.addActionListener(new ActionListener() {
 			
 			@Override
@@ -401,7 +470,7 @@ public class RequestPanel extends JPanel {
 			    final File dirsave = chooser.getSelectedFile();
 			    final File[] selectedFiles = new File[table.getSelectedRowCount()];
 			    int[] indices = table.getSelectedRows();
-			    int vmin = 10000;
+			    int vmin = Integer.MAX_VALUE;
 				for(int i = 0; i < indices.length; i++){
 					int row = table.convertRowIndexToModel(indices[i]);
 					selectedFiles[i] = getRqModel().getFileAt(row);
@@ -451,6 +520,16 @@ public class RequestPanel extends JPanel {
 							if(!fi.getName().contains("..")){
 								
 								FileManager.copyAndDecrypt(fi, new File(fromTo.get(fi)));
+								String path = fi.getParent();
+								String rootname = fi.getName();
+								if(rootname.endsWith(".nii")){
+									rootname = rootname.substring(0,rootname.lastIndexOf("."));//sans le .nii
+									for(String suf:NiftiDaemon.suffixeToRemoveWithNifti){
+										if(new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX).exists()){
+											FileManager.copyAndDecrypt(new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX), new File(fromTo.get(fi)));
+										}
+									}	
+								}
 							}
 						}
 						while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
@@ -496,7 +575,7 @@ public class RequestPanel extends JPanel {
 		});
 		table.addMouseListener(new MouseListener(){
 			public void mouseReleased(MouseEvent Me){
-				if(Me.isPopupTrigger() && table.getSelectedRowCount()>0){
+				if(Me.isPopupTrigger() && table.getSelectedRowCount()>0 && getRqModel().getFileAt(0) != null){
 					Pmenu.show(Me.getComponent(), Me.getX(), Me.getY());
 				}
 			}
@@ -666,6 +745,13 @@ public class RequestPanel extends JPanel {
 						setLock(false);
 						progressPanel.setVisible(false);
 						getRqModel().fireTableStructureChanged();
+						if(getRqModel().getFileAt(0) == null){
+							Mitem.setVisible(false);
+							MDelitem.setVisible(false);
+						}else{
+							Mitem.setVisible(true);
+							MDelitem.setVisible(true);
+						}
 					}
 				});
 			}
