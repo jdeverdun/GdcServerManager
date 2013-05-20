@@ -1,5 +1,7 @@
 package daemon;
 
+import ij.IJ;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -243,7 +245,11 @@ public class NiftiWorker extends DaemonWorker {
 	
 	protected String buildConvertizerConvertCommandFor(Path dicomPath, Path niftiPath, boolean fourDim) {
 		// -i id in filename | -p protocol in filename
-		String command = "convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+		String command = "";
+		if(IJ.isWindows())
+			command = "convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+		else
+			command = "convertizer \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		command+= " -r "; // apply rescale slope & intercept
 		command+= " -n "; //save as .nii files
 		switch(getNiftiDaemon().getFormat()){

@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.security.auth.Refreshable;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -83,6 +84,7 @@ import javax.swing.JList;
 import javax.swing.AbstractListModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 public class MainWindow extends JFrame {
 	
@@ -93,7 +95,7 @@ public class MainWindow extends JFrame {
 	// items
 	private JMenuBar menuBar;
 	private JMenu mnFile;
-	private JMenuItem mntmOpen;
+	private JMenuItem mntmOpenNifti;
 	private JMenu mnAdministration;
 	private JMenu mnUsers;
 	private JMenuItem mntmCreate;
@@ -127,8 +129,6 @@ public class MainWindow extends JFrame {
 	private JMenuItem mntmUnlinkProject;
 	private RequestPanel requetePanel;
 	private ServerStatusPanel sstatusPanel;
-	private JMenu mnDicom;
-	private JMenuItem mntmSort;
 	private DicomSortConvertPanel dicomSortConvertPanel;
 	private JMenu mnEdit;
 	private JMenuItem mntmPreferences;
@@ -154,15 +154,41 @@ public class MainWindow extends JFrame {
 		mnFile = new JMenu("File      ");
 		menuBar.add(mnFile);
 		
-		mntmOpen = new JMenuItem("Open");
-
-		mnFile.add(mntmOpen);
-		
-		mnDicom = new JMenu("Dicom");
-		mnFile.add(mnDicom);
-		
-		mntmSort = new JMenuItem("Sort");
-		mnDicom.add(mntmSort);
+		mntmOpenNifti = new JMenuItem("Open Nifti");
+		mntmOpenNifti.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getNiftiDir().toString());
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setFileFilter(new FileFilter() {
+					
+					@Override
+					public String getDescription() {
+						return "Nifti images (nii,hdr/img,nii.gz)";
+					}
+					
+					@Override
+					public boolean accept(File f) {
+						if(f.isDirectory())
+							return true;
+						if(f.toString().endsWith(".nii") || f.toString().endsWith(".img") || 
+								f.toString().endsWith(".hdr") || 
+								f.toString().endsWith(".nii.gz"))
+							return true;
+						return false;
+						
+					}
+				});
+				int retval = fc.showOpenDialog(MainWindow.this);
+	            if (retval == JFileChooser.APPROVE_OPTION) {
+	            	File file = fc.getSelectedFile();
+	            	getOngletPane().setSelectedComponent(getViewerPanel());
+	            	getViewerPanel().open(file.toPath());
+	            }
+			}
+		});
+		mnFile.add(mntmOpenNifti);
 		
 		mnAdministration = new JMenu("Administration");
 		mnAdministration.setActionCommand("Administration");
@@ -440,15 +466,7 @@ public class MainWindow extends JFrame {
 					getFileTreeWork().refresh();
 				}
 			});
-			mntmSort.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					ongletPane.setEnabledAt(2, true); 
-					dicomSortConvertPanel.reset();
-					ongletPane.setSelectedIndex(2);
-				}
-			});
+
 			mntmCreate.addActionListener(new ActionListener() {
 				
 				@Override
@@ -966,11 +984,11 @@ public class MainWindow extends JFrame {
 	}
 
 	public JMenuItem getMntmOpen() {
-		return mntmOpen;
+		return mntmOpenNifti;
 	}
 
 	public void setMntmOpen(JMenuItem mntmOpen) {
-		this.mntmOpen = mntmOpen;
+		this.mntmOpenNifti = mntmOpen;
 	}
 
 	public JMenu getMnAdministration() {

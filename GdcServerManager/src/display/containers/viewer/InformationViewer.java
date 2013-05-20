@@ -59,8 +59,8 @@ public class InformationViewer extends JPanel {
 		
 		JPanel panelValue = new JPanel();
 		add(panelValue, "cell 0 0,growx");
-		titleValue = new TitledBorder(null, "None", TitledBorder.LEADING, TitledBorder.TOP, null, null);
-		panelValue.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "None", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30)));
+		titleValue = new TitledBorder(null, "None", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30));
+		panelValue.setBorder(titleValue);
 		panelValue.setLayout(new MigLayout("", "[42.00px][][248.00,grow][28.00,left][]", "[14px]"));
 		
 		lblValue = new JLabel("NaN");
