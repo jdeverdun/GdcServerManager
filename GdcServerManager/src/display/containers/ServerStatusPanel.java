@@ -697,7 +697,7 @@ public class ServerStatusPanel extends JPanel {
 	public void setLblWarningniftidaemon(JLabel lblWarningniftidaemon) {
 		this.lblWarningniftidaemon = lblWarningniftidaemon;
 	}
-	public JLabel Missing() {
+	public JLabel getLblWarningMissingDaemon() {
 		return labelWarningMissingDaemon;
 	}
 	public void setLblWarningMissingdaemon(JLabel lblWarningMissingdaemon) {

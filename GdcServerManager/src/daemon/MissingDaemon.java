@@ -11,6 +11,7 @@ import es.vocali.util.AESCrypt;
 import model.ServerInfo;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 /**
  * Classe parcourrant le serveur dicom a le recherche de fichiers non encrypte (et pas en attente de decryptage)
@@ -50,6 +51,7 @@ public class MissingDaemon extends Thread{
 			try {
 				moveNotEncodedDicom(listenDirectory.toFile());
 			} catch (Exception e) {
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingdaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 				e.printStackTrace();
 			}
 			nbIteration++;
