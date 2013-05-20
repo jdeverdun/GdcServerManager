@@ -35,6 +35,7 @@ public class EncryptDaemon extends Thread {
 	private ServerInfo serverInfo;
 	private DicomDaemon dicomDaemon;
 	private boolean stop;
+	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -53,10 +54,12 @@ public class EncryptDaemon extends Thread {
 		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
 		if(backupfile.exists())
 			backupfile.delete();
+		setWaiting(false);
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty() && !isStop()){
 				try {
+					setWaiting(true);
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -64,6 +67,7 @@ public class EncryptDaemon extends Thread {
 			}
 			if(isStop())
 				return;
+			setWaiting(false);
 			// on lance l'encryptage du fichier
 			dEncryptWorker = new DicomEncryptWorker(this, (Path)dicomToEncrypt.pop(), (DicomImage)dicomImageToEncrypt.pop());
 			dEncryptWorker.start();  
@@ -184,6 +188,7 @@ public class EncryptDaemon extends Thread {
 	public void addDicomToEncrypt(Path p, DicomImage di){
 		dicomToEncrypt.push(p);
 		dicomImageToEncrypt.push(di);
+		setWaiting(false);
 	}
 	
 	/**
@@ -223,5 +228,15 @@ public class EncryptDaemon extends Thread {
 			return dicomToEncrypt.size()+" files to encrypt.";
 		else
 			return "";
+	}
+
+
+	public boolean isWaiting() {
+		return waiting;
+	}
+
+
+	public void setWaiting(boolean waiting) {
+		this.waiting = waiting;
 	}
 }

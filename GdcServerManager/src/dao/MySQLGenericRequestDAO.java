@@ -47,7 +47,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 	 */
 	@Override
 	public HashMap<String, ArrayList<String[]>> executeSelect(String request)
-			throws SQLException, IllegalSQLRequest {
+			throws Exception, SQLException, IllegalSQLRequest {
 		request = request.toLowerCase();
 		if(!request.startsWith("select "))
 			throw new IllegalSQLRequest("Only select request are supported in function executeSelect.");
@@ -146,8 +146,19 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				if(!isIllegalHeader(cname) && !name.endsWith(customFieldSuffixe)){
 					// si le nom de la colonne existe deja on 
 					// rajoute le nom de la table pour preciser
-					if(resultats.containsKey(name))
+					if(resultats.containsKey(name)){
+						// on update le champs qu'on a deja rentre
+						int ind = indices.get(name);
+						// on enleve l'ancienne entree
+						indices.remove(name);
+						resultats.remove(name);
+						indices.put(rsmd.getTableName(ind) +"."+name, ind);
+						resultats.put(rsmd.getTableName(ind) +"."+name, new ArrayList<String[]>());
+						
+						// on change le nom de la colonne courante
 						name = rsmd.getTableName(i) +"."+name;
+						
+					}
 					indices.put(name, i);
 					resultats.put(name, new ArrayList<String[]>());
 				}
@@ -232,12 +243,14 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			return resultats;
 		
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("SQL Error : "+e.toString());
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try{
+				rset.close();
+				stmt.close();
+				connection.close();
+			}catch(Exception e){};
 		}
 	}
 

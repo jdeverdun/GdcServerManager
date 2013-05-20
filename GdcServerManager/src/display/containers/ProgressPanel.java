@@ -12,7 +12,7 @@ import org.pushingpixels.trident.Timeline.RepeatBehavior;
 import org.pushingpixels.trident.interpolator.*;
 import org.pushingpixels.trident.swing.SwingRepaintTimeline;
 
-public class ProgressPanel extends JPanel {
+public class ProgressPanel extends JPanel implements MouseListener {
 	/**
 	 * 
 	 */
@@ -33,11 +33,14 @@ public class ProgressPanel extends JPanel {
 	private Timeline progressTimeline;
 
 	private Popup popup;
+	
+	private String comment; //phrase definissant le status
 
 	public ProgressPanel() {
 		this.xPosition = 0;
 		this.alpha = 0;
-
+		comment = "";
+		this.addMouseListener(this);
 		new SwingRepaintTimeline(this).playLoop(RepeatBehavior.LOOP);
 		setMaximumSize(new Dimension(500,2));
 	}
@@ -153,5 +156,26 @@ public class ProgressPanel extends JPanel {
 
 	public void setPopupWindow(Popup popup) {
 		this.popup = popup;
+	}
+
+
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
+	}
+
+	public void mousePressed(MouseEvent e) {
+		
+	}
+
+	public void mouseReleased(MouseEvent e) {
+
 	}
 }

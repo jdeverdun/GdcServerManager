@@ -335,6 +335,9 @@ public class ViewerPanel extends JPanel{
 	public void reset(){
 		niftiAxial = null;
 		coord = new int[]{-1,-1,-1};
+		getCoronalPanel().reset();
+		getSagittalPanel().reset();
+		getAxialPanel().reset();
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();

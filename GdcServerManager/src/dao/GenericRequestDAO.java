@@ -12,7 +12,7 @@ import exceptions.IllegalSQLRequest;
 
 public interface GenericRequestDAO {
 
-	public HashMap<String, ArrayList<String[]>> executeSelect(String request) throws SQLException, IllegalSQLRequest;
+	public HashMap<String, ArrayList<String[]>> executeSelect(String request) throws SQLException, IllegalSQLRequest, Exception;
 	public File buildPathFromIdList(String[] customFields, int type) throws SQLException;
 	public HashMap<String, ArrayList<String[]>> executeFromRequestPanel(String project, String patient,
 			String protocol, String serie, String begin, String end,

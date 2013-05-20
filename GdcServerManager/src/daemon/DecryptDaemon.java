@@ -22,6 +22,7 @@ public class DecryptDaemon extends Thread {
 	private FileDecryptWorker fileDecryptWorker;
 	private ServerInfo serverInfo;
 	private boolean stop;
+	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a decrypter ou si on travail)
 	
 	public DecryptDaemon(){
 		fileToDecrypt = new LinkedList<Path[]>();
@@ -32,18 +33,20 @@ public class DecryptDaemon extends Thread {
 	@Override
 	public void run() {
 		System.out.println("Decrypter Online.");
+		setWaiting(false);
 		while(!isStop()){
 			// check si il y a des donnees a decrypter
 			while(fileToDecrypt.isEmpty()){
 				if(isStop())
 					return;
 				try {
-					Thread.sleep(5000);
+					setWaiting(true);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
+			setWaiting(false);
 			// on lance le decryptage du fichier
 			Path[] toWork = (Path[])fileToDecrypt.pop();
 			fileDecryptWorker = new FileDecryptWorker(this, toWork[0], toWork[1]);
@@ -95,6 +98,7 @@ public class DecryptDaemon extends Thread {
 		// Si le fichier ne contient pas l'extension ".enc" on la rajoute
 		if(!source.toString().endsWith(AESCrypt.ENCRYPTSUFFIX))
 			source = Paths.get(source.getParent().toString()+File.separator+source.getFileName()+AESCrypt.ENCRYPTSUFFIX);
+		setWaiting(false);
 		fileToDecrypt.push(new Path[]{source,to});
 	}
 
@@ -109,6 +113,16 @@ public class DecryptDaemon extends Thread {
 			return fileToDecrypt.size()+" files to decrypt.";
 		else
 			return "";
+	}
+
+
+	public boolean isWaiting() {
+		return waiting;
+	}
+
+
+	public void setWaiting(boolean waiting) {
+		this.waiting = waiting;
 	}
 	
 

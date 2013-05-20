@@ -98,6 +98,7 @@ public class RequestPanel extends JPanel {
 	private JPopupMenu Pmenu;
 	private JMenuItem Mitem;
 	private JMenuItem MDelitem;
+	private JMenuItem MViewItem;
 	
 	public RequestPanel() {
 		if(UserProfile.CURRENT_USER.getLevel()==0)
@@ -133,10 +134,12 @@ public class RequestPanel extends JPanel {
 		Pmenu = new JPopupMenu();
 		Mitem = new JMenuItem("Import");
 		MDelitem = new JMenuItem("Delete");
+		MViewItem = new JMenuItem("View");
 		Pmenu.add(Mitem);
 		Pmenu.add(MDelitem);
+		Pmenu.add(MViewItem);
 		MDelitem.setVisible(false);
-		
+		MViewItem.setVisible(false);
 		// --------
 		textSerie = new JTextField();
 		textSerie.setText(DEFAULT_SERIE_TEXT);
@@ -448,6 +451,104 @@ public class RequestPanel extends JPanel {
 				updateStatusThread.start();
 			}
 		});
+		MViewItem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final File selectedFiles;
+			    int[] indices = table.getSelectedRows();
+
+				selectedFiles = getRqModel().getFileAt(indices[0]);				
+
+
+				// on cherche les niftis
+				setLock(true);
+				final WaitingBarPanel ppanel = new WaitingBarPanel(RequestPanel.this); // mode creation de liens
+				final String title = "Looking for niftis ...";
+				ppanel.setTitle(title);
+				JFrame tmp = new JFrame();
+				tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+				final Popup popup = PopupFactory.getSharedInstance().getPopup(RequestPanel.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+				tmp = null;
+				// Thread pour la copie
+				Thread findThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						final File[] niftis = findNiftiIn(selectedFiles);
+						popup.hide();
+						SwingUtilities.invokeLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								JFrame tmp = new JFrame();
+								ViewSelecterPanel vpanel = new ViewSelecterPanel(niftis); // mode creation de liens
+								tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
+								Popup popup2 = PopupFactory.getSharedInstance().getPopup(RequestPanel.this, vpanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
+								vpanel.setPopupWindow(popup2);
+								popup2.show();
+								vpanel.checkToClose();
+							}
+						});
+						
+						setLock(false);
+					}
+
+					private File[] findNiftiIn(File selectedFiles) {
+						File[] niftis;
+						ArrayList<File> niftiList = new ArrayList<File>();
+						if(!selectedFiles.isDirectory() && selectedFiles.getName().endsWith(".nii")){
+							// si on a fait une requete sur un nifti directement (fichier termine par .nii car data issue de la base)
+							niftis = new File[]{new File(selectedFiles.toString()+AESCrypt.ENCRYPTSUFFIX)};
+							return niftis;
+						}
+							
+						for(String p:selectedFiles.list()){
+							File lfile = new File(selectedFiles.toString()+File.separator+p);
+							if(!lfile.isDirectory() && lfile.getName().endsWith(".nii"+AESCrypt.ENCRYPTSUFFIX)){
+								niftiList.add(lfile);
+							}else{
+								if(lfile.isDirectory()){
+									File[] tempnift = findNiftiIn(lfile);
+									if(tempnift==null || tempnift.length==0)
+										continue;
+									for(File fi:tempnift){
+										niftiList.add(fi);
+									}
+								}
+							}
+									
+						}
+						niftis = new File[niftiList.size()];
+						niftis = niftiList.toArray(niftis);
+						return niftis;
+					}
+					
+				});
+				ppanel.setPopup(popup);
+				ppanel.setRunningThread(findThread);
+				popup.show();
+				
+				findThread.start();	
+				
+				// On attend que tout se termine
+				Thread updateStatusThread = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(islock){
+							ppanel.setTitle(title);
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+				updateStatusThread.start();
+			}
+		});
 		Mitem.addActionListener(new ActionListener() {
 			
 			@Override
@@ -671,11 +772,11 @@ public class RequestPanel extends JPanel {
 								getRqModel().setData(data);
 								getRqModel().setFiles(files);
 							} catch (SQLException e) {
-								e.printStackTrace();
 								setWarning("SQL Error : "+e.toString());
 							} catch (exceptions.IllegalSQLRequest e) {
-								e.printStackTrace();
 								setWarning("Unsupported SQL command : "+e.toString());
+							} catch (Exception e) {
+								setWarning("SQL Error : "+e.toString());
 							}
 						}else{
 							// requete 
@@ -706,6 +807,18 @@ public class RequestPanel extends JPanel {
 								textSerie.setText("");
 							try {
 								HashMap<String,ArrayList<String[]>> results = greq.executeFromRequestPanel((String)projectComboBox.getSelectedItem(),txtPatient.getText(),txtProtocol.getText(),textSerie.getText(),begin,end,(IMAGE_TYPE)comboBoxImageType.getSelectedItem());
+								// on replace les champs texte
+								if(txtPatient.getText().equals(""))
+									txtPatient.setText(DEFAULT_PATIENT_TEXT);
+								if(txtProtocol.getText().equals(""))
+									txtProtocol.setText(DEFAULT_PROTOCOL_TEXT);
+								if(textSerie.getText().equals(""))
+									textSerie.setText(DEFAULT_SERIE_TEXT);
+								if(pickerDateEnd.getEditor().getText().equals(""))
+									pickerDateEnd.getEditor().setText(DEFAULT_END_DATE);
+								if(pickerDateBegin.getEditor().getText().equals(""))
+									pickerDateBegin.getEditor().setText(DEFAULT_BEGIN_DATE);
+								// on traite le resultat
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
 									getRqModel().setData(new Object[][]{{"No results found"}});
@@ -748,9 +861,15 @@ public class RequestPanel extends JPanel {
 						if(getRqModel().getFileAt(0) == null){
 							Mitem.setVisible(false);
 							MDelitem.setVisible(false);
+							MViewItem.setVisible(false);
 						}else{
 							Mitem.setVisible(true);
 							MDelitem.setVisible(true);
+							if(getRqModel().getFileAt(0).toString().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))
+								MViewItem.setVisible(true);
+							else
+								MViewItem.setVisible(false);
+							
 						}
 					}
 				});
@@ -851,6 +970,8 @@ class RequestTableModel extends AbstractTableModel {
     }
 
     public File getFileAt(int row){
+    	if(files==null)
+    		return null;
     	return files[row];
     }
     public Object getValueAt(int row, int col) {
