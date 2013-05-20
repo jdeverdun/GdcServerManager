@@ -744,7 +744,7 @@ public class FileManager {
                 table.getSelectionModel().removeListSelectionListener(listSelectionListener);
                 fileTableModel.setFiles(files);
                 table.getSelectionModel().addListSelectionListener(listSelectionListener);
-                if (!cellSizesSet) {
+                if (!cellSizesSet && files!=null && files.length>0) {
                     Icon icon = fileSystemView.getSystemIcon(files[0]);
 
                     // size adjustment to better account for icons
@@ -828,7 +828,7 @@ public class FileManager {
                 	default:
                 		filesWithParent = filesTemp;
                     }
-                    if(filesWithParent != null && filesWithParent.length>0)
+                    if(filesWithParent != null)
                     	setTableData(filesWithParent);
                 }
                 return null;

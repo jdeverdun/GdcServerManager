@@ -111,7 +111,13 @@ public class DaemonStatusThread extends Thread {
 			statusPanel.setNiftiDaemonAlive(false);
 			statusPanel.getLblCommentniftidaemon().setText("");
 		}
-		
+		if(SystemSettings.MISSING_DAEMON!=null){
+			statusPanel.setMissingDaemonAlive(SystemSettings.MISSING_DAEMON.isAlive());
+			statusPanel.getLblCommentMissingdaemon().setText(SystemSettings.MISSING_DAEMON.getStatus());
+		}else{
+			statusPanel.setMissingDaemonAlive(false);
+			statusPanel.getLblCommentMissingdaemon().setText("");
+		}
 		
 	}
 }

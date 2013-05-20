@@ -26,6 +26,7 @@ import daemon.DicomNode;
 import daemon.NiftiDaemon;
 import javax.swing.UIManager;
 import java.awt.Color;
+import javax.swing.Icon;
 
 
 /**
@@ -48,6 +49,7 @@ public class ServerStatusPanel extends JPanel {
 	private boolean niftiDaemonAlive;
 	private boolean encrypterAlive;
 	private boolean decrypterAlive;
+	private boolean missingDaemonAlive;
 	
 	// buttons
 	private JButton btnDicomdaemonstatus;
@@ -79,6 +81,10 @@ public class ServerStatusPanel extends JPanel {
 	private ImageIcon iconGreen;
 	private ImageIcon iconRed;
 	private ImageIcon iconYellow;
+	private JLabel lblMissingDaemon;
+	private JLabel labelMissingDaemonStatus;
+	private JLabel labelCommentMissingDaemon;
+	private JLabel labelWarningMissingDaemon;
 
 	
 	// Constructeur
@@ -106,6 +112,7 @@ public class ServerStatusPanel extends JPanel {
 		ImageIcon iconNiftiDaemon = iconRed;
 		ImageIcon iconDecrypter = iconRed;
 		ImageIcon iconEncrypter = iconRed;
+		ImageIcon iconMissingDaemon = iconRed;
 		if(SystemSettings.DICOM_DAEMON!=null)
 			dicomDaemonAlive = SystemSettings.DICOM_DAEMON.isAlive();
 		else
@@ -142,9 +149,15 @@ public class ServerStatusPanel extends JPanel {
 			decrypterAlive = false;
 		if(decrypterAlive)
 			iconDecrypter = iconGreen;
+		if(SystemSettings.MISSING_DAEMON!=null)
+			missingDaemonAlive = SystemSettings.MISSING_DAEMON.isAlive();
+		else
+			missingDaemonAlive = false;
+		if(missingDaemonAlive)
+			iconMissingDaemon = iconGreen;
 		setBorder(new TitledBorder(null, "Status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setRefreshTime(DEFAULT_REFRESH_TIME);
-		setLayout(new MigLayout("", "[96.00][][][][grow][][grow]", "[][][][grow][][grow][][grow][][grow][][grow][][grow]"));
+		setLayout(new MigLayout("", "[96.00][][][][grow][][grow]", "[][][][grow][][grow][][grow][][grow][][grow][][grow][][grow]"));
 		
 		lblService = new JLabel("Service");
 		add(lblService, "cell 0 0,alignx center");
@@ -168,19 +181,19 @@ public class ServerStatusPanel extends JPanel {
 		lblDecrypter.setToolTipText("Decrypt files");
 		add(lblDecrypter, "cell 0 2,growx");
 		JSeparator jsVert = new JSeparator(JSeparator.VERTICAL);
-		add(jsVert, "cell 1 2 1 12,growy");
+		add(jsVert, "cell 1 2 1 14,growy");
 		
 		btnDecrypterdaemonstatus = new JButton(iconDecrypter);
 		add(btnDecrypterdaemonstatus, "cell 2 2,alignx left,growy");
 		
 		jsStaCom = new JSeparator(SwingConstants.VERTICAL);
-		add(jsStaCom, "cell 3 2 1 12,growy");
+		add(jsStaCom, "cell 3 2 1 14,growy");
 		
 		lblCommentdecrypter = new JLabel("");
 		add(lblCommentdecrypter, "cell 4 2,growx");
 		
 		jsComWarn = new JSeparator(SwingConstants.VERTICAL);
-		add(jsComWarn, "cell 5 2 1 12,growy");
+		add(jsComWarn, "cell 5 2 1 14,growy");
 		
 		lblWarningdecrypter = new JLabel("");
 		lblWarningdecrypter.setForeground(Color.RED);
@@ -214,18 +227,31 @@ public class ServerStatusPanel extends JPanel {
 		lblWarningdicomnode.setForeground(Color.RED);
 		add(lblWarningdicomnode, "cell 6 4,growx");
 		
+		lblMissingDaemon = new JLabel("Missing Daemon");
+		add(lblMissingDaemon, "cell 0 12,alignx left,aligny center");
+		
+		labelMissingDaemonStatus = new JLabel(iconMissingDaemon);
+		add(labelMissingDaemonStatus, "cell 2 12,growx");
+		
+		labelCommentMissingDaemon = new JLabel("");
+		add(labelCommentMissingDaemon, "cell 4 12,alignx center");
+		
+		labelWarningMissingDaemon = new JLabel("");
+		labelWarningMissingDaemon.setForeground(Color.RED);
+		add(labelWarningMissingDaemon, "cell 6 12,alignx center");
+		
 		JLabel lblNiftiDaemon = new JLabel("Nifti Daemon");
 		lblNiftiDaemon.setToolTipText("Convert dicom to nifti");
-		add(lblNiftiDaemon, "cell 0 12,growx");
+		add(lblNiftiDaemon, "cell 0 14,growx");
 		
 		btnNiftidaemonstatus = new JButton(iconNiftiDaemon);
-		add(btnNiftidaemonstatus, "cell 2 12,alignx left,growy");
+		add(btnNiftidaemonstatus, "cell 2 14,alignx left,growy");
 		lblCommentniftidaemon = new JLabel("");
-		add(lblCommentniftidaemon, "cell 4 12,growx");
+		add(lblCommentniftidaemon, "cell 4 14,growx");
 		
 		lblWarningniftidaemon = new JLabel("");
 		lblWarningniftidaemon.setForeground(Color.RED);
-		add(lblWarningniftidaemon, "cell 6 12,growx");
+		add(lblWarningniftidaemon, "cell 6 14,growx");
 		
 		JLabel lblDicomEncrypter = new JLabel("Encrypter");
 		lblDicomEncrypter.setToolTipText("Encrypt files");
@@ -592,6 +618,18 @@ public class ServerStatusPanel extends JPanel {
 				btnNiftidaemonstatus.setIcon(iconRed);
 		}
 	}
+	public boolean isMissingDaemonAlive() {
+		return missingDaemonAlive;
+	}
+	public void setMissingDaemonAlive(boolean missingDaemonAlive) {
+		if(this.missingDaemonAlive != missingDaemonAlive){
+			this.missingDaemonAlive = missingDaemonAlive;
+			if(this.missingDaemonAlive)
+				labelMissingDaemonStatus.setIcon(iconGreen);
+			else
+				labelMissingDaemonStatus.setIcon(iconRed);
+		}
+	}
 	public JLabel getLblCommentdicomdaemon() {
 		return lblCommentdicomdaemon;
 	}
@@ -615,6 +653,13 @@ public class ServerStatusPanel extends JPanel {
 	}
 	public void setLblCommentniftidaemon(JLabel lblCommentniftidaemon) {
 		this.lblCommentniftidaemon = lblCommentniftidaemon;
+	}
+	
+	public JLabel getLblCommentMissingdaemon() {
+		return labelCommentMissingDaemon;
+	}
+	public void setLblCommentMissingdaemon(JLabel labelCommentMissingDaemon) {
+		this.labelCommentMissingDaemon = labelCommentMissingDaemon;
 	}
 	public JLabel getLblCommentencrypter() {
 		return lblCommentencrypter;
@@ -651,6 +696,12 @@ public class ServerStatusPanel extends JPanel {
 	}
 	public void setLblWarningniftidaemon(JLabel lblWarningniftidaemon) {
 		this.lblWarningniftidaemon = lblWarningniftidaemon;
+	}
+	public JLabel Missing() {
+		return labelWarningMissingDaemon;
+	}
+	public void setLblWarningMissingdaemon(JLabel lblWarningMissingdaemon) {
+		this.labelWarningMissingDaemon = lblWarningMissingdaemon;
 	}
 	public JLabel getLblWarningencrypter() {
 		return lblWarningencrypter;

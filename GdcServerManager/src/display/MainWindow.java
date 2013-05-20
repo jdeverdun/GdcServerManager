@@ -182,9 +182,18 @@ public class MainWindow extends JFrame {
 				});
 				int retval = fc.showOpenDialog(MainWindow.this);
 	            if (retval == JFileChooser.APPROVE_OPTION) {
-	            	File file = fc.getSelectedFile();
+	            	final File file = fc.getSelectedFile();
+	            	progressBarPanel.setVisible(true);
 	            	getOngletPane().setSelectedComponent(getViewerPanel());
-	            	getViewerPanel().open(file.toPath());
+	            	revalidate();
+	            	Thread tr = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							getViewerPanel().open(file.toPath());
+							progressBarPanel.setVisible(false);
+						}
+					});
+	            	tr.start();
 	            }
 			}
 		});
@@ -322,7 +331,11 @@ public class MainWindow extends JFrame {
 			
 			fileTreeWork = new FileManager(this,SystemSettings.SERVER_INFO.getServerDir(),1);
 			treeworkbuttonPane.setLeftComponent(fileTreeWork.getPane());
-			btnCreateWork = new JButton("create");
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/createFolder.png"));
+			img = icon2.getImage();  
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);  
+			icon = new ImageIcon(newimg); 
+			btnCreateWork = new JButton(icon);
 			GridBagConstraints gbc_btnCreateWork = new GridBagConstraints();
 			gbc_btnCreateWork.fill = GridBagConstraints.BOTH;
 			gbc_btnCreateWork.insets = new Insets(0, 0, 0, 5);
@@ -330,7 +343,11 @@ public class MainWindow extends JFrame {
 			gbc_btnCreateWork.gridy = 0;
 			btnWorkpanel.add(btnCreateWork, gbc_btnCreateWork);
 			
-			btnDeleteWork = new JButton("delete");
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/trash.png"));
+			img = icon2.getImage();  
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);  
+			icon = new ImageIcon(newimg); 
+			btnDeleteWork = new JButton(icon);
 			GridBagConstraints gbc_btnDeleteWork = new GridBagConstraints();
 			gbc_btnDeleteWork.fill = GridBagConstraints.BOTH;
 			gbc_btnDeleteWork.insets = new Insets(0, 0, 0, 5);
@@ -338,9 +355,9 @@ public class MainWindow extends JFrame {
 			gbc_btnDeleteWork.gridy = 0;
 			btnWorkpanel.add(btnDeleteWork, gbc_btnDeleteWork);
 			
-			icon2=new ImageIcon(MainWindow.class.getResource("/images/forward.png"));
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/toWork.png"));
 			img = icon2.getImage();  
-			newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);  
 			icon = new ImageIcon(newimg); 
 			btnWorkTolocal = new JButton(icon);
 			GridBagConstraints gbc_btnWorkTolocal = new GridBagConstraints();
@@ -364,9 +381,9 @@ public class MainWindow extends JFrame {
 			gbl_btnLocalpanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 			btnLocalpanel.setLayout(gbl_btnLocalpanel);
 			
-			icon2=new ImageIcon(MainWindow.class.getResource("/images/backward.png"));
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/toLeft.png"));
 			img = icon2.getImage();  
-			newimg = img.getScaledInstance(50, 20,  java.awt.Image.SCALE_SMOOTH);  
+			newimg = img.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH);  
 			icon = new ImageIcon(newimg); 
 			btnlocalTowork = new JButton(icon);
 			
@@ -377,7 +394,11 @@ public class MainWindow extends JFrame {
 			gbc_btnlocalTowork.gridy = 0;
 			btnLocalpanel.add(btnlocalTowork, gbc_btnlocalTowork);
 			
-			btnCreateLocal = new JButton("create");
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/createFolder.png"));
+			img = icon2.getImage();  
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);  
+			icon = new ImageIcon(newimg); 
+			btnCreateLocal = new JButton(icon);
 			GridBagConstraints gbc_btnCreateLocal = new GridBagConstraints();
 			gbc_btnCreateLocal.fill = GridBagConstraints.BOTH;
 			gbc_btnCreateLocal.insets = new Insets(0, 0, 0, 5);
@@ -385,7 +406,11 @@ public class MainWindow extends JFrame {
 			gbc_btnCreateLocal.gridy = 0;
 			btnLocalpanel.add(btnCreateLocal, gbc_btnCreateLocal);
 			
-			btnDeleteLocal = new JButton("delete");
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/trash.png"));
+			img = icon2.getImage();  
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);  
+			icon = new ImageIcon(newimg); 
+			btnDeleteLocal = new JButton(icon);
 			GridBagConstraints gbc_btnDeleteLocal = new GridBagConstraints();
 			gbc_btnDeleteLocal.insets = new Insets(0, 0, 0, 5);
 			gbc_btnDeleteLocal.fill = GridBagConstraints.BOTH;
@@ -432,9 +457,9 @@ public class MainWindow extends JFrame {
 			gbc_btndistToLocal.gridy = 0;
 			buttonsDistpanel.add(btndistToLocal, gbc_btndistToLocal);
 			
-			icon2=new ImageIcon(MainWindow.class.getResource("/images/test.png"));
+			icon2=new ImageIcon(MainWindow.class.getResource("/images/toWork.png"));
 			img = icon2.getImage();  
-			newimg = img.getScaledInstance(70, 30,  java.awt.Image.SCALE_SMOOTH);  
+			newimg = img.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH);  
 			icon = new ImageIcon(newimg); 
 			btndistToWorkspace = new JButton(icon);
 			btndistToWorkspace.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -630,6 +655,13 @@ public class MainWindow extends JFrame {
 						@Override
 						public void run() {
 							try {
+								// si on est bien dans un repertoire dans lequel on peut ecrire
+								if(!getFileTreeWork().getCurrentDir().canWrite()){
+									popup.hide();
+									setLock(false);
+									resfreshFileTree();
+									return;
+								}
 								getFileTreeDist().copySelectedFilesAndDecryptTo(getFileTreeWork().getCurrentDir());
 								popup.hide();
 								setLock(false);

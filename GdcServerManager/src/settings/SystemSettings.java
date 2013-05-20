@@ -8,6 +8,7 @@ import daemon.DicomDaemon;
 import daemon.DicomJobDispatcher;
 import daemon.DicomNode;
 import daemon.EncryptDaemon;
+import daemon.MissingDaemon;
 import daemon.NiftiDaemon;
 import model.ServerInfo;
 
@@ -22,4 +23,5 @@ public class SystemSettings {
 	public static DicomNode DICOM_NODE;
 	public static DicomJobDispatcher DICOM_DISPATCHER;
 	public static DaemonStatusThread DAEMON_STATUS_THREAD;
+	public static MissingDaemon MISSING_DAEMON;
 }

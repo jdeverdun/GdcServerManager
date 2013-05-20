@@ -45,6 +45,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	private Point zoomlocation; // coordonnees du zoom
 	private double displayScaleFactor = 1d;
 	private Dimension offsets; // quand on est en mode keepRatio les offsets
+	private double[] coefficients; // coefficient y = a + bx (calibration)
+	
     /**
      * @wbp.parser.constructor
      */
@@ -101,6 +103,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		imageCurrentLocation = new Point((int)this.niftiImage.getWidth()/2,(int)this.niftiImage.getHeight()/2);
 		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
+		coefficients = niftiImage.getCalibration().getCoefficients();
 		addMouseMotionListener(this);
        	addMouseListener(this);
        	addMouseWheelListener(this);
@@ -226,21 +229,21 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 8:
     		ByteProcessor bp = (ByteProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return (double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return (double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 16:
     		ShortProcessor sp = (ShortProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return (double)sp.getPixelValue((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return (double)sp.getPixelValue((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 32:
     		FloatProcessor fp = (FloatProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return (double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     		else
-    			return (double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     	default:
     		return -1;
     	}

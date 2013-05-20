@@ -34,6 +34,7 @@ public class DicomDaemon extends Thread{
 	private ServerInfo serverInfo;
 	private DicomJobDispatcher dicomJobDispatcher;
 	private EncryptDaemon encryptDaemon;
+	private MissingDaemon missingDaemon;
 	private boolean stop;
 	private WatchService watcher;
 	
@@ -46,11 +47,15 @@ public class DicomDaemon extends Thread{
 			SystemSettings.ENCRYPT_DAEMON.setStop(true);
 		if(SystemSettings.DICOM_DISPATCHER!=null && SystemSettings.DICOM_DISPATCHER.isAlive())
 			SystemSettings.DICOM_DISPATCHER.setStop(true);
+		if(SystemSettings.MISSING_DAEMON!=null && SystemSettings.MISSING_DAEMON.isAlive())
+			SystemSettings.MISSING_DAEMON.setStop(true);
 		
 		dicomJobDispatcher = new DicomJobDispatcher(this);
 		encryptDaemon = new EncryptDaemon(this);
+		missingDaemon = new MissingDaemon();
 		SystemSettings.ENCRYPT_DAEMON = encryptDaemon;
 		SystemSettings.DICOM_DISPATCHER = dicomJobDispatcher;
+		SystemSettings.MISSING_DAEMON = missingDaemon;
 	}
 	
 	/*
@@ -64,6 +69,8 @@ public class DicomDaemon extends Thread{
 		dicomJobDispatcher.start();
 		// puis l'encrypteur
 		encryptDaemon.start();
+		// puis de missing daemon
+		missingDaemon.start();
 		
 		Path dir = serverInfo.getIncomingDir();
 		try {
@@ -108,6 +115,7 @@ public class DicomDaemon extends Thread{
 		            break;
 		        }
 		        if(isStop()){
+		        	missingDaemon.setStop(true);
 		        	encryptDaemon.setStop(true);
 		        	dicomJobDispatcher.setStop(true);
 		        	break;
@@ -145,12 +153,14 @@ public class DicomDaemon extends Thread{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			missingDaemon.setStop(true);
 			encryptDaemon.setStop(true);
 	    	dicomJobDispatcher.setStop(true);
 	    	System.out.println("DicomDaemon offline");
 		}
 	}
 	public void forceStop(){
+		missingDaemon.setStop(true);
 		encryptDaemon.setStop(true);
 		dicomJobDispatcher.forceStop(true);
 		System.out.println("DicomDaemon offline");
@@ -164,5 +174,13 @@ public class DicomDaemon extends Thread{
 			return "Running";
 		else
 			return "";
+	}
+
+	public MissingDaemon getMissingDaemon() {
+		return missingDaemon;
+	}
+
+	public void setMissingDaemon(MissingDaemon missingDaemon) {
+		this.missingDaemon = missingDaemon;
 	}
 }

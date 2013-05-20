@@ -20,6 +20,8 @@ import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.DefaultComboBoxModel;
 
+import settings.WindowManager;
+
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLProjectDAO;
@@ -129,7 +131,8 @@ public class LinkProjectPanel extends PopupPanel {
 					int returnstatus = updao.addLink(login, projectname);
 					switch(returnstatus){
 					case 0:
-						getPopupWindow().hide();break;
+						getPopupWindow().hide();
+						WindowManager.MAINWINDOW.getBtnRefresh().doClick();break;
 					case 1:
 						setWarning("Link already exists");
 						getLblWarning().setVisible(true);
@@ -165,7 +168,8 @@ public class LinkProjectPanel extends PopupPanel {
 					int returnstatus = updao.removeLink(login, projectname);
 					switch(returnstatus){
 					case 0:
-						getPopupWindow().hide();break;
+						getPopupWindow().hide();
+						WindowManager.MAINWINDOW.getBtnRefresh().doClick();break;
 					case 1:
 						setWarning("Link didn't exist");
 						getLblWarning().setVisible(true);
