@@ -454,6 +454,8 @@ public class DicomWorker extends DaemonWorker {
 		// on enleve les espaces en fin de chaine
 		while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
 			prot = prot.substring(0,prot.length()-1);	
+		if(prot.contains("^"))
+			prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
 		// on remplace les caracteres complique par "_"
 		prot = prot.replaceAll("[^A-Za-z0-9]" , "_");
 		return prot;
