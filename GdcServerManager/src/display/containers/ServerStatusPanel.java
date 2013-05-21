@@ -234,11 +234,11 @@ public class ServerStatusPanel extends JPanel {
 		add(labelMissingDaemonStatus, "cell 2 12,growx");
 		
 		labelCommentMissingDaemon = new JLabel("");
-		add(labelCommentMissingDaemon, "cell 4 12,alignx center");
+		add(labelCommentMissingDaemon, "cell 4 12,alignx left");
 		
 		labelWarningMissingDaemon = new JLabel("");
 		labelWarningMissingDaemon.setForeground(Color.RED);
-		add(labelWarningMissingDaemon, "cell 6 12,alignx center");
+		add(labelWarningMissingDaemon, "cell 6 12,alignx left");
 		
 		JLabel lblNiftiDaemon = new JLabel("Nifti Daemon");
 		lblNiftiDaemon.setToolTipText("Convert dicom to nifti");
@@ -288,21 +288,25 @@ public class ServerStatusPanel extends JPanel {
 			lblNiftiDaemon.setVisible(false);
 			lblDicomNode.setVisible(false);
 			lblDicomEncrypter.setVisible(false);
+			lblMissingDaemon.setVisible(false);
 			btnDicomdaemonstatus.setVisible(false);
 			btnDicomdispatcherstatus.setVisible(false);
 			btnDicomnodestatus.setVisible(false);
 			btnEncrypterdaemonstatus.setVisible(false);
 			btnNiftidaemonstatus.setVisible(false);
+			labelMissingDaemonStatus.setVisible(false);
 			lblCommentdicomdaemon.setVisible(false);
 			lblCommentdicomdispatcher.setVisible(false);
 			lblCommentdicomnode.setVisible(false);
 			lblCommentencrypter.setVisible(false);
 			lblCommentniftidaemon.setVisible(false);
+			labelCommentMissingDaemon.setVisible(false);
 			lblWarningdicomdaemon.setVisible(false);
 			lblWarningdicomdispatcher.setVisible(false);
 			lblWarningdicomnode.setVisible(false);
 			lblWarningencrypter.setVisible(false);
 			lblWarningniftidaemon.setVisible(false);
+			labelWarningMissingDaemon.setVisible(false);
 		}
 		
 		

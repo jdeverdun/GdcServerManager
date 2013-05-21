@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 
+import settings.SystemSettings;
 import settings.WindowManager;
 
 import model.DicomImage;
@@ -247,7 +248,7 @@ public class NiftiWorker extends DaemonWorker {
 		// -i id in filename | -p protocol in filename
 		String command = "";
 		if(IJ.isWindows())
-			command = "convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+			command = SystemSettings.APP_DIR+File.separator+"convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		else
 			command = "convertizer \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		command+= " -r "; // apply rescale slope & intercept
@@ -257,9 +258,9 @@ public class NiftiWorker extends DaemonWorker {
 			command+=" -f analyze ";break;
 		case NiftiDaemon.SPM:
 			command+=" -f spm ";break;
-		case NiftiDaemon.NIFTI://A selectionner en prio ?
+		case NiftiDaemon.NIFTI:
 			command+=" -f nifti ";break;
-		case NiftiDaemon.FSL:
+		case NiftiDaemon.FSL://A selectionner en prio ?
 			command+=" -f fsl ";break;
 		default:
 			System.err.println("Unknow nifti format");

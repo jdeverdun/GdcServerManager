@@ -51,7 +51,7 @@ public class MissingDaemon extends Thread{
 			try {
 				moveNotEncodedDicom(listenDirectory.toFile());
 			} catch (Exception e) {
-				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingdaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 				e.printStackTrace();
 			}
 			nbIteration++;
@@ -101,9 +101,18 @@ public class MissingDaemon extends Thread{
 				moveNotEncodedDicom(fi);
 			}else{
 				if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
+					System.out.println(fi.toString());
 					try{
-						FileUtils.moveFileToDirectory(fi, SystemSettings.SERVER_INFO.getIncomingDir().toFile(), false);
-						nbMoved++;
+						File fileTo = new File(SystemSettings.SERVER_INFO.getIncomingDir()+File.separator+fi.getName()+".part");
+						// on s'assure que rien ne va bloquer le deplacement
+						if(fi.exists() && fi.canWrite() && !new File(fi.toString()+AESCrypt.ENCRYPTSUFFIX).exists()){
+							// on deplace en rajoutant l'extension .part tant que la copie n'est pas termine
+							FileUtils.moveFile(fi, fileTo);
+							File renameFile = new File(fileTo.toString().substring(0,fileTo.toString().length()-5)); // nom sans le .part
+							if(!fileTo.renameTo(renameFile))// securite
+								throw new Exception("Unable to rename "+fileTo.toString()+" to "+renameFile.toString());
+							nbMoved++;
+						}
 					}catch(Exception e){
 						throw e;
 					}
