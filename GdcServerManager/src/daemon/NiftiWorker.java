@@ -135,7 +135,7 @@ public class NiftiWorker extends DaemonWorker {
 					aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
 				}
 			}
-			
+			System.out.println("omg");
 			// On cree la commande (on convertie dans un autre repertoire)
 			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);
@@ -248,7 +248,7 @@ public class NiftiWorker extends DaemonWorker {
 		// -i id in filename | -p protocol in filename
 		String command = "";
 		if(IJ.isWindows())
-			command = SystemSettings.APP_DIR+File.separator+"convertizer.exe \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+			command = "\""+SystemSettings.APP_DIR+File.separator+"convertizer.exe\" \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		else
 			command = "convertizer \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		command+= " -r "; // apply rescale slope & intercept
@@ -267,6 +267,7 @@ public class NiftiWorker extends DaemonWorker {
 		}
 		if(fourDim)
 			command+=" -d ";
+		System.out.println(command);
 		return command;
 	}
 	

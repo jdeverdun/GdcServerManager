@@ -153,17 +153,21 @@ public class NiftiDaemon extends Thread{
 	// Methodes
 	public void run(){
 		System.out.println("Nifti Daemon Online.");
-		// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
-		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
-		if(backupfile.exists())
-			backupfile.delete();
+		if(getSettings().isServerMode()){
+			// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
+			File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+			if(backupfile.exists())
+				backupfile.delete();
+		}
 		while(!isStop()){
 			// On evite une utilisation trop importante du CPU
 			// avec des boucles infini
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e2) {
-				e2.printStackTrace();
+			if(getSettings().isServerMode()){
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
 			}
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();

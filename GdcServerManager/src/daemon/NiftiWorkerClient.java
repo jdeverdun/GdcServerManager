@@ -140,7 +140,7 @@ public class NiftiWorkerClient extends NiftiWorker {
 			// ------------------------------------------------------------------- //
 			String command = "";
 
-			command = buildDcm2niiConvertCommandFor(path,niftiPath,csettings.isNifti4D());
+			command = buildConvertizerConvertCommandFor(path,niftiPath,csettings.isNifti4D());
 			
 			// on convertie
 			process = Runtime.getRuntime().exec(command);

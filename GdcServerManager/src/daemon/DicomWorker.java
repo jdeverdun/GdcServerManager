@@ -557,6 +557,7 @@ public class DicomWorker extends DaemonWorker {
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
 	public String getProtocolName() throws DicomException{
 		String pprot = getTag("0018,1030");
+		System.out.println(pprot);
 		if(pprot == null){
 			throw new DicomException("Unable to decode DICOM header 0018,1030");
 		}

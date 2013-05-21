@@ -40,6 +40,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 	private final String[] excludeEquals = new String[]{"id","rkey","password"};
 	// Prefixe des champs (dans les requetes) rajoute par le logiciel
 	private final String customFieldSuffixe = "panthercustfieldpref";
+	private boolean stopCurrentRequest = false;
 	
 	/**
 	 * Renvoi le header du result SQL + les lignes de resultats
@@ -48,6 +49,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 	@Override
 	public HashMap<String, ArrayList<String[]>> executeSelect(String request)
 			throws Exception, SQLException, IllegalSQLRequest {
+		stopCurrentRequest = false;
 		request = request.toLowerCase();
 		if(!request.startsWith("select "))
 			throw new IllegalSQLRequest("Only select request are supported in function executeSelect.");
@@ -164,7 +166,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				}
 			}
 			boolean isempty=true;
-			while(rset.next()){
+			while(rset.next() && !stopCurrentRequest){
 				isempty = false;
 				String[] customFields = null;
 				switch(type){
@@ -238,8 +240,12 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				
 			}
 		
-			if(isempty)
+			if(stopCurrentRequest)
+				stopCurrentRequest = false;
+			if(isempty){
 				resultats.clear();
+				indices.clear();
+			}
 			return resultats;
 		
 		} catch (SQLException e) {
@@ -937,6 +943,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 	public HashMap<String,ArrayList<String[]>> executeFromRequestPanel(String project, String patient,
 			String protocol, String serie, String begin, String end,
 			IMAGE_TYPE imagetype) throws SQLException {
+		stopCurrentRequest = false;
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -1076,7 +1083,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			boolean isempty=true;
 			Set<String> res = new HashSet<String>();//permet d'eviter les resultats doublons 
-			while(rset.next()){
+			while(rset.next() && !stopCurrentRequest){
 				isempty = false;
 				File file = null;
 				String projname = rset.getString(tab.getProject().TNAME);
@@ -1102,12 +1109,22 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 
 				
 			}
+			if(stopCurrentRequest)
+				stopCurrentRequest = false;
 			if(isempty)
 				resultats.clear();
 			return resultats;
 		}catch(SQLException e){
 			throw e;
+		}finally{
+			rset.close();
+			stmt.close();
+			connection.close();
 		}
+	}
+
+	public void setStopCurrentRequest(boolean b) {
+		stopCurrentRequest = b;
 	}
 }
 

@@ -269,6 +269,7 @@ public class InformationViewer extends JPanel {
 				spinnerZraw.setModel(new SpinnerNumberModel(0, 0, 0, 1));
 				spinnerMin.setModel(new SpinnerNumberModel(0, 0, 0, 1));
 				spinnerMax.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+				
 			}
 		});
 			
@@ -319,5 +320,10 @@ public class InformationViewer extends JPanel {
 
 	public void setAlignedCoord(String x, String y, String z) {
 		lblAlignedval.setText("("+x+" , "+y+" , "+z+")");
+	}
+
+
+	public ALUT getCurrentLUT() {
+		return (ALUT) comboBoxLUT.getSelectedItem();
 	}
 }

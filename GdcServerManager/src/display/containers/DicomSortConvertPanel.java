@@ -76,11 +76,13 @@ public class DicomSortConvertPanel extends JPanel {
 	private JCheckBox chckbxSerie;
 	private JLabel label;
 	private JCheckBox chckb4d;
+	private boolean isstop;
 	
 
 
 
 	public DicomSortConvertPanel(){
+		isstop = false;
 		droppedFiles = new ArrayList<File>();
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		model = new DefaultTableModel();
@@ -112,6 +114,7 @@ public class DicomSortConvertPanel extends JPanel {
 		scrollPane.setDropTarget(new DropTarget() {
 	        public synchronized void drop(DropTargetDropEvent evt) {
 	            try {
+	            	isstop = false;
 	            	progressPanel.setVisible(true);
 	                evt.acceptDrop(DnDConstants.ACTION_COPY);
 	                final List<File> listFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
@@ -120,6 +123,10 @@ public class DicomSortConvertPanel extends JPanel {
 						@Override
 						public void run() {
 							for(File fi:listFiles){
+								if(isstop){
+									isstop = false;
+									break;
+								}
 			                	try {
 									addFile(fi);
 								} catch (IOException e) {
@@ -433,6 +440,7 @@ public class DicomSortConvertPanel extends JPanel {
 	 * Arrete les daemon de la conversion
 	 */
 	private void stop(){
+		isstop = true;
 		if(ddaemon!=null){
 			ddaemon.setStop(true);
 			ddaemon = null;

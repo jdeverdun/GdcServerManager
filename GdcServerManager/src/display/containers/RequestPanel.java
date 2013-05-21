@@ -80,6 +80,7 @@ public class RequestPanel extends JPanel {
 	public static enum IMAGE_TYPE{DICOM,NIFTI};
 	private boolean islock;// a t'on lock l'affichage
 	private boolean continueAction;
+	private GenericRequestDAO genericReqDAO ; // DAO pour lancer les requetes generiques
 	private JSplitPane splitPane;
 	private JTable table;
 	private JTextField txtPutCustomSql;
@@ -99,10 +100,12 @@ public class RequestPanel extends JPanel {
 	private JMenuItem Mitem;
 	private JMenuItem MDelitem;
 	private JMenuItem MViewItem;
+	private JButton btnCancel;
 	
 	public RequestPanel() {
 		if(UserProfile.CURRENT_USER.getLevel()==0)
 			return;
+		genericReqDAO = new MySQLGenericRequestDAO();
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
 		islock=false;
 		continueAction=true;
@@ -187,8 +190,17 @@ public class RequestPanel extends JPanel {
 				pickerDateBegin.getEditor().setText(DEFAULT_BEGIN_DATE);
 				pickerDateEnd.getEditor().setText(DEFAULT_END_DATE);
 				txtPutCustomSql.setText(DEFAULT_SQL_REQUEST_TEXT);
+				getRqModel().setColumns(new String[]{"Nothing"});
+				getRqModel().setData(new Object[][]{{"No results found"}});
+				getRqModel().fireTableStructureChanged();
+				setLock(false);
+				progressPanel.setVisible(false);
 			}
 		});
+		
+		btnCancel = new JButton("Cancel");
+		btnCancel.setEnabled(false);
+		requestFieldpanel.add(btnCancel, "cell 0 4");
 		requestFieldpanel.add(btnReset, "cell 0 4");
 		
 		txtProtocol = new JTextField();
@@ -385,6 +397,13 @@ public class RequestPanel extends JPanel {
 			public void focusLost(FocusEvent arg0) {
 				
 				
+			}
+		});
+		btnCancel.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				((MySQLGenericRequestDAO)genericReqDAO).setStopCurrentRequest(true);
 			}
 		});
 		MDelitem.addActionListener(new ActionListener() {
@@ -739,9 +758,8 @@ public class RequestPanel extends JPanel {
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 							// On execute la requete custom
-							GenericRequestDAO greq = new MySQLGenericRequestDAO();
 							try {
-								HashMap<String,ArrayList<String[]>> results = greq.executeSelect(txtPutCustomSql.getText());
+								HashMap<String,ArrayList<String[]>> results = genericReqDAO.executeSelect(txtPutCustomSql.getText());
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
 									getRqModel().setData(new Object[][]{{"No results found"}});
@@ -780,7 +798,6 @@ public class RequestPanel extends JPanel {
 							}
 						}else{
 							// requete 
-							GenericRequestDAO greq = new MySQLGenericRequestDAO();
 							String begin="";
 							String end="";
 							if(pickerDateBegin.getEditor().getText().equals(DEFAULT_BEGIN_DATE) || pickerDateBegin.getEditor().getText().equals("")){
@@ -806,7 +823,7 @@ public class RequestPanel extends JPanel {
 							if(textSerie.getText().equals(DEFAULT_SERIE_TEXT))
 								textSerie.setText("");
 							try {
-								HashMap<String,ArrayList<String[]>> results = greq.executeFromRequestPanel((String)projectComboBox.getSelectedItem(),txtPatient.getText(),txtProtocol.getText(),textSerie.getText(),begin,end,(IMAGE_TYPE)comboBoxImageType.getSelectedItem());
+								HashMap<String,ArrayList<String[]>> results = genericReqDAO.executeFromRequestPanel((String)projectComboBox.getSelectedItem(),txtPatient.getText(),txtProtocol.getText(),textSerie.getText(),begin,end,(IMAGE_TYPE)comboBoxImageType.getSelectedItem());
 								// on replace les champs texte
 								if(txtPatient.getText().equals(""))
 									txtPatient.setText(DEFAULT_PATIENT_TEXT);
@@ -857,20 +874,29 @@ public class RequestPanel extends JPanel {
 						}
 						setLock(false);
 						progressPanel.setVisible(false);
-						getRqModel().fireTableStructureChanged();
+						SwingUtilities.invokeLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								getRqModel().fireTableStructureChanged();
+							}
+						});
+						
 						if(getRqModel().getFileAt(0) == null){
 							Mitem.setVisible(false);
 							MDelitem.setVisible(false);
 							MViewItem.setVisible(false);
 						}else{
 							Mitem.setVisible(true);
-							MDelitem.setVisible(true);
+							if(UserProfile.CURRENT_USER.getLevel()==3)
+								MDelitem.setVisible(true);
 							if(getRqModel().getFileAt(0).toString().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))
 								MViewItem.setVisible(true);
 							else
 								MViewItem.setVisible(false);
 							
 						}
+						System.gc();
 					}
 				});
 				tr.start();
@@ -890,6 +916,7 @@ public class RequestPanel extends JPanel {
 		btnReset.setEnabled(!b);
 		pickerDateBegin.setEnabled(!b);
 		pickerDateEnd.setEnabled(!b);
+		btnCancel.setEnabled(b);
 		islock=b;
 	}
 	public RequestTableModel getRqModel() {

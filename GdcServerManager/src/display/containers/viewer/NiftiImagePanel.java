@@ -404,6 +404,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		}else{
 			double x = (p.getX()*displayScaleFactor) + offsets.width-1;
 			double y = (p.getY()*displayScaleFactor) + offsets.height-1;
+			float heightvoxsize = (float)pheight/niftiImage.getHeight();// A VOIR
+			float widthvoxsize = (float)pwidth/niftiImage.getWidth();
 			if(orientation != Plan.AXIAL)
 				impt = new Point((int)Math.round(x),(int)Math.round(pheight-(y)-1));
 			else

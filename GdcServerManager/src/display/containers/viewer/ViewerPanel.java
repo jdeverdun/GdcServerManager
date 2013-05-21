@@ -225,7 +225,7 @@ public class ViewerPanel extends JPanel{
 				nr = null;
 			}
 			// on applique la colormap par defaut
-			lutLoader.run(niftiAxial, ALUT.grays);
+			lutLoader.run(niftiAxial, infoViewer.getCurrentLUT());
 			// on definit la taille du voxel
 			double pixelWidth = -1; 
 			double pixelHeight = -1;

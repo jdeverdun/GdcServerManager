@@ -39,28 +39,54 @@ public class DicomWorkerClient extends DicomWorker {
 		String protocolName = null;
 		String serieName = null;
 		String acqDate = null;
-
+		CustomConversionSettings djdsettings = getDispatcher().getSettings();
 		// On recupere le nom du protocole medical
-		studyName = getStudyDescription();
-		// Si le protocole est null alors le fichier est encore en cours de copie
-		if(studyName == null){
-			prepareToStop();
-			return;
-		}	
-		patientName = getPatientName();
-		birthdate = getBirthdate();
-		sex = getSex();
-		protocolName = getProtocolName();
-		serieName = getSeriesDescription();
-		acqDate = getAcquisitionDate();		
+		try {
+			studyName = getStudyDescription();
+		} catch (DicomException e) {
+			studyName = "null";
+			System.out.println(e.toString());
+		}
 
+		// on definit le nom "null" au repertoire si les champs facultatifs  sont null
+		// si c'est des champs importants on transfere  l'erreur
+		patientName = getPatientName();
+		
+		try {
+			birthdate = getBirthdate();
+		} catch (DicomException e) {
+			birthdate = "null";
+			System.out.println(e.toString());
+		}
+		try {
+			sex = getSex();
+		} catch (DicomException e) {
+			sex = "null";
+			System.out.println(e.toString());
+		}
+
+		try {
+			protocolName = getProtocolName();
+		} catch (DicomException e) {
+			protocolName = "null";
+			System.out.println(e.toString());
+		}
+
+		serieName = getSeriesDescription();
+		
+		try {
+			acqDate = getAcquisitionDate();
+		} catch (DicomException e) {
+			acqDate = "null";
+			System.out.println(e.toString());
+		}		
 		
 		// On créé les chemins vers les répertoires
-		CustomConversionSettings djdsettings = getDispatcher().getSettings();
+		
 		Path studyFolder;
 		Path dateFolder;
 		Path protocolFolder;
-		
+
 		Path dicomDir;
 		if(djdsettings.keepDicom()){
 			dicomDir = serverInfo.getDicomDir();
