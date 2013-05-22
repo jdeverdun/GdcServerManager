@@ -229,8 +229,10 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				// si on est bien sur une requete portant sur les donnees
 				if(type!=-1){
 					File file = buildPathFromIdList(customFields,type);
-					for(String n:indices.keySet()){
-						resultats.get(n).add(new String[]{rset.getString(indices.get(n)),file.getAbsolutePath()});
+					if(file!=null){
+						for(String n:indices.keySet()){
+							resultats.get(n).add(new String[]{rset.getString(indices.get(n)),file.getAbsolutePath()});
+						}
 					}
 				}else{
 					for(String n:indices.keySet()){
@@ -382,8 +384,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);
@@ -513,8 +515,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);
@@ -626,8 +628,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);
@@ -720,8 +722,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);
@@ -793,8 +795,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);
@@ -847,8 +849,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					connection = SQLSettings.PDS.getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-
-					rset.next();
+					if(!rset.next())
+						return null;
 					ResultSetMetaData rsmd = rset.getMetaData();
 					for(int i = 1;i<=rsmd.getColumnCount();i++){
 						String cname = rsmd.getColumnLabel(i);

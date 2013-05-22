@@ -754,6 +754,7 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
+				System.out.println("omg");
 				Thread tr = new Thread(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){

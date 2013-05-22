@@ -389,10 +389,12 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		if(!keepRatio){
 			double ws = (float)pwidth / imageDim.getWidth();
 			double hs = (float)pheight / imageDim.getHeight();
+			float heightvoxsize = (float)(pheight)/niftiImage.getHeight();// A VOIR
+			float widthvoxsize = (float)(pwidth)/niftiImage.getWidth();
 			if(orientation != Plan.AXIAL)
-				impt = new Point((int)Math.round(ws*p.getX()),getHeight()-(int)Math.round(hs*p.getY()));
+				impt = new Point((int)Math.round(ws*p.getX()-(widthvoxsize/2)),getHeight()-(int)Math.round(hs*p.getY()-(heightvoxsize/2)));
 			else
-				impt = new Point((int)Math.round(ws*p.getX()),(int)Math.round(hs*p.getY()));
+				impt = new Point((int)Math.round(ws*p.getX()-(widthvoxsize/2)),(int)Math.round(hs*p.getY()+(heightvoxsize/2)));
 			if(impt.getX()>getWidth())
 				impt.x = (int)getWidth();
 			if(impt.getX()<=0)
@@ -404,13 +406,13 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		}else{
 			double x = (p.getX()*displayScaleFactor) + offsets.width-1;
 			double y = (p.getY()*displayScaleFactor) + offsets.height-1;
-			float heightvoxsize = (float)pheight/niftiImage.getHeight();// A VOIR
-			float widthvoxsize = (float)pwidth/niftiImage.getWidth();
+			float heightvoxsize = ((float)(pheight-(offsets.height*2-1))/niftiImage.getHeight());// A VOIR
+			float widthvoxsize = ((float)(pwidth-(offsets.width*2-1))/niftiImage.getWidth());
 			if(orientation != Plan.AXIAL)
-				impt = new Point((int)Math.round(x),(int)Math.round(pheight-(y)-1));
+				impt = new Point((int)Math.round(p.getX()*widthvoxsize+offsets.width-1),(int)Math.round(pheight-(p.getY()-1)*heightvoxsize-(heightvoxsize/2)-offsets.height-1));
 			else
-				impt = new Point((int)Math.round(x),(int)Math.round(y));
-			if(impt.getX()>=(getWidth()-offsets.width))
+				impt = new Point((int)Math.round(p.getX()*widthvoxsize-(widthvoxsize/2)+offsets.width-1),(int)Math.round((p.getY())*heightvoxsize-(heightvoxsize/2)-offsets.height-1));//impt = new Point((int)Math.round(x-(widthvoxsize/2)),(int)Math.round(y+(heightvoxsize/2)));
+			/*if(impt.getX()>=(getWidth()-offsets.width))
 				impt.x = (int)getWidth()-offsets.width;
 			if(impt.getX()<offsets.width)
 				impt.x = offsets.width;
@@ -418,7 +420,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 				impt.y = (int)getHeight()-offsets.height;
 			if(impt.getY()<offsets.height){
 				impt.y = offsets.height;
-			}
+			}*/
 		}
 		return impt;
 	}
