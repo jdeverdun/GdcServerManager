@@ -79,6 +79,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
@@ -88,6 +91,7 @@ import javax.swing.filechooser.FileFilter;
 
 public class MainWindow extends JFrame {
 	
+	private Logger mwLogger;
 	private double screenWidth;
 	private double screenHeight;
 	private boolean isLock;
@@ -577,7 +581,7 @@ public class MainWindow extends JFrame {
 									    "Error during the copy.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								mwLogger.severe(e.getMessage());
 							}
 						}
 	
@@ -960,6 +964,21 @@ public class MainWindow extends JFrame {
 		    }
 		}));
 		WindowManager.MAINWINDOW = this;
+		File logfiledir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.logdir);
+		if(!logfiledir.exists())
+			logfiledir.mkdir();
+		mwLogger = Logger.getLogger("flogger");
+		try {
+			FileHandler fh=new FileHandler(logfiledir.toString()+File.separator+WindowManager.PROGRAM_NAME+".log",1000000000,1);// taille max 1 Go
+			fh.setFormatter(new SimpleFormatter());
+			mwLogger.addHandler(fh);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setScreenWidth(screenSize.getWidth());
 		setScreenHeight(screenSize.getHeight());
