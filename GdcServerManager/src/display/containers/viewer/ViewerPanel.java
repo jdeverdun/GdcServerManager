@@ -283,6 +283,7 @@ public class ViewerPanel extends JPanel{
 						    JOptionPane.ERROR_MESSAGE);
 				}
 			});
+			e.printStackTrace();
 			return false;
 		}
 	}

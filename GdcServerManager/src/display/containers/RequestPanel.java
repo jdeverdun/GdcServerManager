@@ -754,7 +754,6 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
-				System.out.println("omg");
 				Thread tr = new Thread(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
@@ -875,14 +874,8 @@ public class RequestPanel extends JPanel {
 						}
 						setLock(false);
 						progressPanel.setVisible(false);
-						SwingUtilities.invokeLater(new Runnable() {
-							
-							@Override
-							public void run() {
-								getRqModel().fireTableStructureChanged();
-							}
-						});
-						
+				
+						getRqModel().fireTableStructureChanged();
 						if(getRqModel().getFileAt(0) == null){
 							Mitem.setVisible(false);
 							MDelitem.setVisible(false);

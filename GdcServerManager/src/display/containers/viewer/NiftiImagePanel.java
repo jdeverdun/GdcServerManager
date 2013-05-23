@@ -101,9 +101,10 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		this.niftiImage = niftiImage;
 		setSlice(Math.round(this.niftiImage.getNSlices()/2));
 		imageCurrentLocation = new Point((int)this.niftiImage.getWidth()/2,(int)this.niftiImage.getHeight()/2);
-		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
 		coefficients = niftiImage.getCalibration().getCoefficients();
+		offsets = new Dimension(0,0);
+		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
 		addMouseMotionListener(this);
        	addMouseListener(this);
        	addMouseWheelListener(this);
@@ -169,6 +170,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 
 	public void setKeepRatio(boolean keepRatio) {
 		this.keepRatio = keepRatio;
+		if(!this.keepRatio)
+			offsets = new Dimension(0,0);
 	}
 
 	/**
@@ -338,40 +341,24 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	 */
 	private Point panelXYtoImageXY(Point point) {
 		Point impt = null;
-		int pwidth = this.getWidth();
-		int pheight = this.getHeight();
-		if(!keepRatio){
-			double ws = imageDim.getWidth() / (float)pwidth ;
-			double hs = imageDim.getHeight() / (float)pheight;
-			if(orientation != Plan.AXIAL)
-				impt = new Point((int)Math.round(ws*point.getX()),(int)imageDim.getHeight()-(int)Math.round(hs*point.getY()));
-			else
-				impt = new Point((int)Math.round(ws*point.getX()),(int)Math.round(hs*point.getY()));
-			if(impt.getX()>imageDim.getWidth())
-				impt.x = (int)imageDim.getWidth();
-			if(impt.getX()<=0)
-				impt.x = 1;
-			if(impt.getY()>imageDim.getHeight())
-				impt.y = (int)imageDim.getHeight();
-			if(impt.getY()<=0)
-				impt.y = 1;
+		int pwidth = this.getWidth() - 1;
+		int pheight = this.getHeight() - 1;
+		float sizeOneImPixelY = ((float)pheight - ((float)offsets.height*2))/ (float)imageDim.height;
+		float sizeOneImPixelX = ((float)pwidth -((float)offsets.width*2)) / (float)imageDim.width;
+		if(orientation != Plan.AXIAL){
+			impt = new Point((int)Math.round((point.getX()-offsets.width+sizeOneImPixelX/2)/sizeOneImPixelX),(int)Math.round(imageDim.height-(point.getY()-offsets.height)/sizeOneImPixelY));
 		}else{
-			double x = (point.getX() - offsets.width)/displayScaleFactor;
-			double y = (point.getY() - offsets.height)/displayScaleFactor;
-			if(orientation != Plan.AXIAL){
-				impt = new Point((int)Math.round(x),(int)imageDim.getHeight()-(int)Math.round(y));
-			}else
-				impt = new Point((int)Math.round(x),(int)Math.round(y));
-			if(impt.getX()>imageDim.getWidth())
-				impt.x = (int)imageDim.getWidth();
-			if(impt.getX()<=0)
-				impt.x = 1;
-			if(impt.getY()>imageDim.getHeight()){
-				impt.y = (int)imageDim.getHeight();
-			}
-			if(impt.getY()<=0){
-				impt.y = 1;
-			}
+			impt = new Point((int)Math.round((point.getX()-offsets.width+sizeOneImPixelX/2)/sizeOneImPixelX),(int)Math.round((point.getY()-offsets.height)/sizeOneImPixelY));
+		}
+		if(impt.getX()>imageDim.getWidth())
+			impt.x = (int)imageDim.getWidth();
+		if(impt.getX()<=0)
+			impt.x = 1;
+		if(impt.getY()>imageDim.getHeight()){
+			impt.y = (int)imageDim.getHeight();
+		}
+		if(impt.getY()<=0){
+			impt.y = 1;
 		}
 		return impt;
 	}
@@ -384,44 +371,14 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	 */
 	private Point imageXYtoPanelXY(Point p) {
 		Point impt = null;
-		int pwidth = this.getWidth();
-		int pheight = this.getHeight();
-		if(!keepRatio){
-			double ws = (float)pwidth / imageDim.getWidth();
-			double hs = (float)pheight / imageDim.getHeight();
-			float heightvoxsize = (float)(pheight)/niftiImage.getHeight();// A VOIR
-			float widthvoxsize = (float)(pwidth)/niftiImage.getWidth();
-			if(orientation != Plan.AXIAL)
-				impt = new Point((int)Math.round(ws*p.getX()-(widthvoxsize/2)),getHeight()-(int)Math.round(hs*p.getY()-(heightvoxsize/2)));
-			else
-				impt = new Point((int)Math.round(ws*p.getX()-(widthvoxsize/2)),(int)Math.round(hs*p.getY()+(heightvoxsize/2)));
-			if(impt.getX()>getWidth())
-				impt.x = (int)getWidth();
-			if(impt.getX()<=0)
-				impt.x = 1;
-			if(impt.getY()>getHeight())
-				impt.y = (int)getHeight();
-			if(impt.getY()<=0)
-				impt.y = 1;
-		}else{
-			double x = (p.getX()*displayScaleFactor) + offsets.width-1;
-			double y = (p.getY()*displayScaleFactor) + offsets.height-1;
-			float heightvoxsize = ((float)(pheight-(offsets.height*2-1))/niftiImage.getHeight());// A VOIR
-			float widthvoxsize = ((float)(pwidth-(offsets.width*2-1))/niftiImage.getWidth());
-			if(orientation != Plan.AXIAL)
-				impt = new Point((int)Math.round(p.getX()*widthvoxsize+offsets.width-1),(int)Math.round(pheight-(p.getY()-1)*heightvoxsize-(heightvoxsize/2)-offsets.height-1));
-			else
-				impt = new Point((int)Math.round(p.getX()*widthvoxsize-(widthvoxsize/2)+offsets.width-1),(int)Math.round((p.getY())*heightvoxsize-(heightvoxsize/2)-offsets.height-1));//impt = new Point((int)Math.round(x-(widthvoxsize/2)),(int)Math.round(y+(heightvoxsize/2)));
-			/*if(impt.getX()>=(getWidth()-offsets.width))
-				impt.x = (int)getWidth()-offsets.width;
-			if(impt.getX()<offsets.width)
-				impt.x = offsets.width;
-			if(impt.getY()>=(getHeight()-offsets.height))
-				impt.y = (int)getHeight()-offsets.height;
-			if(impt.getY()<offsets.height){
-				impt.y = offsets.height;
-			}*/
-		}
+		int pwidth = this.getWidth()-1;
+		int pheight = this.getHeight()-1;
+		float sizeOneImPixelY = ((float)pheight - ((float)offsets.height*2)) / (float)imageDim.height;
+		float sizeOneImPixelX = ((float)pwidth - ((float)offsets.width*2)) / (float)imageDim.width;
+		if(orientation != Plan.AXIAL)
+			impt = new Point((int)Math.round(p.getX()*sizeOneImPixelX+offsets.width-sizeOneImPixelX/2),(int)Math.round(pheight-p.getY()*sizeOneImPixelY-offsets.height+sizeOneImPixelY/2));
+		else
+			impt = new Point((int)Math.round(p.getX()*sizeOneImPixelX+offsets.width-sizeOneImPixelX/2),(int)Math.round(p.getY()*sizeOneImPixelY+offsets.height-sizeOneImPixelY/2));//impt = new Point((int)Math.round(x-(widthvoxsize/2)),(int)Math.round(y+(heightvoxsize/2)));
 		return impt;
 	}
 	
