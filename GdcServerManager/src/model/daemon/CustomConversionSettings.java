@@ -67,7 +67,7 @@ public class CustomConversionSettings {
 		setWorkingWithAcqDateDir(workWithAcqDateDir);
 		setWorkingWithProtocolDir(workWithProtocolDir);
 		setDicomDebugMode(false);
-		setNiftiDebugMode(true);
+		setNiftiDebugMode(false);
 		setKeepDicom(keepDicom);
 		setNifti4D(nifti4d);
 	}
