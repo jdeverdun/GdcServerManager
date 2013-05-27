@@ -4,6 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.logging.Level;
+
+import settings.WindowManager;
 
 import es.vocali.util.AESCrypt;
 
@@ -61,7 +64,7 @@ public class DecryptDaemon extends Thread {
 	public void setStop(boolean stop) {
 		this.stop = stop;
 		if(stop)
-			System.out.println("Decrypter offline");
+			WindowManager.mwLogger.log(Level.INFO, "Stopping DecryptDaemon");
 	}
 
 	public LinkedList<Path[]> getFileToDecrypt() {

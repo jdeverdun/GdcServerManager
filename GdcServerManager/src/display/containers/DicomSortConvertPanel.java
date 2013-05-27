@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.swing.JLabel;
 import javax.swing.JButton;
@@ -37,6 +38,7 @@ import javax.swing.DefaultComboBoxModel;
 import org.apache.commons.io.FileUtils;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 import daemon.DicomDaemon;
 import daemon.DicomJobDispatcher;
 import daemon.DicomWorkerClient;
@@ -130,7 +132,7 @@ public class DicomSortConvertPanel extends JPanel {
 			                	try {
 									addFile(fi);
 								} catch (IOException e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.SEVERE, "Drop exception",e);
 								}
 			                }
 							progressPanel.setVisible(false);
@@ -155,7 +157,7 @@ public class DicomSortConvertPanel extends JPanel {
 	                addThread.start();
 	                setLock(true);
 	            } catch (Exception ex) {
-	                ex.printStackTrace();
+	            	WindowManager.mwLogger.log(Level.SEVERE, "Drop exception",ex);
 	                progressPanel.setVisible(false);
 	            }
 	        }
@@ -268,7 +270,7 @@ public class DicomSortConvertPanel extends JPanel {
 					case FSL:
 						fmt = NiftiDaemon.FSL;break;
 					default:
-						System.err.println("Unknow NIFTI FORMAT");
+						WindowManager.mwLogger.log(Level.SEVERE, "Unknow NIFTI FORMAT");
 					}
 					final CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
 							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected(),chckb4d.isSelected());
@@ -314,7 +316,7 @@ public class DicomSortConvertPanel extends JPanel {
 								try {
 									FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
 								} catch (IOException e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.WARNING, "Directory deletion error",e);
 								}
 								DicomWorkerClient.DICOMDIR=null;
 							}
@@ -454,7 +456,7 @@ public class DicomSortConvertPanel extends JPanel {
 			try {
 				FileUtils.deleteDirectory(DicomWorkerClient.DICOMDIR.toFile());
 			} catch (IOException e) {
-				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE, "Directory deletion exception",e);
 			}
 			DicomWorkerClient.DICOMDIR=null;
 		}

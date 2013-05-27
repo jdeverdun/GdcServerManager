@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
 
@@ -83,7 +84,7 @@ public class EncryptDaemon extends Thread {
 			if(!dicomToEncrypt.isEmpty())
 				saveBackup();
 			dicomToEncrypt.clear();
-			System.out.println("Encrypter offline");
+			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
 		}else{
 			this.stop = stop;
 		}
@@ -115,7 +116,7 @@ public class EncryptDaemon extends Thread {
 			
 			save.close();
 		}catch(IOException e){
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "saveBackup error",e);
 			new File(savePath+File.separator+BACKUP_FILE).delete();
 		}
 	}
@@ -151,7 +152,7 @@ public class EncryptDaemon extends Thread {
 			}
 			
 		}catch(IOException | ClassNotFoundException e){
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "loadBackup error",e);
 		}
 		
 	}

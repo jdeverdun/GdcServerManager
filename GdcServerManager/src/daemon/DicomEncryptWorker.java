@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import settings.WindowManager;
 
@@ -62,10 +63,10 @@ public class DicomEncryptWorker extends DaemonWorker {
 			try {
 				Files.deleteIfExists(dicomFile);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				WindowManager.mwLogger.log(Level.WARNING, "Can't delete "+dicomFile,e1);
 			}
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
-			System.out.println("Exception with encrypter : "+e.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "Exception with encrypter",e);
 		}
 		
 		
@@ -109,12 +110,12 @@ public class DicomEncryptWorker extends DaemonWorker {
 					dicomImage.setId(dicdao.idmax());
 				} catch (SQLException e) {
 					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
-					System.out.println("SQL Error : "+e.toString());
+					WindowManager.mwLogger.log(Level.WARNING, "SQL error",e);
 				}
 				
 				break;
 			default:
-				System.err.println("Unknow table "+table+".");
+				WindowManager.mwLogger.log(Level.SEVERE, "Unknow table "+table+".");
 		}
 	}
 	

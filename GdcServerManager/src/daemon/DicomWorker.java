@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 
 import settings.SystemSettings;
 import settings.WindowManager;
@@ -217,7 +218,7 @@ public class DicomWorker extends DaemonWorker {
 			cache.getIdSerieList().put(fileName.toString() + "@@" + getProtocol_id() + "@@" + getAcqDate_id() + "@@" +
 					"" + getPatient_id() + "@@" + getProject_id(), s.getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "setSerie_idFromDB exception",e);
 		}
 	}
 
@@ -246,7 +247,7 @@ public class DicomWorker extends DaemonWorker {
 			cache.getIdProtocolList().put(fileName.toString() + "@@" + getAcqDate_id() + "@@" +
 					"" + getPatient_id() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "setProtocol_idFromDB exception",e);
 		}
 	}
 
@@ -274,7 +275,7 @@ public class DicomWorker extends DaemonWorker {
 			cache.getIdAcqDateList().put(fileName.toString() + "@@" +
 					"" + getPatient_id() + "@@" + getProject_id(), a.getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "setAcqDate_idFromDB exception",e);
 		}
 	}
 
@@ -301,7 +302,7 @@ public class DicomWorker extends DaemonWorker {
 			setPatient_id(p.getId());
 			cache.getIdPatientList().put(fileName.toString() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "setPatient_idFromDB exception",e);
 		}
 	}
 
@@ -328,7 +329,7 @@ public class DicomWorker extends DaemonWorker {
 			setProject_id(p.getId());
 			cache.getIdProjectList().put(fileName.toString(),p.getId());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "setProject_idFromDB exception",e);
 		}
 	}
 
@@ -346,7 +347,7 @@ public class DicomWorker extends DaemonWorker {
 				setProject_id(pdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				System.out.println("SQL Error : "+e.toString());
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
 			}
 			break;
 		case "Patient":
@@ -356,7 +357,7 @@ public class DicomWorker extends DaemonWorker {
 				setPatient_id(patdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				System.out.println("SQL Error : "+e.toString());
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
 			}
 			break;
 		case "AcqDate":
@@ -366,7 +367,7 @@ public class DicomWorker extends DaemonWorker {
 				setAcqDate_id(acqdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				System.out.println("SQL Error : "+e.toString());
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
 			}
 			break;
 		case "Protocol":
@@ -376,7 +377,7 @@ public class DicomWorker extends DaemonWorker {
 				setProtocol_id(protdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				System.out.println("SQL Error : "+e.toString());
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
 			}
 			break;
 		case "Serie":
@@ -386,11 +387,11 @@ public class DicomWorker extends DaemonWorker {
 				setSerie_id(sdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				System.out.println("SQL Error : "+e.toString());
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
 			}
 			break;
 		default:
-			System.err.println("Unknow table : "+table);
+			WindowManager.mwLogger.log(Level.SEVERE, "Unknow table : "+table);
 		}
 		
 		
@@ -409,7 +410,7 @@ public class DicomWorker extends DaemonWorker {
 	        FileTime fileTime = FileTime.fromMillis(currentTimeMillis);
 	        Files.setLastModifiedTime(getPatientFolder(), fileTime);
 		} catch (IOException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Error moving dicom to "+newPath,e);
 		}
 	}
 
@@ -423,7 +424,7 @@ public class DicomWorker extends DaemonWorker {
 	        FileTime fileTime = FileTime.fromMillis(currentTimeMillis);
 	        Files.setLastModifiedTime(getPatientFolder(), fileTime);
 		} catch (IOException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Error copying dicom to "+newPath,e);
 		}
 	}
 
@@ -458,6 +459,7 @@ public class DicomWorker extends DaemonWorker {
 			prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
 		// on remplace les caracteres complique par "_"
 		prot = prot.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getStudyDescription : "+prot);
 		return prot;
 	}
 	
@@ -477,6 +479,7 @@ public class DicomWorker extends DaemonWorker {
 			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
 		return pname;
 	}
 	
@@ -497,6 +500,7 @@ public class DicomWorker extends DaemonWorker {
 			sdesc = sdesc.substring(0,sdesc.length()-1);
 		// on remplace les caracteres complique par "_"
 		sdesc = sdesc.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
 		return sdesc;
 	}
 	
@@ -516,6 +520,7 @@ public class DicomWorker extends DaemonWorker {
 			bdate = bdate.substring(0,bdate.length()-1);
 		// on remplace les caracteres complique par "_"
 		bdate = bdate.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
 		return bdate;
 	}
 	// Sexe du patient
@@ -534,6 +539,7 @@ public class DicomWorker extends DaemonWorker {
 			psex = psex.substring(0,psex.length()-1);
 		// on remplace les caracteres complique par "_"
 		psex = psex.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getSex : "+psex);
 		return psex;
 	}	
 	
@@ -553,13 +559,13 @@ public class DicomWorker extends DaemonWorker {
 			iname = iname.substring(0,iname.length()-1);
 		// on remplace les caracteres complique par "_"
 		iname = iname.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getMri_name : "+iname);
 		return iname;
 	}
 		
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
 	public String getProtocolName() throws DicomException{
 		String pprot = getTag("0018,1030");
-		System.out.println(pprot);
 		if(pprot == null){
 			throw new DicomException("Unable to decode DICOM header 0018,1030");
 		}
@@ -573,6 +579,7 @@ public class DicomWorker extends DaemonWorker {
 			pprot = pprot.substring(0,pprot.length()-1);
 		// on remplace les caracteres complique par "_"
 		pprot = pprot.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
 		return pprot;
 	}
 	// Date de l'acquisition ex : 20130122
@@ -590,6 +597,7 @@ public class DicomWorker extends DaemonWorker {
 			pdate = pdate.substring(0,pdate.length()-1);
 		// on remplace les caracteres complique par "_"
 		pdate = pdate.replaceAll("[^A-Za-z0-9]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
 		return pdate;
 	}
 	public int getProject_id() {

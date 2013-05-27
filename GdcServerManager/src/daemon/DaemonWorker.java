@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.logging.Level;
+
+import settings.WindowManager;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
@@ -76,7 +79,7 @@ public abstract class DaemonWorker {
 			try {
 				Files.createDirectory(dir);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE, "Can't create directory",e1);
 			}
 			return false;
 		}
@@ -97,7 +100,7 @@ public abstract class DaemonWorker {
 			String lkey = Project.generateLocalKeyFrom(proj.getNom());
 			return proj.getRemoteKey()+lkey;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Can't get decrypt password",e);
 		}
 		return null;
 	}

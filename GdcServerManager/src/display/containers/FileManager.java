@@ -56,6 +56,7 @@ import settings.WindowManager;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import java.io.*;
@@ -201,9 +202,9 @@ public class FileManager {
 								parentFrame.setLock(false);
 								JOptionPane.showMessageDialog(parentFrame,
 									    "Error during the deletion.",
-									    "Copy error",
+									    "Deletion error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
 							}
 							refresh();
 							parentFrame.setLock(false);	
@@ -221,7 +222,7 @@ public class FileManager {
 									try {
 										deleteServerFile(row);
 									} catch (Exception e) {
-										e.printStackTrace();
+										WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
 									}
 								}
 								refresh();
@@ -383,7 +384,7 @@ public class FileManager {
 				setCurrentDir(file.getCanonicalFile());
 				showChildren(Paths.get(file.getCanonicalPath()));
 			} catch (IOException e) {
-				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.WARNING, "FileManager mouseDblClicked error.",e);
 			}
 		}else{
 			// si on est dans la vue admin et qu'on clic sur un nifti encrypte
@@ -412,6 +413,7 @@ public class FileManager {
 								}
 							});
 							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+							WindowManager.mwLogger.log(Level.WARNING, "FileManager Openning error.",e);
 						}
 					}
 				});
@@ -440,6 +442,7 @@ public class FileManager {
 									}
 								});
 								WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+								WindowManager.mwLogger.log(Level.WARNING, "FileManager Openning error.",e);
 							}
 						}
 					});
@@ -449,6 +452,7 @@ public class FileManager {
 		                desktop.open(file);
 		            } catch(Throwable t) {
 		                showThrowable(t);
+		                WindowManager.mwLogger.log(Level.WARNING, "FileManager Openning error.",t);
 		            }
 				}
 			}
@@ -465,7 +469,7 @@ public class FileManager {
 			setCurrentDir(dir.toFile().getCanonicalFile());
 			showChildren(dir);
 		} catch (IOException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "FileManager switchToDir error.",e);
 		}	
     }
     

@@ -11,8 +11,10 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import settings.SystemSettings;
+import settings.WindowManager;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -85,6 +87,7 @@ public class DicomDaemon extends Thread{
 		            key = watcher.take();
 		        } catch (Exception x) {
 		        	System.out.println("Exception with DicomDaemon : "+x.toString());
+		        	WindowManager.mwLogger.log(Level.WARNING, "Exceptino with DicomDaemon",x);
 		            return;
 		        }
 		        for (WatchEvent<?> event: key.pollEvents()) {
@@ -122,7 +125,7 @@ public class DicomDaemon extends Thread{
 		        }
 		    }
 		} catch (IOException x) {
-			System.out.println(x.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "Major exception with DicomDaemon",x);
 		}
 	  }
 	public ServerInfo getServerInfo() {
@@ -156,14 +159,14 @@ public class DicomDaemon extends Thread{
 			missingDaemon.setStop(true);
 			encryptDaemon.setStop(true);
 	    	dicomJobDispatcher.setStop(true);
-	    	System.out.println("DicomDaemon offline");
+	    	WindowManager.mwLogger.log(Level.INFO, "Stopping DicomDaemon");
 		}
 	}
 	public void forceStop(){
 		missingDaemon.setStop(true);
 		encryptDaemon.setStop(true);
 		dicomJobDispatcher.forceStop(true);
-		System.out.println("DicomDaemon offline");
+		WindowManager.mwLogger.log(Level.INFO, "Stopping DicomDaemon");
 	}
 	public boolean isStop() {
 		return stop;

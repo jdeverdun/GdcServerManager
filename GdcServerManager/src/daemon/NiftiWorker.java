@@ -15,6 +15,7 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
@@ -135,7 +136,6 @@ public class NiftiWorker extends DaemonWorker {
 					aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
 				}
 			}
-			System.out.println("omg");
 			// On cree la commande (on convertie dans un autre repertoire)
 			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);
@@ -147,10 +147,11 @@ public class NiftiWorker extends DaemonWorker {
 	            InputStreamReader isr = new InputStreamReader(stdin);
 	            BufferedReader br = new BufferedReader(isr);
 	            String line = null;
-	            System.out.println("<OUTPUT>");
+	            WindowManager.mwLogger.log(Level.FINE, "Converting "+path);
+	            WindowManager.mwLogger.log(Level.FINE, "<OUTPUT>");
 	            while ( (line = br.readLine()) != null)
-	                System.out.println(line);
-	            System.out.println("</OUTPUT>");
+	            	WindowManager.mwLogger.log(Level.FINE, line);
+	            WindowManager.mwLogger.log(Level.FINE, "</OUTPUT>");
 			}
 			process.waitFor();
 			
@@ -179,13 +180,13 @@ public class NiftiWorker extends DaemonWorker {
 
 			
 		} catch (IOException e1) {
-			System.out.println("IOException with niftiWorker ("+path+"):"+e1.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "IOException with niftiWorker ("+path+")",e1);
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e1.toString()).substring(0, Math.min(e1.toString().length(), 100)));
 		} catch (InterruptedException e) {
-			System.out.println("InterruptedException with niftiWorker ("+path+"):"+e.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "InterruptedException with niftiWorker ("+path+")",e);
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e.toString()).substring(0, Math.min(e.toString().length(), 100)));
 		} catch (GeneralSecurityException e) {
-			System.out.println("GeneralSecurityException with niftiWorker ("+path+"):"+e.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "GeneralSecurityException with niftiWorker ("+path+")",e);
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText((path.getFileName()+"-"+e.toString()).substring(0, Math.min(e.toString().length(), 100)));
 		}
 
@@ -200,7 +201,7 @@ public class NiftiWorker extends DaemonWorker {
 				if(getNiftiDaemon().getSettings().isServerMode())
 					removeDBEntry(niftis.get(currNifti).getFileName());
 			} catch (IOException e) {
-				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE, "removeFiles error",e);
 			}
 		return;
 	}
@@ -213,7 +214,7 @@ public class NiftiWorker extends DaemonWorker {
 			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 		} catch (SQLException e) {
-			System.out.println("SQLException with niftiWorker : "+e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "removeDBEntry error",e);
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		}
 		
@@ -263,7 +264,7 @@ public class NiftiWorker extends DaemonWorker {
 		case NiftiDaemon.FSL://A selectionner en prio ?
 			command+=" -f fsl ";break;
 		default:
-			System.err.println("Unknow nifti format");
+			WindowManager.mwLogger.log(Level.SEVERE, "Unknow nifti format");
 		}
 		if(fourDim)
 			command+=" -d ";
@@ -285,7 +286,8 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			break;
 		default:
-			System.err.println("I don't know table : "+table+" ... sorry");	
+			WindowManager.mwLogger.log(Level.SEVERE, "I don't know table : "+table+" ... sorry");	
+			
 		}
 	}
 
@@ -359,7 +361,7 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			Files.createDirectories(p);
 		} catch (IOException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "buildIfNotExist error",e);
 		}
 	}
 	

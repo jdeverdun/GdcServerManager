@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -125,6 +126,7 @@ public class ViewerPanel extends JPanel{
 										popup.show();
 									}
 								});
+								WindowManager.mwLogger.log(Level.SEVERE, "Error with opening. Is it a Nifti? [ViewerPanel]");
 								
 							}
 								

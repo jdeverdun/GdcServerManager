@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 import es.vocali.util.AESCrypt;
 
@@ -125,7 +126,7 @@ public class NiftiDaemon extends Thread{
 	public void setStop(boolean stop) {
 		this.stop = stop;
 		if(stop){
-			System.out.println("NiftiDaemon offline");
+			WindowManager.mwLogger.log(Level.INFO, "Stopping NiftiDaemon");
 			if(!dir2convert.isEmpty())
 				saveBackup();
 		}
@@ -291,7 +292,7 @@ public class NiftiDaemon extends Thread{
 			
 			save.close();
 		}catch(IOException e){
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "saveBackup error",e);
 			new File(savePath+File.separator+BACKUP_FILE).delete();
 		}
 	}
@@ -323,7 +324,7 @@ public class NiftiDaemon extends Thread{
 
 			
 		}catch(IOException | ClassNotFoundException e){
-			System.out.println("IOException | ClassNotFoundException  with niftiDaemon : "+e.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "loadBackup error",e);
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 		}
 		

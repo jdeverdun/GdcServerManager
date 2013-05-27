@@ -80,6 +80,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -91,7 +92,6 @@ import javax.swing.filechooser.FileFilter;
 
 public class MainWindow extends JFrame {
 	
-	private Logger mwLogger;
 	private double screenWidth;
 	private double screenHeight;
 	private boolean isLock;
@@ -488,7 +488,7 @@ public class MainWindow extends JFrame {
 					try {
 						UserProfile.CURRENT_USER.setProjects(pdao.getProjectsForUser(UserProfile.CURRENT_USER.getId()));
 					} catch (SQLException e1) {
-						e1.printStackTrace();
+						WindowManager.mwLogger.log(Level.WARNING, "Refreshing error", e1);
 					}
 					getFileTreeDist().refresh();
 					getFileTreeLocal().refresh();
@@ -574,6 +574,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Copy Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -581,7 +582,7 @@ public class MainWindow extends JFrame {
 									    "Error during the copy.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								mwLogger.severe(e.getMessage());
+								WindowManager.mwLogger.log(Level.SEVERE, "Copy error", e);
 							}
 						}
 	
@@ -618,6 +619,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Copy Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -625,7 +627,7 @@ public class MainWindow extends JFrame {
 									    "Error during the copy.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Copy error", e);
 							}
 						}
 	
@@ -670,6 +672,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Copy Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -677,7 +680,7 @@ public class MainWindow extends JFrame {
 									    "Error during the copy.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Copy error", e);
 							}
 						}
 	
@@ -704,7 +707,7 @@ public class MainWindow extends JFrame {
 								try {
 									Thread.sleep(100);
 								} catch (InterruptedException e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.WARNING, "Sleeping error", e);
 								}
 							}
 						}
@@ -735,6 +738,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Copy Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -742,7 +746,7 @@ public class MainWindow extends JFrame {
 									    "Error during the copy.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Copy error", e);
 							}
 						}
 	
@@ -769,7 +773,7 @@ public class MainWindow extends JFrame {
 								try {
 									Thread.sleep(100);
 								} catch (InterruptedException e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.WARNING, "Sleeping error", e);
 								}
 							}
 						}
@@ -799,6 +803,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Deletion Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -806,7 +811,7 @@ public class MainWindow extends JFrame {
 									    "Error during the deletion.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Deleting error", e);
 							}
 						}
 	
@@ -833,7 +838,7 @@ public class MainWindow extends JFrame {
 					tmp.setLocationRelativeTo(null);// pour recupere la position optimale du popup
 					final Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, ppanel, (int)tmp.getX()-20,(int)tmp.getY()-50);
 					tmp = null;
-					// Thread pour la copie
+					// Thread pour la suppresion
 					Thread copyThread = new Thread(new Runnable() {
 						
 						@Override
@@ -843,6 +848,7 @@ public class MainWindow extends JFrame {
 								popup.hide();
 								setLock(false);
 								resfreshFileTree();
+								WindowManager.mwLogger.log(Level.INFO, "Deletion Ok");
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
@@ -850,7 +856,7 @@ public class MainWindow extends JFrame {
 									    "Error during the deletion.",
 									    "Copy error",
 									    JOptionPane.ERROR_MESSAGE);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "Deleting error", e);
 							}
 						}
 	
@@ -959,7 +965,7 @@ public class MainWindow extends JFrame {
 			    				p.toFile().delete();
 			    	}
 		    	}catch(Exception e){
-		    		e.printStackTrace();
+		    		WindowManager.mwLogger.log(Level.SEVERE, "Shutdown error", e);
 		    	}
 		    }
 		}));
@@ -967,11 +973,11 @@ public class MainWindow extends JFrame {
 		File logfiledir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.logdir);
 		if(!logfiledir.exists())
 			logfiledir.mkdir();
-		mwLogger = Logger.getLogger("flogger");
+		WindowManager.mwLogger = Logger.getLogger("flogger");
 		try {
 			FileHandler fh=new FileHandler(logfiledir.toString()+File.separator+WindowManager.PROGRAM_NAME+".log",1000000000,1);// taille max 1 Go
 			fh.setFormatter(new SimpleFormatter());
-			mwLogger.addHandler(fh);
+			WindowManager.mwLogger.addHandler(fh);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -1013,6 +1019,7 @@ public class MainWindow extends JFrame {
 				          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 			        } catch (Exception e) {
 			          System.out.println("Substance Graphite failed to initialize");
+			          WindowManager.mwLogger.log(Level.WARNING, "Substance Graphite failed to initialize", e);
 			        }
 					UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 					PassChangePanel pchange = new PassChangePanel();

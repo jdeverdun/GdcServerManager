@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
@@ -437,7 +438,7 @@ public class RequestPanel extends JPanel {
 								try {
 									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX));
 								} catch (Exception e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.SEVERE, "delThread error.",e);
 								}
 							}
 						}
@@ -791,10 +792,13 @@ public class RequestPanel extends JPanel {
 								getRqModel().setFiles(files);
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString());
+								WindowManager.mwLogger.log(Level.WARNING, "btnExecute SQL error.",e);
 							} catch (exceptions.IllegalSQLRequest e) {
 								setWarning("Unsupported SQL command : "+e.toString());
+								WindowManager.mwLogger.log(Level.WARNING, "btnExecute Unsupported SQL command.",e);
 							} catch (Exception e) {
 								setWarning("SQL Error : "+e.toString());
+								WindowManager.mwLogger.log(Level.WARNING, "btnExecute error.",e);
 							}
 						}else{
 							// requete 
@@ -869,7 +873,7 @@ public class RequestPanel extends JPanel {
 								getRqModel().setFiles(files);
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.WARNING, "btnExecute error.",e);
 							}
 						}
 						setLock(false);

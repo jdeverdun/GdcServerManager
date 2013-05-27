@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 
 import java.awt.Font;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
@@ -25,6 +26,7 @@ import dao.MySQLUserDAO;
 import dao.UserDAO;
 
 
+import settings.WindowManager;
 import tools.Mailer;
 import model.User;
 import model.User.Acclvl;
@@ -143,7 +145,7 @@ public class UserCreationPanel extends PopupPanel {
 								// on encrypt le mdp
 								u.setPassword(udao.encryptPass(realPass));
 							}catch(Exception e){
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "mailSender error.",e);
 							}
 							// On s'assure qu'il est valide
 							if(!u.isReadyForInsert()){
@@ -158,23 +160,26 @@ public class UserCreationPanel extends PopupPanel {
 								case 1:
 									setLock(false);
 									setWarning("Login already exists.");
+									WindowManager.mwLogger.log(Level.WARNING, "Login already exists.");
 									progressPanel.setVisible(false);
 									break;
 								case 2:
 									setLock(false);
 									setWarning("SQL Error.");
+									WindowManager.mwLogger.log(Level.SEVERE, "mailSender SQL Error");
 									progressPanel.setVisible(false);
 									return;
 								case 3:
 									setLock(false);
 									setWarning("Code Error.");
+									WindowManager.mwLogger.log(Level.SEVERE, "mailSender Code Error");
 									progressPanel.setVisible(false);
 									return;
 								}
 							} catch (SQLException e) {
 								setLock(false);
 								progressPanel.setVisible(false);
-								e.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "mailSender SQL Error",e);
 								return;
 							}
 							
@@ -182,7 +187,7 @@ public class UserCreationPanel extends PopupPanel {
 							try {
 								u.setId(udao.retrieveUser(u.getLogin()).getId());
 							} catch (SQLException e1) {
-								e1.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "mailSender SQL Error",e1);
 							}
 							
 							
@@ -191,7 +196,7 @@ public class UserCreationPanel extends PopupPanel {
 							try {
 								dbdao.createUser(u);
 							} catch (SQLException e1) {
-								e1.printStackTrace();
+								WindowManager.mwLogger.log(Level.SEVERE, "mailSender SQL Error",e1);
 							}
 							
 							// On envoi le mail avec le mot de passe temporaire
@@ -211,7 +216,7 @@ public class UserCreationPanel extends PopupPanel {
 									udao.removeUser(u);
 									dbdao.removeUser(u);
 								} catch (SQLException e) {
-									e.printStackTrace();
+									WindowManager.mwLogger.log(Level.SEVERE, "mailSender SQL Error",e);
 								}
 								
 							}
@@ -227,9 +232,11 @@ public class UserCreationPanel extends PopupPanel {
 					break;
 				case 1:
 					setWarning("Only a-zA-Z0-9 characters allowed for Login.");
+					WindowManager.mwLogger.log(Level.WARNING, "incorrect login format");
 					break;
 				case 2:
 					setWarning("Incorrect email format.");
+					WindowManager.mwLogger.log(Level.WARNING, "incorrect email format");
 					break;
 				}
 			}

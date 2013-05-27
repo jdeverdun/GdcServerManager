@@ -3,6 +3,7 @@ package daemon;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
@@ -52,7 +53,7 @@ public class MissingDaemon extends Thread{
 				moveNotEncodedDicom(listenDirectory.toFile());
 			} catch (Exception e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
-				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.WARNING, "Missing Daemon error",e);
 			}
 			nbIteration++;
 		}
@@ -64,7 +65,7 @@ public class MissingDaemon extends Thread{
 	public void setStop(boolean stop) {
 		this.stop = stop;
 		if(this.stop)
-			System.out.println("Stopping Missing Daemon.");
+			WindowManager.mwLogger.log(Level.INFO, "Stopping Missing Daemon");
 	}
 	
 	public int getNbIteration() {

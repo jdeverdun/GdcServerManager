@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.util.logging.Level;
 
 import settings.SystemSettings;
 import settings.WindowManager;
@@ -74,7 +75,7 @@ public class FileDecryptWorker extends DaemonWorker {
 		} catch (GeneralSecurityException | IOException e) {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-			System.out.println("Decrypt error : "+e.toString());
+			WindowManager.mwLogger.log(Level.SEVERE, "Decrypt error",e);
 		}
 		
 		

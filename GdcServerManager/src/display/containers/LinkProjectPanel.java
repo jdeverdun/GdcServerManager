@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -141,8 +142,8 @@ public class LinkProjectPanel extends PopupPanel {
 					}
 					
 				} catch (SQLException e1) {
-					e1.printStackTrace();
 					setWarning("SQL Error");
+					WindowManager.mwLogger.log(Level.WARNING, "btnLink SQL error.",e1);
 					getLblWarning().setVisible(true);
 					progressPanel.setVisible(false);
 					setLock(false);
@@ -178,8 +179,8 @@ public class LinkProjectPanel extends PopupPanel {
 					}
 					
 				} catch (SQLException e1) {
-					e1.printStackTrace();
 					setWarning("SQL Error");
+					WindowManager.mwLogger.log(Level.WARNING, "btnUnlink SQL error.",e1);
 					getLblWarning().setVisible(true);
 					progressPanel.setVisible(false);
 					setLock(false);
@@ -307,7 +308,7 @@ public class LinkProjectPanel extends PopupPanel {
 		} catch (SQLException e) {
 			setWarning("SQL Error");
 			getLblWarning().setVisible(true);
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "getUserList SQL error.",e);
 			return null;
 		}
 		
@@ -326,7 +327,7 @@ public class LinkProjectPanel extends PopupPanel {
 		} catch (SQLException e) {
 			setWarning("SQL Error");
 			getLblWarning().setVisible(true);
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "getProjectList SQL error.",e);
 			return null;
 		}
 	}
@@ -349,7 +350,7 @@ public class LinkProjectPanel extends PopupPanel {
 		} catch (SQLException e) {
 			setWarning("SQL Error");
 			getLblWarning().setVisible(true);
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "getProjectsForSelectedUser SQL error.",e);
 		}
 		return null;
 	}

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.logging.Level;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,6 +18,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.DefaultComboBoxModel;
+
+import settings.WindowManager;
 
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
@@ -83,10 +86,10 @@ public class DeleteUserPanel extends PopupPanel {
 					progressPanel.setVisible(false);
 				} catch (SQLException e1) {
 					setWarning("SQL Error");
+					WindowManager.mwLogger.log(Level.SEVERE, "btnRemove SQL Error",e1);
 					getLblWarning().setVisible(true);
 					progressPanel.setVisible(false);
 					setLock(false);
-					e1.printStackTrace();
 				}
 			}
 		});
@@ -139,7 +142,7 @@ public class DeleteUserPanel extends PopupPanel {
 		} catch (SQLException e) {
 			setWarning("SQL Error");
 			getLblWarning().setVisible(true);
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "getUserList SQL Error",e);
 			return null;
 		}
 		

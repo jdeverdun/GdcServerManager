@@ -9,6 +9,9 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+
+import settings.WindowManager;
 
 import exceptions.DicomException;
 
@@ -45,7 +48,7 @@ public class DicomWorkerClient extends DicomWorker {
 			studyName = getStudyDescription();
 		} catch (DicomException e) {
 			studyName = "null";
-			System.out.println(e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,studyName set to null",e);
 		}
 
 		// on definit le nom "null" au repertoire si les champs facultatifs  sont null
@@ -56,20 +59,20 @@ public class DicomWorkerClient extends DicomWorker {
 			birthdate = getBirthdate();
 		} catch (DicomException e) {
 			birthdate = "null";
-			System.out.println(e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,birthdate set to null",e);
 		}
 		try {
 			sex = getSex();
 		} catch (DicomException e) {
 			sex = "null";
-			System.out.println(e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,sex set to null",e);
 		}
 
 		try {
 			protocolName = getProtocolName();
 		} catch (DicomException e) {
 			protocolName = "null";
-			System.out.println(e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,protocolName set to null",e);
 		}
 
 		serieName = getSeriesDescription();
@@ -78,7 +81,7 @@ public class DicomWorkerClient extends DicomWorker {
 			acqDate = getAcquisitionDate();
 		} catch (DicomException e) {
 			acqDate = "null";
-			System.out.println(e.toString());
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,acqDate set to null",e);
 		}		
 		
 		// On créé les chemins vers les répertoires

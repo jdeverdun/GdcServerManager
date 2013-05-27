@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 
 import settings.SQLSettings;
 import settings.SystemSettings;
@@ -170,7 +171,7 @@ public class ServerInfo {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "getParams error",e);
 		}
 		return params;
 	}
@@ -189,7 +190,7 @@ public class ServerInfo {
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
 			System.err.println("Error with params.conf.");
-			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Error with params.conf.",e);
 		}
 	}
 	public List<String> readSmallTextFile(String aFileName) throws IOException {

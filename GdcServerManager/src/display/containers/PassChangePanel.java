@@ -20,10 +20,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.swing.JPasswordField;
 
 import settings.UserProfile;
+import settings.WindowManager;
 
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
@@ -94,7 +96,7 @@ public class PassChangePanel extends PopupPanel {
 						ulocal.setPassword(udao.encryptPass(newPass));
 					} catch (SQLException e2) {
 						setWarning("Error with SQL connection.");
-						e2.printStackTrace();
+						WindowManager.mwLogger.log(Level.SEVERE, "btnOk SQL error.",e2);
 						setLock(false);
 						progressPanel.setVisible(false);
 						return;
@@ -109,7 +111,7 @@ public class PassChangePanel extends PopupPanel {
 						getPopupWindow().hide();
 					} catch (SQLException e1) {
 						setWarning("SQL Error");
-						e1.printStackTrace();
+						WindowManager.mwLogger.log(Level.SEVERE, "btnOk SQL error.",e1);
 						setLock(false);
 						progressPanel.setVisible(false);
 					}

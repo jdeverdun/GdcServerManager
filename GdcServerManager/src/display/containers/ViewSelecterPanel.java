@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.logging.Level;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -117,6 +118,7 @@ public class ViewSelecterPanel extends PopupPanel {
 										    JOptionPane.ERROR_MESSAGE);
 								}
 							});
+							WindowManager.mwLogger.log(Level.SEVERE, "btnView Error",e);
 							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
 						}
 					}

@@ -13,6 +13,9 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+
+import settings.WindowManager;
 
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
@@ -149,16 +152,17 @@ public class NiftiWorkerClient extends NiftiWorker {
 	            InputStreamReader isr = new InputStreamReader(stdin);
 	            BufferedReader br = new BufferedReader(isr);
 	            String line = null;
-	            System.out.println("<OUTPUT>");
+	            WindowManager.mwLogger.log(Level.FINE, "Converting "+path);
+	            WindowManager.mwLogger.log(Level.FINE, "<OUTPUT>");
 	            while ( (line = br.readLine()) != null)
-	                System.out.println(line);
-	            System.out.println("</OUTPUT>");
+	            	WindowManager.mwLogger.log(Level.FINE, line);
+	            WindowManager.mwLogger.log(Level.FINE, "</OUTPUT>");
 			}
 			process.waitFor();
 			
 			
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			WindowManager.mwLogger.log(Level.WARNING, "NiftiWorkerClient error",e1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} 

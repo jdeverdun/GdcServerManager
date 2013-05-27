@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
@@ -153,7 +154,7 @@ public class DicomJobDispatcher extends Thread{
 	public void setStop(boolean stop) {
 		this.stop = stop;
 		if(stop)
-			System.out.println("Dispatcher offline");
+			WindowManager.mwLogger.log(Level.INFO, "Stopping DicomJobDispatcher");
 	}
 	
 	// Methodes
@@ -168,7 +169,7 @@ public class DicomJobDispatcher extends Thread{
 					try {
 						checkForMissedFiles();
 					} catch (IOException e) {
-						e.printStackTrace();
+						WindowManager.mwLogger.log(Level.WARNING, "Error with missed file checking in dispatcher",e);
 					}
 					waitCounter = 0;
 				}
@@ -202,7 +203,7 @@ public class DicomJobDispatcher extends Thread{
 									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
 									// a cause d'une erreur de copie ne contiennent pas tout les champs
 									if(settings.isDicomDebugMode())
-										System.out.println(locp+" : corrupted ... deleted");
+										WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted");
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 									locp.toFile().delete();
 									cont=false;
@@ -228,10 +229,10 @@ public class DicomJobDispatcher extends Thread{
 						dworker.start();
 					} catch (DicomException e) {
 						if(settings.isDicomDebugMode())
-							System.out.println(locp+" : corrupted");
+							WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted");
 					}
 				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
+					WindowManager.mwLogger.log(Level.WARNING, "IOException",e1);
 				}
 		        
 			}
@@ -284,7 +285,7 @@ public class DicomJobDispatcher extends Thread{
 	 */
 	public void forceStop(boolean b) {
 		this.stop = true;
-		System.out.println("Dispatcher offline");
+		WindowManager.mwLogger.log(Level.INFO, "Stopping DicomJobDispatcher");
 	}
 	
 	public String getStatus() {
