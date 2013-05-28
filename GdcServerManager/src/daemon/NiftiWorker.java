@@ -163,10 +163,10 @@ public class NiftiWorker extends DaemonWorker {
 			for(String currNifti:niftis.keySet()){
 				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
-				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
 				if(nr!=null)
 					nr = null;
-				nr = new Nifti_Reader(finalNiftiPath.toFile());
+				nr = new Nifti_Reader(niftis.get(currNifti).toFile());
+				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
 				addEntryToDB(finalNiftiPath,"NiftiImage");
 			}
 			// On recupere les noms des fichiers associe aux nifti cree (bval pour dti etc (cf niftiDaemon.suffixe...)
@@ -272,7 +272,6 @@ public class NiftiWorker extends DaemonWorker {
 		}
 		if(fourDim)
 			command+=" -d ";
-		System.out.println(command);
 		return command;
 	}
 	

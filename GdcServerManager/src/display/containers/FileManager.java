@@ -211,22 +211,32 @@ public class FileManager {
 						}else{
 							if(UserProfile.CURRENT_USER.getLevel()==3){
 								parentFrame.setLock(true);
-								int[] rows = table.getSelectedRows();
-								int[] columns = table.getSelectedColumns();
-								for(int i = 0; i<rows.length;i++){
-									if(!continueAction){
-										continueAction = true;
-										return;
+								parentFrame.getProgressBarPanel().setVisible(true);
+								Thread delThread = new Thread(new Runnable() {
+									
+									@Override
+									public void run() {
+										int[] rows = table.getSelectedRows();
+										int[] columns = table.getSelectedColumns();
+										for(int i = 0; i<rows.length;i++){
+											if(!continueAction){
+												continueAction = true;
+												return;
+											}
+											int row = table.convertRowIndexToModel(rows[i]);
+											try {
+												deleteServerFile(row);
+											} catch (Exception e) {
+												WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
+											}
+										}
+										refresh();
+										parentFrame.setLock(false);
+										parentFrame.getProgressBarPanel().setVisible(false);
 									}
-									int row = table.convertRowIndexToModel(rows[i]);
-									try {
-										deleteServerFile(row);
-									} catch (Exception e) {
-										WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
-									}
-								}
-								refresh();
-								parentFrame.setLock(false);
+								});
+								delThread.start();
+								
 							}
 						}	
 					}

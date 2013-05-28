@@ -14,6 +14,7 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import model.ServerInfo;
 import model.User;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JToolBar;
@@ -139,6 +140,7 @@ public class MainWindow extends JFrame {
 	private ViewerPanel viewerPanel;
 	private ProgressPanel progressBarPanel;
 	private ViewerToolbar viewerToolbar;
+	private JMenuItem mntmResetList;
 	/**
 	 * Si i = 0 : mode offline
 	 * i = 1 : mode online
@@ -247,6 +249,10 @@ public class MainWindow extends JFrame {
 		
 		mntmStartstop = new JMenuItem("Start");
 		mnServer.add(mntmStartstop);
+		
+		mntmResetList = new JMenuItem("Reset");
+		mntmResetList.setToolTipText("Delete existing backup server files (the server needs to be stopped)");
+		mnServer.add(mntmResetList);
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		
 		toolBar = new JToolBar();
@@ -513,12 +519,29 @@ public class MainWindow extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					if(!daemonLaunched){
 						startDeamons();
+						mntmResetList.setVisible(false);
 					}else{
 						stopDaemons();
+						mntmResetList.setVisible(true);
 					}
 				}
 			});
-			
+			mntmResetList.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					try{
+						FileUtils.deleteDirectory(new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR));
+						WindowManager.mwLogger.log(Level.INFO, "Server backup files deleted.");
+					}catch(Exception e){
+						WindowManager.mwLogger.log(Level.SEVERE, "Can't clear backup file", e);
+						JOptionPane.showMessageDialog(MainWindow.this,
+							    "Error during the reset.",
+							    "Reset error",
+							    JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
 			mntmDelete.addActionListener(new ActionListener() {
 				
 				@Override

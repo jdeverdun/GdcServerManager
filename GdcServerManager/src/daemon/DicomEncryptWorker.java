@@ -150,7 +150,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 		// On ne le ratjoute que si le workspace du protocole existe prefixe de serverInfo.WORKSPACE_PREFIXE
 		
 		/* /!\  A decommenter dans la version finale */
-		if(new File(getServerInfo().getServerDir() + File.separator + ServerInfo.WORKSPACE_PREFIXE + dicomImage.getProjet().getNom()).exists())
+		if(new File(getServerInfo().getServerDir() + File.separator + ServerInfo.WORKSPACE_PREFIXE + getProjectFolder().getFileName()).exists())
 			encryptDaemon.sendToNiftiDaemon(this);
 	}
 

@@ -220,7 +220,7 @@ public class NiftiDaemon extends Thread{
 
 	public void addDir(Path dir,DicomImage di){
 		if(dir2convert.containsKey(dir)) return;
-		System.out.println("Ajout de : " + dir);
+		WindowManager.mwLogger.log(Level.INFO, "Added dir : "+dir+" to convert");
 		dir2convert.put(dir, di);
 	}
 	

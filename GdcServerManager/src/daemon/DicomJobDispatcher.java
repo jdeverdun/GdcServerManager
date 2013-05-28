@@ -202,10 +202,14 @@ public class DicomJobDispatcher extends Thread{
 								} catch (DicomException e) {
 									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
 									// a cause d'une erreur de copie ne contiennent pas tout les champs
-									if(settings.isDicomDebugMode())
-										WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted");
+									WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted",e);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-									locp.toFile().delete();
+									// on supprime le fichier dans le buffer (si il est present) 
+									if(locp.toFile().exists())
+										locp.toFile().delete();
+									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+										dworker.getNewPath().toFile().delete();
+									}
 									cont=false;
 								}
 							}

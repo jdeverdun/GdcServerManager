@@ -52,6 +52,8 @@ import static java.nio.file.StandardCopyOption.*;
 
 public class DicomWorker extends DaemonWorker {
 
+	private static String DEFAULT_STRING = "Unknown"; // chaine de caractere par defaut quand un champs dicom est vide
+	private static float DEFAULT_FLOAT = -1.0f; // idem pour les float
 	// Attributs
 	protected Path dicomFile;
 	protected DicomJobDispatcher dispatcher;
@@ -72,6 +74,7 @@ public class DicomWorker extends DaemonWorker {
 	protected int acqDate_id;
 	protected int protocol_id;
 	protected int serie_id;
+	private Path newPath;// nouveau chemin vers le fichier (apres deplacement dans repertoire dicom)
 	
 	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException{
 		setDispatcher(pDaemon);
@@ -141,7 +144,14 @@ public class DicomWorker extends DaemonWorker {
 		
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
-		acqDate = getAcquisitionDate();		
+		acqDate = getAcquisitionDate();	
+		if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
+			protocolName = serieName;
+		}else{
+			if(serieName == DEFAULT_STRING && protocolName != DEFAULT_STRING)
+				serieName = protocolName;
+		}
+			
 		
 		// On créé les chemins vers les répertoires
 		Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
@@ -180,7 +190,7 @@ public class DicomWorker extends DaemonWorker {
 		else
 			setSerie_idFromDB(serieFolder.getFileName());
 		
-		Path newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
+		newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
 		// On deplace
 		moveDicomTo(newPath);
@@ -466,10 +476,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0008,1030");
 		}
 		if(prot.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(prot.charAt(0) == ' ')
+		while(prot.length()>1 && prot.charAt(0) == ' ')
 			prot = prot.substring(1);	
+		if(prot.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
 			prot = prot.substring(0,prot.length()-1);	
@@ -488,10 +500,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0010,0010");
 		}
 		if(pname.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(pname.charAt(0) == ' ')
+		while(pname.length()>1 && pname.charAt(0) == ' ')
 			pname = pname.substring(1);	
+		if(pname.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
 			pname = pname.substring(0,pname.length()-1);	
@@ -509,10 +523,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0008,103E");
 		}
 		if(sdesc.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(sdesc.charAt(0) == ' ')
+		while(sdesc.length()>1 && sdesc.charAt(0) == ' ')
 			sdesc = sdesc.substring(1);	
+		if(sdesc.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
 			sdesc = sdesc.substring(0,sdesc.length()-1);
@@ -529,10 +545,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0010,0030");
 		}
 		if(bdate.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(bdate.charAt(0) == ' ')
+		while(bdate.length()>1 && bdate.charAt(0) == ' ')
 			bdate = bdate.substring(1);	
+		if(bdate.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
 			bdate = bdate.substring(0,bdate.length()-1);
@@ -548,10 +566,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0010,0040");
 		}
 		if(psex.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(psex.charAt(0) == ' ')
+		while(psex.length()>1 && psex.charAt(0) == ' ')
 			psex = psex.substring(1);	
+		if(psex.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
 			psex = psex.substring(0,psex.length()-1);
@@ -572,10 +592,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0010,1030");
 		}
 		if(pweight.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(pweight.charAt(0) == ' ')
+		while(pweight.length()>1 && pweight.charAt(0) == ' ')
 			pweight = pweight.substring(1);	
+		if(pweight.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(pweight.length()>1 && pweight.charAt(pweight.length()-1) == ' ')
 			pweight = pweight.substring(0,pweight.length()-1);
@@ -596,10 +618,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0010,1020");
 		}
 		if(psize.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(psize.charAt(0) == ' ')
+		while(psize.length()>1 && psize.charAt(0) == ' ')
 			psize = psize.substring(1);	
+		if(psize.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(psize.length()>1 && psize.charAt(psize.length()-1) == ' ')
 			psize = psize.substring(0,psize.length()-1);
@@ -616,10 +640,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0008,1090");
 		}
 		if(iname.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(iname.charAt(0) == ' ')
+		while(iname.length()>1 && iname.charAt(0) == ' ')
 			iname = iname.substring(1);	
+		if(iname.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
 			iname = iname.substring(0,iname.length()-1);
@@ -629,22 +655,24 @@ public class DicomWorker extends DaemonWorker {
 		return iname;
 	}
 		
-	// Nom de l'IRM
-	public float getSliceLocation() throws DicomException{
+	// localisation de la slice
+	// champs facultatif
+	public float getSliceLocation(){
 		String sl = getTag("0020,1041");
 		if(sl == null){
-			throw new DicomException("Unable to decode DICOM header 0020,1041");
+			return DEFAULT_FLOAT; // comme c'est un champs facultatif on lance pas d'execption
 		}
 		if(sl.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(sl.charAt(0) == ' ')
+		while(sl.length()>1 && sl.charAt(0) == ' ')
 			sl = sl.substring(1);	
+		if(sl.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(sl.length()>1 && sl.charAt(sl.length()-1) == ' ')
 			sl = sl.substring(0,sl.length()-1);
 		// on remplace les caracteres complique par "_"
-		sl = sl.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getSliceLocation : "+sl);
 		return Float.parseFloat(sl);
 	}
@@ -656,10 +684,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0018,1030");
 		}
 		if(pprot.isEmpty())
-			return "Unknown";
+			return DEFAULT_STRING;
 		// On enleve les espace en debut de chaine
-		while(pprot.charAt(0) == ' ')
+		while(pprot.length()>1 && pprot.charAt(0) == ' ')
 			pprot = pprot.substring(1);	
+		if(pprot.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
 			pprot = pprot.substring(0,pprot.length()-1);
@@ -676,10 +706,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0028,0030");
 		}
 		if(ps.isEmpty())
-			return new String[]{"Unknown","Unknown"};
+			return new String[]{DEFAULT_STRING,DEFAULT_STRING};
 		// On enleve les espace en debut de chaine
-		while(ps.charAt(0) == ' ')
+		while(ps.length()>1 && ps.charAt(0) == ' ')
 			ps = ps.substring(1);	
+		if(ps.equals(" "))// si le champs est vide
+			return new String[]{DEFAULT_STRING,DEFAULT_STRING};
 		// on enleve les espaces en fin de chaine
 		while(ps.length()>1 && ps.charAt(ps.length()-1) == ' ')
 			ps = ps.substring(0,ps.length()-1);
@@ -696,15 +728,16 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0018,0080");
 		}
 		if(rt.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(rt.charAt(0) == ' ')
+		while(rt.length()>1 && rt.charAt(0) == ' ')
 			rt = rt.substring(1);	
+		if(rt.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(rt.length()>1 && rt.charAt(rt.length()-1) == ' ')
 			rt = rt.substring(0,rt.length()-1);
 		// on remplace les caracteres complique par "_"
-		rt = rt.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getRepetitionTime : "+rt);
 		return Float.parseFloat(rt);
 	}
@@ -716,15 +749,16 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0018,0081");
 		}
 		if(et.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(et.charAt(0) == ' ')
+		while(et.length()>1 && et.charAt(0) == ' ')
 			et = et.substring(1);	
+		if(et.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(et.length()>1 && et.charAt(et.length()-1) == ' ')
 			et = et.substring(0,et.length()-1);
 		// on remplace les caracteres complique par "_"
-		et = et.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getEchoTime : "+et);
 		return Float.parseFloat(et);
 	}
@@ -736,10 +770,12 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0018,0050");
 		}
 		if(st.isEmpty())
-			return -1.0f;
+			return DEFAULT_FLOAT;
 		// On enleve les espace en debut de chaine
-		while(st.charAt(0) == ' ')
+		while(st.length()>1 && st.charAt(0) == ' ')
 			st = st.substring(1);	
+		if(st.equals(" "))// si le champs est vide
+			return DEFAULT_FLOAT;
 		// on enleve les espaces en fin de chaine
 		while(st.length()>1 && st.charAt(st.length()-1) == ' ')
 			st = st.substring(0,st.length()-1);
@@ -747,6 +783,16 @@ public class DicomWorker extends DaemonWorker {
 		return Float.parseFloat(st);
 	}
 		
+	public Path getNewPath() {
+		return newPath;
+	}
+
+
+	public void setNewPath(Path newPath) {
+		this.newPath = newPath;
+	}
+
+
 	// Date de l'acquisition ex : 20130122
 	public String getAcquisitionDate() throws DicomException{
 		String pdate = getTag("0008,0022");
@@ -754,9 +800,11 @@ public class DicomWorker extends DaemonWorker {
 			throw new DicomException("Unable to decode DICOM header 0008,0022");
 		}
 		if(pdate.isEmpty())
-			return "Unknown";
-		while(pdate.charAt(0) == ' ')
+			return DEFAULT_STRING;
+		while(pdate.length()>1 && pdate.charAt(0) == ' ')
 			pdate = pdate.substring(1);	
+		if(pdate.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
 		// on enleve les espaces en fin de chaine
 		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
 			pdate = pdate.substring(0,pdate.length()-1);

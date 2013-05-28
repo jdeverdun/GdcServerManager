@@ -190,7 +190,6 @@ public class ServerInfo {
 		try {
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
-			System.err.println("Error with params.conf.");
 			WindowManager.mwLogger.log(Level.SEVERE, "Error with params.conf.",e);
 		}
 	}
