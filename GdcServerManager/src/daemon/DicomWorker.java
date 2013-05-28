@@ -145,6 +145,7 @@ public class DicomWorker extends DaemonWorker {
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
 		acqDate = getAcquisitionDate();	
+		// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
 		if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
 			protocolName = serieName;
 		}else{
