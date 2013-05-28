@@ -50,7 +50,7 @@ public class EncryptDaemon extends Thread {
 	
 	@Override
 	public void run() {
-		System.out.println("Encrypter Online.");
+		WindowManager.mwLogger.log(Level.INFO, "Encrypter Online.");
 		// on supprime le fichier backup si il existe (car on l'a deja charge)
 		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
 		if(backupfile.exists())

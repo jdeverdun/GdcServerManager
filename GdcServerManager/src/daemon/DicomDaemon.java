@@ -66,7 +66,7 @@ public class DicomDaemon extends Thread{
 	 * @see java.lang.Thread#run()
 	 */
 	 public void run() { 
-		System.out.println("Dicom Daemon Online.");
+		WindowManager.mwLogger.log(Level.INFO, "Dicom Daemon Online.");
 		// on lance le dispatcher
 		dicomJobDispatcher.start();
 		// puis l'encrypteur

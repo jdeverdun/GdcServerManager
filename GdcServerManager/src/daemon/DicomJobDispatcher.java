@@ -159,7 +159,7 @@ public class DicomJobDispatcher extends Thread{
 	
 	// Methodes
 	public void run(){
-		System.out.println("Dispatcher Online.");
+		WindowManager.mwLogger.log(Level.INFO, "Dispatcher Online.");
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty() && !isStop()){

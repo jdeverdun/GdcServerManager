@@ -35,7 +35,7 @@ public class DecryptDaemon extends Thread {
 	
 	@Override
 	public void run() {
-		System.out.println("Decrypter Online.");
+		WindowManager.mwLogger.log(Level.INFO, "Decrypter Online.");
 		setWaiting(false);
 		while(!isStop()){
 			// check si il y a des donnees a decrypter

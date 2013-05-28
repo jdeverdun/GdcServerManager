@@ -52,7 +52,7 @@ public class NiftiWorker extends DaemonWorker {
 	
 	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
 		if(dimage==null) 
-			System.err.println("Error : sourceDicomImage is NULL in niftiWorker !");
+			WindowManager.mwLogger.log(Level.SEVERE, "Error : sourceDicomImage is NULL in niftiWorker !");
 		setNiftiDaemon(nDaemon);
 		setPath(filename);
 		setServerInfo(getNiftiDaemon().getServerInfo());
@@ -106,8 +106,7 @@ public class NiftiWorker extends DaemonWorker {
 		checkAndMakeDir(serieDir);
 		
 		niftiPath = serieDir;
-		
-		System.out.println("Nifti convert : "+path);
+		WindowManager.mwLogger.log(Level.INFO, "Nifti convert : "+path);
 
 		Process process;
 		try {
@@ -240,7 +239,7 @@ public class NiftiWorker extends DaemonWorker {
 		case NiftiDaemon.FSL:
 			command+=" -n y -g y ";break;
 		default:
-			System.err.println("Unknow nifti format");
+			WindowManager.mwLogger.log(Level.SEVERE, "Unknow nifti format");
 		}
 		if(fourDim)
 			command+=" -4D y ";

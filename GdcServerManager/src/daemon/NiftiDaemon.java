@@ -153,7 +153,7 @@ public class NiftiDaemon extends Thread{
 
 	// Methodes
 	public void run(){
-		System.out.println("Nifti Daemon Online.");
+		WindowManager.mwLogger.log(Level.INFO, "Nifti Daemon Online.");
 		if(getSettings().isServerMode()){
 			// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
 			File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);

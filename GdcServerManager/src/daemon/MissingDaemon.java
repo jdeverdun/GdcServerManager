@@ -42,7 +42,7 @@ public class MissingDaemon extends Thread{
 	}
 	
 	public void run(){
-		System.out.println("Missing Daemon Online");
+		WindowManager.mwLogger.log(Level.INFO, "Missing Daemon Online.");
 		while(!isStop()){
 			try {
 				Thread.sleep(DELAY);

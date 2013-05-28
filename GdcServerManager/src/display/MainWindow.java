@@ -978,6 +978,7 @@ public class MainWindow extends JFrame {
 			FileHandler fh=new FileHandler(logfiledir.toString()+File.separator+WindowManager.PROGRAM_NAME+".log",1000000000,1);// taille max 1 Go
 			fh.setFormatter(new SimpleFormatter());
 			WindowManager.mwLogger.addHandler(fh);
+			WindowManager.mwLogger.setLevel(Level.INFO);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
