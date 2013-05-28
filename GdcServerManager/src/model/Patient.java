@@ -13,6 +13,8 @@ public class Patient implements Serializable{
 	private int id;
 	private Date birthdate;
 	private String sex;
+	private float weight;
+	private float size;
 	private Project project;
 	private String nom;
 	private Set<AcquisitionDate> acquisitionsDates;
@@ -88,6 +90,38 @@ public class Patient implements Serializable{
 
 	public void setSex(String sex) {
 		this.sex = sex;
+	}
+
+
+	/**
+	 * @return the size
+	 */
+	public float getSize() {
+		return size;
+	}
+
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(float size) {
+		this.size = size;
+	}
+
+
+	/**
+	 * @return the weight
+	 */
+	public float getWeight() {
+		return weight;
+	}
+
+
+	/**
+	 * @param f the weight to set
+	 */
+	public void setWeight(float f) {
+		this.weight = f;
 	}
 
 

@@ -25,6 +25,7 @@ import settings.WindowManager;
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
 
+import daemon.tools.nifti.Nifti_Reader;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -47,6 +48,7 @@ public class NiftiWorker extends DaemonWorker {
 	protected Path niftiPath;
 	protected NiftiDaemon niftiDaemon;
 	protected DicomImage sourceDicomImage;
+	protected Nifti_Reader nr;
 	
 	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
 		if(dimage==null) 
@@ -163,6 +165,9 @@ public class NiftiWorker extends DaemonWorker {
 				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
 				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
+				if(nr!=null)
+					nr = null;
+				nr = new Nifti_Reader(finalNiftiPath.toFile());
 				addEntryToDB(finalNiftiPath,"NiftiImage");
 			}
 			// On recupere les noms des fichiers associe aux nifti cree (bval pour dti etc (cf niftiDaemon.suffixe...)
@@ -211,7 +216,7 @@ public class NiftiWorker extends DaemonWorker {
 	private void removeDBEntry(Path fileName) {
 		NiftiImageDAO ndao = new MySQLNiftiImageDAO();
 		try {
-			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 		} catch (SQLException e) {
 			WindowManager.mwLogger.log(Level.WARNING, "removeDBEntry error",e);
@@ -278,7 +283,7 @@ public class NiftiWorker extends DaemonWorker {
 		case "NiftiImage":
 			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			try {
-				dicdao.newNiftiImage(name.getFileName().toString(), sourceDicomImage.getMri_name(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
+				dicdao.newNiftiImage(name.getFileName().toString(), nr.getNSlices(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
 				System.out.println("SQLException with niftiWorker : "+e.toString());

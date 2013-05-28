@@ -11,7 +11,12 @@ public class Serie implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private int id;
 	private String name;
-	private boolean hasNifti;
+	private String mri_name;
+	private float repetitiontime;
+	private float echotime;
+	private float slicethickness;
+	private float voxelwidth;
+	private float voxelheight;
 	private Protocol protocole;
 	private Project projet;
 	private Patient patient;
@@ -90,15 +95,53 @@ public class Serie implements Serializable{
 	public void setAcquistionDate(AcquisitionDate acquistionDate) {
 		this.acquistionDate = acquistionDate;
 	}
-	public boolean doesHaveNifti() {
-		return hasNifti;
+
+	public String getMri_name() {
+		return mri_name;
 	}
 
-	public void setHasNifti(int hasNifti) {
-		if(hasNifti == 0)
-			this.hasNifti = false;
-		else
-			this.hasNifti = true;
+	public void setMri_name(String mri_name) {
+		this.mri_name = mri_name;
+	}
+
+	public float getRepetitiontime() {
+		return repetitiontime;
+	}
+
+	public void setRepetitiontime(float repetitiontime) {
+		this.repetitiontime = repetitiontime;
+	}
+
+	public float getEchotime() {
+		return echotime;
+	}
+
+	public void setEchotime(float echotime) {
+		this.echotime = echotime;
+	}
+
+	public float getSlicethickness() {
+		return slicethickness;
+	}
+
+	public void setSlicethickness(float slicethickness) {
+		this.slicethickness = slicethickness;
+	}
+
+	public float getVoxelwidth() {
+		return voxelwidth;
+	}
+
+	public void setVoxelwidth(float voxelwidth) {
+		this.voxelwidth = voxelwidth;
+	}
+
+	public float getVoxelheight() {
+		return voxelheight;
+	}
+
+	public void setVoxelheight(float voxelheight) {
+		this.voxelheight = voxelheight;
 	}
 
 	public boolean equals(Serie p){

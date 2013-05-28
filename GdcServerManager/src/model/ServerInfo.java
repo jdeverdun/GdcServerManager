@@ -21,6 +21,7 @@ public class ServerInfo {
 
 	public static final String NRI_DICOM_NAME = "NRI-DICOM";
 	public static final String NRI_ANALYSE_NAME = "NRI-ANALYSE";
+	public static final String WORKSPACE_PREFIXE = "NRI-"; // prefixe des workspace "NRI-" ex : "NRI-CRESCENDO"
 	public static final String BACKUP_DIR = "cache"; // Repertoire ou on stock les daemons (fichiers de sauvegarde)
 	private static final String INCOMING_DIR_NAME = "incomingDir";
 	private static final String DICOM_DIR_NAME = "dicomDir";

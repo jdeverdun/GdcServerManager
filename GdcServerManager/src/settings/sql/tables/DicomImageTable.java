@@ -14,7 +14,7 @@ public class DicomImageTable {
 	public final String TNAME = "dicomimage"; // nom de la table
 	private String id;
 	private String name;
-	private String mri_name;
+	private String slicelocation;
 	private String id_project;
 	private String id_patient;
 	private String id_acqdate;
@@ -25,7 +25,7 @@ public class DicomImageTable {
 	public DicomImageTable(){
 		id = "id";
 		name = "name";
-		mri_name = "mri_name";
+		slicelocation = "slicelocation";
 		id_project = "id_project";
 		id_patient = "id_patient";
 		id_acqdate = "id_acqdate";
@@ -57,8 +57,8 @@ public class DicomImageTable {
 		return id;
 	}
 
-	public String getMri_name() {
-		return mri_name;
+	public String getSliceLocation() {
+		return slicelocation;
 	}
 
 	public String getId_serie() {

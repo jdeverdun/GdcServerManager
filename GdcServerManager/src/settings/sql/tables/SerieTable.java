@@ -14,7 +14,12 @@ public class SerieTable {
 	public final String TNAME = "serie"; // nom de la table
 	private String id;
 	private String name;
-	private String hasnifti;
+	private String mri_name;
+	private String repetitiontime;
+	private String echotime;
+	private String slicethickness;
+	private String voxelwidth;
+	private String voxelheight;
 	private String id_project;
 	private String id_patient;
 	private String id_acqdate;
@@ -24,15 +29,20 @@ public class SerieTable {
 	public SerieTable(){
 		id = "id";
 		name = "name";
-		hasnifti = "hasnifti";
+		mri_name = "mri_name";
+		repetitiontime = "repetitiontime";
+		echotime = "echotime";
+		slicethickness = "slicethickness";
+		voxelwidth = "voxelwidth";
+		voxelheight = "voxelheight";
 		id_project = "id_project";
 		id_patient = "id_patient";
 		id_acqdate = "id_acqdate";
 		id_protocol = "id_protocol";
 	}
 
-	public String getHasnifti() {
-		return hasnifti;
+	public String getMri_name() {
+		return mri_name;
 	}
 
 	public String getId_protocol() {
@@ -57,5 +67,28 @@ public class SerieTable {
 
 	public String getId() {
 		return id;
+	}
+
+	/**
+	 * @return the echotime
+	 */
+	public String getEchotime() {
+		return echotime;
+	}
+
+	public String getRepetitiontime() {
+		return repetitiontime;
+	}
+
+	public String getSlicethickness() {
+		return slicethickness;
+	}
+
+	public String getVoxelwidth() {
+		return voxelwidth;
+	}
+
+	public String getVoxelheight() {
+		return voxelheight;
 	}
 }

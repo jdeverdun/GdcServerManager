@@ -40,7 +40,12 @@ public class MySQLSerieDAO implements SerieDAO{
 				Serie serie = new Serie();
 				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
 				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
-				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setMri_name(rset.getString(SQLSettings.TABLES.getSerie().getMri_name()));
+				serie.setRepetitiontime(rset.getFloat(SQLSettings.TABLES.getSerie().getRepetitiontime()));
+				serie.setEchotime(rset.getFloat(SQLSettings.TABLES.getSerie().getEchotime()));
+				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
+				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
+				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
@@ -62,7 +67,7 @@ public class MySQLSerieDAO implements SerieDAO{
 	
 	
 
-	public boolean newSerie(String nom, int hasnifti, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean newSerie(String nom, String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -72,7 +77,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getSerie().TNAME+" values (NULL,'"
-						+ nom + "', "+hasnifti+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
+						+ nom + "','"+mri_name+"',"+repetitiontime+","+echotime+","+slicethickness+","+voxelwidth+","+voxelheight+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
 				
 				return true;
 				
@@ -141,8 +146,14 @@ public class MySQLSerieDAO implements SerieDAO{
 			while(rset.next()){
 				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
 				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
-				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setMri_name(rset.getString(SQLSettings.TABLES.getSerie().getMri_name()));
+				serie.setRepetitiontime(rset.getFloat(SQLSettings.TABLES.getSerie().getRepetitiontime()));
+				serie.setEchotime(rset.getFloat(SQLSettings.TABLES.getSerie().getEchotime()));
+				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
+				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
+				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
+				
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -184,8 +195,13 @@ public class MySQLSerieDAO implements SerieDAO{
 			while(rset.next()){
 				serie.setId(rset.getInt(SQLSettings.TABLES.getSerie().getId()));
 				serie.setName(rset.getString(SQLSettings.TABLES.getSerie().getName()));
-				serie.setHasNifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
+				serie.setMri_name(rset.getString(SQLSettings.TABLES.getSerie().getMri_name()));
+				serie.setRepetitiontime(rset.getFloat(SQLSettings.TABLES.getSerie().getRepetitiontime()));
+				serie.setEchotime(rset.getFloat(SQLSettings.TABLES.getSerie().getEchotime()));
+				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
+				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
+				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -205,14 +221,19 @@ public class MySQLSerieDAO implements SerieDAO{
 	}
 	
 	@Override
-	public boolean updateSerie(int id, String name,int hasnifti, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"',"+SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", "+SQLSettings.TABLES.getSerie().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id_acqdate+", "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id_protocol+" where "+SQLSettings.TABLES.getSerie().getId()+"="+id);
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"'," +
+					""+SQLSettings.TABLES.getSerie().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getSerie().getRepetitiontime()+"="+repetitiontime+", " +
+					""+SQLSettings.TABLES.getSerie().getEchotime()+"="+echotime+", "+SQLSettings.TABLES.getSerie().getSlicethickness()+"="+slicethickness+", " +
+					""+SQLSettings.TABLES.getSerie().getVoxelwidth()+"="+voxelwidth+", "+SQLSettings.TABLES.getSerie().getVoxelheight()+"="+voxelheight+", " +
+					""+SQLSettings.TABLES.getSerie().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id_acqdate+", "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id_protocol+" where " +
+					""+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			System.err.println("Erreur SQL " + e2);

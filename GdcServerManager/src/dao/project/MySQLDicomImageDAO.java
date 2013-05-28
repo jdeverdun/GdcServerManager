@@ -40,7 +40,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				DicomImage dicom = new DicomImage();
 				dicom.setId(rset.getInt(""+SQLSettings.TABLES.getDicomImage().getId()+""));
 				dicom.setName(rset.getString(SQLSettings.TABLES.getDicomImage().getName()));
-				dicom.setMri_name(rset.getString(SQLSettings.TABLES.getDicomImage().getMri_name()));
+				dicom.setSliceLocation(rset.getFloat(SQLSettings.TABLES.getDicomImage().getSliceLocation()));
 				dicom.setSerie(sdao.retrieveSerie(rset.getInt(SQLSettings.TABLES.getDicomImage().getId_serie())));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -63,7 +63,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 	
 	
 
-	public boolean newDicomImage( String nom, String mri_name,  int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean newDicomImage( String nom, float sliceloc,  int project_id, int patient_id, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -73,7 +73,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 				stmt = connection.createStatement();
 
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getDicomImage().TNAME+" values (NULL,'"
-						+ nom + "','" + mri_name + "',  "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
+						+ nom + "'," + sliceloc + ",  "+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+", "+id_serie+")");
 				
 				return true;
 				
@@ -142,7 +142,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			while(rset.next()){
 				dicom.setId(rset.getInt(SQLSettings.TABLES.getDicomImage().getId()));
 				dicom.setName(rset.getString(SQLSettings.TABLES.getDicomImage().getName()));
-				dicom.setMri_name(rset.getString(SQLSettings.TABLES.getDicomImage().getMri_name()));
+				dicom.setSliceLocation(rset.getFloat(SQLSettings.TABLES.getDicomImage().getSliceLocation()));
 				dicom.setSerie(sdao.retrieveSerie(rset.getInt(SQLSettings.TABLES.getDicomImage().getId_serie())));
 				dicom.setProtocole(dicom.getSerie().getProtocole());
 				// instantiation en cascade grace à acquisitiondate
@@ -167,7 +167,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 
 
 	@Override
-	public boolean updateDicomImage(int id, String name, String mri_name, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
+	public boolean updateDicomImage(int id, String name, float sliceloc, int id_project, int id_patient, int id_acqdate, int id_protocol, int id_serie) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -175,7 +175,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getDicomImage().TNAME+" set "+SQLSettings.TABLES.getDicomImage().getName()+"='"+name+"'," +
-					""+SQLSettings.TABLES.getDicomImage().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id_project+", " +
+					""+SQLSettings.TABLES.getDicomImage().getSliceLocation()+"="+sliceloc+", "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id_project+", " +
 							""+SQLSettings.TABLES.getDicomImage().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getDicomImage().getId_acqdate()+"="+id_acqdate+", " +
 									""+SQLSettings.TABLES.getDicomImage().getId_protocol()+"="+id_protocol+", "+SQLSettings.TABLES.getDicomImage().getId_serie()+"="+id_serie+" where "+SQLSettings.TABLES.getDicomImage().getId()+"="+id);
 			return true;

@@ -59,6 +59,14 @@ public class DicomWorker extends DaemonWorker {
 	protected String header;
 	protected String birthdate;
 	protected String sex;
+	protected float size;
+	protected float weight;
+	protected String mri_name;
+	protected float repetitiontime;
+	protected float echotime;
+	protected float slicethickness;
+	protected float voxelwidth;
+	protected float voxelheight;
 	protected int project_id;
 	protected int patient_id;
 	protected int acqDate_id;
@@ -110,7 +118,7 @@ public class DicomWorker extends DaemonWorker {
 		String protocolName = null;
 		String serieName = null;
 		String acqDate = null;
-		
+
 		// On recupere le nom du protocole medical
 		studyName = getStudyDescription();
 		// Si le protocole est null alors le fichier est encore en cours de copie
@@ -121,6 +129,16 @@ public class DicomWorker extends DaemonWorker {
 		patientName = getPatientName();
 		birthdate = getBirthdate();
 		sex = getSex();
+		size = getPatientSize();
+		weight = getPatientWeight();
+		mri_name = getMri_name();
+		repetitiontime = getRepetitionTime();
+		echotime = getEchoTime();
+		slicethickness = getSliceThickness();
+		String[] pspacing = getPixelSpacing();
+		voxelwidth = Float.parseFloat(pspacing[0]);
+		voxelheight = Float.parseFloat(pspacing[1]);
+		
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
 		acqDate = getAcquisitionDate();		
@@ -170,7 +188,7 @@ public class DicomWorker extends DaemonWorker {
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
 		dicomImage.setName(dicomFile.getFileName().toString());
-		dicomImage.setMri_name(getMri_name());
+		dicomImage.setSliceLocation(getSliceLocation());
 		dicomImage.setProjet(new Project(getProject_id()));
 		dicomImage.setPatient(new Patient(getPatient_id()));
 		dicomImage.setProtocole(new Protocol(getProtocol_id()));
@@ -298,7 +316,7 @@ public class DicomWorker extends DaemonWorker {
 		
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
-			Patient p = pdao.retrievePatient(fileName.toString(),this.birthdate,this.sex, getProject_id());
+			Patient p = pdao.retrievePatient(fileName.toString(),this.birthdate,this.sex,this.size,this.weight, getProject_id());
 			setPatient_id(p.getId());
 			cache.getIdPatientList().put(fileName.toString() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {
@@ -353,7 +371,7 @@ public class DicomWorker extends DaemonWorker {
 		case "Patient":
 			PatientDAO patdao = new MySQLPatientDAO();
 			try {
-				patdao.newPatient(name.toString(),this.birthdate,this.sex, getProject_id());
+				patdao.newPatient(name.toString(),this.birthdate,this.sex,this.size, this.weight, getProject_id());
 				setPatient_id(patdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
@@ -383,7 +401,7 @@ public class DicomWorker extends DaemonWorker {
 		case "Serie":
 			SerieDAO sdao = new MySQLSerieDAO();
 			try {
-				sdao.newSerie(name.toString(), 0, getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id());
+				sdao.newSerie(name.toString(), this.mri_name,this.repetitiontime,this.echotime,this.slicethickness,this.voxelwidth,this.voxelheight, getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id());
 				setSerie_id(sdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
@@ -458,7 +476,7 @@ public class DicomWorker extends DaemonWorker {
 		if(prot.contains("^"))
 			prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
 		// on remplace les caracteres complique par "_"
-		prot = prot.replaceAll("[^A-Za-z0-9]" , "_");
+		prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getStudyDescription : "+prot);
 		return prot;
 	}
@@ -478,7 +496,7 @@ public class DicomWorker extends DaemonWorker {
 		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
 			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
-		pname = pname.replaceAll("[^A-Za-z0-9]" , "_");
+		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
 		return pname;
 	}
@@ -499,7 +517,7 @@ public class DicomWorker extends DaemonWorker {
 		while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
 			sdesc = sdesc.substring(0,sdesc.length()-1);
 		// on remplace les caracteres complique par "_"
-		sdesc = sdesc.replaceAll("[^A-Za-z0-9]" , "_");
+		sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
 		return sdesc;
 	}
@@ -519,7 +537,7 @@ public class DicomWorker extends DaemonWorker {
 		while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
 			bdate = bdate.substring(0,bdate.length()-1);
 		// on remplace les caracteres complique par "_"
-		bdate = bdate.replaceAll("[^A-Za-z0-9]" , "_");
+		bdate = bdate.replaceAll("[^A-Za-z0-9]\\." , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
 		return bdate;
 	}
@@ -538,10 +556,58 @@ public class DicomWorker extends DaemonWorker {
 		while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
 			psex = psex.substring(0,psex.length()-1);
 		// on remplace les caracteres complique par "_"
-		psex = psex.replaceAll("[^A-Za-z0-9]" , "_");
+		psex = psex.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getSex : "+psex);
 		return psex;
 	}	
+	
+	/**
+	 * Patient weight
+	 * @return
+	 * @throws DicomException
+	 */
+	public float getPatientWeight() throws DicomException{
+		String pweight = getTag("0010,1030");
+		if(pweight == null){
+			throw new DicomException("Unable to decode DICOM header 0010,1030");
+		}
+		if(pweight.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(pweight.charAt(0) == ' ')
+			pweight = pweight.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(pweight.length()>1 && pweight.charAt(pweight.length()-1) == ' ')
+			pweight = pweight.substring(0,pweight.length()-1);
+		// on remplace les caracteres complique par "_"
+		pweight = pweight.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getPatientWeight : "+pweight);
+		return Float.parseFloat(pweight);
+	}
+	
+	/**
+	 * Patient size
+	 * @return
+	 * @throws DicomException
+	 */
+	public float getPatientSize() throws DicomException{
+		String psize = getTag("0010,1020");
+		if(psize == null){
+			throw new DicomException("Unable to decode DICOM header 0010,1020");
+		}
+		if(psize.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(psize.charAt(0) == ' ')
+			psize = psize.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(psize.length()>1 && psize.charAt(psize.length()-1) == ' ')
+			psize = psize.substring(0,psize.length()-1);
+		// on remplace les caracteres complique par "_"
+		psize = psize.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getPatientSize : "+psize);
+		return Float.parseFloat(psize);
+	}
 	
 	// Nom de l'IRM
 	public String getMri_name() throws DicomException{
@@ -558,9 +624,29 @@ public class DicomWorker extends DaemonWorker {
 		while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
 			iname = iname.substring(0,iname.length()-1);
 		// on remplace les caracteres complique par "_"
-		iname = iname.replaceAll("[^A-Za-z0-9]" , "_");
+		iname = iname.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getMri_name : "+iname);
 		return iname;
+	}
+		
+	// Nom de l'IRM
+	public float getSliceLocation() throws DicomException{
+		String sl = getTag("0020,1041");
+		if(sl == null){
+			throw new DicomException("Unable to decode DICOM header 0020,1041");
+		}
+		if(sl.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(sl.charAt(0) == ' ')
+			sl = sl.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(sl.length()>1 && sl.charAt(sl.length()-1) == ' ')
+			sl = sl.substring(0,sl.length()-1);
+		// on remplace les caracteres complique par "_"
+		sl = sl.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getSliceLocation : "+sl);
+		return Float.parseFloat(sl);
 	}
 		
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
@@ -578,10 +664,89 @@ public class DicomWorker extends DaemonWorker {
 		while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
 			pprot = pprot.substring(0,pprot.length()-1);
 		// on remplace les caracteres complique par "_"
-		pprot = pprot.replaceAll("[^A-Za-z0-9]" , "_");
+		pprot = pprot.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
 		return pprot;
 	}
+	
+	// Taille du pixel en x y
+	public String[] getPixelSpacing() throws DicomException{
+		String ps = getTag("0028,0030");
+		if(ps == null){
+			throw new DicomException("Unable to decode DICOM header 0028,0030");
+		}
+		if(ps.isEmpty())
+			return new String[]{"Unknown","Unknown"};
+		// On enleve les espace en debut de chaine
+		while(ps.charAt(0) == ' ')
+			ps = ps.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(ps.length()>1 && ps.charAt(ps.length()-1) == ' ')
+			ps = ps.substring(0,ps.length()-1);
+		// on split sur "\" pour recup x et y
+		String[] pixelSpacing = ps.split("\\\\");
+		WindowManager.mwLogger.log(Level.FINEST, "getPixelSpacing : "+ps);
+		return pixelSpacing;
+	}
+	
+	// recupere le TR
+	public float getRepetitionTime() throws DicomException{
+		String rt = getTag("0018,0080");
+		if(rt == null){
+			throw new DicomException("Unable to decode DICOM header 0018,0080");
+		}
+		if(rt.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(rt.charAt(0) == ' ')
+			rt = rt.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(rt.length()>1 && rt.charAt(rt.length()-1) == ' ')
+			rt = rt.substring(0,rt.length()-1);
+		// on remplace les caracteres complique par "_"
+		rt = rt.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getRepetitionTime : "+rt);
+		return Float.parseFloat(rt);
+	}
+	
+	// recupere le TR
+	public Float getEchoTime() throws DicomException{
+		String et = getTag("0018,0081");
+		if(et == null){
+			throw new DicomException("Unable to decode DICOM header 0018,0081");
+		}
+		if(et.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(et.charAt(0) == ' ')
+			et = et.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(et.length()>1 && et.charAt(et.length()-1) == ' ')
+			et = et.substring(0,et.length()-1);
+		// on remplace les caracteres complique par "_"
+		et = et.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getEchoTime : "+et);
+		return Float.parseFloat(et);
+	}
+		
+	// Taille du pixel en z
+	public float getSliceThickness() throws DicomException{
+		String st = getTag("0018,0050");
+		if(st == null){
+			throw new DicomException("Unable to decode DICOM header 0018,0050");
+		}
+		if(st.isEmpty())
+			return -1.0f;
+		// On enleve les espace en debut de chaine
+		while(st.charAt(0) == ' ')
+			st = st.substring(1);	
+		// on enleve les espaces en fin de chaine
+		while(st.length()>1 && st.charAt(st.length()-1) == ' ')
+			st = st.substring(0,st.length()-1);
+		WindowManager.mwLogger.log(Level.FINEST, "getSliceThickness : "+st);
+		return Float.parseFloat(st);
+	}
+		
 	// Date de l'acquisition ex : 20130122
 	public String getAcquisitionDate() throws DicomException{
 		String pdate = getTag("0008,0022");
@@ -596,7 +761,7 @@ public class DicomWorker extends DaemonWorker {
 		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
 			pdate = pdate.substring(0,pdate.length()-1);
 		// on remplace les caracteres complique par "_"
-		pdate = pdate.replaceAll("[^A-Za-z0-9]" , "_");
+		pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
 		return pdate;
 	}

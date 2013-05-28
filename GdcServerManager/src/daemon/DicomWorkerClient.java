@@ -136,7 +136,7 @@ public class DicomWorkerClient extends DicomWorker {
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
 		dicomImage.setName(dicomFile.getFileName().toString());
-		dicomImage.setMri_name(getMri_name());
+		dicomImage.setSliceLocation(getSliceLocation());
 		dicomImage.setProjet(new Project(getProject_id()));
 		dicomImage.setPatient(new Patient(getPatient_id()));
 		dicomImage.setProtocole(new Protocol(getProtocol_id()));

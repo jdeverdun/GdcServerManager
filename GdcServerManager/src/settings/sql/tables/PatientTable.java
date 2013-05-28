@@ -16,7 +16,10 @@ public class PatientTable {
 	private String name;
 	private String birthdate;
 	private String sex;
+	private String size;
+	private String weight;
 	private String id_project;
+
 	
 	// Constructeur
 	public PatientTable(){
@@ -25,6 +28,8 @@ public class PatientTable {
 		birthdate = "birthdate";
 		sex = "sex";
 		id_project = "id_project";
+		size = "size";
+		weight = "weight";
 	}
 
 	public String getBirthdate() {
@@ -45,5 +50,33 @@ public class PatientTable {
 
 	public String getId() {
 		return id;
+	}
+
+	/**
+	 * @return the weight
+	 */
+	public String getWeight() {
+		return weight;
+	}
+
+	/**
+	 * @param weight the weight to set
+	 */
+	public void setWeight(String weight) {
+		this.weight = weight;
+	}
+
+	/**
+	 * @return the size
+	 */
+	public String getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(String size) {
+		this.size = size;
 	}
 }

@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import settings.WindowManager;
 
 import model.DicomImage;
+import model.ServerInfo;
 
 import dao.project.DicomImageDAO;
 import dao.project.MySQLDicomImageDAO;
@@ -105,7 +106,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 			case "DicomImage":
 				DicomImageDAO dicdao = new MySQLDicomImageDAO();
 				try {
-					dicdao.newDicomImage(name.toString(),dicomImage.getMri_name(), dicomImage.getProjet().getId(), dicomImage.getPatient().getId(),
+					dicdao.newDicomImage(name.toString(),dicomImage.getSliceLocation(), dicomImage.getProjet().getId(), dicomImage.getPatient().getId(),
 							dicomImage.getAcquistionDate().getId(),dicomImage.getProtocole().getId(),dicomImage.getSerie().getId());
 					dicomImage.setId(dicdao.idmax());
 				} catch (SQLException e) {
@@ -146,10 +147,10 @@ public class DicomEncryptWorker extends DaemonWorker {
 		this.imp = null;
 		// On enleve le worker de la liste des worker et on ajoute
 		// le patient à la liste des patients à convertir en nifti
-		// On ne le ratjoute que si le workspace du protocole existe
+		// On ne le ratjoute que si le workspace du protocole existe prefixe de serverInfo.WORKSPACE_PREFIXE
 		
 		/* /!\  A decommenter dans la version finale */
-		//if(new File(getServerInfo().getServerDir() + "/" + dicomImage.getProjet().getNom()).exists())
+		if(new File(getServerInfo().getServerDir() + File.separator + ServerInfo.WORKSPACE_PREFIXE + dicomImage.getProjet().getNom()).exists())
 			encryptDaemon.sendToNiftiDaemon(this);
 	}
 

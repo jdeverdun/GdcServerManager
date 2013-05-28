@@ -805,7 +805,7 @@ public class FileManager {
                     	if(file.toPath().equals(SystemSettings.SERVER_INFO.getServerDir())){
                     		for(File fi:filesTemp){
                     			for(Project p:UserProfile.CURRENT_USER.getProjects()){
-                    				if(p.getNom().equals(fi.getName())){
+                    				if((ServerInfo.WORKSPACE_PREFIXE+p.getNom()).equals(fi.getName())){
                     					list.add(fi);
                     				}
                     			}

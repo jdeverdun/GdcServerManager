@@ -14,7 +14,7 @@ public class NiftiImageTable {
 	public final String TNAME = "niftiimage"; // nom de la table
 	private String id;
 	private String name;
-	private String mri_name;
+	private String slices;
 	private String id_project;
 	private String id_patient;
 	private String id_acqdate;
@@ -25,7 +25,7 @@ public class NiftiImageTable {
 	public NiftiImageTable(){
 		id = "id";
 		name = "name";
-		mri_name = "mri_name";
+		slices = "slices";
 		id_project = "id_project";
 		id_patient = "id_patient";
 		id_acqdate = "id_acqdate";
@@ -57,11 +57,22 @@ public class NiftiImageTable {
 		return id;
 	}
 
-	public String getMri_name() {
-		return mri_name;
-	}
 
 	public String getId_serie() {
 		return id_serie;
+	}
+
+	/**
+	 * @return the slices
+	 */
+	public String getSlices() {
+		return slices;
+	}
+
+	/**
+	 * @param slices the slices to set
+	 */
+	public void setSlices(String slices) {
+		this.slices = slices;
 	}
 }

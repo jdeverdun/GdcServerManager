@@ -10,7 +10,7 @@ public class NiftiImage implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private int id;
 	private String name;
-	private String mri_name;
+	private int slices;
 	private Project projet;
 	private Patient patient;
 	private AcquisitionDate acquistionDate;
@@ -96,13 +96,13 @@ public class NiftiImage implements Serializable{
 	}
 
 
-	public String getMri_name() {
-		return mri_name;
+	public int getSlice() {
+		return slices;
 	}
 
 
-	public void setMri_name(String mri_name) {
-		this.mri_name = mri_name;
+	public void setSlices(int slices) {
+		this.slices = slices;
 	}
 
 }

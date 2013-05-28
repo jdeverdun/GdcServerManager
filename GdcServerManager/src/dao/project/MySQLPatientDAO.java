@@ -47,6 +47,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
 				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
+				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 				patients.add(pat);
 			}
@@ -64,7 +66,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	
 	
 
-	public boolean newPatient( String nom,String birthdate, String sex, int project_id) throws SQLException {
+	public boolean newPatient( String nom,String birthdate, String sex,float size,float weight, int project_id) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -74,7 +76,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getPatient().TNAME+" values (NULL,'"
-						+ nom + "','"+birthdate+"','"+sex+"', "+project_id+")");
+						+ nom + "','"+birthdate+"','"+sex+"',"+size+","+weight+", "+project_id+")");
 				
 				return true;
 				
@@ -149,6 +151,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
 				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
+				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
@@ -166,7 +170,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	}
 	
 	@Override
-	public Patient retrievePatient(String name,String birthdate,String sex, int project_id) throws SQLException {
+	public Patient retrievePatient(String name,String birthdate,String sex,float size,float weight, int project_id) throws SQLException {
 		Patient pat = new Patient();
 		ResultSet rset = null;
 		Statement stmt = null;
@@ -186,6 +190,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
 				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
+				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
@@ -202,7 +208,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	}
 
 	@Override
-	public boolean updatePatient(int id, String name, String birthdate, String sex, int id_project) throws SQLException {
+	public boolean updatePatient(int id, String name, String birthdate, String sex,float size,float weight, int id_project) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -210,7 +216,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection = SQLSettings.PDS.getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getPatient().TNAME+" set "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"',"+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"'," +
-					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
+					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getSize()+"="+size+", "+SQLSettings.TABLES.getPatient().getWeight()+"="+weight+", "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

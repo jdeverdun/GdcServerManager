@@ -13,7 +13,7 @@ public class DicomImage implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private int id;
-	private String mri_name;
+	private float slicelocation;
 	private Project projet;
 	private Patient patient;
 	private AcquisitionDate acquistionDate;
@@ -106,11 +106,11 @@ public class DicomImage implements Serializable{
 		in = null;
 		return key.equals("DICM");
 	}
-	public String getMri_name() {
-		return mri_name;
+	public float getSliceLocation() {
+		return slicelocation;
 	}
-	public void setMri_name(String mri_name) {
-		this.mri_name = mri_name;
+	public void setSliceLocation(float sliceloc) {
+		this.slicelocation = sliceloc;
 	}
 
 }
