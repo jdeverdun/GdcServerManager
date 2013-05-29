@@ -472,6 +472,27 @@ public class DicomWorker extends DaemonWorker {
 	    	return false;
 	}
 	
+	// Renvoi le ntag specifie par tag sous forme d'une chaine de caractere
+	public String getCustomTag(String tag) throws DicomException{
+		String prot = getTag(tag);
+		if(prot == null){
+			throw new DicomException("Unable to decode DICOM header "+tag);
+		}
+		if(prot.isEmpty())
+			return DEFAULT_STRING;
+		// On enleve les espace en debut de chaine
+		while(prot.length()>1 && prot.charAt(0) == ' ')
+			prot = prot.substring(1);	
+		if(prot.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
+		// on enleve les espaces en fin de chaine
+		while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
+			prot = prot.substring(0,prot.length()-1);	
+		// on remplace les caracteres complique par "_"
+		prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getCustomTag : "+tag);
+		return prot;
+	}
 	
 	// Renvoi le nom du protocole medical
 	public String getStudyDescription() throws DicomException{
