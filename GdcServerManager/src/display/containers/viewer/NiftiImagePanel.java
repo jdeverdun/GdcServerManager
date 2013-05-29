@@ -31,7 +31,10 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	public static final int AXIAL = 1;
 	
 	private ImagePlus niftiImage = null;
+	private ImagePlus overlayImage = null;
+	private float alphaOverlay; // transparence de l'overlay
 	private BufferedImage image = null; // on stock l'image courante
+	private BufferedImage overlay; // on stock l'image de l'overlay courant (slice courante)
 	private ViewerPanel viewer = null;
 	private boolean isMousePressed = false;
 	private int slice = 1;
@@ -46,6 +49,10 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	private double displayScaleFactor = 1d;
 	private Dimension offsets; // quand on est en mode keepRatio les offsets
 	private double[] coefficients; // coefficient y = a + bx (calibration)
+
+
+
+
 	
     /**
      * @wbp.parser.constructor
@@ -84,6 +91,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     }
    
     public void init(){
+    	alphaOverlay = 0.5f;
     	setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     	setBackground(Color.BLACK);
        	isMousePressed = false;
@@ -105,12 +113,19 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		coefficients = niftiImage.getCalibration().getCoefficients();
 		offsets = new Dimension(0,0);
 		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
+		overlayImage = null;
 		addMouseMotionListener(this);
        	addMouseListener(this);
        	addMouseWheelListener(this);
        	addComponentListener(this);
 	}
 
+	public void setOverlayImage(ImagePlus overlay){
+		this.overlayImage = overlay;
+		this.overlayImage.setSlice(getSlice());
+		this.overlay = this.overlayImage.getBufferedImage();
+	}
+	
 	public int getSlice() {
 		return slice;
 	}
@@ -120,8 +135,12 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		if(niftiImage!=null){
 			niftiImage.setSlice(this.slice);
 			image = niftiImage.getBufferedImage();
-			repaint();
+			if(overlayImage!=null){
+				overlayImage.setSlice(this.slice);
+				overlay = overlayImage.getBufferedImage();
+			}
 			
+			repaint();
 		}
 	}
 
@@ -179,6 +198,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
      */
     public void paintComponent(Graphics g) {
         super.paintComponent(g); //paint background
+        Graphics2D g2d = (Graphics2D) g.create();
         if (niftiImage != null) { //there is a picture: draw it
             int height = this.getSize().height;
             int width = this.getSize().width;      
@@ -205,26 +225,34 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
                 int y = (heightloc - scaleHeight) / 2;
                 offsets.setSize(x, y);
 
-                g.drawImage(image,x,y, scaleWidth, scaleHeight, this);
+                g2d.drawImage(image,x,y, scaleWidth, scaleHeight, this);
+
+
+                if(overlayImage!=null){
+                    int rule = AlphaComposite.SRC_OVER;
+                    Composite comp = AlphaComposite.getInstance(rule , alphaOverlay );
+					g2d.setComposite(comp);
+					g2d.drawImage(overlay, x,y, scaleWidth, scaleHeight, this);
+                }
             }else{
-            	g.drawImage(image,0,0, width*zoom, height*zoom, this);
+            	g2d.drawImage(image,0,0, width*zoom, height*zoom, this);
             }
             if(showCrosshair && currentLocation!=null){
-            	g.setColor(new Color(255,140,0));
+            	g2d.setColor(new Color(255,140,0));
             	if(orientation != Plan.SAGITTAL)
-            		g.drawString("L", offsets.width+10, getHeight()-offsets.height-20);
+            		g2d.drawString("L", offsets.width+10, getHeight()-offsets.height-20);
             	else
-            		g.drawString("P", getWidth()-offsets.width-20, getHeight()-offsets.height-20);
+            		g2d.drawString("P", getWidth()-offsets.width-20, getHeight()-offsets.height-20);
             	//System.out.println(orientation+"@@"+imageCurrentLocation.x+"-"+imageCurrentLocation.y+"-"+getSlice());
-            	g.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
-            	g.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));
+            	g2d.drawLine((int)Math.round(currentLocation.getX()), 0, (int) Math.round(currentLocation.getX()), getHeight());
+            	g2d.drawLine(0, (int) Math.round(currentLocation.getY()), getWidth(), (int) Math.round(currentLocation.getY()));
             }
         }
     }
 
     /**
      * Recupere la valeur du pixel p pour la slice courrante
-     * qunad on est pas en AXIAL les y sont inverse attention
+     * quand on est pas en AXIAL les y sont inverse attention
      * @param p
      */
     public double getValueAt(Point p){
@@ -243,6 +271,37 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 32:
     		FloatProcessor fp = (FloatProcessor) niftiImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    		else
+    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    	default:
+    		return -1;
+    	}
+    	
+    }
+    
+    /**
+     * Recupere la valeur du pixel p pour la slice courrante pour l'overlay
+     * quand on est pas en AXIAL les y sont inverse attention
+     * @param p
+     */
+    public double getOverlayValueAt(Point p){
+    	switch(overlayImage.getBitDepth()){
+    	case 8:
+    		ByteProcessor bp = (ByteProcessor) overlayImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    	case 16:
+    		ShortProcessor sp = (ShortProcessor) overlayImage.getProcessor();
+    		if(orientation != Plan.AXIAL)
+    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    	case 32:
+    		FloatProcessor fp = (FloatProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
     			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     		else
@@ -521,6 +580,16 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 
 	public double getVoxelValue() {
 		return getValueAt(imageCurrentLocation);
+	}
+	
+	public double getVoxelOverlayValue() {
+		return getOverlayValueAt(imageCurrentLocation);
+	}
+
+	public void resetOverlay() {
+		overlayImage = null;
+		overlay = null;
+		repaint();
 	}
 
 

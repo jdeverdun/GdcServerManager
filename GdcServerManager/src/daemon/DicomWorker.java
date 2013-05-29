@@ -129,7 +129,10 @@ public class DicomWorker extends DaemonWorker {
 			prepareToStop();
 			return;
 		}	
-		patientName = getPatientName();
+		if(getServerInfo().getPpid().contains(studyName))
+			patientName = getPatientId();
+		else
+			patientName = getPatientName();
 		birthdate = getBirthdate();
 		sex = getSex();
 		size = getPatientSize();
@@ -513,6 +516,28 @@ public class DicomWorker extends DaemonWorker {
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
+		return pname;
+	}
+	
+	// Nom du patient
+	public String getPatientId() throws DicomException{
+		String pname = getTag("0010,0020");
+		if(pname == null){
+			throw new DicomException("Unable to decode DICOM header 0010,0020");
+		}
+		if(pname.isEmpty())
+			return DEFAULT_STRING;
+		// On enleve les espace en debut de chaine
+		while(pname.length()>1 && pname.charAt(0) == ' ')
+			pname = pname.substring(1);	
+		if(pname.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
+		// on enleve les espaces en fin de chaine
+		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+			pname = pname.substring(0,pname.length()-1);	
+		// on remplace les caracteres complique par "_"
+		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getPatientId : "+pname);
 		return pname;
 	}
 	

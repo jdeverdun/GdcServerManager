@@ -326,4 +326,34 @@ public class InformationViewer extends JPanel {
 	public ALUT getCurrentLUT() {
 		return (ALUT) comboBoxLUT.getSelectedItem();
 	}
+
+
+	/**
+	 * Params pour les spinners associes a l'overlay
+	 * @param minMax
+	 */
+	public void setOverlaySpinnerParams(double[] minMax) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	/**
+	 * LUT de l'overlay
+	 * @return
+	 */
+	public ALUT getCurrentOverlayLUT() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	/**
+	 * Nom du fichier d'overlay
+	 * @param filename
+	 */
+	public void setOverlayFilename(String filename) {
+		// TODO Auto-generated method stub
+		
+	}
 }

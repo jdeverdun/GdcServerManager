@@ -203,7 +203,9 @@ public class NiftiDaemon extends Thread{
 									WindowManager.mwLogger.log(Level.SEVERE, "Can't clean bugged worker",e1);
 								}
 								saveBackup();
-								throw e;// A VOIR
+								// on fait crasher le daemon car si on arrive la c'est qu'il y a une erreur 
+								// dans le code
+								throw e;
 							}
 						}
 					}else{

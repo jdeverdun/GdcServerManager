@@ -70,6 +70,19 @@ public class EncryptDaemon extends Thread {
 			if(isStop())
 				return;
 			setWaiting(false);
+			// on s'assure que le niftidaemon est online avant de lancer le traitement
+			// afin d'eviter au maximum les erreurs
+			// on attend le retour online du daemon pour continuer
+			while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(isStop()){
+					break;
+				}
+			}
 			// on lance l'encryptage du fichier
 			dEncryptWorker = new DicomEncryptWorker(this, (Path)dicomToEncrypt.pop(), (DicomImage)dicomImageToEncrypt.pop());
 			dEncryptWorker.start();  

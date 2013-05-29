@@ -134,4 +134,18 @@ public class DBCache {
 	public void setIdToSerieNameList(HashMap<Integer, String> idToSerieNameList) {
 		this.idToSerieNameList = idToSerieNameList;
 	}
+
+	public void clear() {
+		rkeyList.clear();
+		idProjectList.clear();
+		idPatientList.clear();
+		idAcqDateList.clear();
+		idProtocolList.clear();
+		idSerieList.clear();
+		idToProjectNameList.clear();
+		idToPatientNameList.clear();
+		idToAcqDateNameList.clear();
+		idToProtocolNameList.clear();
+		idToSerieNameList.clear();
+	}
 }

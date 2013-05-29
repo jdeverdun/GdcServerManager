@@ -669,6 +669,8 @@ public class FileManager {
 				}
 			}
 		}
+		// on vide le cache pour eviter des erreurs issue de decalage db // cache
+		SystemSettings.SERVER_INFO.getDbCache().clear();
 	}
 	/**
      * Deplace les fichiers / repertoire selectionnees vers le dossier dir

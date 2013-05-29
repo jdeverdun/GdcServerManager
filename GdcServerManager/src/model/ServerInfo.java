@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -28,6 +29,9 @@ public class ServerInfo {
 	private static final String NIFTI_DIR_NAME = "niftiDir";
 	private static final String TEMP_DIR_NAME = "tempDir";
 	private static final String SERVER_DIR_NAME = "serverDir";
+	// fichier contenant la liste des projets pour lesquels il faut utiliser le patient ID a la place du Patient name
+	// le fichier contient un nom de projet par ligne
+	private static final String PPID_FILE = "projectsId.conf";
 	public static String CONF_FILE = "params.conf";
 	// Attributs
 	private Path incomingDir; // dossier des dicom en vrac
@@ -36,7 +40,7 @@ public class ServerInfo {
 	private Path tempDir; // dossier temporaire, utilise surtout pour la conversion nifti (decryptage fichier)
 	private Path serverDir; // dossier racine du serveur
 	private DBCache dbCache; // cache de donnees de la bdd
-	
+	private HashSet<String> ppid; //set contenant la liste des projets pour lesquels il faut utiliser l'id du patient au lieu du name
 	
 	// Constructeurs
 	public ServerInfo(){
@@ -46,6 +50,11 @@ public class ServerInfo {
 		setTempDir(null);
 		setServerDir(null);
 		dbCache = new DBCache();
+		try {
+			setProjectWithPatientId();
+		} catch (IOException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could not load "+PPID_FILE,e);
+		}
 	}
 	
 	public ServerInfo(String inc, String dicom, String nifti,String temp,String serv){
@@ -55,6 +64,11 @@ public class ServerInfo {
 		setTempDir(temp);
 		setServerDir(serv);
 		dbCache = new DBCache();
+		try {
+			setProjectWithPatientId();
+		} catch (IOException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could not load "+PPID_FILE,e);
+		}
 	}
 	
 	
@@ -84,6 +98,11 @@ public class ServerInfo {
 			saveConfiguration();
 		}
 		dbCache = new DBCache();
+		try {
+			setProjectWithPatientId();
+		} catch (IOException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could not load "+PPID_FILE,e);
+		}
 	}
 
 
@@ -115,6 +134,14 @@ public class ServerInfo {
 		buildIfNotExist(this.niftiDir);
 	}
 
+	public HashSet<String> getPpid() {
+		return ppid;
+	}
+
+	public void setPpid(HashSet<String> ppid) {
+		this.ppid = ppid;
+	}
+
 	public DBCache getDbCache() {
 		return dbCache;
 	}
@@ -126,7 +153,6 @@ public class ServerInfo {
 	public Path getServerDir() {
 		return serverDir;
 	}
-	
 	public void setServerDir(String serv){
 		this.serverDir = Paths.get(serv);
 		if(WindowManager.MAINWINDOW!=null && WindowManager.MAINWINDOW.getFileTreeDist()!=null){
@@ -168,7 +194,7 @@ public class ServerInfo {
 					String[] elem = s.split("=");
 					params.put(elem[0], elem[1]);
 				}else{
-					System.out.println("Error with params.conf.");
+					WindowManager.mwLogger.log(Level.SEVERE,"Error with params.conf");
 				}
 			}
 		} catch (IOException e) {
@@ -201,6 +227,25 @@ public class ServerInfo {
 	public void writeSmallTextFile(List<String> aLines, String aFileName) throws IOException {
 		Path path = Paths.get(aFileName);
 		Files.write(path, aLines, StandardCharsets.UTF_8);
+	}
+	
+	/**
+	 * Recupere depuis le fichier PPID_FILE la liste des projets 
+	 * pour lesquels utiliser le patientid au lieu du patientname
+	 * On le cree si il n'existe pas 
+	 * @throws IOException
+	 */
+	private void setProjectWithPatientId() throws IOException{
+		ppid = new HashSet<String>();
+		File fi = new File(SystemSettings.APP_DIR+File.separator+PPID_FILE);
+		if(fi.exists()){
+			List<String> lines = readSmallTextFile(SystemSettings.APP_DIR+File.separator+PPID_FILE);
+			for(String s:lines){
+				ppid.add(s);
+			}
+		}else{
+			fi.createNewFile();
+		}
 	}
 	
 	/**

@@ -53,6 +53,9 @@ public class ViewerPanel extends JPanel{
 
 	// Attributs
 	private Nifti_Reader niftiAxial;
+	private Nifti_Reader niftiOverlayAxial; // nifti de l'overlay
+	private int rotateCheck;// le rotate qu'on a fait sur le nifti axial
+	private int tempCheckRotate; //variable temporaire pour savoir le resultat du dernier checkandrotate lance
 	private int[] coord; // coordonnee actuelle du pointeur (x,y,z)
 	private CoordinateMapper[] coordinateMapper;
 	private NiftiImagePanel axialPanel;//XY
@@ -63,6 +66,7 @@ public class ViewerPanel extends JPanel{
 	private JSplitPane splitLeft;
 	private JSplitPane splitLeftRight;
 	private LutLoader lutLoader; // loader qui permet de changer de colormap
+
 	
 	public ViewerPanel(){
 		setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -210,6 +214,7 @@ public class ViewerPanel extends JPanel{
 		try{
 			niftiAxial = new Nifti_Reader(path.toFile());
 			Nifti_Reader nr = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
+			rotateCheck = tempCheckRotate;
 			if((nr == null || niftiAxial.getProperty("coors")==null) && niftiAxial!=null){
 				// si le nifti a pas un format correct on affiche un warning
 				SwingUtilities.invokeLater(new Runnable() {
@@ -250,7 +255,7 @@ public class ViewerPanel extends JPanel{
 			getCoronalPanel().setNiftiImage(niftiCoro);
 			getAxialPanel().setNiftiImage(niftiAxial);
 			getSagittalPanel().setNiftiImage(niftiSag);
-			
+			//getAxialPanel().setOverlayImage(new Nifti_Reader(new File("C:/Users/Mobilette/Downloads/wmh_regT12.nii")));
 			
 			// on met a jours les coord actuelles
 			coord[0] = getSagittalPanel().getSlice();
@@ -261,7 +266,6 @@ public class ViewerPanel extends JPanel{
 			ImageStack is = niftiAxial.getImageStack();
 			double min = -Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
-			LookUpTable lut = niftiAxial.createLut();
 
 			max = niftiAxial.getDisplayRangeMax();
 			min = niftiAxial.getDisplayRangeMin();
@@ -271,6 +275,7 @@ public class ViewerPanel extends JPanel{
 			
 			//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 			//niftiAxial.show();
+			openOverlay(Paths.get("C:/Users/Mobilette/Downloads/wmh_regT12.nii"));
 			revalidate();
 	
 			return true;
@@ -290,8 +295,144 @@ public class ViewerPanel extends JPanel{
 		}
 	}
 
+	/**
+	 * Ouvre un overlay si il a la meme taille que l'image charge et si l'image est deja charge
+	 * @param path
+	 * @return
+	 */
+	public boolean openOverlay(Path path) {
+		if(niftiAxial == null)
+			return false;
+		if(niftiOverlayAxial!=null)
+			resetOverlay();
+		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
+			return false;
+		try{
+			niftiOverlayAxial = new Nifti_Reader(path.toFile());
+			Nifti_Reader nr = checkAndRotate(niftiOverlayAxial); // on verifie  que le "point zero" est en bas a gauche
+			if((nr == null || niftiOverlayAxial.getProperty("coors")==null) && niftiOverlayAxial!=null){
+				// si on a pas reussi parceque le header du nifti n'est pas complet, on applique la meme rotation que
+				// pour l'image originale
+				niftiOverlayAxial = rotate(niftiOverlayAxial,rotateCheck); 
+				// si le nifti a pas un format correct on affiche un warning
+				/*SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(ViewerPanel.this,
+							    "Overlay has incorrect header ... using image information",
+							    "Openning error",
+							    JOptionPane.WARNING_MESSAGE);
+					}
+				});*/
+				WindowManager.mwLogger.log(Level.WARNING,"Overlay has incorrect header ... using image information");
+			}else{
+				niftiOverlayAxial = nr;
+				nr = null;
+			}
+			// on verifie que les dimensions sont identiques a celles de l'image affiche
+			// on applique la colormap par defaut
+			if(niftiOverlayAxial.getWidth()!=niftiAxial.getWidth() || niftiOverlayAxial.getHeight()!=niftiAxial.getHeight() 
+					|| niftiOverlayAxial.getNSlices()!=niftiAxial.getNSlices()){
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(ViewerPanel.this,
+							    "Overlay and image have different sizes.",
+							    "Openning error",
+							    JOptionPane.WARNING_MESSAGE);
+					}
+				});
+				WindowManager.mwLogger.log(Level.SEVERE,"Overlay and image have different sizes.");
+				return false;
+			}
+			lutLoader.run(niftiOverlayAxial, infoViewer.getCurrentOverlayLUT());
+
+			infoViewer.setOverlayFilename(path.getFileName().toString());
+			// on update le mapper
+			coordinateMapper = (CoordinateMapper[]) niftiOverlayAxial.getProperty("coors");	
+			//niftiAxial.setSlice(Math.round(niftiAxial.getNSlices()/2));
+			//niftiAxial.setSlice(40);
+			Slicer slicer = new Slicer(niftiOverlayAxial);
+			ImagePlus niftiOverlayCoro = slicer.flip(false, true, "Top");
+			ImagePlus niftiOverlaySag = slicer.flip(false, true, "Left");
+
+			getCoronalPanel().setOverlayImage(niftiOverlayCoro);
+			getAxialPanel().setOverlayImage(niftiOverlayAxial);
+			getSagittalPanel().setOverlayImage(niftiOverlaySag);
+
+			
+			// on calcul les min et max de l'image
+			double min = -Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+
+			max = niftiOverlayAxial.getDisplayRangeMax();
+			min = niftiOverlayAxial.getDisplayRangeMin();
+			// update infoViewer a partir des donnees du plan axial
+			infoViewer.setOverlaySpinnerParams(new double[]{min,max});
+			
+			revalidate();
 	
+			return true;
+		}catch(final Exception e){
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(ViewerPanel.this,
+						    "Exception : "+e.toString(),
+						    "Openning error",
+						    JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
+	/**
+	 * Tourne l'image en fonction du code rotation (0: ne tourne pas, 1: flip vertical, 2: flip vertical
+	 * et horizontal, 3: fliphorizontal)
+	 * @param overlay
+	 * @param rotation
+	 * @return
+	 */
+	private Nifti_Reader rotate(Nifti_Reader overlay,
+			int rotation) {
+		Nifti_Reader nr = (Nifti_Reader) overlay.clone();
+		ImageStack is;
+		switch(rotation){
+		case 0:
+			return nr;
+		case 1:
+			is = overlay.getImageStack();
+			for(int i = 1 ; i <= overlay.getNSlices();i++){
+				is.getProcessor(i).flipVertical();
+			}
+			nr.setStack(is);
+			return nr;
+		case 2:
+			is = overlay.getImageStack();
+			for(int i = 1 ; i <= overlay.getNSlices();i++){
+				is.getProcessor(i).flipVertical();
+				is.getProcessor(i).flipHorizontal();
+			}
+			nr.setStack(is);
+			return nr;
+		case 3:
+			is = overlay.getImageStack();
+			for(int i = 1 ; i <= overlay.getNSlices();i++){
+				is.getProcessor(i).flipHorizontal();
+			}
+			nr.setStack(is);
+			return nr;
+		default:
+			WindowManager.mwLogger.log(Level.SEVERE,"Unknow rotation code");
+			return null;
+		}
+	}
+
 	/**
 	 * Verifie  si l'image est bien positionne (c a d point de coordonnee minimale 
 	 * en X Y en bas a gauche de l'image). Si ce n'est pas le cas on fait les flip en consequence
@@ -299,37 +440,23 @@ public class ViewerPanel extends JPanel{
 	 * @return
 	 */
 	private Nifti_Reader checkAndRotate(Nifti_Reader im) {
-		Nifti_Reader nr = (Nifti_Reader) im.clone();
 		Object prop = im.getProperty("coors");
-		if (prop == null) return nr;
+		if (prop == null){tempCheckRotate = 0;return rotate(im, tempCheckRotate);}
 
 		CoordinateMapper[] mapper = (CoordinateMapper[] ) prop;
 		// on test les 3 position mauvaises (en haut a gauche / droite, et en bas a droite)
 		if(mapper[mapper.length-1].getX(1, 1, 1)<0 && mapper[mapper.length-1].getY(1, 1, 1)<0){
-			ImageStack is = im.getImageStack();
-			for(int i = 1 ; i <= im.getNSlices();i++){
-				is.getProcessor(i).flipVertical();
-			}
-			nr.setStack(is);
+			tempCheckRotate = 1;
 		}else{
 			if(mapper[mapper.length-1].getX(im.getProcessor().getWidth()-1, 1, 1)<0 && mapper[mapper.length-1].getY(im.getProcessor().getWidth()-1, 1, 1)<0){
-				ImageStack is = im.getImageStack();
-				for(int i = 1 ; i <= im.getNSlices();i++){
-					is.getProcessor(i).flipVertical();
-					is.getProcessor(i).flipHorizontal();
-				}
-				nr.setStack(is);
+				tempCheckRotate = 2;
 			}else{
 				if(mapper[mapper.length-1].getX(im.getProcessor().getWidth()-1, im.getProcessor().getHeight()-1, 1)<0 && mapper[mapper.length-1].getY(im.getProcessor().getWidth()-1, im.getProcessor().getHeight()-1, 1)<0){
-					ImageStack is = im.getImageStack();
-					for(int i = 1 ; i <= im.getNSlices();i++){
-						is.getProcessor(i).flipHorizontal();
-					}
-					nr.setStack(is);
+					tempCheckRotate = 3;
 				}
 			}
 		}
-		return nr;
+		return rotate(im, tempCheckRotate);
 	}
 
 	/**
@@ -341,6 +468,16 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().reset();
 		getSagittalPanel().reset();
 		getAxialPanel().reset();
+	}
+	
+	/**
+	 * Ferme l'overlay actuellement ouvert
+	 */
+	public void resetOverlay(){
+		niftiOverlayAxial = null;
+		getCoronalPanel().resetOverlay();
+		getSagittalPanel().resetOverlay();
+		getAxialPanel().resetOverlay();
 	}
 	public static void main(String[] args){
 		ViewerPanel v = new ViewerPanel();
