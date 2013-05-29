@@ -69,8 +69,6 @@ public class NiftiDaemon extends Thread{
 		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
-		if(getSettings().isServerMode())
-			loadBackup();
 	}
 
 	public NiftiDaemon(ServerInfo si){
@@ -78,8 +76,6 @@ public class NiftiDaemon extends Thread{
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
-		if(getSettings().isServerMode())
-			loadBackup();
 	}
 	
 	// format 
@@ -89,8 +85,6 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
-		if(getSettings().isServerMode())
-			loadBackup();
 	}	
 	
 	/**
@@ -155,6 +149,8 @@ public class NiftiDaemon extends Thread{
 	public void run(){
 		WindowManager.mwLogger.log(Level.INFO, "Nifti Daemon Online.");
 		if(getSettings().isServerMode()){
+			// on charge le backup
+			loadBackup();
 			// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
 			File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
 			if(backupfile.exists())
@@ -190,14 +186,32 @@ public class NiftiDaemon extends Thread{
 						// si ce n'est pas le cas on
 						if(!isDirFullyEncrypted(path)) 
 							continue;
-						NiftiWorker nworker = new NiftiWorker(this, path,dir2convert.get(path));
-						nworker.start();
+						NiftiWorker nworker = null;
+						try{
+							nworker = new NiftiWorker(this, path,dir2convert.get(path));
+							nworker.start();
+							// on enleve le repertoire qu'on vient de convertir de la liste
+							it.remove();
+						}catch(Exception e){// on securise le process 
+							WindowManager.mwLogger.log(Level.SEVERE, "Critical error during nifti conversion",e);
+							if(nworker!=null){
+								try {
+									nworker.clean();
+									WindowManager.mwLogger.log(Level.INFO, "Bugged worker cleaned");
+								} catch (IOException e1) {
+									e1.printStackTrace();
+									WindowManager.mwLogger.log(Level.SEVERE, "Can't clean bugged worker",e1);
+								}
+								saveBackup();
+								throw e;// A VOIR
+							}
+						}
 					}else{
 						NiftiWorkerClient nworker = new NiftiWorkerClient(this, path,dir2convert.get(path));
 						nworker.start();
+						// on enleve le repertoire qu'on vient de convertir de la liste
+						it.remove();
 					}
-					// on enleve le repertoire qu'on vient de convertir de la liste
-					it.remove();
 				}
 			}
 		}

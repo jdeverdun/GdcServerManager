@@ -44,13 +44,14 @@ public class EncryptDaemon extends Thread {
 		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
-		loadBackup();
 	}
 	
 	
 	@Override
 	public void run() {
 		WindowManager.mwLogger.log(Level.INFO, "Encrypter Online.");
+		// on charge le backup
+		loadBackup();
 		// on supprime le fichier backup si il existe (car on l'a deja charge)
 		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
 		if(backupfile.exists())
@@ -203,13 +204,19 @@ public class EncryptDaemon extends Thread {
 			}else{
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
 				WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
+				// on attend tant que le nifti daemon n'est pas online
 				while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					if(isStop()){
+						break;
+					}
 				}
+				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
+						SystemSettings.NIFTI_DAEMON.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}
 		}
 		dEncryptWorker = null;

@@ -126,7 +126,7 @@ public class NiftiWorkerClient extends NiftiWorker {
 		
 		niftiPath = serieDir;
 		
-		System.out.println("Nifti convert : "+path);
+		WindowManager.mwLogger.log(Level.INFO,"Nifti convert : "+path);
 
 		Process process;
 		try {

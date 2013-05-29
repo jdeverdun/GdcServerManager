@@ -86,8 +86,7 @@ public class DicomDaemon extends Thread{
 		        try {
 		            key = watcher.take();
 		        } catch (Exception x) {
-		        	System.out.println("Exception with DicomDaemon : "+x.toString());
-		        	WindowManager.mwLogger.log(Level.WARNING, "Exceptino with DicomDaemon",x);
+		        	WindowManager.mwLogger.log(Level.WARNING, "Exception with DicomDaemon",x);
 		            return;
 		        }
 		        for (WatchEvent<?> event: key.pollEvents()) {

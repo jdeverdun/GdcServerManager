@@ -49,6 +49,8 @@ public class NiftiWorker extends DaemonWorker {
 	protected NiftiDaemon niftiDaemon;
 	protected DicomImage sourceDicomImage;
 	protected Nifti_Reader nr;
+	private Path tempDicomPath;
+	private Path tempNiftiPath;
 	
 	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
 		if(dimage==null) 
@@ -123,8 +125,6 @@ public class NiftiWorker extends DaemonWorker {
 			// ------------------------------------------------------------------- //
 			String command = "";
 			AESCrypt aes = null;
-			Path tempDicomPath = null;
-			Path tempNiftiPath = null;
 			aes = new AESCrypt(false, getAESPass());
 			tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + serieName);
 			tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + serieName);
@@ -173,7 +173,7 @@ public class NiftiWorker extends DaemonWorker {
 			// on les encrypt et on les deplace dans leur repertoire final (mais pas d'ajout dans la bdd)
 			HashMap<String,Path> associatedInfoFiles = getAssociatedNiftiListIn(tempNiftiPath);
 			for(String assocNifti:associatedInfoFiles.keySet()){
-				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(assocNifti).getFileName());
+				Path finalNiftiPath = Paths.get(getNiftiPath() + File.separator + associatedInfoFiles.get(assocNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
 				aes.encrypt(2,associatedInfoFiles.get(assocNifti).toString(), newPath.toString());
 			}
@@ -380,6 +380,17 @@ public class NiftiWorker extends DaemonWorker {
 	  }
 	  if (!f.delete())
 	    throw new FileNotFoundException("Failed to delete file: " + f);
+	}
+	
+	/**
+	 * Efface les fichiers (temporaires) cree par le worker 
+	 * @throws IOException 
+	 */
+	public void clean() throws IOException {
+		if(tempDicomPath.toFile().exists())
+			delete(tempDicomPath.toFile());
+		if(tempNiftiPath.toFile().exists())
+			delete(tempNiftiPath.toFile());
 	}
 
 }
