@@ -1,5 +1,6 @@
 package settings;
 
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,6 +14,8 @@ public class UserProfile {
 	public static User CURRENT_USER = null;
 	public static Set<Project> PROJECTS = new HashSet<Project>();
 	
+	public static Path LAST_SELECTED_DIR = null;
+	
 	// Preferences liees au programme
 	public static boolean SHOW_HIDDEN_FILES = false; 
 	
@@ -25,5 +28,6 @@ public class UserProfile {
 		PROJECTS = null;
 		PROJECTS = new HashSet<Project>();
 		CURRENT_USER = null;
+		LAST_SELECTED_DIR = null;
 	}
 }

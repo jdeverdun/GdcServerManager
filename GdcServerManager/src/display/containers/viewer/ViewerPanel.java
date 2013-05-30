@@ -47,6 +47,7 @@ import display.containers.viewer.NiftiImagePanel.Plan;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 
+import settings.UserProfile;
 import settings.WindowManager;
 
 public class ViewerPanel extends JPanel{
@@ -118,22 +119,7 @@ public class ViewerPanel extends JPanel{
 			                	ok = open(Paths.get(fi.getAbsolutePath()));
 								if(ok)
 									break;
-			                }
-							if(!ok){
-								SwingUtilities.invokeLater(new Runnable() {
-									
-									@Override
-									public void run() {
-										WarningPanel wmess = new WarningPanel("Error with opening. Is it a Nifti?");
-										Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
-										wmess.setPopupWindow(popup);
-										popup.show();
-									}
-								});
-								WindowManager.mwLogger.log(Level.SEVERE, "Error with opening. Is it a Nifti? [ViewerPanel]");
-								
-							}
-								
+			                }								
 							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
 						}
 					});
@@ -202,6 +188,7 @@ public class ViewerPanel extends JPanel{
 	public boolean open(Path path) {
 		if(niftiAxial!=null)
 			reset();
+		UserProfile.LAST_SELECTED_DIR = path.getParent();
 		splitLeftRight.setDividerLocation(splitLeftRight.getWidth()/2);
 		splitRight.setDividerLocation(splitRight.getHeight()/2);
 		splitLeft.setDividerLocation(splitLeft.getHeight()/2);
@@ -221,12 +208,14 @@ public class ViewerPanel extends JPanel{
 					
 					@Override
 					public void run() {
-						JOptionPane.showMessageDialog(ViewerPanel.this,
-							    "Data has incorrect header ... attempt to continue",
-							    "Openning error",
-							    JOptionPane.WARNING_MESSAGE);
+						WarningPanel wmess = new WarningPanel("Data has incorrect header ... attempt to continue");
+						Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
+						wmess.setPopupWindow(popup);
+						popup.show();
 					}
 				});
+				WindowManager.mwLogger.log(Level.WARNING,"Data has incorrect header ... attempt to continue [open]");
+				
 			}else{
 				niftiAxial = nr;
 				nr = null;
@@ -266,16 +255,15 @@ public class ViewerPanel extends JPanel{
 			ImageStack is = niftiAxial.getImageStack();
 			double min = -Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
-
-			max = niftiAxial.getDisplayRangeMax();
-			min = niftiAxial.getDisplayRangeMin();
+			double[] coef = niftiAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
+			max = coef[0]+coef[1]*niftiAxial.getDisplayRangeMax();
+			min = coef[0]+coef[1]*niftiAxial.getDisplayRangeMin();
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),
 					niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord(),new double[]{min,max});
 			
 			//Coordinate_Viewer c = new Coordinate_Viewer(niftiAxial);
 			//niftiAxial.show();
-			openOverlay(Paths.get("C:/Users/Mobilette/Downloads/wmh_regT12.nii"));
 			revalidate();
 	
 			return true;
@@ -301,8 +289,22 @@ public class ViewerPanel extends JPanel{
 	 * @return
 	 */
 	public boolean openOverlay(Path path) {
-		if(niftiAxial == null)
+		UserProfile.LAST_SELECTED_DIR = path.getParent();
+		if(niftiAxial == null){
+			// si on a pas d'image ouverte, on ne charge pas d'overlay
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					WarningPanel wmess = new WarningPanel("Can't overlay anything on nothing.");
+					Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
+					wmess.setPopupWindow(popup);
+					popup.show();
+				}
+			});
+			WindowManager.mwLogger.log(Level.WARNING, "Attempt to overlay on an empty image [ViewerPanel]");
 			return false;
+		}
 		if(niftiOverlayAxial!=null)
 			resetOverlay();
 		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
@@ -338,10 +340,10 @@ public class ViewerPanel extends JPanel{
 					
 					@Override
 					public void run() {
-						JOptionPane.showMessageDialog(ViewerPanel.this,
-							    "Overlay and image have different sizes.",
-							    "Openning error",
-							    JOptionPane.WARNING_MESSAGE);
+						WarningPanel wmess = new WarningPanel("Overlay and image have different sizes.");
+						Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
+						wmess.setPopupWindow(popup);
+						popup.show();
 					}
 				});
 				WindowManager.mwLogger.log(Level.SEVERE,"Overlay and image have different sizes.");
@@ -366,14 +368,14 @@ public class ViewerPanel extends JPanel{
 			// on calcul les min et max de l'image
 			double min = -Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
-
-			max = niftiOverlayAxial.getDisplayRangeMax();
-			min = niftiOverlayAxial.getDisplayRangeMin();
+			double[] coef = niftiOverlayAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
+			max = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMax();
+			min = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMin();
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setOverlaySpinnerParams(new double[]{min,max});
-			
+			infoViewer.unlockOverlayPanel();
 			revalidate();
-	
+			updateCrosshair();
 			return true;
 		}catch(final Exception e){
 			SwingUtilities.invokeLater(new Runnable() {
@@ -394,35 +396,35 @@ public class ViewerPanel extends JPanel{
 	/**
 	 * Tourne l'image en fonction du code rotation (0: ne tourne pas, 1: flip vertical, 2: flip vertical
 	 * et horizontal, 3: fliphorizontal)
-	 * @param overlay
+	 * @param im
 	 * @param rotation
 	 * @return
 	 */
-	private Nifti_Reader rotate(Nifti_Reader overlay,
+	private Nifti_Reader rotate(Nifti_Reader im,
 			int rotation) {
-		Nifti_Reader nr = (Nifti_Reader) overlay.clone();
+		Nifti_Reader nr = (Nifti_Reader) im.clone();
 		ImageStack is;
 		switch(rotation){
 		case 0:
 			return nr;
 		case 1:
-			is = overlay.getImageStack();
-			for(int i = 1 ; i <= overlay.getNSlices();i++){
+			is = im.getImageStack();
+			for(int i = 1 ; i <= im.getNSlices();i++){
 				is.getProcessor(i).flipVertical();
 			}
 			nr.setStack(is);
 			return nr;
 		case 2:
-			is = overlay.getImageStack();
-			for(int i = 1 ; i <= overlay.getNSlices();i++){
+			is = im.getImageStack();
+			for(int i = 1 ; i <= im.getNSlices();i++){
 				is.getProcessor(i).flipVertical();
 				is.getProcessor(i).flipHorizontal();
 			}
 			nr.setStack(is);
 			return nr;
 		case 3:
-			is = overlay.getImageStack();
-			for(int i = 1 ; i <= overlay.getNSlices();i++){
+			is = im.getImageStack();
+			for(int i = 1 ; i <= im.getNSlices();i++){
 				is.getProcessor(i).flipHorizontal();
 			}
 			nr.setStack(is);
@@ -475,6 +477,7 @@ public class ViewerPanel extends JPanel{
 	 */
 	public void resetOverlay(){
 		niftiOverlayAxial = null;
+		infoViewer.lockOverlayPanel();
 		getCoronalPanel().resetOverlay();
 		getSagittalPanel().resetOverlay();
 		getAxialPanel().resetOverlay();
@@ -500,6 +503,8 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().updateCrosshair(coord);
 		infoViewer.setRawCoord(getAxialPanel().getMricronCoord());
 		infoViewer.setVoxelValue((float) getAxialPanel().getVoxelValue());
+		if(niftiOverlayAxial!=null)
+			infoViewer.setVoxelOverlayValue((float) getAxialPanel().getVoxelOverlayValue());
 		if(coordinateMapper!=null)
 			infoViewer.setAlignedCoord(new float[]{(float) coordinateMapper[coordinateMapper.length-1].getX(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getY(coord[0],coord[1],coord[2]),(float) coordinateMapper[coordinateMapper.length-1].getZ(coord[0],coord[1],coord[2])});
 		else
@@ -558,10 +563,12 @@ public class ViewerPanel extends JPanel{
 	}
 
 	public void setCrosshairVisible(boolean b) {
-		getAxialPanel().setShowCrosshair(b);
-		getCoronalPanel().setShowCrosshair(b);
-		getSagittalPanel().setShowCrosshair(b);
-		updateCrosshair();
+		if(niftiAxial!=null){
+			getAxialPanel().setShowCrosshair(b);
+			getCoronalPanel().setShowCrosshair(b);
+			getSagittalPanel().setShowCrosshair(b);
+			updateCrosshair();
+		}
 	}
 
 	/**
@@ -579,7 +586,7 @@ public class ViewerPanel extends JPanel{
 	}
 	
 	/**
-	 * Definit les min et max poru la colormap
+	 * Definit les min et max pour la colormap
 	 * @param min
 	 * @param max
 	 */
@@ -592,6 +599,19 @@ public class ViewerPanel extends JPanel{
 		getSagittalPanel().refreshImage();
 	}
 
+	/**
+	 * Definit les min max pour l'overlay
+	 * @param min
+	 * @param max
+	 */
+	public void setDisplayOverlayMinMax(double min, double max) {
+		getAxialPanel().getOverlayImage().setDisplayRange(min, max);
+		getCoronalPanel().getOverlayImage().setDisplayRange(min, max);
+		getSagittalPanel().getOverlayImage().setDisplayRange(min, max);
+		getAxialPanel().refreshOverlay();
+		getCoronalPanel().refreshOverlay();
+		getSagittalPanel().refreshOverlay();
+	}
 
 	/**
 	 * Change la colormap
@@ -604,5 +624,31 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().refreshImage();
 		getCoronalPanel().refreshImage();
 		getSagittalPanel().refreshImage();
+	}
+
+	/**
+	 * Change la colormap de l'overlay
+	 * @param selectedLut
+	 */
+	public void setOverlayLUT(ALUT lut) {
+		lutLoader.run(getAxialPanel().getOverlayImage(), lut);
+		lutLoader.run(getCoronalPanel().getOverlayImage(), lut);
+		lutLoader.run(getSagittalPanel().getOverlayImage(), lut);
+		getAxialPanel().refreshOverlay();
+		getCoronalPanel().refreshOverlay();
+		getSagittalPanel().refreshOverlay();
+	}
+
+	/**
+	 * Definit l'alpha de l'overlay
+	 * @param alpha
+	 */
+	public void setOverlayAlpha(float alpha) {
+		getAxialPanel().setAlphaOverlay(alpha);
+		getCoronalPanel().setAlphaOverlay(alpha);
+		getSagittalPanel().setAlphaOverlay(alpha);
+		getAxialPanel().refreshOverlay();
+		getCoronalPanel().refreshOverlay();
+		getSagittalPanel().refreshOverlay();
 	}
 }

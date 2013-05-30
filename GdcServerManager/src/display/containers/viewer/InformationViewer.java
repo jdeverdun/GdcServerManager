@@ -30,14 +30,20 @@ import java.awt.Color;
  */
 public class InformationViewer extends JPanel {
 
+	private static final String DEFAULT_OVERLAY_TITLE = "Overlay ";
 	private ViewerPanel viewer;
 	private double[] voxelSize;//taille du voxel
 	
 	private TitledBorder titleValue;//titledborder contenant les valeurs et taille du voxel
+	private TitledBorder titleOverlay;//titledborder pour l'overlay
 	// pour empecher les stacks overflow entre le setvalue du spinner et le changeevent
 	private boolean interceptXrawSpinner;
 	private boolean interceptYrawSpinner;
 	private boolean interceptZrawSpinner;
+	
+	// on stock lmes coefficients de scaling ax+b pour eviter de devoir tout le temsp les rechercher
+	private double[] coefficientsOverlay;
+	private double[] coefficientsImage;
 	
 	// button
 	private JSpinner spinnerXraw;
@@ -49,13 +55,21 @@ public class InformationViewer extends JPanel {
 	private JSpinner spinnerMin;
 	private JSpinner spinnerMax;
 	private JComboBox comboBoxLUT;
+	private final JPanel panelOverlay = new JPanel();
+	private JLabel labelOverlayMin;
+	private JSpinner spinnerOverlayMin;
+	private JLabel labelOverlayMax;
+	private JSpinner spinnerOverlayMax;
+	private JComboBox comboBoxOverlayLUT;
+	private JSlider sliderAlpha;
+	private JLabel lblVoxelOverlayValue;
 	public InformationViewer(ViewerPanel v){
 		setViewer(v);
 		interceptXrawSpinner = false;
 		interceptYrawSpinner = false;
 		interceptZrawSpinner = false;
 		
-		setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		setLayout(new MigLayout("", "[grow]", "[][grow][grow]"));
 		
 		JPanel panelValue = new JPanel();
 		add(panelValue, "cell 0 0,growx");
@@ -65,7 +79,7 @@ public class InformationViewer extends JPanel {
 		
 		lblValue = new JLabel("NaN");
 		lblValue.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panelValue.add(lblValue, "cell 0 0,growx,aligny center");
+		panelValue.add(lblValue, "flowx,cell 0 0,growx,aligny center");
 		
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setOrientation(SwingConstants.VERTICAL);
@@ -80,6 +94,9 @@ public class InformationViewer extends JPanel {
 		
 		lblVoxelsize = new JLabel("NaN,NaN,NaN");
 		panelValue.add(lblVoxelsize, "cell 4 0,growx,aligny center");
+		
+		lblVoxelOverlayValue = new JLabel("[NaN]");
+		panelValue.add(lblVoxelOverlayValue, "cell 0 0");
 		
 		JPanel panelCoord = new JPanel();
 		panelCoord.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30)));
@@ -119,7 +136,7 @@ public class InformationViewer extends JPanel {
 		spinnerMin = new JSpinner();
 		spinnerMin.setMinimumSize(new Dimension(40, 20));
 		spinnerMin.setMaximumSize(new Dimension(70, 20));
-		spinnerMin.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+		spinnerMin.setModel(new SpinnerNumberModel(new Float(0), new Float(0), new Float(0), new Float(1)));
 		panelCoord.add(spinnerMin, "cell 1 1,growx,aligny center");
 		
 		JLabel lblMax = new JLabel("Max");
@@ -128,7 +145,7 @@ public class InformationViewer extends JPanel {
 		spinnerMax = new JSpinner();
 		spinnerMax.setMinimumSize(new Dimension(40, 20));
 		spinnerMax.setMaximumSize(new Dimension(70, 20));
-		spinnerMax.setModel(new SpinnerNumberModel(0, 0, 0, 1));
+		spinnerMax.setModel(new SpinnerNumberModel(new Float(0), new Float(0), new Float(0), new Float(1)));
 		panelCoord.add(spinnerMax, "cell 3 1,grow");
 		
 		comboBoxLUT = new JComboBox();
@@ -137,7 +154,41 @@ public class InformationViewer extends JPanel {
 		comboBoxLUT.setModel(new DefaultComboBoxModel(ALUT.values()));
 		comboBoxLUT.setSelectedIndex(2);
 		panelCoord.add(comboBoxLUT, "cell 4 1,growx,aligny center");
+		titleOverlay = new TitledBorder(null, DEFAULT_OVERLAY_TITLE, TitledBorder.LEADING, TitledBorder.TOP, null, new Color(210, 105, 30));
+		panelOverlay.setBorder(titleOverlay);
+		add(panelOverlay, "cell 0 2,grow");
 		
+		panelOverlay.setLayout(new MigLayout("", "[grow][grow][grow][grow][grow]", "[][]"));
+		
+		labelOverlayMin = new JLabel("Min");
+		labelOverlayMin.setAlignmentX(Component.CENTER_ALIGNMENT);
+		panelOverlay.add(labelOverlayMin, "cell 0 0,alignx center");
+		
+		spinnerOverlayMin = new JSpinner();
+		spinnerOverlayMin.setMinimumSize(new Dimension(40, 20));
+		spinnerOverlayMin.setMaximumSize(new Dimension(70, 20));
+		panelOverlay.add(spinnerOverlayMin, "cell 1 0,grow");
+		
+		labelOverlayMax = new JLabel("Max");
+		labelOverlayMax.setAlignmentX(Component.CENTER_ALIGNMENT);
+		panelOverlay.add(labelOverlayMax, "cell 2 0,alignx center");
+		
+		spinnerOverlayMax = new JSpinner();
+		spinnerOverlayMax.setMinimumSize(new Dimension(40, 20));
+		spinnerOverlayMax.setMaximumSize(new Dimension(70, 20));
+		panelOverlay.add(spinnerOverlayMax, "cell 3 0,grow");
+		
+		sliderAlpha = new JSlider();
+		sliderAlpha.setPreferredSize(new Dimension(150, 23));
+		panelOverlay.add(sliderAlpha, "cell 4 0,grow");
+		
+		comboBoxOverlayLUT = new JComboBox();
+		comboBoxOverlayLUT.setModel(new DefaultComboBoxModel(ALUT.values()));
+		comboBoxOverlayLUT.setSelectedIndex(2);
+		comboBoxOverlayLUT.setMinimumSize(new Dimension(40, 20));
+		comboBoxOverlayLUT.setMaximumSize(new Dimension(100, 20));
+		panelOverlay.add(comboBoxOverlayLUT, "cell 0 1 2 1,growx,aligny center");
+		lockOverlayPanel();
 		
 		//event
 		spinnerXraw.addChangeListener(new ChangeListener() {
@@ -184,14 +235,32 @@ public class InformationViewer extends JPanel {
 			
 			@Override
 			public void stateChanged(ChangeEvent c) {
-				getViewer().setDisplayMinMax((double) spinnerMin.getValue(), (double) spinnerMax.getValue());
+				getViewer().setDisplayMinMax(((double) spinnerMin.getValue())/coefficientsImage[1]-coefficientsImage[0],
+						((double) spinnerMax.getValue())/coefficientsImage[1]-coefficientsImage[0]);
 			}
 		});
 		spinnerMax.addChangeListener(new ChangeListener() {
 			
 			@Override
 			public void stateChanged(ChangeEvent c) {
-				getViewer().setDisplayMinMax((double) spinnerMin.getValue(), (double) spinnerMax.getValue());
+				getViewer().setDisplayMinMax(((double) spinnerMin.getValue())/coefficientsImage[1]-coefficientsImage[0], 
+						((double) spinnerMax.getValue())/coefficientsImage[1]-coefficientsImage[0]);
+			}
+		});
+		spinnerOverlayMax.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent c) {
+				getViewer().setDisplayOverlayMinMax(((double) spinnerOverlayMin.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0],
+						((double) spinnerOverlayMax.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0]);
+			}
+		});
+		spinnerOverlayMin.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent c) {
+				getViewer().setDisplayOverlayMinMax(((double) spinnerOverlayMin.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0], 
+						((double) spinnerOverlayMax.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0]);
 			}
 		});
 		comboBoxLUT.addActionListener(new ActionListener() {
@@ -201,6 +270,22 @@ public class InformationViewer extends JPanel {
 				ALUT selectedLut = (ALUT) comboBoxLUT.getSelectedItem();
 				getViewer().setLUT(selectedLut);
 				
+			}
+		});
+		comboBoxOverlayLUT.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				ALUT selectedLut = (ALUT) comboBoxOverlayLUT.getSelectedItem();
+				getViewer().setOverlayLUT(selectedLut);
+				
+			}
+		});
+		sliderAlpha.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent c) {
+				getViewer().setOverlayAlpha(((float) sliderAlpha.getValue())/100.0f);
 			}
 		});
 	}
@@ -257,6 +342,8 @@ public class InformationViewer extends JPanel {
 		interceptXrawSpinner = false;
 		interceptYrawSpinner = false;
 		interceptZrawSpinner = false;
+		lockOverlayPanel();
+
 		setVoxelSize(new double[]{0.0,0.0,0.0});
 		setFilename("None");
 		setAlignedCoord(new float[]{0.0f,0.0f,0.0f});
@@ -283,6 +370,7 @@ public class InformationViewer extends JPanel {
 			
 			@Override
 			public void run() {
+				coefficientsImage = getViewer().getAxialPanel().getCoefficients();
 				spinnerZraw.setModel(new SpinnerNumberModel((int)coord[2], 1, (int)imageDim[2], 1));
 				spinnerYraw.setModel(new SpinnerNumberModel((int)coord[1], 1, (int)imageDim[1], 1));
 				spinnerXraw.setModel(new SpinnerNumberModel((int)coord[0], 1, (int)imageDim[0], 1));
@@ -303,8 +391,20 @@ public class InformationViewer extends JPanel {
 	}
 
 
+	/**
+	 * Affiche la valeur voxelValue dans le label de la valeur du voxel
+	 * @param voxelValue
+	 */
 	public void setVoxelValue(float voxelValue) {
 		getLblValue().setText(""+voxelValue);
+	}
+	
+	/**
+	 * Affiche la valeur voxelOverlayValue dans le label de la valeur du voxel en overlay
+	 * @param voxelOverlayValue
+	 */
+	public void setVoxelOverlayValue(float voxelOverlayValue) {
+		lblVoxelOverlayValue.setText("["+voxelOverlayValue+"]");
 	}
 	public void setAlignedCoord(float[] coord){
 		lblAlignedval.setText("("+new DecimalFormat("#.##").format(coord[0])+" , "+new DecimalFormat("#.##").format(coord[1])+" , "+new DecimalFormat("#.##").format(coord[2])+")");
@@ -332,9 +432,16 @@ public class InformationViewer extends JPanel {
 	 * Params pour les spinners associes a l'overlay
 	 * @param minMax
 	 */
-	public void setOverlaySpinnerParams(double[] minMax) {
-		// TODO Auto-generated method stub
-		
+	public void setOverlaySpinnerParams(final double[] minMax) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				coefficientsOverlay = getViewer().getAxialPanel().getOverlayCoefficients();
+				spinnerOverlayMin.setModel(new SpinnerNumberModel((double)minMax[0], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
+				spinnerOverlayMax.setModel(new SpinnerNumberModel((double)minMax[1], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
+			}
+		});
 	}
 
 
@@ -343,8 +450,7 @@ public class InformationViewer extends JPanel {
 	 * @return
 	 */
 	public ALUT getCurrentOverlayLUT() {
-		// TODO Auto-generated method stub
-		return null;
+		return (ALUT) comboBoxOverlayLUT.getSelectedItem();
 	}
 
 
@@ -353,7 +459,39 @@ public class InformationViewer extends JPanel {
 	 * @param filename
 	 */
 	public void setOverlayFilename(String filename) {
-		// TODO Auto-generated method stub
-		
+		titleOverlay.setTitle((DEFAULT_OVERLAY_TITLE+filename).substring(0,Math.min(50, filename.length())));
 	}
+	
+	/**
+	 * Masque le panel overlay
+	 */
+	public void lockOverlayPanel(){
+		panelOverlay.setEnabled(false);
+		spinnerOverlayMax.setEnabled(false);
+		spinnerOverlayMin.setEnabled(false);
+		comboBoxOverlayLUT.setEnabled(false);
+		sliderAlpha.setEnabled(false);
+		labelOverlayMin.setEnabled(false);
+		labelOverlayMax.setEnabled(false);
+		titleOverlay.setTitle(DEFAULT_OVERLAY_TITLE);
+		lblVoxelOverlayValue.setVisible(false);
+	}
+	
+	/**
+	 * Affiche le panel overlay
+	 */
+	public void unlockOverlayPanel(){
+		panelOverlay.setEnabled(true);
+		spinnerOverlayMax.setEnabled(true);
+		spinnerOverlayMin.setEnabled(true);
+		comboBoxOverlayLUT.setEnabled(true);
+		sliderAlpha.setEnabled(true);
+		labelOverlayMin.setEnabled(true);
+		labelOverlayMax.setEnabled(true);
+		lblVoxelOverlayValue.setVisible(true);
+		lblVoxelOverlayValue.setText("[NaN]");
+	}
+
+
+
 }

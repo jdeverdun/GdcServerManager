@@ -49,7 +49,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 	private double displayScaleFactor = 1d;
 	private Dimension offsets; // quand on est en mode keepRatio les offsets
 	private double[] coefficients; // coefficient y = a + bx (calibration)
-
+	private double[] overlayCoefficients; // coefficient y = a + bx (calibration) pour l'overlay
 
 
 
@@ -105,6 +105,10 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		return niftiImage;
 	}
 
+	public ImagePlus getOverlayImage() {
+		return overlayImage;
+	}
+
 	public void setNiftiImage(ImagePlus niftiImage) {
 		this.niftiImage = niftiImage;
 		setSlice(Math.round(this.niftiImage.getNSlices()/2));
@@ -124,6 +128,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		this.overlayImage = overlay;
 		this.overlayImage.setSlice(getSlice());
 		this.overlay = this.overlayImage.getBufferedImage();
+		overlayCoefficients = this.overlayImage.getCalibration().getCoefficients();
 	}
 	
 	public int getSlice() {
@@ -144,12 +149,30 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		}
 	}
 
+	public float getAlphaOverlay() {
+		return alphaOverlay;
+	}
+
+	public void setAlphaOverlay(float alphaOverlay) {
+		this.alphaOverlay = alphaOverlay;
+	}
+
 	/**
 	 * Refresh l'image affiche avec les nouveaux parametres de Min/Max
 	 */
 	public void refreshImage(){
 		image = niftiImage.getBufferedImage();
 		repaint();
+	}
+	
+	/**
+	 * Refresh overlay affiche avec les nouveaux parametres de Min/Max
+	 */
+	public void refreshOverlay(){
+		if(overlayImage!=null){
+			overlay = overlayImage.getBufferedImage();
+			repaint();
+		}
 	}
 	public ViewerPanel getViewer() {
 		return viewer;
@@ -173,6 +196,22 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 
 	public void setZoom(int zoom) {
 		this.zoom = zoom;
+	}
+
+	public double[] getCoefficients() {
+		return coefficients;
+	}
+
+	public void setCoefficients(double[] coefficients) {
+		this.coefficients = coefficients;
+	}
+
+	public double[] getOverlayCoefficients() {
+		return overlayCoefficients;
+	}
+
+	public void setOverlayCoefficients(double[] overlayCoefficients) {
+		this.overlayCoefficients = overlayCoefficients;
 	}
 
 	public boolean isKeepRatio() {
@@ -236,6 +275,12 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
                 }
             }else{
             	g2d.drawImage(image,0,0, width*zoom, height*zoom, this);
+            	if(overlayImage!=null){
+                    int rule = AlphaComposite.SRC_OVER;
+                    Composite comp = AlphaComposite.getInstance(rule , alphaOverlay );
+					g2d.setComposite(comp);
+					g2d.drawImage(overlay, 0,0, width*zoom, height*zoom, this);
+                }
             }
             if(showCrosshair && currentLocation!=null){
             	g2d.setColor(new Color(255,140,0));
@@ -291,21 +336,21 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 8:
     		ByteProcessor bp = (ByteProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 16:
     		ShortProcessor sp = (ShortProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 32:
     		FloatProcessor fp = (FloatProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     		else
-    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     	default:
     		return -1;
     	}
@@ -591,6 +636,7 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		overlay = null;
 		repaint();
 	}
+
 
 
 }

@@ -90,6 +90,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.JPopupMenu;
 
 public class MainWindow extends JFrame {
 	
@@ -165,7 +166,11 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getNiftiDir().toString());
+				String defdir = SystemSettings.APP_DIR.toString();
+				if(UserProfile.LAST_SELECTED_DIR != null){
+					defdir = UserProfile.LAST_SELECTED_DIR.toString();
+				}
+				JFileChooser fc = new JFileChooser(defdir);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setFileFilter(new FileFilter() {
 					
@@ -289,6 +294,7 @@ public class MainWindow extends JFrame {
 		viewerToolbar.setVisible(false);
 		
 		toolBar.add(viewerToolbar);
+		
 		ongletPane.addTab("Viewer", null, viewerPanel,
                 "Viewer for images");
 		
