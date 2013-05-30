@@ -5,7 +5,9 @@ package display.containers.viewer;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.LookUpTable;
+import ij.measure.Calibration;
 import ij.plugin.filter.Rotator;
+import ij.process.ImageStatistics;
 import ij.process.LUT;
 
 import java.awt.BorderLayout;
@@ -255,9 +257,14 @@ public class ViewerPanel extends JPanel{
 			ImageStack is = niftiAxial.getImageStack();
 			double min = -Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
-			double[] coef = niftiAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
-			max = coef[0]+coef[1]*niftiAxial.getDisplayRangeMax();
-			min = coef[0]+coef[1]*niftiAxial.getDisplayRangeMin();
+			if(niftiAxial.getCalibration() != null && niftiAxial.getCalibration().getCoefficients()!=null){
+				double[] coef = niftiAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
+				max = coef[0]+coef[1]*niftiAxial.getDisplayRangeMax();
+				min = coef[0]+coef[1]*niftiAxial.getDisplayRangeMin();
+			}else{
+				max = niftiAxial.getDisplayRangeMax();
+				min = niftiAxial.getDisplayRangeMin();
+			}
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),
 					niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord(),new double[]{min,max});

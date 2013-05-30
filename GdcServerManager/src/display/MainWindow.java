@@ -465,7 +465,7 @@ public class MainWindow extends JFrame {
 			newimg = img.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH);  
 			icon = new ImageIcon(newimg); 
 			btndistToLocal = new JButton(icon);
-			btndistToLocal.setAlignmentX(0.5f);
+			btndistToLocal.setAlignmentX(Component.CENTER_ALIGNMENT);
 			GridBagConstraints gbc_btndistToLocal = new GridBagConstraints();
 			gbc_btndistToLocal.fill = GridBagConstraints.BOTH;
 			gbc_btndistToLocal.insets = new Insets(0, 0, 0, 5);

@@ -878,8 +878,17 @@ public class RequestPanel extends JPanel {
 						}
 						setLock(false);
 						progressPanel.setVisible(false);
-				
-						getRqModel().fireTableStructureChanged();
+						// sur EDT ?
+
+						SwingUtilities.invokeLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								getRqModel().fireTableDataChanged();
+								getRqModel().fireTableStructureChanged();
+							}
+						});
+
 						if(getRqModel().getFileAt(0) == null){
 							Mitem.setVisible(false);
 							MDelitem.setVisible(false);

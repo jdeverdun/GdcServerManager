@@ -102,7 +102,6 @@ public class MissingDaemon extends Thread{
 				moveNotEncodedDicom(fi);
 			}else{
 				if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
-					System.out.println(fi.toString());
 					try{
 						File fileTo = new File(SystemSettings.SERVER_INFO.getIncomingDir()+File.separator+fi.getName()+".part");
 						// on s'assure que rien ne va bloquer le deplacement

@@ -536,6 +536,9 @@ public class DicomWorker extends DaemonWorker {
 			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
+		while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
+			pname = pname.substring(0,pname.length()-1);	
 		WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
 		return pname;
 	}

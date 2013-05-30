@@ -115,6 +115,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		imageCurrentLocation = new Point((int)this.niftiImage.getWidth()/2,(int)this.niftiImage.getHeight()/2);
 		imageDim = new Dimension(this.niftiImage.getWidth(), this.niftiImage.getHeight());
 		coefficients = niftiImage.getCalibration().getCoefficients();
+		if(coefficients == null)
+			coefficients = new double[]{0.0,1.0};
 		offsets = new Dimension(0,0);
 		currentLocation = imageXYtoPanelXY(imageCurrentLocation);
 		overlayImage = null;
@@ -129,6 +131,8 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
 		this.overlayImage.setSlice(getSlice());
 		this.overlay = this.overlayImage.getBufferedImage();
 		overlayCoefficients = this.overlayImage.getCalibration().getCoefficients();
+		if(overlayCoefficients == null)
+			overlayCoefficients = new double[]{0.0,1.0};
 	}
 	
 	public int getSlice() {
@@ -305,21 +309,21 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 8:
     		ByteProcessor bp = (ByteProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)bp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return coefficients[0]+coefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)bp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 16:
     		ShortProcessor sp = (ShortProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)sp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return coefficients[0]+coefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)sp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 32:
     		FloatProcessor fp = (FloatProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return coefficients[0]+coefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     		else
-    			return coefficients[0]+coefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return coefficients[0]+coefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     	default:
     		return -1;
     	}
@@ -336,21 +340,21 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 8:
     		ByteProcessor bp = (ByteProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)bp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 16:
     		ShortProcessor sp = (ShortProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     		else
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)sp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	case 32:
     		FloatProcessor fp = (FloatProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     		else
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.get((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
     	default:
     		return -1;
     	}

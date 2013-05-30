@@ -371,6 +371,8 @@ public class InformationViewer extends JPanel {
 			@Override
 			public void run() {
 				coefficientsImage = getViewer().getAxialPanel().getCoefficients();
+				if(coefficientsImage == null)
+					coefficientsImage = new double[]{0.0,1.0};
 				spinnerZraw.setModel(new SpinnerNumberModel((int)coord[2], 1, (int)imageDim[2], 1));
 				spinnerYraw.setModel(new SpinnerNumberModel((int)coord[1], 1, (int)imageDim[1], 1));
 				spinnerXraw.setModel(new SpinnerNumberModel((int)coord[0], 1, (int)imageDim[0], 1));
@@ -438,6 +440,8 @@ public class InformationViewer extends JPanel {
 			@Override
 			public void run() {
 				coefficientsOverlay = getViewer().getAxialPanel().getOverlayCoefficients();
+				if(coefficientsOverlay == null)
+					coefficientsOverlay = new double[]{0.0,1.0};
 				spinnerOverlayMin.setModel(new SpinnerNumberModel((double)minMax[0], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
 				spinnerOverlayMax.setModel(new SpinnerNumberModel((double)minMax[1], -Double.MAX_VALUE, Double.MAX_VALUE, 1));
 			}
