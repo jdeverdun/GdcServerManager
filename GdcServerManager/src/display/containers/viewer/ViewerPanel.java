@@ -9,6 +9,7 @@ import ij.measure.Calibration;
 import ij.plugin.filter.Rotator;
 import ij.process.ImageStatistics;
 import ij.process.LUT;
+import ij.process.StackConverter;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
@@ -222,6 +223,9 @@ public class ViewerPanel extends JPanel{
 				niftiAxial = nr;
 				nr = null;
 			}
+			// on convertie en 32 bits pour assuree une bonne base de travail
+			StackConverter sc = new StackConverter(niftiAxial);
+			sc.convertToGray32();
 			// on applique la colormap par defaut
 			lutLoader.run(niftiAxial, infoViewer.getCurrentLUT());
 			// on definit la taille du voxel
@@ -356,6 +360,8 @@ public class ViewerPanel extends JPanel{
 				WindowManager.mwLogger.log(Level.SEVERE,"Overlay and image have different sizes.");
 				return false;
 			}
+			
+			
 			lutLoader.run(niftiOverlayAxial, infoViewer.getCurrentOverlayLUT());
 
 			infoViewer.setOverlayFilename(path.getFileName().toString());
@@ -376,8 +382,13 @@ public class ViewerPanel extends JPanel{
 			double min = -Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
 			double[] coef = niftiOverlayAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
-			max = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMax();
-			min = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMin();
+			if(coef==null){
+				max = niftiAxial.getDisplayRangeMax();
+				min = niftiAxial.getDisplayRangeMin();
+			}else{
+				max = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMax();
+				min = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMin();
+			}
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setOverlaySpinnerParams(new double[]{min,max});
 			infoViewer.unlockOverlayPanel();

@@ -196,8 +196,8 @@ public class NiftiDaemon extends Thread{
 				}
 				if( timeSincemod > waitTimeToConvert ){
 					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
-					// /!\ dcm2nii.exe DOIT etre dans le path
-					if(getSettings().getServerMode() == ServerMode.SERVER){
+					// /!\ convertizer.exe DOIT etre dans le path
+					if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT){
 						// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
 						// si ce n'est pas le cas on
 						if(!isDirFullyEncrypted(path)) 

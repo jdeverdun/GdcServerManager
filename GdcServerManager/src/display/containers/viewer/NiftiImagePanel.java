@@ -1,11 +1,13 @@
 package display.containers.viewer;
 
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.process.ByteProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
+import ij.process.StackConverter;
 
 import java.awt.*;
 import java.awt.event.*;
