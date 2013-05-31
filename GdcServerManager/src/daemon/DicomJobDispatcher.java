@@ -25,6 +25,7 @@ import settings.WindowManager;
 import model.DicomImage;
 import model.ServerInfo;
 import model.daemon.CustomConversionSettings;
+import model.daemon.CustomConversionSettings.ServerMode;
 
 
 /**
@@ -47,6 +48,7 @@ public class DicomJobDispatcher extends Thread{
 	private int waitCounter;
 	private CustomConversionSettings settings; // Parametres pour le DicomJobDispatcher 
 	private NiftiDaemon niftiDaemon;
+	private boolean crashed; // savoir si le daemon a crashe, pour l'import
 
 
 
@@ -58,6 +60,22 @@ public class DicomJobDispatcher extends Thread{
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		setMaxWorker(SystemSettings.AVAILABLE_CORES);
+		crashed = false;
+		
+	}
+	
+	/**
+	 * Principalement pour l'import
+	 * @param settings
+	 */
+	public DicomJobDispatcher(CustomConversionSettings settings) {
+		dicomToMove = new ConcurrentLinkedQueue<Path>();
+		numberOfRuns = 0;
+		setSettings(settings);
+		setStop(false);
+		setServerInfo(SystemSettings.SERVER_INFO);
+		setMaxWorker(SystemSettings.AVAILABLE_CORES);
+		crashed = false;
 		
 	}
 
@@ -77,6 +95,7 @@ public class DicomJobDispatcher extends Thread{
 		setServerInfo(si);
 		setMaxWorker(SystemSettings.AVAILABLE_CORES);
 		DicomWorkerClient.DICOMDIR = null;
+		crashed = false;
 	}
 	
 	
@@ -163,7 +182,7 @@ public class DicomJobDispatcher extends Thread{
 		while(!isStop()){
 			// check si il y a des donnees a deplacer
 			while(dicomToMove.isEmpty() && !isStop()){
-				if(waitCounter>10000 && getSettings().isServerMode()){
+				if(waitCounter>10000 && getSettings().getServerMode() == ServerMode.SERVER){
 					//Si aucun fichier n'a ete ajouter depuis plus de 10 sec
 					// on verifie si on a pas rate des event a cause d'overflow
 					try {
@@ -185,7 +204,7 @@ public class DicomJobDispatcher extends Thread{
 			// on lance le deplacement du fichier
 			// on le fait fich/fich (pas multithread) car windows
 			// gere tres bien les coeurs tout seul /!\ dworker n'est pas un Thread !
-			if(getSettings().isServerMode()){
+			if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT ){
 				Path locp = (Path)dicomToMove.poll();
 				// tant qu'on ne peut pas lire le fichier on attend
 				// permet de gerer les problemes d'acces
@@ -200,15 +219,19 @@ public class DicomJobDispatcher extends Thread{
 									dworker = new DicomWorker(this, locp);
 									dworker.start();
 								} catch (DicomException e) {
-									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
-									// a cause d'une erreur de copie ne contiennent pas tout les champs
-									WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted",e);
-									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists())
-										locp.toFile().delete();
-									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
-										dworker.getNewPath().toFile().delete();
+									if(getSettings().getServerMode() == ServerMode.SERVER){
+										// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+										// a cause d'une erreur de copie ne contiennent pas tout les champs
+										WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted",e);
+										WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+										// on supprime le fichier dans le buffer (si il est present) 
+										if(locp.toFile().exists())
+											locp.toFile().delete();
+										if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+											dworker.getNewPath().toFile().delete();
+										}
+									}else{
+										WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... skipped [IMPORT]",e);
 									}
 									cont=false;
 								}
@@ -260,11 +283,11 @@ public class DicomJobDispatcher extends Thread{
 	private void checkForMissedFiles() throws IOException {
 		String[] filesInInc = getServerInfo().getIncomingDir().toFile().list();
 		for(String name:filesInInc){
-			File lfile = new File(getServerInfo().getIncomingDir() + "/" + name);
+			File lfile = new File(getServerInfo().getIncomingDir() + File.separator + name);
 			if(name.length()>2 && !name.endsWith(".part")){//on s'assure que ce n'est pas des fichiers en cours de copie ".part" ni des ..
 				try{
 					if(DicomImage.isDicom(lfile)){
-						String fullpath = getServerInfo().getIncomingDir() + "/" + name;
+						String fullpath = getServerInfo().getIncomingDir() + File.separator + name;
 						addDicomToMove(Paths.get(fullpath));
 					}else{
 						lfile.delete();
@@ -297,5 +320,13 @@ public class DicomJobDispatcher extends Thread{
 			return dicomToMove.size()+" files to move.";
 		else
 			return "";
+	}
+
+	public void setCrashed(boolean b) {
+		this.crashed = b;
+		setStop(b);
+	}
+	public boolean isCrashed(){
+		return this.crashed;
 	}
 }

@@ -142,6 +142,7 @@ public class MainWindow extends JFrame {
 	private ProgressPanel progressBarPanel;
 	private ViewerToolbar viewerToolbar;
 	private JMenuItem mntmResetList;
+	private JButton btnImport;
 	/**
 	 * Si i = 0 : mode offline
 	 * i = 1 : mode online
@@ -263,15 +264,40 @@ public class MainWindow extends JFrame {
 		toolBar = new JToolBar();
 		//getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
+		ImageIcon icon;
+		Image img;
+		Image newimg;
+		ImageIcon icon2;
+		// si on a bien un utilisateur connecte on rajoute les boutons refresh
+		if(i!=0){
+			icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
+			img = icon.getImage();  
+			newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
+			icon2 = new ImageIcon(newimg); 
+			btnRefresh = new JButton(icon2);
+			btnRefresh.setToolTipText("Refresh");
+			toolBar.add(btnRefresh);
+		}
 		
-		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/refresh.png"));
-		Image img = icon.getImage();  
-		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
-		ImageIcon icon2 = new ImageIcon(newimg); 
-		btnRefresh = new JButton(icon2);
-		btnRefresh.setToolTipText("Refresh");
-		//btnRefresh = new JButton("Refresh");
-		toolBar.add(btnRefresh);
+		if(UserProfile.CURRENT_USER.getLevel()==3){
+			//si mode admin on ajoute le bouton d'import
+			icon=new ImageIcon(MainWindow.class.getResource("/images/import.png"));
+			img = icon.getImage();  
+			newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
+			icon2 = new ImageIcon(newimg); 
+			btnImport = new JButton(icon2);
+			btnImport.setToolTipText("Import data from a directory to the server");
+			toolBar.add(btnImport);
+			btnImport.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					ImportFrame imf = new ImportFrame();
+					imf.createAndShowGUI();
+				}
+			});
+		}
+		
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, "cell 1 1 30 23,grow");

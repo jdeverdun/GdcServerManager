@@ -20,6 +20,8 @@ import settings.WindowManager;
 
 import model.DicomImage;
 import model.ServerInfo;
+import model.daemon.CustomConversionSettings;
+import model.daemon.CustomConversionSettings.ServerMode;
 
 
 /**
@@ -30,6 +32,7 @@ import model.ServerInfo;
 public class EncryptDaemon extends Thread {
 
 	private static final String BACKUP_FILE = "encryptDaemon.bak";
+	private CustomConversionSettings settings; // pour import only
 	private LinkedList<Path> dicomToEncrypt;
 	private LinkedList<DicomImage> dicomImageToEncrypt;
 	private DicomEncryptWorker dEncryptWorker;
@@ -37,6 +40,7 @@ public class EncryptDaemon extends Thread {
 	private DicomDaemon dicomDaemon;
 	private boolean stop;
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
+	private boolean crashed; // pour l'import permet de savoir si le daemon a crashe
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -44,19 +48,43 @@ public class EncryptDaemon extends Thread {
 		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
+		crashed = false;
+	}
+	
+	public EncryptDaemon(){
+		dicomToEncrypt = new LinkedList<Path>();
+		dicomImageToEncrypt = new  LinkedList<DicomImage>();
+		stop = false;
+		setDicomDaemon(dicomDaemon);
+		setServerInfo(SystemSettings.SERVER_INFO);
+		crashed = false;
 	}
 	
 	
+	public EncryptDaemon(CustomConversionSettings ccs) {
+		dicomToEncrypt = new LinkedList<Path>();
+		dicomImageToEncrypt = new  LinkedList<DicomImage>();
+		stop = false;
+		setDicomDaemon(null);
+		setSettings(ccs);
+		setServerInfo(SystemSettings.SERVER_INFO);
+	}
+
 	@Override
 	public void run() {
 		WindowManager.mwLogger.log(Level.INFO, "Encrypter Online.");
-		// on charge le backup
-		loadBackup();
-		// on supprime le fichier backup si il existe (car on l'a deja charge)
-		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
-		if(backupfile.exists())
-			backupfile.delete();
+		// on charge le backup si on est en mode server
+		if(settings.getServerMode() == ServerMode.SERVER){
+			loadBackup();
+			// on supprime le fichier backup si il existe (car on l'a deja charge)
+			File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+			if(backupfile.exists())
+				backupfile.delete();
+		}
 		setWaiting(false);
+		NiftiDaemon niftid = SystemSettings.NIFTI_DAEMON;
+		if(settings.getServerMode() == ServerMode.IMPORT)
+			niftid = settings.getImportSettings().getNiftid();
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty() && !isStop()){
@@ -73,7 +101,8 @@ public class EncryptDaemon extends Thread {
 			// on s'assure que le niftidaemon est online avant de lancer le traitement
 			// afin d'eviter au maximum les erreurs
 			// on attend le retour online du daemon pour continuer
-			while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
+
+			while(!(niftid!=null && niftid.isAlive())){
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -95,7 +124,7 @@ public class EncryptDaemon extends Thread {
 	public void setStop(boolean stop) {
 		if(stop = true){
 			this.stop = true;
-			if(!dicomToEncrypt.isEmpty())
+			if(!dicomToEncrypt.isEmpty() && settings.getServerMode() == ServerMode.SERVER)
 				saveBackup();
 			dicomToEncrypt.clear();
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
@@ -185,6 +214,20 @@ public class EncryptDaemon extends Thread {
 	public ServerInfo getServerInfo() {
 		return serverInfo;
 	}
+	/**
+	 * @return the settings
+	 */
+	public CustomConversionSettings getSettings() {
+		return settings;
+	}
+
+	/**
+	 * @param settings the settings to set
+	 */
+	public void setSettings(CustomConversionSettings settings) {
+		this.settings = settings;
+	}
+
 	public LinkedList<DicomImage> getDicomImageToEncrypt() {
 		return dicomImageToEncrypt;
 	}
@@ -212,24 +255,32 @@ public class EncryptDaemon extends Thread {
 	 */
 	public void sendToNiftiDaemon(DicomEncryptWorker dEncryptWorker) {
 		if(dEncryptWorker.getPatientFolder() != null){
-			if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive()){
-				SystemSettings.NIFTI_DAEMON.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
+			NiftiDaemon niftiToSendTo = SystemSettings.NIFTI_DAEMON;
+			if(settings != null && settings.getServerMode() == ServerMode.IMPORT)
+				niftiToSendTo = settings.getImportSettings().getNiftid();
+			if(niftiToSendTo!=null && niftiToSendTo.isAlive()){
+				niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}else{
-				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
-				WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
-				// on attend tant que le nifti daemon n'est pas online
-				while(!(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())){
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE,"Critical error : Nifti Daemon offline, can't forward ... Please restart");
+				if(settings.getServerMode() == ServerMode.IMPORT)
+					crashed = true;
+				if(settings.getServerMode() == ServerMode.SERVER){
+					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
+					WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
+					// on attend tant que le nifti daemon n'est pas online
+					while(!(niftiToSendTo!=null && niftiToSendTo.isAlive())){
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						if(isStop()){
+							break;
+						}
 					}
-					if(isStop()){
-						break;
-					}
+					if(niftiToSendTo!=null && niftiToSendTo.isAlive())
+						niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 				}
-				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
-						SystemSettings.NIFTI_DAEMON.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}
 		}
 		dEncryptWorker = null;
@@ -259,5 +310,13 @@ public class EncryptDaemon extends Thread {
 
 	public void setWaiting(boolean waiting) {
 		this.waiting = waiting;
+	}
+
+	public boolean isCrashed() {
+		return crashed;
+	}
+
+	public void setCrashed(boolean crashed) {
+		this.crashed = crashed;
 	}
 }

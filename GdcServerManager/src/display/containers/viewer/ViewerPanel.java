@@ -559,10 +559,12 @@ public class ViewerPanel extends JPanel{
 	}
 
 	public void setKeepRatio(boolean b) {
-		getAxialPanel().setKeepRatio(b);
-		getCoronalPanel().setKeepRatio(b);
-		getSagittalPanel().setKeepRatio(b);
-		updateCrosshair();
+		if(niftiAxial!=null){
+			getAxialPanel().setKeepRatio(b);
+			getCoronalPanel().setKeepRatio(b);
+			getSagittalPanel().setKeepRatio(b);
+			updateCrosshair();
+		}
 	}
 
 	public boolean isCrosshairVisible() {

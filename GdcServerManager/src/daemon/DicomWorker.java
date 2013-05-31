@@ -1,8 +1,5 @@
 package daemon;
 
-import ij.ImagePlus;
-import ij.util.DicomTools;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,6 +44,7 @@ import model.Protocol;
 import model.Serie;
 import model.ServerInfo;
 import model.User;
+import model.daemon.CustomConversionSettings.ServerMode;
 import static java.nio.file.StandardCopyOption.*;
 
 
@@ -124,12 +122,16 @@ public class DicomWorker extends DaemonWorker {
 
 		// On recupere le nom du protocole medical
 		studyName = getStudyDescription();
+		if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT && getDispatcher().getSettings().getImportSettings().changeProjectName()){
+			studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
+		}
 		// Si le protocole est null alors le fichier est encore en cours de copie
 		if(studyName == null){
 			prepareToStop();
 			return;
 		}	
-		if(getServerInfo().getPpid().contains(studyName))
+		if(getServerInfo().getPpid().contains(studyName) || (getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT &&
+				!getDispatcher().getSettings().getImportSettings().isUsePatientName()))
 			patientName = getPatientId();
 		else
 			patientName = getPatientName();
@@ -196,8 +198,13 @@ public class DicomWorker extends DaemonWorker {
 		
 		newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
-		// On deplace
-		moveDicomTo(newPath);
+		if(getDispatcher().getSettings().getServerMode() == ServerMode.SERVER){
+			// On deplace
+			moveDicomTo(newPath);
+		}else{
+			if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT)
+				copyDicomTo(newPath);
+		}
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
@@ -211,16 +218,24 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On ajoute le fichier brute dans la liste des fichiers
 		// a encrypter 
-		if(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive()){
-			SystemSettings.ENCRYPT_DAEMON.addDicomToEncrypt(newPath, dicomImage);
+		EncryptDaemon encryptd = SystemSettings.ENCRYPT_DAEMON; // daemon pour l'encryptage
+		if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT){
+			encryptd = getDispatcher().getSettings().getImportSettings().getEncrypter();
+		}
+		if(encryptd!=null && encryptd.isAlive()){
+			encryptd.addDicomToEncrypt(newPath, dicomImage);
 		}else{
-			WindowManager.MAINWINDOW.getSstatusPanel().getLblCommentdicomdispatcher().setText("Critical error : Encrypt Daemon offline, can't forward ... Please restart");
-			WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnDicomdispatcherstatus());
-			while(!(SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive())){
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE,"Critical error : Encrypt Daemon offline, can't forward ... Please restart");
+			getDispatcher().setCrashed(true);
+			if(getDispatcher().getSettings().getServerMode() == ServerMode.SERVER){
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblCommentdicomdispatcher().setText("Critical error : Encrypt Daemon offline, can't forward ... Please restart");
+				WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnDicomdispatcherstatus());
+				while(!(encryptd!=null && encryptd.isAlive())){
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

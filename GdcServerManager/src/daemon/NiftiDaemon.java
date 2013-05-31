@@ -26,6 +26,7 @@ import settings.WindowManager;
 import model.DicomImage;
 import model.ServerInfo;
 import model.daemon.CustomConversionSettings;
+import model.daemon.CustomConversionSettings.ServerMode;
 
 
 /**
@@ -52,6 +53,9 @@ public class NiftiDaemon extends Thread{
 	public static final String[] suffixeToRemoveWithNifti = new String[]{"_bvecs.txt","_bvals.txt","_moco.txt"};
 	
 	
+	// permet de savoir si le daemon a crashe
+	private boolean crashed;
+	
 	// fichier de backup
 	private static final String BACKUP_FILE = "niftiDaemon.bak";
 	
@@ -69,13 +73,23 @@ public class NiftiDaemon extends Thread{
 		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
+		crashed = false;
 	}
 
+	public NiftiDaemon(ServerInfo si, CustomConversionSettings customConvsettings){
+		setSettings(customConvsettings);
+		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
+		setStop(false);
+		setServerInfo(si);
+		crashed = false;
+	}
+	
 	public NiftiDaemon(ServerInfo si){
 		setSettings(new CustomConversionSettings());
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		setServerInfo(si);
+		crashed = false;
 	}
 	
 	// format 
@@ -85,6 +99,7 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
+		crashed = false;
 	}	
 	
 	/**
@@ -99,6 +114,7 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		setFormat(format);
+		crashed = false;
 	}
 	
 	// Accesseurs
@@ -121,7 +137,7 @@ public class NiftiDaemon extends Thread{
 		this.stop = stop;
 		if(stop){
 			WindowManager.mwLogger.log(Level.INFO, "Stopping NiftiDaemon");
-			if(!dir2convert.isEmpty())
+			if(!dir2convert.isEmpty() && settings.getServerMode() == ServerMode.SERVER)
 				saveBackup();
 		}
 	}
@@ -148,7 +164,7 @@ public class NiftiDaemon extends Thread{
 	// Methodes
 	public void run(){
 		WindowManager.mwLogger.log(Level.INFO, "Nifti Daemon Online.");
-		if(getSettings().isServerMode()){
+		if(getSettings().getServerMode() == ServerMode.SERVER){
 			// on charge le backup
 			loadBackup();
 			// on supprime le fichier de backup si il existe (on l'a deja charge si il existe)
@@ -159,7 +175,7 @@ public class NiftiDaemon extends Thread{
 		while(!isStop()){
 			// On evite une utilisation trop importante du CPU
 			// avec des boucles infini
-			if(getSettings().isServerMode()){
+			if(getSettings().getServerMode() == ServerMode.SERVER){
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e2) {
@@ -181,7 +197,7 @@ public class NiftiDaemon extends Thread{
 				if( timeSincemod > waitTimeToConvert ){
 					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 					// /!\ dcm2nii.exe DOIT etre dans le path
-					if(getSettings().isServerMode()){
+					if(getSettings().getServerMode() == ServerMode.SERVER){
 						// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
 						// si ce n'est pas le cas on
 						if(!isDirFullyEncrypted(path)) 
@@ -194,17 +210,19 @@ public class NiftiDaemon extends Thread{
 							it.remove();
 						}catch(Exception e){// on securise le process 
 							WindowManager.mwLogger.log(Level.SEVERE, "Critical error during nifti conversion",e);
+							crashed = true;
 							if(nworker!=null){
 								try {
 									nworker.clean();
 									WindowManager.mwLogger.log(Level.INFO, "Bugged worker cleaned");
 								} catch (IOException e1) {
-									e1.printStackTrace();
 									WindowManager.mwLogger.log(Level.SEVERE, "Can't clean bugged worker",e1);
 								}
-								saveBackup();
+								if(settings.getServerMode() == ServerMode.SERVER)
+									saveBackup();
 								// on fait crasher le daemon car si on arrive la c'est qu'il y a une erreur 
 								// dans le code
+								crashed = true;
 								throw e;
 							}
 						}
@@ -269,8 +287,10 @@ public class NiftiDaemon extends Thread{
 
 	public void setSettings(CustomConversionSettings settings) {
 		this.settings = settings;
-		if(this.settings.isServerMode())
+		if(this.settings.getServerMode() == ServerMode.SERVER)
 			waitTimeToConvert = 120000.0f;
+		else if(this.settings.getServerMode() == ServerMode.IMPORT)
+			waitTimeToConvert = 60000.0f;
 		else
 			waitTimeToConvert = 1000.0f;
 	}
@@ -351,5 +371,19 @@ public class NiftiDaemon extends Thread{
 			return dir2convert.size()+" directories to convert.";
 		else
 			return "";
+	}
+
+	/**
+	 * @return the crashed
+	 */
+	public boolean isCrashed() {
+		return crashed;
+	}
+
+	/**
+	 * @param crashed the crashed to set
+	 */
+	public void setCrashed(boolean crashed) {
+		this.crashed = crashed;
 	}
 }

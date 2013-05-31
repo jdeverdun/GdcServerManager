@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
+import model.daemon.CustomConversionSettings.ServerMode;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 import javax.swing.table.DefaultTableModel;
@@ -272,7 +273,7 @@ public class DicomSortConvertPanel extends JPanel {
 					default:
 						WindowManager.mwLogger.log(Level.SEVERE, "Unknow NIFTI FORMAT");
 					}
-					final CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
+					final CustomConversionSettings csettings = new CustomConversionSettings(ServerMode.CLIENT, chckbxProject.isSelected(),
 							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected(),chckb4d.isSelected());
 					ndaemon = new NiftiDaemon(SystemSettings.SERVER_INFO, fmt, csettings);
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, ndaemon);
@@ -328,7 +329,7 @@ public class DicomSortConvertPanel extends JPanel {
 					}
 					ddaemon.start();
 				}else{
-					CustomConversionSettings csettings = new CustomConversionSettings(false, chckbxProject.isSelected(),
+					CustomConversionSettings csettings = new CustomConversionSettings(ServerMode.CLIENT, chckbxProject.isSelected(),
 							chckbxDate.isSelected(), chckbxProtocol.isSelected(),chckbxSortDicom.isSelected(),chckb4d.isSelected());
 					ddaemon = new DicomJobDispatcher(SystemSettings.SERVER_INFO, csettings, null);
 

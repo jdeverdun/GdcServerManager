@@ -11,6 +11,8 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import org.apache.commons.io.FileUtils;
+
 import settings.WindowManager;
 
 import model.DicomImage;
@@ -53,7 +55,8 @@ public class DicomEncryptWorker extends DaemonWorker {
 			AESCrypt aes = new AESCrypt(false, getAESPass());
 			aes.encrypt(2, dicomFile.toString(), dicomFile+AESCrypt.ENCRYPTSUFFIX);
 			// On supprime le fichier non encrypte
-			Files.deleteIfExists(dicomFile);
+			FileUtils.deleteQuietly(dicomFile.toFile());
+			//Files.deleteIfExists(dicomFile);
 			
 			
 			// On ajoute l'entree du DICOM dans la database

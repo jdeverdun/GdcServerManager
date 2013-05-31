@@ -10,6 +10,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 
+import display.ImportFrame;
+
 import settings.WindowManager;
 
 /**
@@ -29,15 +31,25 @@ public class WaitingBarPanel extends JPanel{
 	private Thread runningThread;
 	private FileManager filetree; // celui qui tourne dans le thread
 	private RequestPanel rpanel;
+	private ImportFrame importFrame; 
 	
 	public WaitingBarPanel(FileManager fileManager){
 		this();
 		setFiletree(fileManager);
+		this.importFrame = null;
+		rpanel = null;
 	}
 	public WaitingBarPanel(RequestPanel rq){
 		this();
 		filetree=null;
 		rpanel = rq;
+		this.importFrame = null;
+	}
+	public WaitingBarPanel(ImportFrame importFrame){
+		this();
+		filetree=null;
+		rpanel = null;
+		this.importFrame = importFrame;
 	}
 	public WaitingBarPanel(){
 		
@@ -66,6 +78,9 @@ public class WaitingBarPanel extends JPanel{
 				if(rpanel!=null){
 					// si on est sur un import depuis la bdd
 					rpanel.terminateAction();
+				}
+				if(importFrame!=null){
+					importFrame.stopImport();
 				}
 			}
 		});

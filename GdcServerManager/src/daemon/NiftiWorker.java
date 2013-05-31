@@ -24,6 +24,7 @@ import settings.WindowManager;
 
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
+import model.daemon.CustomConversionSettings.ServerMode;
 
 import daemon.tools.nifti.Nifti_Reader;
 import dao.MySQLProjectDAO;
@@ -202,7 +203,7 @@ public class NiftiWorker extends DaemonWorker {
 		for(String currNifti:niftis.keySet())
 			try {
 				Files.delete(niftis.get(currNifti));
-				if(getNiftiDaemon().getSettings().isServerMode())
+				if(getNiftiDaemon().getSettings().getServerMode() == ServerMode.SERVER)
 					removeDBEntry(niftis.get(currNifti).getFileName());
 			} catch (IOException e) {
 				WindowManager.mwLogger.log(Level.SEVERE, "removeFiles error",e);
