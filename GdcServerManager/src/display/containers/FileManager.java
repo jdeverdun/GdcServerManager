@@ -795,8 +795,6 @@ public class FileManager {
     Thanks to Hovercraft Full Of Eels. */
     private void showChildren(final Path node) {
         //tree.setEnabled(false);
-        progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
 
         SwingWorker<Void, File> worker = new SwingWorker<Void, File>() {
             @Override
@@ -844,24 +842,11 @@ public class FileManager {
                 	default:
                 		filesWithParent = filesTemp;
                     }
-                    if(filesWithParent != null)
-                    	setTableData(filesWithParent);
+                    if(filesWithParent != null){
+                    	setTableData(filesWithParent);                   	
+                    }
                 }
                 return null;
-            }
-
-            @Override
-            protected void process(List<File> chunks) {
-                /*for (File child : chunks) {
-                  //  node.add(new DefaultMutableTreeNode(child));
-                }*/
-            }
-
-            @Override
-            protected void done() {
-                progressBar.setIndeterminate(false);
-                progressBar.setVisible(false);
-               // tree.setEnabled(true);
             }
         };
         worker.execute();
@@ -947,6 +932,8 @@ public class FileManager {
 class FileTableModel extends AbstractTableModel {
 
     private File[] files;
+    private Object[] size;// on stock en cache les infos pour eviter les overhead
+    private Object[] lastMod;
     private FileSystemView fileSystemView = FileSystemView.getFileSystemView();
     private String[] columns = {
         "Icon",
@@ -963,6 +950,7 @@ class FileTableModel extends AbstractTableModel {
         this.files = files;
     }
 
+    // Attention beaucoup d'overhead
     public Object getValueAt(int row, int column) {
         File file = files[row];
         switch (column) {
@@ -971,7 +959,8 @@ class FileTableModel extends AbstractTableModel {
             case 1:
                 return fileSystemView.getSystemDisplayName(file);
             case 2:
-            	long nbytes = file.length();
+            	return size[row];
+            	/*long nbytes = file.length();
             	long kilobytes = (nbytes / 1024);
             	long megabytes = (kilobytes / 1024);
             	long gigabytes = (megabytes / 1024);
@@ -981,9 +970,10 @@ class FileTableModel extends AbstractTableModel {
             		return megabytes + " Mb";
             	else if(gigabytes>=1)
             		return gigabytes + " Gb";
-                return nbytes + " b";
+                return nbytes + " b";*/
             case 3:
-                return file.lastModified();
+            	return lastMod[row];
+                //return file.lastModified();
             default:
                 System.err.println("Logic Error");
         }
@@ -1019,10 +1009,61 @@ class FileTableModel extends AbstractTableModel {
     }
 
     
-    public void setFiles(File[] files) {
-        this.files = files;
-        fireTableDataChanged();
+    public void setFiles(final File[] filesu) {
+    	WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
+    	Thread tr = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				files = filesu;
+		        updateSize();
+		        updateLastMod();
+		        WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+		        SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						fireTableDataChanged();
+					}
+				});
+		        
+			}
+		});
+        tr.start();
+        
     }
+
+    /**
+     * Met a jours le cache pour les date de modification des fichiers
+     * (empeche l'overhead)
+     */
+	private void updateLastMod() {
+		lastMod = new Object[files.length];
+		for(int i = 0; i<files.length;i++){
+			lastMod[i] = files[i].lastModified();
+		}
+	}
+
+	/**
+	 * Met a jours les informations sur les tailles de fichiers
+	 */
+	private void updateSize() {
+		size = new Object[files.length];
+		for(int i = 0; i<files.length;i++){
+			long nbytes = files[i].length();
+	    	long kilobytes = (nbytes / 1024);
+	    	long megabytes = (kilobytes / 1024);
+	    	long gigabytes = (megabytes / 1024);
+	    	if(kilobytes>1 && megabytes<1)
+	    		size[i] = kilobytes + " Kb";
+	    	else if(megabytes>=1 && gigabytes<1)
+	    		size[i] = megabytes + " Mb";
+	    	else if(gigabytes>=1)
+	    		size[i] = gigabytes + " Gb";
+	    	else
+	    		size[i] = nbytes + " b";
+		}
+	}
 }
 
 /** A TreeCellRenderer for a File. */
