@@ -18,6 +18,7 @@ import model.daemon.ImportSettings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -102,6 +103,7 @@ public class ImportFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(txtDicomDirectory.getText());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(ImportFrame.this);

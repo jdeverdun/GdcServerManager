@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -113,6 +114,7 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getTempDir().toString());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(SettingsFrame.this);
@@ -158,6 +160,7 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getIncomingDir().toString());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(SettingsFrame.this);
@@ -171,6 +174,7 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getDicomDir().toString());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(SettingsFrame.this);
@@ -184,6 +188,7 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getNiftiDir().toString());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(SettingsFrame.this);
@@ -197,6 +202,7 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getServerDir().toString());
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int retval = fc.showOpenDialog(SettingsFrame.this);

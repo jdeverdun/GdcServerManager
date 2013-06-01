@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -199,8 +200,20 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().reset();
 		getAxialPanel().reset();
 		getSagittalPanel().reset();
-		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz"))
+		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz")){
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					JDialog.setDefaultLookAndFeelDecorated(true);
+					JOptionPane.showMessageDialog(ViewerPanel.this,
+						    "Unknown format",
+						    "Openning error",
+						    JOptionPane.ERROR_MESSAGE);
+				}
+			});
 			return false;
+		}
 		try{
 			niftiAxial = new Nifti_Reader(path.toFile());
 			Nifti_Reader nr = checkAndRotate(niftiAxial); // on verifie  que le "point zero" est en bas a gauche
@@ -211,10 +224,11 @@ public class ViewerPanel extends JPanel{
 					
 					@Override
 					public void run() {
-						WarningPanel wmess = new WarningPanel("Data has incorrect header ... attempt to continue");
-						Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
-						wmess.setPopupWindow(popup);
-						popup.show();
+						JDialog.setDefaultLookAndFeelDecorated(true);
+						JOptionPane.showMessageDialog(ViewerPanel.this,
+								"Data has incorrect header ... attempt to continue",
+							    "Openning error",
+							    JOptionPane.WARNING_MESSAGE);
 					}
 				});
 				WindowManager.mwLogger.log(Level.WARNING,"Data has incorrect header ... attempt to continue [open]");
@@ -283,6 +297,7 @@ public class ViewerPanel extends JPanel{
 				
 				@Override
 				public void run() {
+					JDialog.setDefaultLookAndFeelDecorated(true);
 					JOptionPane.showMessageDialog(ViewerPanel.this,
 						    "Exception : "+e.toString(),
 						    "Openning error",
@@ -307,10 +322,11 @@ public class ViewerPanel extends JPanel{
 				
 				@Override
 				public void run() {
-					WarningPanel wmess = new WarningPanel("Can't overlay anything on nothing.");
-					Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
-					wmess.setPopupWindow(popup);
-					popup.show();
+					JDialog.setDefaultLookAndFeelDecorated(true);
+					JOptionPane.showMessageDialog(ViewerPanel.this,
+							"Can't overlay anything on nothing.",
+						    "Openning error",
+						    JOptionPane.ERROR_MESSAGE);
 				}
 			});
 			WindowManager.mwLogger.log(Level.WARNING, "Attempt to overlay on an empty image [ViewerPanel]");
@@ -351,10 +367,11 @@ public class ViewerPanel extends JPanel{
 					
 					@Override
 					public void run() {
-						WarningPanel wmess = new WarningPanel("Overlay and image have different sizes.");
-						Popup popup = PopupFactory.getSharedInstance().getPopup(ViewerPanel.this, wmess, (int)getWidth()/2-20,(int)getHeight()/2-20);
-						wmess.setPopupWindow(popup);
-						popup.show();
+						JDialog.setDefaultLookAndFeelDecorated(true);
+						JOptionPane.showMessageDialog(ViewerPanel.this,
+								"Overlay and image have different sizes.",
+							    "Openning error",
+							    JOptionPane.ERROR_MESSAGE);
 					}
 				});
 				WindowManager.mwLogger.log(Level.SEVERE,"Overlay and image have different sizes.");
@@ -400,6 +417,7 @@ public class ViewerPanel extends JPanel{
 				
 				@Override
 				public void run() {
+					JDialog.setDefaultLookAndFeelDecorated(true);
 					JOptionPane.showMessageDialog(ViewerPanel.this,
 						    "Exception : "+e.toString(),
 						    "Openning error",
