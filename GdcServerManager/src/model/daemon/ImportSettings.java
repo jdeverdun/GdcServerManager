@@ -14,15 +14,13 @@ public class ImportSettings {
 	private String newProjectName;
 	private boolean usePatientName;
 	private DicomJobDispatcher dispatcher; // le dispatcher associe a l'import
-	private EncryptDaemon encrypter; // l'encrypter associe a l'import
 	private NiftiDaemon niftid; // le daemon nifti associe a l'impot
 	
 	
-	public ImportSettings(String newProjectName,boolean usePatientName,DicomJobDispatcher dispatcher, EncryptDaemon encrypter, NiftiDaemon niftid){
+	public ImportSettings(String newProjectName,boolean usePatientName,DicomJobDispatcher dispatcher, NiftiDaemon niftid){
 		this.setNewProjectName(newProjectName);
 		this.setUsePatientName(usePatientName);
 		setDispatcher(dispatcher);
-		setEncrypter(encrypter);
 		setNiftid(niftid);
 	}
 
@@ -69,16 +67,6 @@ public class ImportSettings {
 
 	public void setDispatcher(DicomJobDispatcher dispatcher) {
 		this.dispatcher = dispatcher;
-	}
-
-
-	public EncryptDaemon getEncrypter() {
-		return encrypter;
-	}
-
-
-	public void setEncrypter(EncryptDaemon encrypter) {
-		this.encrypter = encrypter;
 	}
 
 

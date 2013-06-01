@@ -83,8 +83,6 @@ public class EncryptDaemon extends Thread {
 		}
 		setWaiting(false);
 		NiftiDaemon niftid = SystemSettings.NIFTI_DAEMON;
-		if(settings.getServerMode() == ServerMode.IMPORT)
-			niftid = settings.getImportSettings().getNiftid();
 		while(!isStop()){
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty() && !isStop()){
@@ -262,25 +260,21 @@ public class EncryptDaemon extends Thread {
 				niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}else{
 				WindowManager.mwLogger.log(Level.SEVERE,"Critical error : Nifti Daemon offline, can't forward ... Please restart");
-				if(settings.getServerMode() == ServerMode.IMPORT)
-					crashed = true;
-				if(settings.getServerMode() == ServerMode.SERVER){
-					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
-					WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
-					// on attend tant que le nifti daemon n'est pas online
-					while(!(niftiToSendTo!=null && niftiToSendTo.isAlive())){
-						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						if(isStop()){
-							break;
-						}
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText("Critical error : Nifti Daemon offline, can't forward ... Please restart");
+				WindowManager.MAINWINDOW.getSstatusPanel().setCritical(WindowManager.MAINWINDOW.getSstatusPanel().getBtnEncrypterdaemonstatus());
+				// on attend tant que le nifti daemon n'est pas online
+				while(!(niftiToSendTo!=null && niftiToSendTo.isAlive())){
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-					if(niftiToSendTo!=null && niftiToSendTo.isAlive())
-						niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
+					if(isStop()){
+						break;
+					}
 				}
+				if(niftiToSendTo!=null && niftiToSendTo.isAlive())
+					niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}
 		}
 		dEncryptWorker = null;

@@ -57,8 +57,7 @@ public class ImportFrame extends JFrame {
 	
 	// les daemons dedie a l'import
 	private NiftiDaemon niftid;
-	private DicomJobDispatcher dispatcher;
-	private EncryptDaemon encrypter;
+	private DicomJobDispatcher dispatcher;// on appel directement le worker de l'envrypter et pas l'encrypt daemon
 	
 	private JTextField txtDicomDirectory;
 	private JTextField txtProjectname;
@@ -195,16 +194,13 @@ public class ImportFrame extends JFrame {
 					pname = txtProjectname.getText();
 				
 				// On definit les parametres de l'import
-				ImportSettings is = new ImportSettings(pname, rdbtnPatientname.isSelected(),dispatcher,encrypter,niftid);
+				ImportSettings is = new ImportSettings(pname, rdbtnPatientname.isSelected(),dispatcher,niftid);
 				CustomConversionSettings ccs = new CustomConversionSettings(ServerMode.IMPORT, is);
 				// On lance les daemons
 				niftid = new NiftiDaemon(SystemSettings.SERVER_INFO,ccs);
-				encrypter = new EncryptDaemon(ccs);
 				dispatcher = new DicomJobDispatcher(ccs);
 				niftid.start();
-				encrypter.start();
 				dispatcher.start();
-				is.setEncrypter(encrypter);
 				is.setDispatcher(dispatcher);
 				is.setNiftid(niftid);
 				stopImport = false;
@@ -212,7 +208,7 @@ public class ImportFrame extends JFrame {
 				// on gere les thread status // recherche fichier
 				setLock(true);
 				final WaitingBarPanel ppanel = new WaitingBarPanel(ImportFrame.this); // mode creation de liens
-				ppanel.setTitle("Loooking for dicoms ...");
+				ppanel.setTitle("Looking for dicoms ...");
 				final Popup popup = PopupFactory.getSharedInstance().getPopup(ImportFrame.this, ppanel, (int)ImportFrame.this.getX()+(getWidth()/2)-40,(int)ImportFrame.this.getY()+(getHeight()/2)-40);
 				// Thread pour la recherche et l'ajout de dicom
 				final Thread fileSeeking = new Thread(new Runnable() {
@@ -229,7 +225,6 @@ public class ImportFrame extends JFrame {
 							findAndAddDicom(new File(txtDicomDirectory.getText()));
 							if(stopImport){
 								dispatcher.setStop(true);
-								encrypter.setStop(true);
 								niftid.setStop(true);
 								WindowManager.mwLogger.log(Level.INFO, "Dicom selection cancelled [import]");
 							}else{
@@ -270,15 +265,17 @@ public class ImportFrame extends JFrame {
 						boolean continu = true;
 						while(continu){
 							if(stopImport){
+								dispatcher.setStop(true);
+								niftid.setStop(true);
 								break;
 							}
 							try {
-								Thread.sleep(5000);
+								Thread.sleep(2000);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
 							// si il y a eu un crash
-							if(dispatcher.isCrashed() || encrypter.isCrashed() || niftid.isCrashed()){
+							if(dispatcher.isCrashed() || niftid.isCrashed()){
 								continu=false;
 								SwingUtilities.invokeLater(new Runnable() {
 									
@@ -289,28 +286,25 @@ public class ImportFrame extends JFrame {
 										wmess.setPopupWindow(popup);
 										popup.show();
 										dispatcher.setStop(true);
-										encrypter.setStop(true);
 										niftid.setStop(true);
 									}
 								});
 								
 								setLock(false);
 							}
+								
 							// les fichiers restant a envoyer
 							int nbdicomToMove = dispatcher.getDicomToMove().size();
-							int nbdicomToEncrypt = encrypter.getDicomToEncrypt().size();
 							int nbdirToConvert = niftid.getDir2convert().size();
 							// si tout est fini
-							if(!fileSeeking.isAlive() && nbdicomToEncrypt == 0 && nbdicomToMove==0 && nbdirToConvert==0){
+							if(!fileSeeking.isAlive()  && nbdicomToMove==0 && nbdirToConvert==0){
 								continu = false;
 								setLock(false);
 								popup.hide();
 							}
 								
 							if(nbdicomToMove>0)
-								ppanel.setTitle("Copy : "+nbdicomToMove);
-							else if(nbdicomToEncrypt>0)
-								ppanel.setTitle("Encrypt : "+nbdicomToEncrypt);
+								ppanel.setTitle("Encrypt : "+nbdicomToMove);
 							else if(nbdirToConvert>0)
 								ppanel.setTitle("Convert : "+nbdirToConvert);
 							else
@@ -363,14 +357,6 @@ public class ImportFrame extends JFrame {
 
 	public void setDispatcher(DicomJobDispatcher dispatcher) {
 		this.dispatcher = dispatcher;
-	}
-
-	public EncryptDaemon getEncrypter() {
-		return encrypter;
-	}
-
-	public void setEncrypter(EncryptDaemon encrypter) {
-		this.encrypter = encrypter;
 	}
 
 	public void createAndShowGUI(){

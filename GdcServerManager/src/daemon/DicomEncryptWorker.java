@@ -13,6 +13,7 @@ import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
+import settings.SystemSettings;
 import settings.WindowManager;
 
 import model.DicomImage;
@@ -30,10 +31,10 @@ import es.vocali.util.AESCrypt;
  */
 public class DicomEncryptWorker extends DaemonWorker {
 
-	private Path dicomFile;
+	protected Path dicomFile;
 	private EncryptDaemon encryptDaemon;
-	private DicomImage dicomImage;
-	private ImagePlus imp;
+	protected DicomImage dicomImage;
+	protected ImagePlus imp;
 	
 	public DicomEncryptWorker(EncryptDaemon disp, Path p, DicomImage di){
 		dicomFile = p;
@@ -43,6 +44,15 @@ public class DicomEncryptWorker extends DaemonWorker {
 		setPatientFolder(getSerieFolder().getParent().getParent().getParent());
 		setProjectFolder(getPatientFolder().getParent());
 		setServerInfo(getEncryptDaemon().getServerInfo());
+	}
+	
+	public DicomEncryptWorker(Path p, DicomImage di){
+		dicomFile = p;
+		dicomImage = di;
+		setSerieFolder(dicomFile.getParent());
+		setPatientFolder(getSerieFolder().getParent().getParent().getParent());
+		setProjectFolder(getPatientFolder().getParent());
+		setServerInfo(SystemSettings.SERVER_INFO);
 	}
 	
 	@Override

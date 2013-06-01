@@ -50,7 +50,7 @@ import static java.nio.file.StandardCopyOption.*;
 
 public class DicomWorker extends DaemonWorker {
 
-	private static String DEFAULT_STRING = "Unknown"; // chaine de caractere par defaut quand un champs dicom est vide
+	protected static String DEFAULT_STRING = "Unknown"; // chaine de caractere par defaut quand un champs dicom est vide
 	private static float DEFAULT_FLOAT = -1.0f; // idem pour les float
 	// Attributs
 	protected Path dicomFile;
@@ -72,7 +72,7 @@ public class DicomWorker extends DaemonWorker {
 	protected int acqDate_id;
 	protected int protocol_id;
 	protected int serie_id;
-	private Path newPath;// nouveau chemin vers le fichier (apres deplacement dans repertoire dicom)
+	protected Path newPath;// nouveau chemin vers le fichier (apres deplacement dans repertoire dicom)
 	
 	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException{
 		setDispatcher(pDaemon);
@@ -122,16 +122,13 @@ public class DicomWorker extends DaemonWorker {
 
 		// On recupere le nom du protocole medical
 		studyName = getStudyDescription();
-		if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT && getDispatcher().getSettings().getImportSettings().changeProjectName()){
-			studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
-		}
+
 		// Si le protocole est null alors le fichier est encore en cours de copie
 		if(studyName == null){
 			prepareToStop();
 			return;
 		}	
-		if(getServerInfo().getPpid().contains(studyName) || (getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT &&
-				!getDispatcher().getSettings().getImportSettings().isUsePatientName()))
+		if(getServerInfo().getPpid().contains(studyName))
 			patientName = getPatientId();
 		else
 			patientName = getPatientName();
@@ -198,13 +195,8 @@ public class DicomWorker extends DaemonWorker {
 		
 		newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 		
-		if(getDispatcher().getSettings().getServerMode() == ServerMode.SERVER){
-			// On deplace
-			moveDicomTo(newPath);
-		}else{
-			if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT)
-				copyDicomTo(newPath);
-		}
+		// On deplace
+		moveDicomTo(newPath);
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
@@ -219,9 +211,6 @@ public class DicomWorker extends DaemonWorker {
 		// On ajoute le fichier brute dans la liste des fichiers
 		// a encrypter 
 		EncryptDaemon encryptd = SystemSettings.ENCRYPT_DAEMON; // daemon pour l'encryptage
-		if(getDispatcher().getSettings().getServerMode() == ServerMode.IMPORT){
-			encryptd = getDispatcher().getSettings().getImportSettings().getEncrypter();
-		}
 		if(encryptd!=null && encryptd.isAlive()){
 			encryptd.addDicomToEncrypt(newPath, dicomImage);
 		}else{
@@ -245,7 +234,7 @@ public class DicomWorker extends DaemonWorker {
 	}
 
 	// Set des ID serie // protocol // projet etc depuis la BDD
-	private void setSerie_idFromDB(Path fileName) {
+	protected void setSerie_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
 		DBCache cache = getServerInfo().getDbCache();
 		Integer id = cache.getIdSerieList().get(fileName.toString() + "@@" + getProtocol_id() + "@@" + getAcqDate_id() + "@@" +
@@ -274,7 +263,7 @@ public class DicomWorker extends DaemonWorker {
 	 * Definition de l'attribut Protocol_id grace a son nom (repertoire) depuis la BDD
 	 * @param fileName
 	 */
-	private void setProtocol_idFromDB(Path fileName) {
+	protected void setProtocol_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
 		DBCache cache = getServerInfo().getDbCache();
 		Integer id = cache.getIdProtocolList().get(fileName.toString() + "@@" + getAcqDate_id() + "@@" +
@@ -302,7 +291,7 @@ public class DicomWorker extends DaemonWorker {
 	 * Definition de l'attribut Acqdate_id grace a son nom (repertoire) depuis la BDD
 	 * @param fileName
 	 */
-	private void setAcqDate_idFromDB(Path fileName) {
+	protected void setAcqDate_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
 		DBCache cache = getServerInfo().getDbCache();
 		Integer id = cache.getIdAcqDateList().get(fileName.toString() + "@@" +
@@ -331,7 +320,7 @@ public class DicomWorker extends DaemonWorker {
 	 * Definition de l'attribut Patient_id grace a son nom (repertoire) depuis la BDD
 	 * @param fileName
 	 */
-	private void setPatient_idFromDB(Path fileName) {
+	protected void setPatient_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
 		DBCache cache = getServerInfo().getDbCache();
 		Integer id = cache.getIdPatientList().get(fileName.toString() + "@@" + getProject_id());
@@ -358,7 +347,7 @@ public class DicomWorker extends DaemonWorker {
 	 * Definition de l'attribut Project_id grace a son nom (repertoire) depuis la BDD
 	 * @param fileName
 	 */
-	private void setProject_idFromDB(Path fileName) {
+	protected void setProject_idFromDB(Path fileName) {
 		// on verifie d'abord si on a pas les infos dans le cache
 		DBCache cache = getServerInfo().getDbCache();
 		Integer id = cache.getIdProjectList().get(fileName.toString());
@@ -790,7 +779,7 @@ public class DicomWorker extends DaemonWorker {
 	public float getRepetitionTime() throws DicomException{
 		String rt = getTag("0018,0080");
 		if(rt == null){
-			throw new DicomException("Unable to decode DICOM header 0018,0080");
+			return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0080");
 		}
 		if(rt.isEmpty())
 			return DEFAULT_FLOAT;
@@ -807,11 +796,11 @@ public class DicomWorker extends DaemonWorker {
 		return Float.parseFloat(rt);
 	}
 	
-	// recupere le TR
+	// recupere le TE
 	public Float getEchoTime() throws DicomException{
 		String et = getTag("0018,0081");
 		if(et == null){
-			throw new DicomException("Unable to decode DICOM header 0018,0081");
+			return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0081");
 		}
 		if(et.isEmpty())
 			return DEFAULT_FLOAT;
@@ -953,7 +942,7 @@ public class DicomWorker extends DaemonWorker {
 	 * @param tag
 	 * @return
 	 */
-	private String getTag(String tag) {
+	protected String getTag(String tag) {
 		if (header==null) return null;
 		int index1 = header.indexOf(tag);
 		if (index1==-1) return null;
