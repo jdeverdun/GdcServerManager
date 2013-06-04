@@ -669,7 +669,8 @@ public class DicomWorker extends DaemonWorker {
 	public float getPatientSize() throws DicomException{
 		String psize = getTag("0010,1020");
 		if(psize == null){
-			throw new DicomException("Unable to decode DICOM header 0010,1020");
+			return DEFAULT_FLOAT;
+			//throw new DicomException("Unable to decode DICOM header 0010,1020");
 		}
 		if(psize.isEmpty())
 			return DEFAULT_FLOAT;

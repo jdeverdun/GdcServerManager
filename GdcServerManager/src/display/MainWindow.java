@@ -275,7 +275,7 @@ public class MainWindow extends JFrame {
 			newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
 			icon2 = new ImageIcon(newimg); 
 			btnRefresh = new JButton(icon2);
-			btnRefresh.setToolTipText("Refresh");
+			btnRefresh.setToolTipText("Refresh (Views & conf files)");
 			toolBar.add(btnRefresh);
 		}
 		
@@ -531,6 +531,8 @@ public class MainWindow extends JFrame {
 					getFileTreeDist().refresh();
 					getFileTreeLocal().refresh();
 					getFileTreeWork().refresh();
+					// Refresh conf
+					SystemSettings.SERVER_INFO.refresh();
 				}
 			});
 

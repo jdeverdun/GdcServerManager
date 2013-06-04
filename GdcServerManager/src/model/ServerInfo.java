@@ -256,6 +256,34 @@ public class ServerInfo {
 
 	}
 
+	/**
+	 * Recharge la configuration
+	 */
+	public void refresh() {
+		File params_file = new File(SystemSettings.APP_DIR + "/" + CONF_FILE);
+		if(params_file.exists()){
+			HashMap<String,String> params = getParams(params_file);
+			setIncomingDir(params.get(INCOMING_DIR_NAME));
+			setDicomDir(params.get(DICOM_DIR_NAME));
+			setNiftiDir(params.get(NIFTI_DIR_NAME));
+			setTempDir(params.get(TEMP_DIR_NAME));
+			setServerDir(params.get(SERVER_DIR_NAME));
+		}else{
+			setIncomingDir(SystemSettings.APP_DIR+ "/" +INCOMING_DIR_NAME);
+			setDicomDir(SystemSettings.APP_DIR + "/" +DICOM_DIR_NAME);
+			setNiftiDir(SystemSettings.APP_DIR + "/" + NIFTI_DIR_NAME);
+			setTempDir(SystemSettings.APP_DIR + "/" + TEMP_DIR_NAME);
+			setServerDir(getDicomDir().toString());
+			saveConfiguration();
+		}
+		dbCache = new DBCache();
+		try {
+			setProjectWithPatientId();
+		} catch (IOException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could not load "+PPID_FILE,e);
+		}
+	}
+
 
 
 }

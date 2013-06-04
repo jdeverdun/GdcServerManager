@@ -74,13 +74,11 @@ public class EncryptDaemon extends Thread {
 	public void run() {
 		WindowManager.mwLogger.log(Level.INFO, "Encrypter Online.");
 		// on charge le backup si on est en mode server
-		if(settings.getServerMode() == ServerMode.SERVER){
-			loadBackup();
-			// on supprime le fichier backup si il existe (car on l'a deja charge)
-			File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
-			if(backupfile.exists())
-				backupfile.delete();
-		}
+		loadBackup();
+		// on supprime le fichier backup si il existe (car on l'a deja charge)
+		File backupfile = new File(SystemSettings.APP_DIR+File.separator+ServerInfo.BACKUP_DIR+File.separator+BACKUP_FILE);
+		if(backupfile.exists())
+			backupfile.delete();
 		setWaiting(false);
 		NiftiDaemon niftid = SystemSettings.NIFTI_DAEMON;
 		while(!isStop()){
@@ -122,8 +120,7 @@ public class EncryptDaemon extends Thread {
 	public void setStop(boolean stop) {
 		if(stop = true){
 			this.stop = true;
-			if(!dicomToEncrypt.isEmpty() && settings.getServerMode() == ServerMode.SERVER)
-				saveBackup();
+			saveBackup();
 			dicomToEncrypt.clear();
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
 		}else{
@@ -254,8 +251,6 @@ public class EncryptDaemon extends Thread {
 	public void sendToNiftiDaemon(DicomEncryptWorker dEncryptWorker) {
 		if(dEncryptWorker.getPatientFolder() != null){
 			NiftiDaemon niftiToSendTo = SystemSettings.NIFTI_DAEMON;
-			if(settings != null && settings.getServerMode() == ServerMode.IMPORT)
-				niftiToSendTo = settings.getImportSettings().getNiftid();
 			if(niftiToSendTo!=null && niftiToSendTo.isAlive()){
 				niftiToSendTo.addDir(dEncryptWorker.getSerieFolder(),dEncryptWorker.getDicomImage());
 			}else{
