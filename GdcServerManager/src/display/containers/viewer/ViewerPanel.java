@@ -212,6 +212,7 @@ public class ViewerPanel extends JPanel{
 						    JOptionPane.ERROR_MESSAGE);
 				}
 			});
+			niftiAxial = null;
 			return false;
 		}
 		try{
@@ -232,7 +233,7 @@ public class ViewerPanel extends JPanel{
 					}
 				});
 				WindowManager.mwLogger.log(Level.WARNING,"Data has incorrect header ... attempt to continue [open]");
-				
+				niftiAxial = null;
 			}else{
 				niftiAxial = nr;
 				nr = null;
@@ -304,6 +305,7 @@ public class ViewerPanel extends JPanel{
 						    JOptionPane.ERROR_MESSAGE);
 				}
 			});
+			niftiAxial = null;
 			e.printStackTrace();
 			return false;
 		}
@@ -355,6 +357,7 @@ public class ViewerPanel extends JPanel{
 					}
 				});*/
 				WindowManager.mwLogger.log(Level.WARNING,"Overlay has incorrect header ... using image information");
+				niftiOverlayAxial = null;
 			}else{
 				niftiOverlayAxial = nr;
 				nr = null;
@@ -375,6 +378,7 @@ public class ViewerPanel extends JPanel{
 					}
 				});
 				WindowManager.mwLogger.log(Level.SEVERE,"Overlay and image have different sizes.");
+				niftiOverlayAxial = null;
 				return false;
 			}
 			
@@ -424,6 +428,8 @@ public class ViewerPanel extends JPanel{
 						    JOptionPane.ERROR_MESSAGE);
 				}
 			});
+			
+			niftiOverlayAxial = null;
 			e.printStackTrace();
 			return false;
 		}
@@ -662,6 +668,7 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().refreshImage();
 		getCoronalPanel().refreshImage();
 		getSagittalPanel().refreshImage();
+		setDisplayMinMax(infoViewer.getMin(), infoViewer.getMax()); 
 	}
 
 	/**
@@ -675,6 +682,7 @@ public class ViewerPanel extends JPanel{
 		getAxialPanel().refreshOverlay();
 		getCoronalPanel().refreshOverlay();
 		getSagittalPanel().refreshOverlay();
+		setDisplayOverlayMinMax(infoViewer.getMinOverlay(), infoViewer.getMaxOverlay()); 
 	}
 
 	/**

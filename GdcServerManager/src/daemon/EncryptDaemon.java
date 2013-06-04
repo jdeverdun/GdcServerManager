@@ -8,7 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
@@ -41,6 +43,9 @@ public class EncryptDaemon extends Thread {
 	private boolean stop;
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
 	private boolean crashed; // pour l'import permet de savoir si le daemon a crashe
+	private int maxWorker;
+	private List<DicomEncryptWorker> workers;
+	
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -49,6 +54,7 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		crashed = false;
+		workers = new ArrayList<DicomEncryptWorker>();
 	}
 	
 	public EncryptDaemon(){
@@ -58,6 +64,7 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(SystemSettings.SERVER_INFO);
 		crashed = false;
+		workers = new ArrayList<DicomEncryptWorker>();
 	}
 	
 	
@@ -68,6 +75,7 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(null);
 		setSettings(ccs);
 		setServerInfo(SystemSettings.SERVER_INFO);
+		workers = new ArrayList<DicomEncryptWorker>();
 	}
 
 	@Override
@@ -108,6 +116,15 @@ public class EncryptDaemon extends Thread {
 					break;
 				}
 			}
+			//if(workers.size()<maxWorker){
+			Thread workingT = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					
+				}
+			});
 			// on lance l'encryptage du fichier
 			dEncryptWorker = new DicomEncryptWorker(this, (Path)dicomToEncrypt.pop(), (DicomImage)dicomImageToEncrypt.pop());
 			dEncryptWorker.start();  
@@ -239,9 +256,11 @@ public class EncryptDaemon extends Thread {
 		this.dicomDaemon = dicomDaemon;
 	}
 	public void addDicomToEncrypt(Path p, DicomImage di){
-		dicomToEncrypt.push(p);
-		dicomImageToEncrypt.push(di);
-		setWaiting(false);
+		if(!dicomToEncrypt.contains(p)){
+			dicomToEncrypt.push(p);
+			dicomImageToEncrypt.push(di);
+			setWaiting(false);
+		}
 	}
 	
 	/**

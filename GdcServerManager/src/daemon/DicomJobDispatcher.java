@@ -42,7 +42,6 @@ public class DicomJobDispatcher extends Thread{
 	private ServerInfo serverInfo;
 	private ConcurrentLinkedQueue<Path> dicomToMove;
 	private int numberOfRuns; // nombre de threads qui ont été lancé
-	private int maxWorker; // nombre de coeurs disponibles [obsolete]
 	private DicomWorker dworker;
 	private boolean stop;
 	private int waitCounter;
@@ -59,7 +58,6 @@ public class DicomJobDispatcher extends Thread{
 		setSettings(new CustomConversionSettings());
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
-		setMaxWorker(SystemSettings.AVAILABLE_CORES);
 		crashed = false;
 		
 	}
@@ -74,7 +72,6 @@ public class DicomJobDispatcher extends Thread{
 		setSettings(settings);
 		setStop(false);
 		setServerInfo(SystemSettings.SERVER_INFO);
-		setMaxWorker(SystemSettings.AVAILABLE_CORES);
 		crashed = false;
 		
 	}
@@ -93,7 +90,6 @@ public class DicomJobDispatcher extends Thread{
 		setDicomDaemon(null);
 		setStop(false);
 		setServerInfo(si);
-		setMaxWorker(SystemSettings.AVAILABLE_CORES);
 		DicomWorkerClient.DICOMDIR = null;
 		crashed = false;
 	}
@@ -127,14 +123,6 @@ public class DicomJobDispatcher extends Thread{
 
 	public void setServerInfo(ServerInfo serverInfo) {
 		this.serverInfo = serverInfo;
-	}
-
-	public int getMaxWorker() {
-		return maxWorker;
-	}
-
-	public void setMaxWorker(int maxWorker) {
-		this.maxWorker = maxWorker;
 	}
 
 	public DicomWorker getDworker() {

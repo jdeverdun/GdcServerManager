@@ -36,6 +36,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 	protected DicomImage dicomImage;
 	protected ImagePlus imp;
 	
+	
 	public DicomEncryptWorker(EncryptDaemon disp, Path p, DicomImage di){
 		dicomFile = p;
 		encryptDaemon = disp;
@@ -125,7 +126,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 					dicomImage.setId(dicdao.idmax());
 				} catch (SQLException e) {
 					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
-					WindowManager.mwLogger.log(Level.WARNING, "SQL error",e);
+					WindowManager.mwLogger.log(Level.WARNING, "SQL error",e.toString());
 				}
 				
 				break;

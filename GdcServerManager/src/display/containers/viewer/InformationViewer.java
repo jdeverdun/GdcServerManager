@@ -496,6 +496,28 @@ public class InformationViewer extends JPanel {
 		lblVoxelOverlayValue.setText("[NaN]");
 	}
 
+	public double getMinOverlay(){
+		return (double) spinnerOverlayMin.getValue();
+	}
+	public double getMaxOverlay(){
+		return (double) spinnerOverlayMax.getValue();
+	}
+
+
+	/**
+	 * Renvoi min de l'image (de la colormap)
+	 * @return
+	 */
+	public double getMin(){
+		return (double) spinnerMin.getValue();
+	}
+	/**
+	 * Renvoi le max de al colormap actuelle
+	 * @return
+	 */
+	public double getMax(){
+		return (double) spinnerMax.getValue();
+	}
 
 
 }
