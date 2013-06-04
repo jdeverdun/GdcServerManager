@@ -3,8 +3,10 @@ package display.containers;
 import javax.swing.JPanel;
 
 import model.Project;
+import model.ServerInfo;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -60,6 +62,7 @@ import daemon.DecryptDaemon;
 import daemon.NiftiDaemon;
 import dao.GenericRequestDAO;
 import dao.MySQLGenericRequestDAO;
+import display.containers.viewer.ViewerPanel;
 import es.vocali.util.AESCrypt;
 
 import settings.SQLSettings;
@@ -195,7 +198,14 @@ public class RequestPanel extends JPanel {
 				txtPutCustomSql.setText(DEFAULT_SQL_REQUEST_TEXT);
 				getRqModel().setColumns(new String[]{"Nothing"});
 				getRqModel().setData(new Object[][]{{"No results found"}});
-				getRqModel().fireTableStructureChanged();
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						getRqModel().fireTableDataChanged();
+						getRqModel().fireTableStructureChanged();
+					}
+				});
 				setLock(false);
 				progressPanel.setVisible(false);
 			}
@@ -436,12 +446,21 @@ public class RequestPanel extends JPanel {
 					@Override
 					public void run() {
 						for(File fi:selectedFiles){
-							if(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX).exists()){
-								try {
-									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX));
-								} catch (Exception e) {
-									WindowManager.mwLogger.log(Level.SEVERE, "delThread error.",e);
+							try {
+								if((fi.isDirectory() && fi.getAbsolutePath().contains(ServerInfo.NRI_ANALYSE_NAME)) || new File(fi.getAbsolutePath().replace(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).isDirectory()){
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(fi);
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)));
 								}
+								if((fi.isDirectory() && fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME))  || new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).isDirectory()){
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(fi);
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)));
+								}
+								if(!fi.isDirectory() && new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX).exists()){
+									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.toPath()+AESCrypt.ENCRYPTSUFFIX));
+									btnExecute.doClick();
+								}
+							} catch (Exception e) {
+								WindowManager.mwLogger.log(Level.SEVERE, "delThread error.",e);
 							}
 						}
 						popup.hide();
@@ -497,7 +516,29 @@ public class RequestPanel extends JPanel {
 					
 					@Override
 					public void run() {
+						if(!selectedFiles.exists()){
+							// si le fichier n'existe pas
+							popup.hide();
+							setLock(false);
+							SwingUtilities.invokeLater(new Runnable() {
+								
+								@Override
+								public void run() {
+									JDialog.setDefaultLookAndFeelDecorated(true);
+									JOptionPane.showMessageDialog(RequestPanel.this,
+											"No file associated to this result (maybe wrong db ? [NRI-DICOM/ANALYSE])",
+										    "File error",
+										    JOptionPane.WARNING_MESSAGE);
+								}
+							});
+							return;
+						}
 						final File[] niftis = findNiftiIn(selectedFiles);
+						if(niftis==null){
+							popup.hide();
+							setLock(false);
+							return;
+						}
 						popup.hide();
 						SwingUtilities.invokeLater(new Runnable() {
 							
@@ -517,6 +558,8 @@ public class RequestPanel extends JPanel {
 					}
 
 					private File[] findNiftiIn(File selectedFiles) {
+						if(selectedFiles==null)
+							return null;
 						File[] niftis;
 						ArrayList<File> niftiList = new ArrayList<File>();
 						if(!selectedFiles.isDirectory() && selectedFiles.getName().endsWith(".nii")){
@@ -766,7 +809,14 @@ public class RequestPanel extends JPanel {
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
 									getRqModel().setData(new Object[][]{{"No results found"}});
-									getRqModel().fireTableStructureChanged();
+									SwingUtilities.invokeLater(new Runnable() {
+										
+										@Override
+										public void run() {
+											getRqModel().fireTableDataChanged();
+											getRqModel().fireTableStructureChanged();
+										}
+									});
 									setLock(false);
 									progressPanel.setVisible(false);
 									return;
@@ -845,7 +895,14 @@ public class RequestPanel extends JPanel {
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
 									getRqModel().setData(new Object[][]{{"No results found"}});
-									getRqModel().fireTableStructureChanged();
+									SwingUtilities.invokeLater(new Runnable() {
+										
+										@Override
+										public void run() {
+											getRqModel().fireTableDataChanged();
+											getRqModel().fireTableStructureChanged();
+										}
+									});
 									setLock(false);
 									progressPanel.setVisible(false);
 									return;
