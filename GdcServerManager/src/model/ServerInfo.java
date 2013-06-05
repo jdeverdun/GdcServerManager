@@ -17,6 +17,7 @@ import settings.SystemSettings;
 import settings.WindowManager;
 
 import daemon.DBCache;
+import daemon.DicomNode;
 
 public class ServerInfo {
 
@@ -29,6 +30,10 @@ public class ServerInfo {
 	private static final String NIFTI_DIR_NAME = "niftiDir";
 	private static final String TEMP_DIR_NAME = "tempDir";
 	private static final String SERVER_DIR_NAME = "serverDir";
+	private static final String DICOM_NODE_IP = "dicomNodeIp";
+	private static final String DICOM_NODE_PORT = "dicomNodePort";
+	private static final String DATABASE_NAME = "databaseName";
+	
 	// fichier contenant la liste des projets pour lesquels il faut utiliser le patient ID a la place du Patient name
 	// le fichier contient un nom de projet par ligne
 	private static final String PPID_FILE = "projectsId.conf";
@@ -41,6 +46,7 @@ public class ServerInfo {
 	private Path serverDir; // dossier racine du serveur
 	private DBCache dbCache; // cache de donnees de la bdd
 	private HashSet<String> ppid; //set contenant la liste des projets pour lesquels il faut utiliser l'id du patient au lieu du name
+	
 	
 	// Constructeurs
 	public ServerInfo(){
@@ -89,6 +95,12 @@ public class ServerInfo {
 			setNiftiDir(params.get(NIFTI_DIR_NAME));
 			setTempDir(params.get(TEMP_DIR_NAME));
 			setServerDir(params.get(SERVER_DIR_NAME));
+			if(params.containsKey(DICOM_NODE_IP))
+				DicomNode.DEFAULT_HOSTNAME = params.get(DICOM_NODE_IP);
+			if(params.containsKey(DICOM_NODE_PORT))
+				DicomNode.DEFAULT_PORT = Integer.parseInt(params.get(DICOM_NODE_PORT));
+			if(params.containsKey(DATABASE_NAME))
+				SQLSettings.DATABASE_NAME = params.get(DATABASE_NAME);
 		}else{
 			setIncomingDir(app_dir+ "/" +INCOMING_DIR_NAME);
 			setDicomDir(app_dir + "/" +DICOM_DIR_NAME);
@@ -213,6 +225,9 @@ public class ServerInfo {
 		lines.add(NIFTI_DIR_NAME+"="+getNiftiDir());
 		lines.add(TEMP_DIR_NAME+"="+getTempDir());
 		lines.add(SERVER_DIR_NAME+"="+getServerDir());
+		lines.add(DICOM_NODE_IP+"="+DicomNode.DEFAULT_HOSTNAME);
+		lines.add(DICOM_NODE_PORT+"="+DicomNode.DEFAULT_PORT);
+		lines.add(DATABASE_NAME+"="+SQLSettings.DATABASE_NAME);
 		try {
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
@@ -268,6 +283,12 @@ public class ServerInfo {
 			setNiftiDir(params.get(NIFTI_DIR_NAME));
 			setTempDir(params.get(TEMP_DIR_NAME));
 			setServerDir(params.get(SERVER_DIR_NAME));
+			if(params.containsKey(DICOM_NODE_IP))
+				DicomNode.DEFAULT_HOSTNAME = params.get(DICOM_NODE_IP);
+			if(params.containsKey(DICOM_NODE_PORT))
+				DicomNode.DEFAULT_PORT = Integer.parseInt(params.get(DICOM_NODE_PORT));
+			if(params.containsKey(DATABASE_NAME))
+				SQLSettings.DATABASE_NAME = params.get(DATABASE_NAME);
 		}else{
 			setIncomingDir(SystemSettings.APP_DIR+ "/" +INCOMING_DIR_NAME);
 			setDicomDir(SystemSettings.APP_DIR + "/" +DICOM_DIR_NAME);

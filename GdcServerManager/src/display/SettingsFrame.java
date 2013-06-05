@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
@@ -12,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -22,9 +25,19 @@ import javax.swing.UIManager;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import daemon.DicomNode;
+import display.containers.viewer.ViewerPanel;
+import display.lib.JIPTextField;
+
+import settings.SQLSettings;
 import settings.SystemSettings;
 
 import javax.swing.JSplitPane;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.FlowLayout;
+import javax.swing.SwingConstants;
+import javax.swing.JSeparator;
 
 public class SettingsFrame extends JFrame {
 	
@@ -34,6 +47,9 @@ public class SettingsFrame extends JFrame {
 	private JTextField txtBufferdir;
 	private JTextField txtTempdir;
 	private JTextField txtServerDir;
+	private JIPTextField textIP;
+	private JTextField txtNodeport;
+	private JTextField txtDatabasename;
 	public SettingsFrame() {
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 		
@@ -47,7 +63,7 @@ public class SettingsFrame extends JFrame {
 		JPanel filesSettingPanel = new JPanel();
 		JPanel serverSettingPanel = new JPanel();
 		tabbedPane.addTab("Server", null, serverSettingPanel, null);
-		serverSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[]"));
+		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][18.00][]"));
 		
 		JLabel lblRootServerDirectory = new JLabel("Root server directory");
 		serverSettingPanel.add(lblRootServerDirectory, "cell 0 0,alignx trailing");
@@ -100,6 +116,39 @@ public class SettingsFrame extends JFrame {
 		JButton btnbufferselect = new JButton(icon2);
 		serverSettingPanel.add(btnbufferselect, "cell 2 2");
 		
+		JSeparator separator_1 = new JSeparator();
+		serverSettingPanel.add(separator_1, "cell 0 3 3 1,growx");
+		
+		JLabel lblDicomNodeIp = new JLabel("Dicom node IP (*)");
+		lblDicomNodeIp.setToolTipText("Require restart.");
+		serverSettingPanel.add(lblDicomNodeIp, "cell 0 4,alignx left");
+		
+		textIP = new JIPTextField(DicomNode.DEFAULT_HOSTNAME);
+		serverSettingPanel.add(textIP, "flowx,cell 1 4,alignx left,growy");
+		textIP.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 5));
+		
+		JLabel label = new JLabel(":");
+		serverSettingPanel.add(label, "cell 1 4");
+		
+		txtNodeport = new JTextField();
+		txtNodeport.setHorizontalAlignment(SwingConstants.CENTER);
+		serverSettingPanel.add(txtNodeport, "cell 1 4");
+		txtNodeport.setColumns(4);
+		txtNodeport.setText("114");
+		
+		JSeparator separator = new JSeparator();
+		serverSettingPanel.add(separator, "cell 0 5 3 1,growx");
+		
+		JLabel lblDatabaseName = new JLabel("Database name (*)");
+		lblDatabaseName.setToolTipText("Require restart.");
+		serverSettingPanel.add(lblDatabaseName, "cell 0 6,alignx left");
+		
+		txtDatabasename = new JTextField();
+		txtDatabasename.setHorizontalAlignment(SwingConstants.CENTER);
+		txtDatabasename.setText(SQLSettings.DATABASE_NAME);
+		serverSettingPanel.add(txtDatabasename, "cell 1 6,growx");
+		txtDatabasename.setColumns(10);
+		
 		JLabel lblTempDirectory = new JLabel("Temp directory");
 		filesSettingPanel.add(lblTempDirectory, "cell 0 2,alignx left");
 		
@@ -127,6 +176,7 @@ public class SettingsFrame extends JFrame {
 		
 		JPanel panel = new JPanel();
 		splitPane.setRightComponent(panel);
+		splitPane.setResizeWeight(0.9f);
 		panel.setLayout(new MigLayout("", "[57px,grow][grow]", "[23px,grow]"));
 		
 		JButton btnSave = new JButton("Save");
@@ -146,6 +196,42 @@ public class SettingsFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				try{
+					DicomNode.DEFAULT_PORT = Integer.parseInt(txtNodeport.getText());
+				}catch(Exception e){
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(SettingsFrame.this,
+									"Port should be an integer",
+								    "Saving error",
+								    JOptionPane.ERROR_MESSAGE);
+						}
+					});
+					return;
+				}
+				// on check l'ip
+				Pattern p = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+			    Matcher m = p.matcher(textIP.getText());
+			    if(m.find()){
+			    	DicomNode.DEFAULT_HOSTNAME = textIP.getText();
+			    }else{
+			    	SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(SettingsFrame.this,
+									"IP should contain only integer",
+								    "Saving error",
+								    JOptionPane.ERROR_MESSAGE);
+						}
+					});
+			    	return;
+			    }
+			    SQLSettings.DATABASE_NAME = txtDatabasename.getText();
 				SystemSettings.SERVER_INFO.setIncomingDir(txtBufferdir.getText());
 				SystemSettings.SERVER_INFO.setDicomDir(txtDicomDirectory.getText());
 				SystemSettings.SERVER_INFO.setNiftiDir(niftiField.getText());
@@ -232,7 +318,7 @@ public class SettingsFrame extends JFrame {
         }
 		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Settings");
-		setSize(400, 250);
+		setSize(400, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		setLocationRelativeTo(null);

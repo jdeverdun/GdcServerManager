@@ -12,8 +12,8 @@ import daemon.dicomnode.DcmRcv;
 public class DicomNode {
 
 	// Static
-	private static final int DEFAULT_PORT = 104;//11112;
-	private static final String DEFAULT_HOSTNAME = "127.0.0.1";//"120.40.30.110";
+	public static int DEFAULT_PORT = 104;//11112;
+	public static String DEFAULT_HOSTNAME = "127.0.0.1";//"120.40.30.110";
 	// Attributs
 	private DcmRcv dcmrcv;
 	private int port;

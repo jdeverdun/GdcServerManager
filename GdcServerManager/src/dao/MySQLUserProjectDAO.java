@@ -32,13 +32,17 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			ProjectDAO pdao=new MySQLProjectDAO();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
-				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id);
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME);
 			else
 				rset = stmt.executeQuery("select * from  "+SQLSettings.TABLES.getUser_project().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id);
 
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				Project proj = pdao.retrieveProject(rset.getInt(""+SQLSettings.TABLES.getUser_project().getId_project()+""));
+				Project proj;
+				if(UserProfile.CURRENT_USER.getLevel() == 3)
+					proj = pdao.retrieveProject(rset.getInt(""+SQLSettings.TABLES.getProject().getId()+""));
+				else
+					proj = pdao.retrieveProject(rset.getInt(""+SQLSettings.TABLES.getUser_project().getId_project()+""));
 				if(proj!=null)
 					projects.add(proj);
 			}

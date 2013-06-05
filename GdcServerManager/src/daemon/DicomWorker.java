@@ -389,7 +389,7 @@ public class DicomWorker extends DaemonWorker {
 				setProject_id(pdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e.toString());
 			}
 			break;
 		case "Patient":
@@ -399,7 +399,7 @@ public class DicomWorker extends DaemonWorker {
 				setPatient_id(patdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e.toString());
 			}
 			break;
 		case "AcqDate":
@@ -409,7 +409,7 @@ public class DicomWorker extends DaemonWorker {
 				setAcqDate_id(acqdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e.toString());
 			}
 			break;
 		case "Protocol":
@@ -419,7 +419,7 @@ public class DicomWorker extends DaemonWorker {
 				setProtocol_id(protdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e.toString());
 			}
 			break;
 		case "Serie":
@@ -429,7 +429,7 @@ public class DicomWorker extends DaemonWorker {
 				setSerie_id(sdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e);
+				WindowManager.mwLogger.log(Level.WARNING, "addEntryToDB exception",e.toString());
 			}
 			break;
 		default:

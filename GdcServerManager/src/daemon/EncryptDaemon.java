@@ -119,32 +119,39 @@ public class EncryptDaemon extends Thread {
 				}
 			}
 			while(workers!=null && workers.size()<maxWorkers && !dicomToEncrypt.isEmpty() && !isStop()){
-				try {
-					// limite l'overhead
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				// on essai de lancer autant de worker qu'il y a de coeurs
-				for(int i=0;i<maxWorkers;i++){
-					if(workers.isEmpty() || (i>workers.size()) || (i<workers.size() && !workers.get(i).isAlive())){
-						if(i<workers.size())
-							workers.remove(i);
-						// permet de securiser le thread
-						final Path lpath = (Path)dicomToEncrypt.pop();
-						final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
-						Thread tr = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								// on lance l'encryptage du fichier
-								DicomEncryptWorker dWorker = new DicomEncryptWorker(EncryptDaemon.this,lpath,di);
-								dWorker.start();  
-							}
-						});
-						workers.add(tr);
-						tr.start();
+				try{
+					try {
+						// limite l'overhead
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-				}				
+					// on essai de lancer autant de worker qu'il y a de coeurs
+					for(int i=0;i<maxWorkers;i++){
+						if(!dicomToEncrypt.isEmpty() && (workers.isEmpty() || (i>workers.size()) || (i<workers.size() && !workers.get(i).isAlive()))){
+							if(i<workers.size())
+								workers.remove(i);
+							// permet de securiser le thread
+							final Path lpath = (Path)dicomToEncrypt.pop();
+							final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
+							Thread tr = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									// on lance l'encryptage du fichier
+									DicomEncryptWorker dWorker = new DicomEncryptWorker(EncryptDaemon.this,lpath,di);
+									dWorker.start();  
+								}
+							});
+							workers.add(tr);
+							tr.start();
+						}
+					}				
+				}catch(Exception e){
+					WindowManager.mwLogger.log(Level.SEVERE,"Critical error in encryptdaemon (unexpected) ... saving & shutdown",e);
+					workers = null;
+					saveBackup();
+					throw e;
+				}
 			}
 			
 		}
