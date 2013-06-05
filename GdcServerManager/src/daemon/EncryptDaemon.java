@@ -8,7 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
@@ -41,6 +43,8 @@ public class EncryptDaemon extends Thread {
 	private boolean stop;
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
 	private boolean crashed; // pour l'import permet de savoir si le daemon a crashe
+	private int maxWorkers;// nombre max d'encryptage en parallele
+	private List<Thread> workers;
 	
 	public EncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
@@ -49,6 +53,8 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		crashed = false;
+		maxWorkers = SystemSettings.AVAILABLE_CORES;
+		workers = new ArrayList<Thread>();
 	}
 	
 	public EncryptDaemon(){
@@ -58,6 +64,8 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(SystemSettings.SERVER_INFO);
 		crashed = false;
+		maxWorkers = SystemSettings.AVAILABLE_CORES;
+		workers = new ArrayList<Thread>();
 	}
 	
 	
@@ -68,6 +76,8 @@ public class EncryptDaemon extends Thread {
 		setDicomDaemon(null);
 		setSettings(ccs);
 		setServerInfo(SystemSettings.SERVER_INFO);
+		maxWorkers = SystemSettings.AVAILABLE_CORES;
+		workers = new ArrayList<Thread>();
 	}
 
 	@Override
@@ -108,9 +118,35 @@ public class EncryptDaemon extends Thread {
 					break;
 				}
 			}
-			// on lance l'encryptage du fichier
-			dEncryptWorker = new DicomEncryptWorker(this, (Path)dicomToEncrypt.pop(), (DicomImage)dicomImageToEncrypt.pop());
-			dEncryptWorker.start();  
+			while(workers!=null && workers.size()<maxWorkers && !dicomToEncrypt.isEmpty() && !isStop()){
+				try {
+					// limite l'overhead
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// on essai de lancer autant de worker qu'il y a de coeurs
+				for(int i=0;i<maxWorkers;i++){
+					if(workers.isEmpty() || (i>workers.size()) || (i<workers.size() && !workers.get(i).isAlive())){
+						if(i<workers.size())
+							workers.remove(i);
+						// permet de securiser le thread
+						final Path lpath = (Path)dicomToEncrypt.pop();
+						final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
+						Thread tr = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								// on lance l'encryptage du fichier
+								DicomEncryptWorker dWorker = new DicomEncryptWorker(EncryptDaemon.this,lpath,di);
+								dWorker.start();  
+							}
+						});
+						workers.add(tr);
+						tr.start();
+					}
+				}				
+			}
+			
 		}
 	}
 
@@ -122,6 +158,7 @@ public class EncryptDaemon extends Thread {
 			this.stop = true;
 			saveBackup();
 			dicomToEncrypt.clear();
+			workers = null;
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
 		}else{
 			this.stop = stop;

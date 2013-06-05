@@ -12,7 +12,7 @@ import settings.sql.DBTables;
 
 public class SQLSettings {
 	public static String ADDRESS = "localhost";
-	public static String DATABASE_NAME = "gdcserver";
+	public static String DATABASE_NAME = "test";//"gdcserver";
 	public static DBTables TABLES = new DBTables();
 	// nom des tables beneficiant de vues pour chaque utilisateur
 	// trie par niveau (le plus bas etant dicomimage puis niftiimage
