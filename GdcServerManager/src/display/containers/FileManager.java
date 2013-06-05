@@ -196,18 +196,28 @@ public class FileManager {
 					if(KeyEvent.VK_DELETE == arg0.getKeyCode()){
 						if(mode!=2){
 							parentFrame.setLock(true);
-							try {
-								deleteSelectedFiles();
-							} catch (IOException e) {
-								parentFrame.setLock(false);
-								JOptionPane.showMessageDialog(parentFrame,
-									    "Error during the deletion.",
-									    "Deletion error",
-									    JOptionPane.ERROR_MESSAGE);
-								WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
-							}
-							refresh();
-							parentFrame.setLock(false);	
+							parentFrame.getProgressBarPanel().setVisible(true);
+							Thread t = new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									try {
+										deleteSelectedFiles();
+									} catch (IOException e) {
+										JOptionPane.showMessageDialog(parentFrame,
+											    "Error during the deletion.",
+											    "Deletion error",
+											    JOptionPane.ERROR_MESSAGE);
+										WindowManager.mwLogger.log(Level.SEVERE, "Error during the deletion.",e);
+									}finally{
+										parentFrame.setLock(false);
+										refresh();
+										parentFrame.getProgressBarPanel().setVisible(false);
+									}
+								}
+							});
+							t.start();
+							
 						}else{
 							if(UserProfile.CURRENT_USER.getLevel()==3){
 								parentFrame.setLock(true);
