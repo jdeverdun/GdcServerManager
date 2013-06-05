@@ -49,14 +49,21 @@ import static java.nio.file.StandardCopyOption.*;
 
 /**
  * Classe pour lire les dicoms (champs dicom) pour le mode import
+ * travail par bloc : on copie en sequentiel les fichiers du bloc,
+ * et on encrypt en parallele
  * @author Mobilette
  *
  */
 public class DicomWorkerImport extends DicomWorker {
 
-
-	public DicomWorkerImport(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException {
-		super(pDaemon,filename);
+	private ArrayList<Path> dicomFileblock; // list contenant les fichiers a traite (on travail par bloc)
+	private ArrayList<Thread> workerThread; // threads pour l'encryptage
+	public DicomWorkerImport(DicomJobDispatcher pDaemon, ArrayList<Path> paths) {
+		super();
+		setDispatcher(pDaemon);
+		setDicomFileblock(paths);
+		setServerInfo(getDispatcher().getServerInfo());
+		workerThread = new ArrayList<Thread>();
 	}
 
 	
@@ -68,112 +75,157 @@ public class DicomWorkerImport extends DicomWorker {
 	// Methodes
 
 	public void start() throws DicomException{
-		String studyName = null;
-		String patientName = null;
-		String protocolName = null;
-		String serieName = null;
-		String acqDate = null;
-
-		// On recupere le nom du protocole medical
-		studyName = getStudyDescription();
-		if(getDispatcher().getSettings().getImportSettings().changeProjectName()){
-			studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
-		}
-		// Si le protocole est null alors le fichier est encore en cours de copie
-		if(studyName == null){
-			prepareToStop();
-			return;
-		}	
-		if(!getDispatcher().getSettings().getImportSettings().isUsePatientName())
-			patientName = getPatientId();
-		else
-			patientName = getPatientName();
-		birthdate = getBirthdate();
-		sex = getSex();
-		size = getPatientSize();
-		weight = getPatientWeight();
-		mri_name = getMri_name();
-		repetitiontime = getRepetitionTime();
-		echotime = getEchoTime();
-		slicethickness = getSliceThickness();
-		String[] pspacing = getPixelSpacing();
-		voxelwidth = Float.parseFloat(pspacing[0]);
-		voxelheight = Float.parseFloat(pspacing[1]);
-		
-		protocolName = getProtocolName();
-		serieName = getSeriesDescription();
-		acqDate = getAcquisitionDate();	
-		// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
-		if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
-			protocolName = serieName;
-		}else{
-			if(serieName == DEFAULT_STRING && protocolName != DEFAULT_STRING)
-				serieName = protocolName;
-		}
+		for(Path p:dicomFileblock){
+			// on redefinit le fichier courant
+			try{
+				setDicomFile(p);
+			}catch(FileNotFoundException e){
+				WindowManager.mwLogger.log(Level.SEVERE,p.toString()+" setDicomFile error.",e);
+			}
+			String studyName = null;
+			String patientName = null;
+			String protocolName = null;
+			String serieName = null;
+			String acqDate = null;
+	
+			// On recupere le nom du protocole medical
+			studyName = getStudyDescription();
+			if(getDispatcher().getSettings().getImportSettings().changeProjectName()){
+				studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
+			}
+			// Si le protocole est null alors le fichier est encore en cours de copie
+			if(studyName == null){
+				prepareToStop();
+				return;
+			}	
+			if(!getDispatcher().getSettings().getImportSettings().isUsePatientName())
+				patientName = getPatientId();
+			else
+				patientName = getPatientName();
+			birthdate = getBirthdate();
+			sex = getSex();
+			size = getPatientSize();
+			weight = getPatientWeight();
+			mri_name = getMri_name();
+			repetitiontime = getRepetitionTime();
+			echotime = getEchoTime();
+			slicethickness = getSliceThickness();
+			String[] pspacing = getPixelSpacing();
+			voxelwidth = Float.parseFloat(pspacing[0]);
+			voxelheight = Float.parseFloat(pspacing[1]);
 			
-		
-		// On créé les chemins vers les répertoires
-		Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
-		setProjectFolder(studyFolder);
-		patientFolder = Paths.get(studyFolder + File.separator + patientName);
-		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
-		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
-		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
-		
-		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
-		// si on les cree alors on doit rajouter l'info dans la database
-		// sinon recuperer les ID des projets etc
-		boolean dirExists = checkAndMakeDir(studyFolder);
-		if(!dirExists)
-			addEntryToDB(studyFolder.getFileName(),"Project");
-		else
-			setProject_idFromDB(studyFolder.getFileName());
-		dirExists = checkAndMakeDir(patientFolder);
-		if(!dirExists)
-			addEntryToDB(patientFolder.getFileName(),"Patient");
-		else
-			setPatient_idFromDB(patientFolder.getFileName());
-		dirExists = checkAndMakeDir(dateFolder);
-		if(!dirExists)
-			addEntryToDB(dateFolder.getFileName(),"AcqDate");
-		else
-			setAcqDate_idFromDB(dateFolder.getFileName());
-		dirExists = checkAndMakeDir(protocolFolder);
-		if(!dirExists)
-			addEntryToDB(protocolFolder.getFileName(),"Protocol");
-		else
-			setProtocol_idFromDB(protocolFolder.getFileName());
-		dirExists = checkAndMakeDir(serieFolder);
-		if(!dirExists)
-			addEntryToDB(serieFolder.getFileName(),"Serie");
-		else
-			setSerie_idFromDB(serieFolder.getFileName());
-		
-		// on ne copie pas dans l'import, one fera la copie dans l'encryptage
-		// on note quand meme l'arborescence "theorique"
-		newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
-		
-		// On construit l'objet dicom
-		dicomImage = new DicomImage();
-		dicomImage.setName(dicomFile.getFileName().toString());
-		dicomImage.setSliceLocation(getSliceLocation());
-		dicomImage.setProjet(new Project(getProject_id()));
-		dicomImage.setPatient(new Patient(getPatient_id()));
-		dicomImage.setProtocole(new Protocol(getProtocol_id()));
-		dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
-		dicomImage.setSerie(new Serie(getSerie_id()));
-		
-		// on lance l'encryptage du fichier
-		DicomEncryptWorkerImport dEncryptWorker = new DicomEncryptWorkerImport(getDispatcher().getSettings(), dicomFile, newPath, dicomImage);
-		dEncryptWorker.start();  
-		if(dEncryptWorker.isCrashed()){
-			getDispatcher().setCrashed(true);
-			WindowManager.mwLogger.log(Level.SEVERE,"Critical error : Encrypt Worker import has crashed ... ");
+			protocolName = getProtocolName();
+			serieName = getSeriesDescription();
+			acqDate = getAcquisitionDate();	
+			// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
+			if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
+				protocolName = serieName;
+			}else{
+				if(serieName == DEFAULT_STRING && protocolName != DEFAULT_STRING)
+					serieName = protocolName;
+			}
+				
+			
+			// On créé les chemins vers les répertoires
+			Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
+			setProjectFolder(studyFolder);
+			patientFolder = Paths.get(studyFolder + File.separator + patientName);
+			Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
+			Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
+			serieFolder = Paths.get(protocolFolder + File.separator + serieName);
+			
+			// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
+			// si on les cree alors on doit rajouter l'info dans la database
+			// sinon recuperer les ID des projets etc
+			boolean dirExists = checkAndMakeDir(studyFolder);
+			if(!dirExists)
+				addEntryToDB(studyFolder.getFileName(),"Project");
+			else
+				setProject_idFromDB(studyFolder.getFileName());
+			dirExists = checkAndMakeDir(patientFolder);
+			if(!dirExists)
+				addEntryToDB(patientFolder.getFileName(),"Patient");
+			else
+				setPatient_idFromDB(patientFolder.getFileName());
+			dirExists = checkAndMakeDir(dateFolder);
+			if(!dirExists)
+				addEntryToDB(dateFolder.getFileName(),"AcqDate");
+			else
+				setAcqDate_idFromDB(dateFolder.getFileName());
+			dirExists = checkAndMakeDir(protocolFolder);
+			if(!dirExists)
+				addEntryToDB(protocolFolder.getFileName(),"Protocol");
+			else
+				setProtocol_idFromDB(protocolFolder.getFileName());
+			dirExists = checkAndMakeDir(serieFolder);
+			if(!dirExists)
+				addEntryToDB(serieFolder.getFileName(),"Serie");
+			else
+				setSerie_idFromDB(serieFolder.getFileName());
+			
+			// on ne copie pas dans l'import, one fera la copie dans l'encryptage
+			// on note quand meme l'arborescence "theorique"
+			newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
+			
+			// On construit l'objet dicom
+			dicomImage = new DicomImage();
+			dicomImage.setName(dicomFile.getFileName().toString());
+			dicomImage.setSliceLocation(getSliceLocation());
+			dicomImage.setProjet(new Project(getProject_id()));
+			dicomImage.setPatient(new Patient(getPatient_id()));
+			dicomImage.setProtocole(new Protocol(getProtocol_id()));
+			dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
+			dicomImage.setSerie(new Serie(getSerie_id()));
+			
+			// on lance l'encryptage du fichier sur un thread
+			Thread tr = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					DicomEncryptWorkerImport dEncryptWorker = new DicomEncryptWorkerImport(getDispatcher().getSettings(), dicomFile, newPath, dicomImage);
+					dEncryptWorker.start();  
+					if(dEncryptWorker.isCrashed()){
+						getDispatcher().setCrashed(true);
+						WindowManager.mwLogger.log(Level.SEVERE,"Critical error : Encrypt Worker import has crashed ... ");
+					}
+				}
+			});
+			workerThread.add(tr);
+			tr.start();
 		}
-
+		// on attend que l'encryptage soit ok
+		boolean cont = true;
+		while(cont){
+			cont = false;
+			for(Thread t:workerThread){
+				if(t.isAlive())
+					cont = true;
+			}
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		// On termine
 		prepareToStop();
+	}
+
+
+	/**
+	 * @return the dicomFileblock
+	 */
+	public ArrayList<Path> getDicomFileblock() {
+		return dicomFileblock;
+	}
+
+
+	/**
+	 * @param dicomFileblock the dicomFileblock to set
+	 */
+	public void setDicomFileblock(ArrayList<Path> dicomFileblock) {
+		this.dicomFileblock = dicomFileblock;
 	}
 
 }

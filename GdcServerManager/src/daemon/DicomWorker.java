@@ -80,6 +80,12 @@ public class DicomWorker extends DaemonWorker {
 		setServerInfo(getDispatcher().getServerInfo());
 	}
 
+	/**
+	 * Constructeur vide
+	 */
+	public DicomWorker(){
+		
+	}
 	
 	// Accesseurs
 	

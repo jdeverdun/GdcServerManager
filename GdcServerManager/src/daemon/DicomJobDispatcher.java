@@ -237,35 +237,39 @@ public class DicomJobDispatcher extends Thread{
 				}
 				break;
 			case IMPORT:
-				locp = (Path)dicomToMove.poll();
-				// tant qu'on ne peut pas lire le fichier on attend
-				// permet de gerer les problemes d'acces
-				cont=true;
-				while(cont){
-					try{
+				// on va travailler par block pour accelerer le process
+				// taille des blocs = nombre de coeur (copie sur un thread puis encrypt
+				// sur le nombre de coeurs
+				ArrayList<Path> locpBlock = new ArrayList<Path>();
+				for(int i = 0;i<SystemSettings.AVAILABLE_CORES*2;i++){
+					if(!dicomToMove.isEmpty()){
+						locp = (Path)dicomToMove.poll();
+						// on valide le fait que le fichier est un dicom
 						try{
-							if(!DicomImage.isDicom(locp.toFile())){
-								locp.toFile().delete();
-							}else{
-								try {
-									dworker = new DicomWorkerImport(this, locp);
-									dworker.start();
-								} catch (DicomException e) {
-									WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... skipped [IMPORT]",e);
-									cont=false;
+							try{
+								if(!DicomImage.isDicom(locp.toFile())){
+									locp.toFile().delete();
+									WindowManager.mwLogger.log(Level.WARNING, locp+" : not a DICOM ... skipped [IMPORT]");
+								}else{
+									locpBlock.add(locp);
 								}
+							}catch(FileNotFoundException fe){
+								WindowManager.mwLogger.log(Level.WARNING, locp+" ... skipped [IMPORT]",fe);
 							}
-							cont=false;
-						}catch(FileNotFoundException fe){
-							cont=false;
-						}
-					}catch(IOException e){
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
+						}catch(IOException e){
+							WindowManager.mwLogger.log(Level.WARNING, locp+" ... skipped [IMPORT]",e);
 						}
 					}
+				}
+				// on lance le traitement sur ce bloc
+				if(!locpBlock.isEmpty()){
+					try {
+						dworker = new DicomWorkerImport(this, locpBlock);
+						dworker.start();
+					} catch (DicomException e) {
+						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : corrupted ... skipped [IMPORT]",e);
+						cont=false;
+					} 
 				}
 				break;
 			case CLIENT:
