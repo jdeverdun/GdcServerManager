@@ -1,6 +1,4 @@
 Liste des lignes a decommenter // modifier dans la version finale : 
 
-1. DicomEncryptWorker : methode "prepareToStop" decommenter l'avant derniere ligne pour ne convertir 
-en nifti que lorsque le workspace du projet existe.
-2. dans dicomNode metttre la bonne adresse IP de la passerelle : private static final String DEFAULT_HOSTNAME = 120.40.30.110";
-3. Dans SQLSettings mettre le bon nom de la DB (gdcserver et pas test)
+1. dans dicomNode metttre la bonne adresse IP de la passerelle (via interface) : private static final String DEFAULT_HOSTNAME = 120.40.30.110";
+2. Dans les settings (via interface) mettre le bon nom de la DB (gdcserver et pas test)

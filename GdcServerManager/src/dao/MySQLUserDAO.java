@@ -102,7 +102,12 @@ public class MySQLUserDAO implements UserDAO {
 				e1.printStackTrace();
 			}
 			// On recupere une connexion
-			connection = SQLSettings.PDS.getConnection();
+			try{
+				connection = SQLSettings.PDS.getConnection();
+			}catch(Exception e){
+				e.printStackTrace();
+				return null;
+			}
 			stmt = connection.createStatement();
 			
 			UserViewDAO uvdao = new MySQLUserViewDAO();

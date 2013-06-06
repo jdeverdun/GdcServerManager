@@ -83,7 +83,9 @@ public class DeleteUserPanel extends PopupPanel {
 					udao.removeUser(user);
 					uvdao.removeUser(user);
 					ddao.removeUser(user);
+					setLock(false);
 					progressPanel.setVisible(false);
+					getPopupWindow().hide();
 				} catch (SQLException e1) {
 					setWarning("SQL Error");
 					WindowManager.mwLogger.log(Level.SEVERE, "btnRemove SQL Error",e1);

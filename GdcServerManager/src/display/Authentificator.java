@@ -11,7 +11,9 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.Popup;
@@ -36,6 +38,7 @@ import display.containers.ImagePanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
 import display.containers.UserCreationPanel;
+import display.containers.viewer.ViewerPanel;
 
 
 import model.User;
@@ -45,6 +48,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
+import java.util.logging.Level;
 
 
 
@@ -53,7 +57,7 @@ public class Authentificator extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	private static final String DEFAULT_DISCLAIMER="<html><b>Disclaimer</b><br>Please login to access<br> to the software</html>";
 	private static int WIDTH = 252;
 	private static int HEIGHT = 220;
 	
@@ -121,7 +125,7 @@ public class Authentificator extends JFrame {
 		gbl_panel_disclaimer.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		panel_disclaimer.setLayout(gbl_panel_disclaimer);
 		
-		lblDisclaimer = new JLabel("<html><b>Disclaimer</b><br>Please login to access<br> to the software</html> ");
+		lblDisclaimer = new JLabel(DEFAULT_DISCLAIMER);
 		GridBagConstraints gbc_lblDisclaimer = new GridBagConstraints();
 		gbc_lblDisclaimer.fill = GridBagConstraints.BOTH;
 		gbc_lblDisclaimer.gridwidth = 2;
@@ -253,6 +257,7 @@ public class Authentificator extends JFrame {
 	
 	
 	public void login(){
+		resetDisclaimer();
 		setActive(false);
 		Thread t = new Thread() {
 	        public void run() {
@@ -277,29 +282,49 @@ public class Authentificator extends JFrame {
 						return;
 					}
 					User u = udao.connexion(txtUsername.getText(), passwordField.getText());
-					UserProjectDAO pdao = new MySQLUserProjectDAO();
-					u.setProjects(pdao.getProjectsForUser(u.getId()));
 					if(u!=null){
-						
-						
-						SwingUtilities.invokeLater(new Runnable(){
-							public void run(){
-								JFrame.setDefaultLookAndFeelDecorated(true);
-								try {
-							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+						UserProjectDAO pdao = new MySQLUserProjectDAO();
+						u.setProjects(pdao.getProjectsForUser(u.getId()));
+					
+						if(UserProfile.CURRENT_USER.firstConnect() == 1){
+							SwingUtilities.invokeLater(new Runnable(){
+								public void run(){
+									JFrame.setDefaultLookAndFeelDecorated(true);
+									try {
+								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
+							          WindowManager.mwLogger.log(Level.WARNING, "Substance Graphite failed to initialize", e);
 							        }
-								WindowManager.MAINWINDOW = new MainWindow(1);
-								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
-								WindowManager.MAINWINDOW.createAndShowGUI();
-							}
-						});
+									UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+									PassChangePanel pchange = new PassChangePanel();
+									Popup popup = PopupFactory.getSharedInstance().getPopup(Authentificator.this, pchange, (int)getX(),(int)getY());
+									pchange.setPopup(popup);
+									popup.show();
+								}
+							});
+						}else{
 						
-						dispose();
+							SwingUtilities.invokeLater(new Runnable(){
+								public void run(){
+									JFrame.setDefaultLookAndFeelDecorated(true);
+									try {
+								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+								        } catch (Exception e) {
+								          System.out.println("Substance Graphite failed to initialize");
+								        }
+									WindowManager.MAINWINDOW = new MainWindow(1);
+									UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+									WindowManager.MAINWINDOW.createAndShowGUI();
+								}
+							});
+							dispose();
+						}
+
 						
 						//System.exit(0);
 					}else{
+						setWarning("Warning", "No user found with <br>this login/password");
 						setActive(true);
 					}
 						
@@ -312,7 +337,13 @@ public class Authentificator extends JFrame {
 		t.start();
 	}
 	
-
+	private void setWarning(String title,String text){
+		lblDisclaimer.setText("<html><b>"+title+"</b><font color=\"red\"><br>"+text+"</font></html>");
+	}
+	
+	private void resetDisclaimer(){
+		lblDisclaimer.setText(DEFAULT_DISCLAIMER);
+	}
 
 	@Override
 	public void dispose(){

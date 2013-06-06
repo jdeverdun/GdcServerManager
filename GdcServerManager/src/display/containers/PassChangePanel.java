@@ -3,10 +3,15 @@ package display.containers;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Popup;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import model.User;
@@ -24,6 +29,9 @@ import java.util.logging.Level;
 
 import javax.swing.JPasswordField;
 
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
+
 import settings.UserProfile;
 import settings.WindowManager;
 
@@ -31,6 +39,8 @@ import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
 import dao.UserDAO;
+import display.Authentificator;
+import display.containers.viewer.ViewerPanel;
 
 public class PassChangePanel extends PopupPanel {
 	private static String HEADERTXT = "<b>Password update</b><br /> Your password is unsafe, please change it.";
@@ -109,6 +119,34 @@ public class PassChangePanel extends PopupPanel {
 						ddao.setPasswordForCurrentUser(ulocal.getPassword());
 						UserProfile.CURRENT_USER = ulocal;
 						getPopupWindow().hide();
+						SwingUtilities.invokeLater(new Runnable(){
+							public void run(){
+								if(WindowManager.MAINWINDOW!=null)
+									WindowManager.MAINWINDOW.dispose();
+								if(WindowManager.AUTHENTIFICATOR!=null && WindowManager.AUTHENTIFICATOR.isDisplayable())
+									WindowManager.AUTHENTIFICATOR.dispose();
+								JFrame.setDefaultLookAndFeelDecorated(true);
+								try {
+							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+							        } catch (Exception e) {
+							          System.out.println("Substance Graphite failed to initialize");
+							        }
+								Authentificator auth = new Authentificator();
+								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								auth.setVisible(true);
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JDialog.setDefaultLookAndFeelDecorated(true);
+										JOptionPane.showMessageDialog(WindowManager.AUTHENTIFICATOR,
+												"Password changed, please log in again.",
+											    "Success",
+											    JOptionPane.INFORMATION_MESSAGE);
+									}
+								});
+							}
+						});
 					} catch (SQLException e1) {
 						setWarning("SQL Error");
 						WindowManager.mwLogger.log(Level.SEVERE, "btnOk SQL error.",e1);

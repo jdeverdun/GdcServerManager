@@ -15,10 +15,10 @@ import javax.mail.internet.MimeMessage;
 import javax.swing.Popup;
 
 public class Mailer {
-	private final String HOST =  "120.40.30.100";
-	private final String FROM = "GDC Server";
-	private final String USER = "gdcservtest@gmail.com";
-	private final String EncryptedPass = "gdct%123456m";
+	private final String HOST =  "120.40.30.110";
+	private final String FROM = "GDC_Server";
+	private final String USER = "EXTDEVEJ";
+	private final String EncryptedPass = "147t%596354m";
 	private String host;
 	private String from;
 	private String to;
@@ -58,7 +58,7 @@ public class Mailer {
 		properties.put("mail.smtp.auth", "true");
 
 		final String username = user;
-		final String password = EncryptedPass.substring(0, 3)+EncryptedPass.substring(5, 11);
+		final String password = EncryptedPass.substring(0, 3)+EncryptedPass.substring(5, 9);
 		Authenticator authenticator = new Authenticator() {
 		    protected PasswordAuthentication getPasswordAuthentication() {
 		        return new PasswordAuthentication(username, password);

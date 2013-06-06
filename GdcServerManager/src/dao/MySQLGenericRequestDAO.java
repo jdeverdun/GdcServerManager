@@ -78,47 +78,50 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 
 		// On rajoute les champs pour reconstruire un chemin vers un fichier
 		String fieldToAdd = "";
+		String opt = "";// chaine de caractere optionnelle pour gerer les vues utilisateurs
+		if(UserProfile.CURRENT_USER.getLevel()!=3)
+			opt="_"+UserProfile.CURRENT_USER.getId();
 		switch(type){
 			case 0:// DicomImage
-				fieldToAdd = ", "+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getId_project()+" as "+tables.getDicomImage().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getId_patient()+" as "+tables.getDicomImage().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getId_acqdate()+" as "+tables.getDicomImage().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getId_protocol()+" as "+tables.getDicomImage().getId_protocol()+""+customFieldSuffixe+", " +
-								""+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getId_serie()+" as "+tables.getDicomImage().getId_serie()+""+customFieldSuffixe+", " +
-										""+tables.getDicomImage().TNAME+"."+tables.getDicomImage().getName()+" as "+tables.getDicomImage().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_project()+" as "+tables.getDicomImage().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_patient()+" as "+tables.getDicomImage().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_acqdate()+" as "+tables.getDicomImage().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_protocol()+" as "+tables.getDicomImage().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_serie()+" as "+tables.getDicomImage().getId_serie()+""+customFieldSuffixe+", " +
+										""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getName()+" as "+tables.getDicomImage().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 1:// NiftiImage
-				fieldToAdd = ", "+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getId_project()+" as "+tables.getNiftiImage().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getId_patient()+" as "+tables.getNiftiImage().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getId_acqdate()+" as "+tables.getNiftiImage().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getId_protocol()+" as "+tables.getNiftiImage().getId_protocol()+""+customFieldSuffixe+", " +
-								""+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getId_serie()+" as "+tables.getNiftiImage().getId_serie()+""+customFieldSuffixe+", " +
-										""+tables.getNiftiImage().TNAME+"."+tables.getNiftiImage().getName()+" as "+tables.getNiftiImage().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_project()+" as "+tables.getNiftiImage().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_patient()+" as "+tables.getNiftiImage().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_acqdate()+" as "+tables.getNiftiImage().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_protocol()+" as "+tables.getNiftiImage().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_serie()+" as "+tables.getNiftiImage().getId_serie()+""+customFieldSuffixe+", " +
+										""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getName()+" as "+tables.getNiftiImage().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 2://Serie
-				fieldToAdd = ", "+tables.getSerie().TNAME+"."+tables.getSerie().getId_project()+" as "+tables.getSerie().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getSerie().TNAME+"."+tables.getSerie().getId_patient()+" as "+tables.getSerie().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getSerie().TNAME+"."+tables.getSerie().getId_acqdate()+" as "+tables.getSerie().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getSerie().TNAME+"."+tables.getSerie().getId_protocol()+" as "+tables.getSerie().getId_protocol()+""+customFieldSuffixe+", " +
-								""+tables.getSerie().TNAME+"."+tables.getSerie().getName()+" as "+tables.getSerie().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_project()+" as "+tables.getSerie().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_patient()+" as "+tables.getSerie().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_acqdate()+" as "+tables.getSerie().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_protocol()+" as "+tables.getSerie().getId_protocol()+""+customFieldSuffixe+", " +
+								""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getName()+" as "+tables.getSerie().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 3://Protocol
-				fieldToAdd = ", "+tables.getProtocol().TNAME+"."+tables.getProtocol().getId_project()+" as "+tables.getProtocol().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getProtocol().TNAME+"."+tables.getProtocol().getId_patient()+" as "+tables.getProtocol().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getProtocol().TNAME+"."+tables.getProtocol().getId_acqdate()+" as "+tables.getProtocol().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getProtocol().TNAME+"."+tables.getProtocol().getName()+" as "+tables.getProtocol().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_project()+" as "+tables.getProtocol().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_patient()+" as "+tables.getProtocol().getId_patient()+""+customFieldSuffixe+", " +
+								""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_acqdate()+" as "+tables.getProtocol().getId_acqdate()+""+customFieldSuffixe+", " +
+						""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getName()+" as "+tables.getProtocol().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 4://Acqdate
-				fieldToAdd = ", "+tables.getAcquisitionDate().TNAME+"."+tables.getAcquisitionDate().getId_project()+" as "+tables.getAcquisitionDate().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getAcquisitionDate().TNAME+"."+tables.getAcquisitionDate().getId_patient()+" as "+tables.getAcquisitionDate().getId_patient()+""+customFieldSuffixe+", " +
-						""+tables.getAcquisitionDate().TNAME+"."+tables.getAcquisitionDate().getDate()+" as "+tables.getAcquisitionDate().getDate()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getId_project()+" as "+tables.getAcquisitionDate().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getId_patient()+" as "+tables.getAcquisitionDate().getId_patient()+""+customFieldSuffixe+", " +
+						""+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getDate()+" as "+tables.getAcquisitionDate().getDate()+""+customFieldSuffixe+" "; 
 				break;
 			case 5://Patient
-				fieldToAdd = ", "+tables.getPatient().TNAME+"."+tables.getPatient().getId_project()+" as "+tables.getPatient().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getPatient().TNAME+"."+tables.getPatient().getName()+" as "+tables.getPatient().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getPatient().TNAME+opt+"."+tables.getPatient().getId_project()+" as "+tables.getPatient().getId_project()+""+customFieldSuffixe+", " +
+						""+tables.getPatient().TNAME+opt+"."+tables.getPatient().getName()+" as "+tables.getPatient().getName()+""+customFieldSuffixe+" "; 
 				break;
 			case 6://Project
-				fieldToAdd = ", "+tables.getProject().TNAME+"."+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
+				fieldToAdd = ", "+tables.getProject().TNAME+opt+"."+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
 				break;
 				
 		}
@@ -907,8 +910,11 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		for(String view:SQLSettings.LOCAL_VIEW_NAME){
 			// on rajoute les "_num" dans les nom de table
 			rightpart = rightpart.replaceAll(" "+view+" ", " "+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
-			rightpart = rightpart.replaceAll(" "+view+".", " "+view+"_"+UserProfile.CURRENT_USER.getId()+".");
-			rightpart = rightpart.replaceAll(","+view+".", ","+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			rightpart = rightpart.replaceAll(" "+view+",", " "+view+"_"+UserProfile.CURRENT_USER.getId()+",");
+			rightpart = rightpart.replaceAll(" "+view+"\\.", " "+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			rightpart = rightpart.replaceAll(","+view+"\\.", ","+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			rightpart = rightpart.replaceAll(" "+view+"$", view+"_"+UserProfile.CURRENT_USER.getId());
+			rightpart = rightpart.replaceAll(","+view+"$", ","+view+"_"+UserProfile.CURRENT_USER.getId());
 		}
 		nrequest = nrequest + " from " + rightpart;
 		
@@ -988,9 +994,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			// selon la table qu'on recupere (dicom ou nifti)
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId();break;
+				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_project()+"="+tab.getProject().TNAME+opt+"."+tab.getProject().getId();break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_project()+"="+tab.getProject().TNAME+"."+tab.getProject().getId();break;
+				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_project()+"="+tab.getProject().TNAME+opt+"."+tab.getProject().getId();break;
 			}
 			whereopt= " and ";
 			// ----------  patient --------------
@@ -1004,9 +1010,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_patient()+"="+tab.getPatient().TNAME+"."+tab.getPatient().getId();break;
+				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_patient()+"="+tab.getPatient().TNAME+opt+"."+tab.getPatient().getId();break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_patient()+"="+tab.getPatient().TNAME+"."+tab.getPatient().getId();break;
+				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_patient()+"="+tab.getPatient().TNAME+opt+"."+tab.getPatient().getId();break;
 			}
 			
 			// ----------  AcqDate --------------
@@ -1028,9 +1034,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getId();break;
+				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId();break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+"."+tab.getAcquisitionDate().getId();break;
+				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId();break;
 			}
 			
 			// ----------  protocol --------------
@@ -1045,9 +1051,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_protocol()+"="+tab.getProtocol().TNAME+"."+tab.getProtocol().getId();break;
+				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_protocol()+"="+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId();break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_protocol()+"="+tab.getProtocol().TNAME+"."+tab.getProtocol().getId();break;
+				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_protocol()+"="+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId();break;
 			}
 			
 			// ----------  serie --------------
@@ -1062,9 +1068,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+"."+tab.getDicomImage().getId_serie()+"="+tab.getSerie().TNAME+"."+tab.getSerie().getId();break;
+				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_serie()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId();break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+"."+tab.getNiftiImage().getId_serie()+"="+tab.getSerie().TNAME+"."+tab.getSerie().getId();break;
+				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_serie()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId();break;
 			}
 			
 			// ----------- REQUETE -------------

@@ -802,7 +802,7 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
-				SwingUtilities.invokeLater(new Runnable(){
+				Thread tr = new Thread(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 							// On execute la requete custom
@@ -837,11 +837,21 @@ public class RequestPanel extends JPanel {
 									}
 									count++;
 								}
-								getRqModel().fireTableStructureChanged();
-								getRqModel().setData(data);
+								final Object[][] cdata = data;
+								final File[] cfiles = files;
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										getRqModel().setData(cdata);
+										getRqModel().fireTableStructureChanged();
+										getRqModel().setFiles(cfiles);
+										
+										getRqModel().fireTableDataChanged();
+									}
+								});
 								
-								getRqModel().setFiles(files);
-								getRqModel().fireTableDataChanged();
+								
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString());
 								WindowManager.mwLogger.log(Level.WARNING, "btnExecute SQL error.",e);
@@ -922,10 +932,23 @@ public class RequestPanel extends JPanel {
 									}
 									count++;
 								}
-								getRqModel().setData(data);
+								final Object[][] cdata = data;
+								final File[] cfiles = files;
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										getRqModel().setData(cdata);
+										getRqModel().fireTableStructureChanged();
+										getRqModel().setFiles(cfiles);
+										
+										getRqModel().fireTableDataChanged();
+									}
+								});
+								/*getRqModel().setData(data);
 								getRqModel().fireTableStructureChanged();
 								getRqModel().setFiles(files);
-								getRqModel().fireTableStructureChanged();
+								getRqModel().fireTableStructureChanged();*/
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
 								WindowManager.mwLogger.log(Level.WARNING, "btnExecute error.",e);
@@ -961,7 +984,7 @@ public class RequestPanel extends JPanel {
 						System.gc();
 					}
 				});
-				//tr.start();
+				tr.start();
 			}
 		});
 	}
