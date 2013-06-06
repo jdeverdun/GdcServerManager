@@ -465,6 +465,8 @@ public class RequestPanel extends JPanel {
 						}
 						popup.hide();
 						setLock(false);
+						// on met a jours le tableau
+						btnExecute.doClick();
 					}
 					
 				});
@@ -800,7 +802,7 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
-				Thread tr = new Thread(new Runnable(){
+				SwingUtilities.invokeLater(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 							// On execute la requete custom
@@ -808,15 +810,10 @@ public class RequestPanel extends JPanel {
 								HashMap<String,ArrayList<String[]>> results = genericReqDAO.executeSelect(txtPutCustomSql.getText());
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
+									getRqModel().fireTableStructureChanged();
 									getRqModel().setData(new Object[][]{{"No results found"}});
-									SwingUtilities.invokeLater(new Runnable() {
-										
-										@Override
-										public void run() {
-											getRqModel().fireTableDataChanged();
-											getRqModel().fireTableStructureChanged();
-										}
-									});
+									getRqModel().fireTableDataChanged();
+
 									setLock(false);
 									progressPanel.setVisible(false);
 									return;
@@ -840,8 +837,11 @@ public class RequestPanel extends JPanel {
 									}
 									count++;
 								}
+								getRqModel().fireTableStructureChanged();
 								getRqModel().setData(data);
+								
 								getRqModel().setFiles(files);
+								getRqModel().fireTableDataChanged();
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString());
 								WindowManager.mwLogger.log(Level.WARNING, "btnExecute SQL error.",e);
@@ -894,15 +894,9 @@ public class RequestPanel extends JPanel {
 								// on traite le resultat
 								if(results.isEmpty()){
 									getRqModel().setColumns(new String[]{"Nothing"});
+									getRqModel().fireTableStructureChanged();
 									getRqModel().setData(new Object[][]{{"No results found"}});
-									SwingUtilities.invokeLater(new Runnable() {
-										
-										@Override
-										public void run() {
-											getRqModel().fireTableDataChanged();
-											getRqModel().fireTableStructureChanged();
-										}
-									});
+									getRqModel().fireTableStructureChanged();
 									setLock(false);
 									progressPanel.setVisible(false);
 									return;
@@ -929,7 +923,9 @@ public class RequestPanel extends JPanel {
 									count++;
 								}
 								getRqModel().setData(data);
+								getRqModel().fireTableStructureChanged();
 								getRqModel().setFiles(files);
+								getRqModel().fireTableStructureChanged();
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
 								WindowManager.mwLogger.log(Level.WARNING, "btnExecute error.",e);
@@ -965,7 +961,7 @@ public class RequestPanel extends JPanel {
 						System.gc();
 					}
 				});
-				tr.start();
+				//tr.start();
 			}
 		});
 	}

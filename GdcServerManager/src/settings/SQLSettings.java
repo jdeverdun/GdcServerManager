@@ -11,7 +11,7 @@ import oracle.ucp.jdbc.PoolDataSourceFactory;
 import settings.sql.DBTables;
 
 public class SQLSettings {
-	public static String ADDRESS = "localhost";
+	public static String ADDRESS = "120.40.30.110";//"localhost";
 	public static String DATABASE_NAME = "test";//"gdcserver";
 	public static DBTables TABLES = new DBTables();
 	// nom des tables beneficiant de vues pour chaque utilisateur
