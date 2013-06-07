@@ -1,5 +1,6 @@
 package daemon;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,8 +71,10 @@ public class FileDecryptWorker extends DaemonWorker {
 		try {
 			AESCrypt aes = new AESCrypt(false, getAESPass());
 			String filename = from.getFileName().toString().substring(0, from.getFileName().toString().length()-4);
-			aes.decrypt(from.toString(), to+"/"+filename);			
-			
+			File nfile = new File(to+File.separator+filename+".part");// on met le .part tant qu'on copie
+			aes.decrypt(from.toString(), nfile.getAbsolutePath());			
+			// on renomme correctement
+			nfile.renameTo(new File(nfile.getAbsolutePath().substring(0, nfile.getAbsolutePath().length()-5)));
 		} catch (GeneralSecurityException | IOException e) {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));

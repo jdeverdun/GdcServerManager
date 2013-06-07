@@ -446,6 +446,10 @@ public class RequestPanel extends JPanel {
 					@Override
 					public void run() {
 						for(File fi:selectedFiles){
+							if(!continueAction){
+								WindowManager.mwLogger.log(Level.INFO, "delThread cancelled.");
+								break;
+							}
 							try {
 								if((fi.isDirectory() && fi.getAbsolutePath().contains(ServerInfo.NRI_ANALYSE_NAME)) || new File(fi.getAbsolutePath().replace(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).isDirectory()){
 									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(fi);
@@ -536,7 +540,9 @@ public class RequestPanel extends JPanel {
 							return;
 						}
 						final File[] niftis = findNiftiIn(selectedFiles);
-						if(niftis==null){
+						if(niftis==null || !continueAction){
+							if(!continueAction)
+								WindowManager.mwLogger.log(Level.INFO, "findThread cancelled.");
 							popup.hide();
 							setLock(false);
 							return;
@@ -571,6 +577,8 @@ public class RequestPanel extends JPanel {
 						}
 							
 						for(String p:selectedFiles.list()){
+							if(!continueAction)
+								return null;
 							File lfile = new File(selectedFiles.toString()+File.separator+p);
 							if(!lfile.isDirectory() && lfile.getName().endsWith(".nii"+AESCrypt.ENCRYPTSUFFIX)){
 								niftiList.add(lfile);
@@ -693,6 +701,10 @@ public class RequestPanel extends JPanel {
 								if(rootname.endsWith(".nii")){
 									rootname = rootname.substring(0,rootname.lastIndexOf("."));//sans le .nii
 									for(String suf:NiftiDaemon.suffixeToRemoveWithNifti){
+										if(!continueAction){
+											continueAction = true;
+											return;
+										}
 										if(new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX).exists()){
 											FileManager.copyAndDecrypt(new File(path+File.separator+rootname+suf+AESCrypt.ENCRYPTSUFFIX), new File(fromTo.get(fi)));
 										}
@@ -903,10 +915,17 @@ public class RequestPanel extends JPanel {
 									pickerDateBegin.getEditor().setText(DEFAULT_BEGIN_DATE);
 								// on traite le resultat
 								if(results.isEmpty()){
-									getRqModel().setColumns(new String[]{"Nothing"});
-									getRqModel().fireTableStructureChanged();
-									getRqModel().setData(new Object[][]{{"No results found"}});
-									getRqModel().fireTableStructureChanged();
+									SwingUtilities.invokeLater(new Runnable() {
+										
+										@Override
+										public void run() {
+											getRqModel().setColumns(new String[]{"Nothing"});
+											getRqModel().fireTableStructureChanged();
+											getRqModel().setData(new Object[][]{{"No results found"}});
+											getRqModel().fireTableStructureChanged();
+										}
+									});
+									
 									setLock(false);
 									progressPanel.setVisible(false);
 									return;
@@ -964,23 +983,24 @@ public class RequestPanel extends JPanel {
 							public void run() {
 								getRqModel().fireTableDataChanged();
 								getRqModel().fireTableStructureChanged();
+								if(getRqModel().getFileAt(0) == null){
+									Mitem.setVisible(false);
+									MDelitem.setVisible(false);
+									MViewItem.setVisible(false);
+								}else{
+									Mitem.setVisible(true);
+									if(UserProfile.CURRENT_USER.getLevel()==3)
+										MDelitem.setVisible(true);
+									if(getRqModel().getFileAt(0).getAbsolutePath().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))
+										MViewItem.setVisible(true);
+									else
+										MViewItem.setVisible(false);
+									
+								}
 							}
 						});
 
-						if(getRqModel().getFileAt(0) == null){
-							Mitem.setVisible(false);
-							MDelitem.setVisible(false);
-							MViewItem.setVisible(false);
-						}else{
-							Mitem.setVisible(true);
-							if(UserProfile.CURRENT_USER.getLevel()==3)
-								MDelitem.setVisible(true);
-							if(getRqModel().getFileAt(0).toString().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))
-								MViewItem.setVisible(true);
-							else
-								MViewItem.setVisible(false);
-							
-						}
+						
 						System.gc();
 					}
 				});

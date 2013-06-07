@@ -25,11 +25,11 @@ public class ServerInfo {
 	public static final String NRI_ANALYSE_NAME = "NRI-ANALYSE";
 	public static final String WORKSPACE_PREFIXE = "NRI-"; // prefixe des workspace "NRI-" ex : "NRI-CRESCENDO"
 	public static final String BACKUP_DIR = "cache"; // Repertoire ou on stock les daemons (fichiers de sauvegarde)
-	private static final String INCOMING_DIR_NAME = "incomingDir";
-	private static final String DICOM_DIR_NAME = "dicomDir";
-	private static final String NIFTI_DIR_NAME = "niftiDir";
-	private static final String TEMP_DIR_NAME = "tempDir";
-	private static final String SERVER_DIR_NAME = "serverDir";
+	private static final String INCOMING_DIR_NAME = "incoming";
+	private static final String DICOM_DIR_NAME = "dicom";
+	private static final String NIFTI_DIR_NAME = "nifti";
+	private static final String TEMP_DIR_NAME = "temp";
+	private static final String SERVER_DIR_NAME = "server";
 	private static final String DICOM_NODE_IP = "dicomNodeIp";
 	private static final String DICOM_NODE_PORT = "dicomNodePort";
 	private static final String DATABASE_NAME = "databaseName";
@@ -124,6 +124,8 @@ public class ServerInfo {
 	}
 
 	public void setIncomingDir(String incomingDir) {
+		if(incomingDir == null)
+			incomingDir = INCOMING_DIR_NAME;
 		this.incomingDir = (new File(incomingDir)).toPath();
 		buildIfNotExist(this.incomingDir);
 	}
@@ -133,6 +135,8 @@ public class ServerInfo {
 	}
 
 	public void setDicomDir(String dicomDir) {
+		if(dicomDir == null)
+			dicomDir = DICOM_DIR_NAME;
 		this.dicomDir = (new File(dicomDir)).toPath();
 		buildIfNotExist(this.dicomDir);
 	}
@@ -142,6 +146,8 @@ public class ServerInfo {
 	}
 
 	public void setNiftiDir(String niftiDir) {
+		if(niftiDir == null)
+			niftiDir = NIFTI_DIR_NAME;
 		this.niftiDir = (new File(niftiDir)).toPath();
 		buildIfNotExist(this.niftiDir);
 	}
@@ -179,6 +185,8 @@ public class ServerInfo {
 	}
 
 	public void setTempDir(String tempDir) {
+		if(tempDir == null)
+			tempDir = TEMP_DIR_NAME;
 		this.tempDir = (new File(tempDir)).toPath();
 		buildIfNotExist(this.tempDir);
 	}

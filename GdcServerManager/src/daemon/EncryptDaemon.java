@@ -96,6 +96,9 @@ public class EncryptDaemon extends Thread {
 			while(dicomToEncrypt.isEmpty() && !isStop()){
 				try {
 					setWaiting(true);
+					for(Thread t:workers)
+						if(t.isAlive())
+							setWaiting(false);
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();

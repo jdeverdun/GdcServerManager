@@ -233,16 +233,20 @@ public class ViewerPanel extends JPanel{
 					}
 				});
 				WindowManager.mwLogger.log(Level.WARNING,"Data has incorrect header ... attempt to continue [open]");
-				niftiAxial = null;
 			}else{
 				niftiAxial = nr;
 				nr = null;
 			}
 			// on convertie en 32 bits pour assuree une bonne base de travail
-			StackConverter sc = new StackConverter(niftiAxial);
-			sc.convertToGray32();
-			// on applique la colormap par defaut
-			lutLoader.run(niftiAxial, infoViewer.getCurrentLUT());
+			try{
+				StackConverter sc = new StackConverter(niftiAxial);
+				sc.convertToGray32();
+				// on applique la colormap par defaut
+				lutLoader.run(niftiAxial, infoViewer.getCurrentLUT());
+			}catch(Exception e){
+				WindowManager.mwLogger.log(Level.WARNING,"Couldn't convert to 32 bits [open]");
+			}
+			
 			// on definit la taille du voxel
 			double pixelWidth = -1; 
 			double pixelHeight = -1;

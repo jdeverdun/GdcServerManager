@@ -65,22 +65,18 @@ public class DicomWorkerImport extends DicomWorker {
 		setServerInfo(getDispatcher().getServerInfo());
 		workerThread = new ArrayList<Thread>();
 	}
-
-	
-	// Accesseurs
-	
-	
-	
 	
 	// Methodes
 
 	public void start() throws DicomException{
 		for(Path p:dicomFileblock){
 			// on redefinit le fichier courant
+			resetVars();
 			try{
 				setDicomFile(p);
 			}catch(FileNotFoundException e){
 				WindowManager.mwLogger.log(Level.SEVERE,p.toString()+" setDicomFile error.",e);
+				continue;
 			}
 			String studyName = null;
 			String patientName = null;
@@ -166,7 +162,6 @@ public class DicomWorkerImport extends DicomWorker {
 			// on ne copie pas dans l'import, one fera la copie dans l'encryptage
 			// on note quand meme l'arborescence "theorique"
 			newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
-			
 			// On construit l'objet dicom
 			dicomImage = new DicomImage();
 			dicomImage.setName(dicomFile.getFileName().toString());
@@ -176,13 +171,16 @@ public class DicomWorkerImport extends DicomWorker {
 			dicomImage.setProtocole(new Protocol(getProtocol_id()));
 			dicomImage.setAcquistionDate(new AcquisitionDate(getAcqDate_id()));
 			dicomImage.setSerie(new Serie(getSerie_id()));
-			
+			// donnees pour le thread
+			final Path tpath = newPath;
+			final DicomImage di = dicomImage;
+			final Path df = dicomFile;
 			// on lance l'encryptage du fichier sur un thread
 			Thread tr = new Thread(new Runnable() {
 				
 				@Override
 				public void run() {
-					DicomEncryptWorkerImport dEncryptWorker = new DicomEncryptWorkerImport(getDispatcher().getSettings(), dicomFile, newPath, dicomImage);
+					DicomEncryptWorkerImport dEncryptWorker = new DicomEncryptWorkerImport(getDispatcher().getSettings(), df, tpath, di);
 					dEncryptWorker.start();  
 					if(dEncryptWorker.isCrashed()){
 						getDispatcher().setCrashed(true);
@@ -211,6 +209,8 @@ public class DicomWorkerImport extends DicomWorker {
 		// On termine
 		prepareToStop();
 	}
+
+
 
 
 	/**

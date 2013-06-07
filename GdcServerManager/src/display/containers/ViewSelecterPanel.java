@@ -96,14 +96,15 @@ public class ViewSelecterPanel extends PopupPanel {
 							WindowManager.MAINWINDOW.getOngletPane().setSelectedComponent(WindowManager.MAINWINDOW.getViewerPanel());
 							WindowManager.MAINWINDOW.getViewerPanel().reset();
 							FileManager.copyAndDecrypt(getNiftis()[comboBoxNifti.getSelectedIndex()], SystemSettings.SERVER_INFO.getTempDir().toFile());
-							while(!SystemSettings.DECRYPT_DAEMON.isWaiting()){
+							File copiedFile = new File(SystemSettings.SERVER_INFO.getTempDir()+File.separator+getNiftis()[comboBoxNifti.getSelectedIndex()].getName().substring(0, getNiftis()[comboBoxNifti.getSelectedIndex()].getName().length()-4));
+							// on attend que le fichier apparaisse
+							while(!copiedFile.exists() || !SystemSettings.DECRYPT_DAEMON.isWaiting()){
 								try {
 									Thread.sleep(200);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
 							}
-							File copiedFile = new File(SystemSettings.SERVER_INFO.getTempDir()+File.separator+getNiftis()[comboBoxNifti.getSelectedIndex()].getName().substring(0, getNiftis()[comboBoxNifti.getSelectedIndex()].getName().length()-4));
 							WindowManager.MAINWINDOW.getViewerPanel().open(copiedFile.toPath());
 							copiedFile.deleteOnExit();
 							WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);

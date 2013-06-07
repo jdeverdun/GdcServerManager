@@ -4,11 +4,33 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
+import dao.MySQLProjectDAO;
+import dao.ProjectDAO;
+import dao.project.AcquisitionDateDAO;
+import dao.project.DicomImageDAO;
+import dao.project.MySQLAcquisitionDateDAO;
+import dao.project.MySQLDicomImageDAO;
+import dao.project.MySQLNiftiImageDAO;
+import dao.project.MySQLPatientDAO;
+import dao.project.MySQLProtocolDAO;
+import dao.project.MySQLSerieDAO;
+import dao.project.NiftiImageDAO;
+import dao.project.PatientDAO;
+import dao.project.ProtocolDAO;
+import dao.project.SerieDAO;
+
 import es.vocali.util.AESCrypt;
 
+import model.AcquisitionDate;
+import model.DicomImage;
+import model.Patient;
+import model.Project;
+import model.Protocol;
+import model.Serie;
 import model.ServerInfo;
 
 import settings.SystemSettings;
@@ -100,6 +122,9 @@ public class MissingDaemon extends Thread{
 				return;
 			if(fi.isDirectory()){
 				moveNotEncodedDicom(fi);
+				// on regarde si il n'y a pas des nifti a convertir
+				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
+					checkForNonConvertedDicom(fi);
 			}else{
 				if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
 					try{
@@ -121,6 +146,53 @@ public class MissingDaemon extends Thread{
 		}
 	}
 	
+	private void checkForNonConvertedDicom(File fi) throws Exception {
+		if(!fi.isDirectory())
+			return;
+		for(File f:fi.listFiles()){
+			if(f.isDirectory())
+				return;
+			String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+			int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+			if(parts.length==(serverdirlen)) 
+				return;
+			if(!fi.getName().contains("..")){
+				int count = 0;
+				for(int i = serverdirlen;i <parts.length;i++){
+					if(!parts[i].isEmpty()){
+						count++;
+					}else{
+						throw new Exception("Error with file path structure.");
+					}
+				}
+				// on s'assure de la structure
+				String project = null;
+				String patient = null;
+				String acqdate = null;
+				String protocol = null;
+				String serie = null;
+				String image = null;
+				switch(count){
+				case 5://serie
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					break;
+				default:
+					return;
+				}
+				if(fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME) && new File(SystemSettings.APP_DIR+File.separator+ServerInfo.WORKSPACE_PREFIXE+project).exists()
+						&& !(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
+						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.getAbsolutePath())){
+					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
+					SystemSettings.DECRYPT_DAEMON.addFileToDecrypt(f.toPath(), SystemSettings.SERVER_INFO.getIncomingDir());
+				}
+				return;
+			}
+		}
+	}
 	/**
 	 * Renvoi le status actuelle du thread
 	 * @return

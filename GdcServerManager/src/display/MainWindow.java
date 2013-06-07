@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.security.auth.Refreshable;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -635,6 +636,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the copy.",
 									    "Copy error",
@@ -680,6 +682,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the copy.",
 									    "Copy error",
@@ -733,6 +736,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the copy.",
 									    "Copy error",
@@ -799,6 +803,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the copy.",
 									    "Copy error",
@@ -864,6 +869,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the deletion.",
 									    "Copy error",
@@ -909,6 +915,7 @@ public class MainWindow extends JFrame {
 							} catch (IOException e) {
 								setLock(false);
 								popup.hide();
+								JDialog.setDefaultLookAndFeelDecorated(true);
 								JOptionPane.showMessageDialog(MainWindow.this,
 									    "Error during the deletion.",
 									    "Copy error",
@@ -934,6 +941,7 @@ public class MainWindow extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					setLock(true);
+					JDialog.setDefaultLookAndFeelDecorated(true);
 					String response = JOptionPane.showInputDialog(null,
 							  "Folder creation",
 							  "Folder name ?",
@@ -944,6 +952,7 @@ public class MainWindow extends JFrame {
 							fi.mkdir();
 							getFileTreeLocal().refresh();
 						}else{
+							JDialog.setDefaultLookAndFeelDecorated(true);
 							JOptionPane.showMessageDialog(MainWindow.this,
 								    "Directory already exists.",
 								    "Create dir error",
@@ -961,6 +970,7 @@ public class MainWindow extends JFrame {
 						return;
 					}
 					setLock(true);
+					JDialog.setDefaultLookAndFeelDecorated(true);
 					String response = JOptionPane.showInputDialog(null,
 							  "Folder creation",
 							  "Folder name ?",
@@ -971,6 +981,7 @@ public class MainWindow extends JFrame {
 							fi.mkdir();
 							getFileTreeWork().refresh();
 						}else{
+							JDialog.setDefaultLookAndFeelDecorated(true);
 							JOptionPane.showMessageDialog(MainWindow.this,
 								    "Directory already exists.",
 								    "Create dir error",

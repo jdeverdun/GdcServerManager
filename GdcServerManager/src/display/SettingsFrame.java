@@ -31,6 +31,7 @@ import display.lib.JIPTextField;
 
 import settings.SQLSettings;
 import settings.SystemSettings;
+import settings.UserProfile;
 
 import javax.swing.JSplitPane;
 import java.awt.GridBagConstraints;
@@ -159,6 +160,17 @@ public class SettingsFrame extends JFrame {
 		
 		JButton btnSelecttemp = new JButton(icon2);
 		filesSettingPanel.add(btnSelecttemp, "cell 2 2");
+		
+		if(UserProfile.CURRENT_USER.getLevel()!=3){
+			// on grise les options ininteressante pour l'utilisateur lambda
+			lblBufferDirectory.setEnabled(false);
+			txtNodeport.setEnabled(false);
+			textIP.setEnabled(false);
+			txtBufferdir.setEnabled(false);
+			btnbufferselect.setEnabled(false);
+			label.setEnabled(false);
+			lblDicomNodeIp.setEnabled(false);
+		}
 		btnSelecttemp.addActionListener(new ActionListener() {
 			
 			@Override

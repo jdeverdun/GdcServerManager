@@ -175,7 +175,7 @@ public class NiftiDaemon extends Thread{
 		while(!isStop()){
 			// On evite une utilisation trop importante du CPU
 			// avec des boucles infini
-			if(getSettings().getServerMode() == ServerMode.SERVER){
+			if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT ){
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e2) {
@@ -207,7 +207,8 @@ public class NiftiDaemon extends Thread{
 							nworker = new NiftiWorker(this, path,dir2convert.get(path));
 							nworker.start();
 							// on enleve le repertoire qu'on vient de convertir de la liste
-							it.remove();
+							dir2convert.remove(path);
+							//it.remove();
 						}catch(Exception e){// on securise le process 
 							WindowManager.mwLogger.log(Level.SEVERE, "Critical error during nifti conversion",e);
 							crashed = true;
@@ -230,7 +231,8 @@ public class NiftiDaemon extends Thread{
 						NiftiWorkerClient nworker = new NiftiWorkerClient(this, path,dir2convert.get(path));
 						nworker.start();
 						// on enleve le repertoire qu'on vient de convertir de la liste
-						it.remove();
+						//it.remove();
+						dir2convert.remove(path);
 					}
 				}
 			}

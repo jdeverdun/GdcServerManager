@@ -548,8 +548,9 @@ public class FileManager {
      * Supprime les fichiers / repertoire sur le serveur
 	 * @throws Exception 
      */
-	public void deleteServerFile(int row) throws Exception {
+	public void deleteServerFile(int row) throws Exception {	
 		File fi = ((FileTableModel)table.getModel()).getFile(row);
+		WindowManager.mwLogger.log(Level.INFO,"Deleting "+fi.getAbsolutePath());
 		deleServerFile(fi);
 	}
 

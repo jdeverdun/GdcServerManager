@@ -51,7 +51,7 @@ import static java.nio.file.StandardCopyOption.*;
 public class DicomWorker extends DaemonWorker {
 
 	protected static String DEFAULT_STRING = "Unknown"; // chaine de caractere par defaut quand un champs dicom est vide
-	private static float DEFAULT_FLOAT = -1.0f; // idem pour les float
+	protected static float DEFAULT_FLOAT = -1.0f; // idem pour les float
 	// Attributs
 	protected Path dicomFile;
 	protected DicomJobDispatcher dispatcher;
@@ -965,4 +965,30 @@ public class DicomWorker extends DaemonWorker {
 		String value = header.substring(index1+1, index2);
 		return value;
 	}
+	
+	/**
+	 * Reinitialise les variables pour un dicom
+	 */
+	protected void resetVars() {
+		dicomFile = null;
+		dicomImage = null;
+		header = null;
+		birthdate = null;
+		sex = null;
+		size = DEFAULT_FLOAT;
+		weight = DEFAULT_FLOAT;
+		mri_name = null;
+		repetitiontime = DEFAULT_FLOAT;
+		echotime = DEFAULT_FLOAT;
+		slicethickness = DEFAULT_FLOAT;
+		voxelwidth = DEFAULT_FLOAT;
+		voxelheight = DEFAULT_FLOAT;
+		project_id = -1;
+		patient_id = -1;
+		acqDate_id = -1;
+		protocol_id = -1;
+		serie_id = -1;
+		newPath = null;//
+	}
+
 }
