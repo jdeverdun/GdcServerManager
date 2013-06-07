@@ -26,7 +26,7 @@ public interface DicomImageDAO {
 
 	public void removeDicom(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException; 
-	public String getDicomIdFor(String project, String patient, String acqdate,
+	public int getDicomIdFor(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException;
 
 	

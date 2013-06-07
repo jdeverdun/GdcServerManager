@@ -16,6 +16,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
+import dao.MySQLProjectDAO;
+import dao.ProjectDAO;
+import dao.project.MySQLPatientDAO;
+import dao.project.PatientDAO;
+
 import es.vocali.util.AESCrypt;
 
 import settings.SystemSettings;
@@ -23,7 +28,12 @@ import settings.WindowManager;
 
 
 
+import model.AcquisitionDate;
 import model.DicomImage;
+import model.Patient;
+import model.Project;
+import model.Protocol;
+import model.Serie;
 import model.ServerInfo;
 import model.daemon.CustomConversionSettings;
 import model.daemon.CustomConversionSettings.ServerMode;
@@ -177,17 +187,19 @@ public class NiftiDaemon extends Thread{
 			// avec des boucles infini
 			if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT ){
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(5000);
 				} catch (InterruptedException e2) {
 					e2.printStackTrace();
 				}
 			}
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
+			System.out.println("----");
 			while(it.hasNext() && !isStop()){
 				if(isStop())
 					break;
 				Path path = it.next();
+				System.out.println(path);
 				long timeSincemod = timeSinceModif(path);
 				// Si == -1 alors le dicom d'origine a ete supprime entre temps -> pas besoin de convertir le repertoire
 				if(timeSincemod==-1){
@@ -388,4 +400,5 @@ public class NiftiDaemon extends Thread{
 	public void setCrashed(boolean crashed) {
 		this.crashed = crashed;
 	}
+
 }

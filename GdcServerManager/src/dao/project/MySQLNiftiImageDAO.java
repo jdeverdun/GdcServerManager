@@ -404,7 +404,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			DBTables tab = SQLSettings.TABLES;
 			NiftiImageTable nt = tab.getNiftiImage();
 			// id
-			String id = getNiftiIdFor(project, patient, acqdate, protocol, serie, image);
+			int id = getNiftiIdFor(project, patient, acqdate, protocol, serie, image);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+" = " +id);
 			return;
@@ -428,9 +428,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 	 * @param image
 	 * @throws SQLException
 	 */
-	public String getNiftiIdFor(String project, String patient, String acqdate,
+	public int getNiftiIdFor(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException {
-		String idr = null; 
+		int idr = -1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -455,7 +455,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

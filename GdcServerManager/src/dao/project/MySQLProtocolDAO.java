@@ -338,7 +338,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			DBTables tab = SQLSettings.TABLES;
 			ProtocolTable nt = tab.getProtocol();
 			// id
-			String id = getProtocolIdFor(project, patient, acqdate, protocol);
+			int id = getProtocolIdFor(project, patient, acqdate, protocol);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"=" +id);
 			
@@ -362,9 +362,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 	 * @param protocol
 	 * @throws SQLException
 	 */
-	public String getProtocolIdFor(String project, String patient, String acqdate,
+	public int getProtocolIdFor(String project, String patient, String acqdate,
 			String protocol) throws SQLException {
-		String idr = null; 
+		int idr=-1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -384,7 +384,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

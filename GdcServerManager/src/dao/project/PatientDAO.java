@@ -33,6 +33,7 @@ public interface PatientDAO {
        */
       public Patient retrievePatient(String name,String birthdate,String sex,float size,float weight, int project_id) throws SQLException;
       
+      public Patient retrievePatient(String name, int id_project) throws SQLException;
       /**
        * Renvoi l'id max de la table (idmax+1)
        * @return
@@ -64,7 +65,7 @@ public interface PatientDAO {
 
 	void removePatient(String project, String patient) throws SQLException;
 
-	String getPatientIdFor(String project, String patient)
+	int getPatientIdFor(String project, String patient)
 			throws SQLException;
 
 	

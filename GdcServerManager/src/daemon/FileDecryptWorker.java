@@ -74,7 +74,17 @@ public class FileDecryptWorker extends DaemonWorker {
 			File nfile = new File(to+File.separator+filename+".part");// on met le .part tant qu'on copie
 			aes.decrypt(from.toString(), nfile.getAbsolutePath());			
 			// on renomme correctement
-			nfile.renameTo(new File(nfile.getAbsolutePath().substring(0, nfile.getAbsolutePath().length()-5)));
+			File rfile = new File(nfile.getAbsolutePath().substring(0, nfile.getAbsolutePath().length()-5));
+			if(rfile.exists()){// si le fichier existait deja on l'ecrase
+				try{
+					rfile.delete();
+					nfile.renameTo(rfile);
+				}catch(Exception e){
+					nfile.renameTo(rfile);
+				}
+			}else{
+				nfile.renameTo(rfile);
+			}
 		} catch (GeneralSecurityException | IOException e) {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));

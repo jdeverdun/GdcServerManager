@@ -38,7 +38,7 @@ import settings.WindowManager;
 
 /**
  * Classe parcourrant le serveur dicom a le recherche de fichiers non encrypte (et pas en attente de decryptage)
- * pour les replacer dans l'incoming dir pour les retraiter
+ * pour les replacer dans l'incoming dir pour les retraiter ou des repertoire a convertir que l'on aurait rate
  * @author Mobilette
  *
  */
@@ -49,18 +49,21 @@ public class MissingDaemon extends Thread{
 	private Path listenDirectory; // repertoire dans lequel rechercher les fichiers non encrypte
 	private int nbIteration; // nombre de parcours de l'arborescence qu'a fait le programme
 	private int nbMoved; // nombre de fichiers deplace
+	private int nbConvert; // nombre de serie a reconvertir
 	
 	public MissingDaemon(){
 		setStop(false);
 		listenDirectory = Paths.get(SystemSettings.SERVER_INFO.getServerDir()+File.separator+ServerInfo.NRI_DICOM_NAME);
 		nbIteration = 0;
 		nbMoved = 0;
+		nbConvert = 0;
 	}
 	public MissingDaemon(Path p){
 		setStop(false);
 		listenDirectory = p;
 		nbIteration = 0;
 		nbMoved = 0;
+		nbConvert = 0;
 	}
 	
 	public void run(){
@@ -157,6 +160,7 @@ public class MissingDaemon extends Thread{
 			if(parts.length==(serverdirlen)) 
 				return;
 			if(!fi.getName().contains("..")){
+				
 				int count = 0;
 				for(int i = serverdirlen;i <parts.length;i++){
 					if(!parts[i].isEmpty()){
@@ -183,11 +187,23 @@ public class MissingDaemon extends Thread{
 				default:
 					return;
 				}
-				if(fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME) && new File(SystemSettings.APP_DIR+File.separator+ServerInfo.WORKSPACE_PREFIXE+project).exists()
+				if(fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME) && new File(SystemSettings.SERVER_INFO.getServerDir()+File.separator+ServerInfo.WORKSPACE_PREFIXE+project).exists()
 						&& !(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
-						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.getAbsolutePath())){
+						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
-					SystemSettings.DECRYPT_DAEMON.addFileToDecrypt(f.toPath(), SystemSettings.SERVER_INFO.getIncomingDir());
+					DicomImage dicomImage = new DicomImage();
+					ProjectDAO pdao = new MySQLProjectDAO();
+					dicomImage.setProjet(pdao.retrieveProject(project));
+					PatientDAO padao = new MySQLPatientDAO();
+					dicomImage.setPatient(new Patient(padao.getPatientIdFor(project, patient)));
+					AcquisitionDateDAO acqdao = new MySQLAcquisitionDateDAO();
+					dicomImage.setAcquistionDate(new AcquisitionDate(acqdao.getAcqdateIdFor(project, patient, acqdate)));
+					ProtocolDAO prdao = new MySQLProtocolDAO();
+					dicomImage.setProtocole(new Protocol(prdao.getProtocolIdFor(project, patient, acqdate, protocol)));
+					SerieDAO sdao = new MySQLSerieDAO();
+					dicomImage.setSerie(new Serie(sdao.getSerieIdFor(project, patient, acqdate, protocol, serie)));
+					SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),dicomImage);
+					nbConvert++;
 				}
 				return;
 			}
@@ -199,7 +215,7 @@ public class MissingDaemon extends Thread{
 	 */
 	public String getStatus() {
 		if(this.isAlive())
-			return getNbIteration()+" it | "+getNbMoved()+" moved";
+			return getNbIteration()+" it | "+getNbMoved()+" moved | "+nbConvert+" reconv";
 		else
 			return "";
 	}

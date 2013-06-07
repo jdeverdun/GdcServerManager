@@ -169,6 +169,44 @@ public class MySQLPatientDAO implements PatientDAO {
 		
 	}
 	
+	public Patient retrievePatient(String name, int id_project) throws SQLException {
+		Patient pat = new Patient();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+			ProjectDAO projdao=new MySQLProjectDAO();		
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project);
+			else
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project);
+			
+			while(rset.next()){
+				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
+				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
+				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
+				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
+			}
+		
+			return pat;
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+		
+	}
+	
 	@Override
 	public Patient retrievePatient(String name,String birthdate,String sex,float size,float weight, int project_id) throws SQLException {
 		Patient pat = new Patient();
@@ -276,7 +314,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			DBTables tab = SQLSettings.TABLES;
 			PatientTable nt = tab.getPatient();
 			// id
-			String id = getPatientIdFor(project, patient);
+			int id = getPatientIdFor(project, patient);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"=" +id);
 			
@@ -298,8 +336,8 @@ public class MySQLPatientDAO implements PatientDAO {
 	 * @param patient
 	 * @throws SQLException
 	 */
-	public String getPatientIdFor(String project, String patient) throws SQLException {
-		String idr = null; 
+	public int getPatientIdFor(String project, String patient) throws SQLException {
+		int idr = -1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -315,7 +353,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

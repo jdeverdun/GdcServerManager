@@ -300,7 +300,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			DBTables tab = SQLSettings.TABLES;
 			AcquisitionDateTable nt = tab.getAcquisitionDate();
 			// id
-			String id = getAcqdateIdFor(project, patient, acqdate);
+			int id = getAcqdateIdFor(project, patient, acqdate);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"=" +id);
 			
@@ -323,8 +323,8 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 	 * @param acqdate
 	 * @throws SQLException
 	 */
-	public String getAcqdateIdFor(String project, String patient, String acqdate) throws SQLException {
-		String idr = null; 
+	public int getAcqdateIdFor(String project, String patient, String acqdate) throws SQLException {
+		int idr = -1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -342,7 +342,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

@@ -41,7 +41,7 @@ public interface AcquisitionDateDAO {
 			throws SQLException;
 
 
-	String getAcqdateIdFor(String project, String patient, String acqdate)
+	int getAcqdateIdFor(String project, String patient, String acqdate)
 			throws SQLException;
 
 

@@ -32,7 +32,7 @@ public interface ProtocolDAO {
 	public Set<Protocol> getProtocolForProject(int id) throws SQLException; 
 	public Set<Protocol> getProtocolForAcqDate(int id) throws SQLException;
 
-	String getProtocolIdFor(String project, String patient, String acqdate,
+	int getProtocolIdFor(String project, String patient, String acqdate,
 			String protocol) throws SQLException;
 
 	void removeProtocol(String project, String patient, String acqdate,

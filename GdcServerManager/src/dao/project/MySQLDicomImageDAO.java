@@ -378,7 +378,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			DBTables tab = SQLSettings.TABLES;
 			DicomImageTable nt = tab.getDicomImage();
 			// id
-			String id = getDicomIdFor(project, patient, acqdate, protocol, serie, image);
+			int id = getDicomIdFor(project, patient, acqdate, protocol, serie, image);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+" = " +id);
 			return;
@@ -402,9 +402,9 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 	 * @param image
 	 * @throws SQLException
 	 */
-	public String getDicomIdFor(String project, String patient, String acqdate,
+	public int getDicomIdFor(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException {
-		String idr = null; 
+		int idr = -1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -429,7 +429,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

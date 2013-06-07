@@ -394,7 +394,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			DBTables tab = SQLSettings.TABLES;
 			SerieTable nt = tab.getSerie();
 			// id
-			String id = getSerieIdFor(project, patient, acqdate, protocol, serie);
+			int id = getSerieIdFor(project, patient, acqdate, protocol, serie);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId()+"=" +id);
 			
@@ -419,9 +419,9 @@ public class MySQLSerieDAO implements SerieDAO{
 	 * @param serie
 	 * @throws SQLException
 	 */
-	public String getSerieIdFor(String project, String patient, String acqdate,
+	public int getSerieIdFor(String project, String patient, String acqdate,
 			String protocol, String serie) throws SQLException {
-		String idr = null; 
+		int idr = -1; 
 		ResultSet rset = null;
 		Statement stmt = null;
 		Connection connection = null;
@@ -443,7 +443,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			
 			// boucle sur les resultats de la requête
 			while (rset.next()) {
-				idr = rset.getString(1);	
+				idr = rset.getInt(1);	
 			}
 			return idr;
 		} catch (Exception e) {

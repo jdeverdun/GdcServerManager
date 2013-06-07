@@ -38,7 +38,7 @@ public interface SerieDAO {
 	void removeSerie(String project, String patient, String acqdate,
 			String protocol, String serie) throws SQLException;
 
-	String getSerieIdFor(String project, String patient, String acqdate,
+	int getSerieIdFor(String project, String patient, String acqdate,
 			String protocol, String serie) throws SQLException;
 
 	
