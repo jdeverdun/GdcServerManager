@@ -221,6 +221,17 @@ public class DicomJobDispatcher extends Thread{
 										dworker.getNewPath().toFile().delete();
 									}
 									cont=false;
+								} catch(Exception e1){
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									// a cause d'une erreur de copie sont mal formattee
+									WindowManager.mwLogger.log(Level.SEVERE, locp+" : corrupted ... deleted",e1);
+									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e1.toString().substring(0, Math.min(e1.toString().length(), 100)));
+									// on supprime le fichier dans le buffer (si il est present) 
+									if(locp.toFile().exists())
+										locp.toFile().delete();
+									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+										dworker.getNewPath().toFile().delete();
+									}
 								}
 							}
 							cont=false;
@@ -268,22 +279,23 @@ public class DicomJobDispatcher extends Thread{
 						dworker.start();
 					} catch (DicomException e) {
 						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : corrupted ... skipped [IMPORT]",e);
-						cont=false;
 					} 
 				}
 				break;
 			case CLIENT:
 				locp = (Path)dicomToMove.poll();
+				
 				try {
 					try {
 						dworker = new DicomWorkerClient(this, locp);
 						dworker.start();
 					} catch (DicomException e) {
-						if(settings.isDicomDebugMode())
-							WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted");
+						WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted");
 					}
 				} catch (FileNotFoundException e1) {
 					WindowManager.mwLogger.log(Level.WARNING, "IOException",e1);
+				} catch(Exception e1){
+					WindowManager.mwLogger.log(Level.SEVERE, "Exception",e1);
 				}
 				break;
 			}

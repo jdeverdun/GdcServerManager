@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
@@ -18,8 +19,14 @@ import java.util.logging.Level;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
+import dao.project.AcquisitionDateDAO;
+import dao.project.MySQLAcquisitionDateDAO;
 import dao.project.MySQLPatientDAO;
+import dao.project.MySQLProtocolDAO;
+import dao.project.MySQLSerieDAO;
 import dao.project.PatientDAO;
+import dao.project.ProtocolDAO;
+import dao.project.SerieDAO;
 
 import es.vocali.util.AESCrypt;
 
@@ -194,57 +201,57 @@ public class NiftiDaemon extends Thread{
 			}
 			Set<Path> keys = dir2convert.keySet();
 			Iterator<Path> it = keys.iterator();
-			System.out.println("----");
+			HashLoop:
 			while(it.hasNext() && !isStop()){
 				if(isStop())
 					break;
 				Path path = it.next();
-				System.out.println(path);
 				long timeSincemod = timeSinceModif(path);
 				// Si == -1 alors le dicom d'origine a ete supprime entre temps -> pas besoin de convertir le repertoire
 				if(timeSincemod==-1){
 					dir2convert.remove(path);
 					continue;
-				}
-				if( timeSincemod > waitTimeToConvert ){
-					// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
-					// /!\ convertizer.exe DOIT etre dans le path
-					if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT){
-						// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
-						// si ce n'est pas le cas on
-						if(!isDirFullyEncrypted(path)) 
-							continue;
-						NiftiWorker nworker = null;
-						try{
-							nworker = new NiftiWorker(this, path,dir2convert.get(path));
+				}else{
+					if( timeSincemod > waitTimeToConvert ){
+						// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
+						// /!\ convertizer.exe DOIT etre dans le path
+						if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT){
+							// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
+							// si ce n'est pas le cas on
+							if(!isDirFullyEncrypted(path)) 
+								continue HashLoop;
+							NiftiWorker nworker = null;
+							try{
+								nworker = new NiftiWorker(this, path,dir2convert.get(path));
+								nworker.start();
+								// on enleve le repertoire qu'on vient de convertir de la liste
+								dir2convert.remove(path);
+								//it.remove();
+							}catch(Exception e){// on securise le process 
+								WindowManager.mwLogger.log(Level.SEVERE, "Critical error during nifti conversion",e);
+								crashed = true;
+								if(nworker!=null){
+									try {
+										nworker.clean();
+										WindowManager.mwLogger.log(Level.INFO, "Bugged worker cleaned");
+									} catch (IOException e1) {
+										WindowManager.mwLogger.log(Level.SEVERE, "Can't clean bugged worker",e1);
+									}
+									if(settings.getServerMode() == ServerMode.SERVER)
+										saveBackup();
+									// on fait crasher le daemon car si on arrive la c'est qu'il y a une erreur 
+									// dans le code
+									crashed = true;
+									throw e;
+								}
+							}
+						}else{
+							NiftiWorkerClient nworker = new NiftiWorkerClient(this, path,dir2convert.get(path));
 							nworker.start();
 							// on enleve le repertoire qu'on vient de convertir de la liste
-							dir2convert.remove(path);
 							//it.remove();
-						}catch(Exception e){// on securise le process 
-							WindowManager.mwLogger.log(Level.SEVERE, "Critical error during nifti conversion",e);
-							crashed = true;
-							if(nworker!=null){
-								try {
-									nworker.clean();
-									WindowManager.mwLogger.log(Level.INFO, "Bugged worker cleaned");
-								} catch (IOException e1) {
-									WindowManager.mwLogger.log(Level.SEVERE, "Can't clean bugged worker",e1);
-								}
-								if(settings.getServerMode() == ServerMode.SERVER)
-									saveBackup();
-								// on fait crasher le daemon car si on arrive la c'est qu'il y a une erreur 
-								// dans le code
-								crashed = true;
-								throw e;
-							}
+							dir2convert.remove(path);
 						}
-					}else{
-						NiftiWorkerClient nworker = new NiftiWorkerClient(this, path,dir2convert.get(path));
-						nworker.start();
-						// on enleve le repertoire qu'on vient de convertir de la liste
-						//it.remove();
-						dir2convert.remove(path);
 					}
 				}
 			}
@@ -399,6 +406,22 @@ public class NiftiDaemon extends Thread{
 	 */
 	public void setCrashed(boolean crashed) {
 		this.crashed = crashed;
+	}
+
+	public void addDir(Path path, String project, String patient,
+			String acqdate, String protocol, String serie) throws SQLException {
+		DicomImage dicomImage = new DicomImage();
+		ProjectDAO pdao = new MySQLProjectDAO();
+		dicomImage.setProjet(pdao.retrieveProject(project));
+		PatientDAO padao = new MySQLPatientDAO();
+		dicomImage.setPatient(new Patient(padao.getPatientIdFor(project, patient)));
+		AcquisitionDateDAO acqdao = new MySQLAcquisitionDateDAO();
+		dicomImage.setAcquistionDate(new AcquisitionDate(acqdao.getAcqdateIdFor(project, patient, acqdate)));
+		ProtocolDAO prdao = new MySQLProtocolDAO();
+		dicomImage.setProtocole(new Protocol(prdao.getProtocolIdFor(project, patient, acqdate, protocol)));
+		SerieDAO sdao = new MySQLSerieDAO();
+		dicomImage.setSerie(new Serie(sdao.getSerieIdFor(project, patient, acqdate, protocol, serie)));
+		addDir(path, dicomImage);
 	}
 
 }

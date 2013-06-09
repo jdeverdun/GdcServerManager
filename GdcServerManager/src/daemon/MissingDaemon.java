@@ -191,18 +191,7 @@ public class MissingDaemon extends Thread{
 						&& !(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
 						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
-					DicomImage dicomImage = new DicomImage();
-					ProjectDAO pdao = new MySQLProjectDAO();
-					dicomImage.setProjet(pdao.retrieveProject(project));
-					PatientDAO padao = new MySQLPatientDAO();
-					dicomImage.setPatient(new Patient(padao.getPatientIdFor(project, patient)));
-					AcquisitionDateDAO acqdao = new MySQLAcquisitionDateDAO();
-					dicomImage.setAcquistionDate(new AcquisitionDate(acqdao.getAcqdateIdFor(project, patient, acqdate)));
-					ProtocolDAO prdao = new MySQLProtocolDAO();
-					dicomImage.setProtocole(new Protocol(prdao.getProtocolIdFor(project, patient, acqdate, protocol)));
-					SerieDAO sdao = new MySQLSerieDAO();
-					dicomImage.setSerie(new Serie(sdao.getSerieIdFor(project, patient, acqdate, protocol, serie)));
-					SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),dicomImage);
+					SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
 					nbConvert++;
 				}
 				return;

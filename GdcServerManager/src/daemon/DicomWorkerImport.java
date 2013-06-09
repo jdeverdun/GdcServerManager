@@ -74,7 +74,7 @@ public class DicomWorkerImport extends DicomWorker {
 			resetVars();
 			try{
 				setDicomFile(p);
-			}catch(FileNotFoundException e){
+			}catch(Exception e){
 				WindowManager.mwLogger.log(Level.SEVERE,p.toString()+" setDicomFile error.",e);
 				continue;
 			}
@@ -129,7 +129,13 @@ public class DicomWorkerImport extends DicomWorker {
 			Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
 			Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
 			serieFolder = Paths.get(protocolFolder + File.separator + serieName);
+			// on ne copie pas dans l'import, one fera la copie dans l'encryptage
+			// on note quand meme l'arborescence "theorique"
+			newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 			
+			// si le fichier encrypte existe deja je sors
+			if(new File(newPath.toString()+AESCrypt.ENCRYPTSUFFIX).exists())
+				return;
 			// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 			// si on les cree alors on doit rajouter l'info dans la database
 			// sinon recuperer les ID des projets etc
@@ -159,9 +165,7 @@ public class DicomWorkerImport extends DicomWorker {
 			else
 				setSerie_idFromDB(serieFolder.getFileName());
 			
-			// on ne copie pas dans l'import, one fera la copie dans l'encryptage
-			// on note quand meme l'arborescence "theorique"
-			newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
+			
 			// On construit l'objet dicom
 			dicomImage = new DicomImage();
 			dicomImage.setName(dicomFile.getFileName().toString());
