@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import model.Project;
 import model.ServerInfo;
 import net.miginfocom.swing.MigLayout;
-
+import display.AdvancedImportFrame;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -104,6 +104,7 @@ public class RequestPanel extends JPanel {
 	private ProgressPanel progressPanel;
 	private JPopupMenu Pmenu;
 	private JMenuItem Mitem;
+	private JMenuItem MAdvImportitem;
 	private JMenuItem MDelitem;
 	private JMenuItem MViewItem;
 	private JButton btnCancel;
@@ -142,9 +143,11 @@ public class RequestPanel extends JPanel {
 		//------ Menu -------
 		Pmenu = new JPopupMenu();
 		Mitem = new JMenuItem("Import");
+		MAdvImportitem = new JMenuItem("Advanced import");
 		MDelitem = new JMenuItem("Delete");
 		MViewItem = new JMenuItem("View");
 		Pmenu.add(Mitem);
+		Pmenu.add(MAdvImportitem);
 		Pmenu.add(MDelitem);
 		Pmenu.add(MViewItem);
 		MDelitem.setVisible(false);
@@ -498,6 +501,22 @@ public class RequestPanel extends JPanel {
 				updateStatusThread.start();
 			}
 		});
+		MAdvImportitem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// on recupere la liste des fichiers selectionne
+				File[] selectedFiles = new File[table.getSelectedRowCount()];
+			    int[] indices = table.getSelectedRows();
+			    int vmin = Integer.MAX_VALUE;
+				for(int i = 0; i < indices.length; i++){
+					int row = table.convertRowIndexToModel(indices[i]);
+					selectedFiles[i] = getRqModel().getFileAt(row);	
+				}
+				AdvancedImportFrame adv = new AdvancedImportFrame(selectedFiles);
+				adv.createAndShowGUI();
+			}
+		});
 		MViewItem.addActionListener(new ActionListener() {
 			
 			@Override
@@ -650,7 +669,7 @@ public class RequestPanel extends JPanel {
 				for(int i = 0; i < indices.length; i++){
 					int row = table.convertRowIndexToModel(indices[i]);
 					selectedFiles[i] = getRqModel().getFileAt(row);
-					System.out.println(selectedFiles[i].getAbsolutePath());
+					//System.out.println(selectedFiles[i].getAbsolutePath());
 					if(selectedFiles[i].getAbsolutePath().split(Pattern.quote(File.separator)).length<vmin);
 						vmin = selectedFiles[i].getAbsolutePath().split(Pattern.quote(File.separator)).length;
 						

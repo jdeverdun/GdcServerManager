@@ -374,7 +374,8 @@ public class DicomSortConvertPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				comboBox.setVisible(chckbxConvertToNifti.isSelected());
+				comboBox.setEnabled(chckbxConvertToNifti.isSelected());
+				chckb4d.setEnabled(chckbxConvertToNifti.isSelected());
 			}
 		});
 		

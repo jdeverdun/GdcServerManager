@@ -290,6 +290,9 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
             }
             if(showCrosshair && currentLocation!=null){
             	g2d.setColor(new Color(255,140,0));
+            	int rule = AlphaComposite.SRC_OVER;
+                Composite comp = AlphaComposite.getInstance(rule , 1.0f );
+				g2d.setComposite(comp);
             	if(orientation != Plan.SAGITTAL)
             		g2d.drawString("L", offsets.width+10, getHeight()-offsets.height-20);
             	else

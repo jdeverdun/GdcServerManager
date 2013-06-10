@@ -47,7 +47,7 @@ public class DicomWorkerClient extends DicomWorker {
 		try {
 			studyName = getStudyDescription();
 		} catch (DicomException e) {
-			studyName = "null";
+			studyName = DEFAULT_STRING;
 			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,studyName set to null",e);
 		}
 
@@ -58,7 +58,7 @@ public class DicomWorkerClient extends DicomWorker {
 		try {
 			birthdate = getBirthdate();
 		} catch (DicomException e) {
-			birthdate = "null";
+			birthdate = DEFAULT_STRING;
 			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,birthdate set to null",e);
 		}
 		try {
@@ -71,16 +71,22 @@ public class DicomWorkerClient extends DicomWorker {
 		try {
 			protocolName = getProtocolName();
 		} catch (DicomException e) {
-			protocolName = "null";
+			protocolName = DEFAULT_STRING;
 			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,protocolName set to null",e);
 		}
 
 		serieName = getSeriesDescription();
-		
+		// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
+		if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
+			protocolName = serieName;
+		}else{
+			if(serieName == DEFAULT_STRING && protocolName != DEFAULT_STRING)
+				serieName = protocolName;
+		}
 		try {
 			acqDate = getAcquisitionDate();
 		} catch (DicomException e) {
-			acqDate = "null";
+			acqDate = DEFAULT_STRING;
 			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,acqDate set to null",e);
 		}		
 		

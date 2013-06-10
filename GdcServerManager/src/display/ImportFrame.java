@@ -53,7 +53,7 @@ import javax.swing.JRadioButton;
 
 public class ImportFrame extends JFrame {
 	
-	private static final String DEFAULT_DICOMDIR_TEXT = "New Project Name [Optionnal]";
+	private static final String DEFAULT_NPROJECT_TEXT = "New Project Name [Optionnal]";
 	
 	
 	// les daemons dedie a l'import
@@ -123,7 +123,7 @@ public class ImportFrame extends JFrame {
 		panel_1.add(lblForceProjectName, "cell 0 0,alignx left");
 		
 		txtProjectname = new JTextField();
-		txtProjectname.setText(DEFAULT_DICOMDIR_TEXT);
+		txtProjectname.setText(DEFAULT_NPROJECT_TEXT);
 		txtProjectname.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		panel_1.add(txtProjectname, "cell 1 0,growx");
 		txtProjectname.setColumns(10);
@@ -152,14 +152,14 @@ public class ImportFrame extends JFrame {
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				if(txtProjectname.getText().equals("")){
-					txtProjectname.setText(DEFAULT_DICOMDIR_TEXT);
+					txtProjectname.setText(DEFAULT_NPROJECT_TEXT);
 					txtProjectname.setFont(new Font("Tahoma", Font.ITALIC, 11));
 				}
 			}
 			
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				if(txtProjectname.getText().equals(DEFAULT_DICOMDIR_TEXT)){
+				if(txtProjectname.getText().equals(DEFAULT_NPROJECT_TEXT)){
 					txtProjectname.setText("");
 					txtProjectname.setFont(new Font("Tahoma", Font.PLAIN, 11));
 				}
@@ -192,7 +192,7 @@ public class ImportFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String pname = null;
-				if(!txtProjectname.getText().equals(DEFAULT_DICOMDIR_TEXT) && !txtProjectname.getText().equals(""))
+				if(!txtProjectname.getText().equals(DEFAULT_NPROJECT_TEXT) && !txtProjectname.getText().equals(""))
 					pname = txtProjectname.getText();
 				
 				// On definit les parametres de l'import
