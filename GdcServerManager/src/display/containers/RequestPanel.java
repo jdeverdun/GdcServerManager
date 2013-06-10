@@ -478,7 +478,6 @@ public class RequestPanel extends JPanel {
 					
 				});
 				ppanel.setPopup(popup);
-				ppanel.setRunningThread(delThread);
 				popup.show();
 				
 				delThread.start();	
@@ -620,7 +619,6 @@ public class RequestPanel extends JPanel {
 					
 				});
 				ppanel.setPopup(popup);
-				ppanel.setRunningThread(findThread);
 				popup.show();
 				
 				findThread.start();	
@@ -746,7 +744,6 @@ public class RequestPanel extends JPanel {
 					
 				});
 				ppanel.setPopup(popup);
-				ppanel.setRunningThread(copyThread);
 				popup.show();
 				
 				copyThread.start();	
@@ -1006,8 +1003,10 @@ public class RequestPanel extends JPanel {
 									Mitem.setVisible(false);
 									MDelitem.setVisible(false);
 									MViewItem.setVisible(false);
+									MAdvImportitem.setVisible(false);
 								}else{
 									Mitem.setVisible(true);
+									MAdvImportitem.setVisible(true);
 									if(UserProfile.CURRENT_USER.getLevel()==3)
 										MDelitem.setVisible(true);
 									if(getRqModel().getFileAt(0).getAbsolutePath().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))

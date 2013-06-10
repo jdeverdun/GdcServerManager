@@ -727,8 +727,8 @@ public class FileManager {
 	 */
 	public static void copyAndDecrypt(File fi, File dir) {
 		if(fi.isDirectory()){
-			File ndir = new File(dir.getAbsolutePath()+ "/" + fi.getName());
-			ndir.mkdir();
+			File ndir = new File(dir.getAbsolutePath()+ File.separator + fi.getName());
+			ndir.mkdirs();
 			for(File cf:fi.listFiles()){
 				if(!cf.getName().contains("..") && !cf.getName().equals(".")){
 					copyAndDecrypt(cf, ndir);

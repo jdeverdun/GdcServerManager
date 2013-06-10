@@ -10,6 +10,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 
+import display.AdvancedImportFrame;
 import display.ImportFrame;
 
 import settings.WindowManager;
@@ -28,29 +29,14 @@ public class WaitingBarPanel extends JPanel{
 	private ProgressPanel progressPanel;
 	private JButton btnCancel;
 	private Popup popup;
-	private Thread runningThread;
-	private FileManager filetree; // celui qui tourne dans le thread
-	private RequestPanel rpanel;
-	private ImportFrame importFrame; 
+	private Object parent;
+
 	
-	public WaitingBarPanel(FileManager fileManager){
+	public WaitingBarPanel(Object parent){
 		this();
-		setFiletree(fileManager);
-		this.importFrame = null;
-		rpanel = null;
+		this.parent = parent;
 	}
-	public WaitingBarPanel(RequestPanel rq){
-		this();
-		filetree=null;
-		rpanel = rq;
-		this.importFrame = null;
-	}
-	public WaitingBarPanel(ImportFrame importFrame){
-		this();
-		filetree=null;
-		rpanel = null;
-		this.importFrame = importFrame;
-	}
+	
 	public WaitingBarPanel(){
 		
 		setLayout(new MigLayout("", "[grow,center][]", "[][23.00,fill][]"));
@@ -70,22 +56,25 @@ public class WaitingBarPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				getPopup().hide();
-				if(getFiletree()!=null){
+				if(parent instanceof FileManager){
 					// si on est sur un job d'un filetree
-					getFiletree().terminateAction();
+					((FileManager)parent).terminateAction();
 					WindowManager.MAINWINDOW.setLock(false);
 				}
-				if(rpanel!=null){
+				if(parent instanceof RequestPanel){
 					// si on est sur un import depuis la bdd
-					rpanel.terminateAction();
+					((RequestPanel)parent).terminateAction();
 				}
-				if(importFrame!=null){
-					importFrame.stopImport();
+				if(parent instanceof ImportFrame){
+					((ImportFrame)parent).stopImport();
+				}
+				if(parent instanceof AdvancedImportFrame){
+					((AdvancedImportFrame)parent).stopImport();
 				}
 			}
 		});
 	}
-	
+
 	public JLabel getLblTitle() {
 		return lblTitle;
 	}
@@ -107,20 +96,12 @@ public class WaitingBarPanel extends JPanel{
 		this.popup = popup;
 	}
 
-	public Thread getRunningThread() {
-		return runningThread;
+	public Object getParentObject() {
+		return parent;
 	}
 
-	public void setRunningThread(Thread runningThread) {
-		this.runningThread = runningThread;
-	}
-
-	public FileManager getFiletree() {
-		return filetree;
-	}
-
-	public void setFiletree(FileManager filetree) {
-		this.filetree = filetree;
+	public void setParentObject(Object parent) {
+		this.parent = parent;
 	}
 
 }

@@ -651,7 +651,6 @@ public class MainWindow extends JFrame {
 						}
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
 					popup.show();
 					
 					copyThread.start();				
@@ -697,7 +696,6 @@ public class MainWindow extends JFrame {
 						}
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
 					popup.show();
 					
 					copyThread.start();				
@@ -752,8 +750,7 @@ public class MainWindow extends JFrame {
 						
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
-					ppanel.setFiletree(getFileTreeDist());
+					ppanel.setParentObject(getFileTreeDist());
 					popup.show();
 					
 					copyThread.start();	
@@ -819,8 +816,7 @@ public class MainWindow extends JFrame {
 						
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
-					ppanel.setFiletree(getFileTreeDist());
+					ppanel.setParentObject(getFileTreeDist());
 					popup.show();
 					
 					copyThread.start();	
@@ -883,7 +879,6 @@ public class MainWindow extends JFrame {
 						}
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
 					popup.show();
 					
 					copyThread.start();				
@@ -929,7 +924,6 @@ public class MainWindow extends JFrame {
 						}
 					});
 					ppanel.setPopup(popup);
-					ppanel.setRunningThread(copyThread);
 					popup.show();
 					
 					copyThread.start();				

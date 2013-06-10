@@ -23,6 +23,8 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -83,7 +85,7 @@ public class PassChangePanel extends PopupPanel {
 		add(progressPanel, "cell 0 4 2 1,growx,aligny baseline");
 		progressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
-		
+
 		// Event
 		btnOk.addActionListener(new ActionListener() {
 			
@@ -157,6 +159,22 @@ public class PassChangePanel extends PopupPanel {
 					setWarning("Password incorrect");
 					setLock(false);
 					progressPanel.setVisible(false);
+				}
+			}
+		});
+		passwordField1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent key) {
+				if(key.getKeyCode() == KeyEvent.VK_ENTER){
+					btnOk.doClick();
+				}
+			}
+		});
+		passwordField2.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent key) {
+				if(key.getKeyCode() == KeyEvent.VK_ENTER){
+					btnOk.doClick();
 				}
 			}
 		});

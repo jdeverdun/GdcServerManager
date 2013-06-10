@@ -109,6 +109,12 @@ public class MissingDaemon extends Thread{
 	public void setNbMoved(int nbMoved) {
 		this.nbMoved = nbMoved;
 	}
+	public int getNbConvert() {
+		return nbConvert;
+	}
+	public void setNbConvert(int nbConvert) {
+		this.nbConvert = nbConvert;
+	}
 	/**
 	 * Recherche de maniere iterative les dicom non encrypte (et pas en attente de decryptage)
 	 *  et les deplace dans le repertoire d'incoming
@@ -209,7 +215,7 @@ public class MissingDaemon extends Thread{
 	 */
 	public String getStatus() {
 		if(this.isAlive())
-			return getNbIteration()+" it | "+getNbMoved()+" moved | "+nbConvert+" reconv";
+			return getNbIteration()+" it | "+getNbMoved()+" moved | "+getNbConvert()+" reconv";
 		else
 			return "";
 	}
