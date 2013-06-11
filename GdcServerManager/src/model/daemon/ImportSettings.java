@@ -12,14 +12,16 @@ import daemon.NiftiDaemon;
  */
 public class ImportSettings {
 	private String newProjectName;
+	private String newPatientName;
 	private boolean usePatientName;
 	private DicomJobDispatcher dispatcher; // le dispatcher associe a l'import
 	private NiftiDaemon niftid; // le daemon nifti associe a l'impot
 	
 	
-	public ImportSettings(String newProjectName,boolean usePatientName,DicomJobDispatcher dispatcher, NiftiDaemon niftid){
+	public ImportSettings(String newProjectName,String patname, boolean usePatientName,DicomJobDispatcher dispatcher, NiftiDaemon niftid){
 		this.setNewProjectName(newProjectName);
 		this.setUsePatientName(usePatientName);
+		this.setNewPatientName(patname);
 		setDispatcher(dispatcher);
 		setNiftid(niftid);
 	}
@@ -41,9 +43,30 @@ public class ImportSettings {
 	}
 
 
+	/**
+	 * @return the newPatientName
+	 */
+	public String getNewPatientName() {
+		return newPatientName;
+	}
+
+
+	/**
+	 * @param newPatientName the newPatientName to set
+	 */
+	public void setNewPatientName(String newPatientName) {
+		this.newPatientName = newPatientName;
+	}
+
+
 	public boolean changeProjectName(){
 		return newProjectName != null;
 	}
+	
+	public boolean changePatientName(){
+		return newPatientName != null;
+	}
+	
 	/**
 	 * @return the usePatientName
 	 */

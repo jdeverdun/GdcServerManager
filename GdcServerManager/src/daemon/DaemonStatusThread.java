@@ -1,6 +1,12 @@
 package daemon;
 
+import java.sql.SQLException;
+import java.util.logging.Level;
+
 import settings.SystemSettings;
+import settings.WindowManager;
+import dao.GenericRequestDAO;
+import dao.MySQLGenericRequestDAO;
 import display.containers.ServerStatusPanel;
 
 
@@ -12,13 +18,16 @@ import display.containers.ServerStatusPanel;
 public class DaemonStatusThread extends Thread {
 
 	private static final int DEFAULT_REFRESH_TIME = 5000;
+	private static final int MAINTAIN_CONN_TIME = 10000; // temps en ms entre 2 requetes pour maintenir la connection durant les periodes d'inactivite
 	private int refresh_time;
 	private ServerStatusPanel statusPanel; // panel a mettre a jours
 	private boolean stop; // variable pour savoir si on termine le thread
+	private int counter; // nombre de fois qu'on a resfresh
 	
 	public DaemonStatusThread(ServerStatusPanel sp){
 		setStatusPanel(sp);
 		stop = false;
+		counter = 0;
 		setRefresh_time(DEFAULT_REFRESH_TIME);
 	}
 	
@@ -37,6 +46,17 @@ public class DaemonStatusThread extends Thread {
 				Thread.sleep(getRefresh_time());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+			counter++;
+			// on envoi un requete sql fictive pour maintenir la connection avec la bdd
+			if((counter*getRefresh_time()) >= MAINTAIN_CONN_TIME){
+				GenericRequestDAO gdao = new MySQLGenericRequestDAO();
+				try {
+					gdao.maintainConnection();
+				} catch (SQLException e) {
+					WindowManager.mwLogger.log(Level.SEVERE,"Could'nt maintain connection to DB. [MissingDaemon]",e);
+				}
+				counter = 0;
 			}
 		}
 	}

@@ -51,9 +51,17 @@ import java.awt.BorderLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.JRadioButton;
 
+/**
+ * Classe permettant d'importer des donnees depuis la machine locale vers
+ * le serveur de stockage distant. Permet de forcer un certain nombre d'informations 
+ * contenus dans le dicom (/!\ ne change pas le contenu du dicom !!)
+ * @author DEVERDUN Jeremy
+ *
+ */
 public class ImportFrame extends JFrame {
 	
 	private static final String DEFAULT_NPROJECT_TEXT = "New Project Name [Optionnal]";
+	private static final String DEFAULT_NPATIENT_TEXT = "New Patient Name/Id [Optionnal]";
 	
 	
 	// les daemons dedie a l'import
@@ -72,6 +80,8 @@ public class ImportFrame extends JFrame {
 
 	// variable permettant de stopper l'import
 	private boolean stopImport;
+	private JLabel lblForcePatientName;
+	private JTextField txtNewPatientName;
 	
 	public ImportFrame() {
 		stopImport = false;
@@ -117,7 +127,7 @@ public class ImportFrame extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Import Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(panel_1, "cell 0 2 3 1,grow");
-		panel_1.setLayout(new MigLayout("", "[][grow]", "[][]"));
+		panel_1.setLayout(new MigLayout("", "[][grow]", "[][][]"));
 		
 		lblForceProjectName = new JLabel("Force project name");
 		panel_1.add(lblForceProjectName, "cell 0 0,alignx left");
@@ -128,15 +138,24 @@ public class ImportFrame extends JFrame {
 		panel_1.add(txtProjectname, "cell 1 0,growx");
 		txtProjectname.setColumns(10);
 		
+		lblForcePatientName = new JLabel("Force Patient name");
+		panel_1.add(lblForcePatientName, "cell 0 1,alignx trailing");
+		
+		txtNewPatientName = new JTextField();
+		txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+		txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		txtNewPatientName.setColumns(10);
+		panel_1.add(txtNewPatientName, "cell 1 1,growx");
+		
 		lblPatientIdentification = new JLabel("Patient Identification");
-		panel_1.add(lblPatientIdentification, "cell 0 1,alignx left");
+		panel_1.add(lblPatientIdentification, "cell 0 2,alignx left");
 		
 		rdbtnPatientname = new JRadioButton("PatientName");
 		rdbtnPatientname.setSelected(true);
-		panel_1.add(rdbtnPatientname, "flowx,cell 1 1");
+		panel_1.add(rdbtnPatientname, "flowx,cell 1 2");
 		
 		rdbtnPatientid = new JRadioButton("PatientID");
-		panel_1.add(rdbtnPatientid, "cell 1 1");
+		panel_1.add(rdbtnPatientid, "cell 1 2");
 		
 		JPanel panelSaveClose = new JPanel();
 		getContentPane().add(panelSaveClose, BorderLayout.SOUTH);
@@ -166,10 +185,33 @@ public class ImportFrame extends JFrame {
 			}
 		});
 		
+		txtNewPatientName.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(txtNewPatientName.getText().equals("")){
+					txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+					txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if(txtNewPatientName.getText().equals(DEFAULT_NPATIENT_TEXT)){
+					txtNewPatientName.setText("");
+					txtNewPatientName.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
+			}
+		});
+		
 		rdbtnPatientname.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!rdbtnPatientname.isSelected()){
+					rdbtnPatientname.setSelected(true);
+					return;
+				}
 				rdbtnPatientid.setSelected(!rdbtnPatientname.isSelected());
 			}
 		});
@@ -177,6 +219,10 @@ public class ImportFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!rdbtnPatientid.isSelected()){
+					rdbtnPatientid.setSelected(true);
+					return;
+				}
 				rdbtnPatientname.setSelected(!rdbtnPatientname.isSelected());
 			}
 		});
@@ -192,11 +238,13 @@ public class ImportFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String pname = null;
+				String patname = null;
 				if(!txtProjectname.getText().equals(DEFAULT_NPROJECT_TEXT) && !txtProjectname.getText().equals(""))
 					pname = txtProjectname.getText();
-				
+				if(!txtNewPatientName.getText().equals(DEFAULT_NPATIENT_TEXT) && !txtNewPatientName.getText().equals(""))
+					patname = txtNewPatientName.getText();
 				// On definit les parametres de l'import
-				ImportSettings is = new ImportSettings(pname, rdbtnPatientname.isSelected(),dispatcher,niftid);
+				ImportSettings is = new ImportSettings(pname,patname, rdbtnPatientname.isSelected(),dispatcher,niftid);
 				CustomConversionSettings ccs = new CustomConversionSettings(ServerMode.IMPORT, is);
 				// On lance les daemons
 				niftid = new NiftiDaemon(SystemSettings.SERVER_INFO,ccs);

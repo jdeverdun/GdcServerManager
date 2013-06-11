@@ -1134,5 +1134,31 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 	public void setStopCurrentRequest(boolean b) {
 		stopCurrentRequest = b;
 	}
+	
+	/**
+	 * Envoi une requete fictive simple vers la bdd
+	 * dans l'unique but d'assurer le maintient de la connection
+	 * avec celle ci
+	 */
+	public void maintainConnection() throws SQLException{
+		
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.PDS.getConnection();
+			stmt = connection.createStatement();
+
+			rset = stmt.executeQuery("select password('na');");
+		
+		}catch(Exception e){
+			throw e;
+		}finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+		
+	}
 }
 

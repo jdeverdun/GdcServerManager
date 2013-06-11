@@ -98,6 +98,9 @@ public class DicomWorkerImport extends DicomWorker {
 				patientName = getPatientId();
 			else
 				patientName = getPatientName();
+			if(getDispatcher().getSettings().getImportSettings().changePatientName()){
+				patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
+			}
 			birthdate = getBirthdate();
 			sex = getSex();
 			size = getPatientSize();

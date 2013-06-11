@@ -13,6 +13,7 @@ import exceptions.IllegalSQLRequest;
 public interface GenericRequestDAO {
 
 	public HashMap<String, ArrayList<String[]>> executeSelect(String request) throws SQLException, IllegalSQLRequest, Exception;
+	public void maintainConnection() throws SQLException;
 	public File buildPathFromIdList(String[] customFields, int type) throws SQLException;
 	public void setStopCurrentRequest(boolean b);
 	public HashMap<String, ArrayList<String[]>> executeFromRequestPanel(String project, String patient,
