@@ -844,15 +844,6 @@ public class DicomWorker extends DaemonWorker {
 		return Float.parseFloat(st);
 	}
 		
-	public Path getNewPath() {
-		return newPath;
-	}
-
-
-	public void setNewPath(Path newPath) {
-		this.newPath = newPath;
-	}
-
 
 	// Date de l'acquisition ex : 20130122
 	public String getAcquisitionDate() throws DicomException{
@@ -874,6 +865,17 @@ public class DicomWorker extends DaemonWorker {
 		WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
 		return pdate;
 	}
+	
+	public Path getNewPath() {
+		return newPath;
+	}
+
+
+	public void setNewPath(Path newPath) {
+		this.newPath = newPath;
+	}
+
+
 	public int getProject_id() {
 		return project_id;
 	}
