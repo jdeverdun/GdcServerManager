@@ -139,7 +139,7 @@ public class ImportFrame extends JFrame {
 		txtProjectname.setColumns(10);
 		
 		lblForcePatientName = new JLabel("Force Patient name");
-		panel_1.add(lblForcePatientName, "cell 0 1,alignx trailing");
+		panel_1.add(lblForcePatientName, "cell 0 1,alignx left");
 		
 		txtNewPatientName = new JTextField();
 		txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
