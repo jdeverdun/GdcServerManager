@@ -138,7 +138,7 @@ public class DicomWorkerImport extends DicomWorker {
 			
 			// si le fichier encrypte existe deja je sors
 			if(new File(newPath.toString()+AESCrypt.ENCRYPTSUFFIX).exists())
-				return;
+				continue;
 			// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 			// si on les cree alors on doit rajouter l'info dans la database
 			// sinon recuperer les ID des projets etc
