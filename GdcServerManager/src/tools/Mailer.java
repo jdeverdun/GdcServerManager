@@ -17,7 +17,7 @@ import javax.swing.Popup;
 public class Mailer {
 	private final String HOST =  "120.40.30.110";
 	private final String FROM = "GDC_Server";
-	private final String USER = "1564";
+	private final String USER = "1245";
 	private final String EncryptedPass = "147t%596354m";
 	private String host;
 	private String from;
