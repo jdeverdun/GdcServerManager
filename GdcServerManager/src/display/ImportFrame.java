@@ -396,6 +396,8 @@ public class ImportFrame extends JFrame {
 		lblPatientIdentification.setEnabled(!b);
 		btnImport.setEnabled(!b);
 		btnClose.setEnabled(!b);
+		lblForcePatientName.setEnabled(!b);
+		txtNewPatientName.setEnabled(!b);
 	}
 	public void setNiftid(NiftiDaemon niftid) {
 		this.niftid = niftid;
