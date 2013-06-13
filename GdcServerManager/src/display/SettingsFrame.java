@@ -172,6 +172,8 @@ public class SettingsFrame extends JFrame {
 			lblDicomNodeIp.setEnabled(false);
 			lblDatabaseName.setEnabled(false);
 			txtDatabasename.setEnabled(false);
+			lblRootServerDirectory.setEnabled(false);
+			txtServerDir.setEnabled(false);
 		}
 		btnSelecttemp.addActionListener(new ActionListener() {
 			
