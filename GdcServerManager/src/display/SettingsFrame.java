@@ -170,6 +170,8 @@ public class SettingsFrame extends JFrame {
 			btnbufferselect.setEnabled(false);
 			label.setEnabled(false);
 			lblDicomNodeIp.setEnabled(false);
+			lblDatabaseName.setEnabled(false);
+			txtDatabasename.setEnabled(false);
 		}
 		btnSelecttemp.addActionListener(new ActionListener() {
 			
