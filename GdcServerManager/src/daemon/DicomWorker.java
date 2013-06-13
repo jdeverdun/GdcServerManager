@@ -545,7 +545,7 @@ public class DicomWorker extends DaemonWorker {
 		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
 			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
-		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
 		// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
 		while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
 			pname = pname.substring(0,pname.length()-1);	
@@ -570,7 +570,7 @@ public class DicomWorker extends DaemonWorker {
 		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
 			pname = pname.substring(0,pname.length()-1);	
 		// on remplace les caracteres complique par "_"
-		pname = pname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getPatientId : "+pname);
 		return pname;
 	}
@@ -593,7 +593,7 @@ public class DicomWorker extends DaemonWorker {
 		while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
 			sdesc = sdesc.substring(0,sdesc.length()-1);
 		// on remplace les caracteres complique par "_"
-		sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.-]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
 		return sdesc;
 	}
@@ -615,7 +615,7 @@ public class DicomWorker extends DaemonWorker {
 		while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
 			bdate = bdate.substring(0,bdate.length()-1);
 		// on remplace les caracteres complique par "_"
-		bdate = bdate.replaceAll("[^A-Za-z0-9]\\." , "_");
+		bdate = bdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
 		return bdate;
 	}
@@ -755,7 +755,7 @@ public class DicomWorker extends DaemonWorker {
 		while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
 			pprot = pprot.substring(0,pprot.length()-1);
 		// on remplace les caracteres complique par "_"
-		pprot = pprot.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		pprot = pprot.replaceAll("[^A-Za-z0-9\\.-]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
 		return pprot;
 	}
