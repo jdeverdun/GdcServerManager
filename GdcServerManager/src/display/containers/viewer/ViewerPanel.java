@@ -288,6 +288,7 @@ public class ViewerPanel extends JPanel{
 				max = niftiAxial.getDisplayRangeMax();
 				min = niftiAxial.getDisplayRangeMin();
 			}
+			setDisplayMinMax(min, max);
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setSpinnerParams(new Integer[]{niftiAxial.getWidth(), niftiAxial.getHeight(),
 					niftiAxial.getNSlices()}, getAxialPanel().getMricronCoord(),new double[]{min,max});
@@ -417,6 +418,7 @@ public class ViewerPanel extends JPanel{
 			// update infoViewer a partir des donnees du plan axial
 			infoViewer.setOverlaySpinnerParams(new double[]{min,max});
 			infoViewer.unlockOverlayPanel();
+			setDisplayOverlayMinMax(min, max);
 			revalidate();
 			updateCrosshair();
 			return true;
