@@ -408,8 +408,8 @@ public class ViewerPanel extends JPanel{
 			double max = Double.MIN_VALUE;
 			double[] coef = niftiOverlayAxial.getCalibration().getCoefficients();// on applique les coef pour avoir les vrai valeurs
 			if(coef==null){
-				max = niftiAxial.getDisplayRangeMax();
-				min = niftiAxial.getDisplayRangeMin();
+				max = niftiOverlayAxial.getDisplayRangeMax();
+				min = niftiOverlayAxial.getDisplayRangeMin();
 			}else{
 				max = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMax();
 				min = coef[0]+coef[1]*niftiOverlayAxial.getDisplayRangeMin();
