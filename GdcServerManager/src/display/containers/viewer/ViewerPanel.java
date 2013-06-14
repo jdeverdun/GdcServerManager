@@ -361,7 +361,7 @@ public class ViewerPanel extends JPanel{
 					}
 				});*/
 				WindowManager.mwLogger.log(Level.WARNING,"Overlay has incorrect header ... using image information");
-				niftiOverlayAxial = null;
+				//niftiOverlayAxial = null;
 			}else{
 				niftiOverlayAxial = nr;
 				nr = null;
