@@ -128,6 +128,7 @@ public class FileManager {
 	private JPopupMenu Pmenu;
 	private JMenuItem twitem;
 	private JMenuItem tlitem;
+	private JMenuItem renameitem;
 	
     public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
@@ -318,6 +319,7 @@ public class FileManager {
     
             // Menu popup
             Pmenu = new JPopupMenu();
+            renameitem = new JMenuItem("Rename");
     		twitem = new JMenuItem("To workspace");
     		tlitem = new JMenuItem("To local");
     		switch(mode){
@@ -342,6 +344,8 @@ public class FileManager {
 				});
 				break;
     		case 2:
+    			if(UserProfile.CURRENT_USER.getLevel()==3)
+    				Pmenu.add(renameitem);
     			Pmenu.add(twitem);
     			twitem.addActionListener(new ActionListener() {
 					
@@ -360,7 +364,34 @@ public class FileManager {
 				});
 				break;
     		}
-    		
+    		renameitem.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					table.setEnabled(false);
+					File from = ((FileTableModel)table.getModel()).getFile(table.convertRowIndexToModel(table.getSelectedRows()[0]));
+					JDialog.setDefaultLookAndFeelDecorated(true);
+					String response = (String) JOptionPane.showInputDialog(null,
+							  "New name",
+							  "Rename",
+							  JOptionPane.QUESTION_MESSAGE,null,null,from.getName());
+					/*if(response!=null && !response.equals("") && isPatient(from)){
+						File to = new File(getCurrentDir() + File.separator + response);
+						if(from.renameTo(to)){
+							fi.mkdir();
+							getFileTreeLocal().refresh();
+						}else{
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(parentFrame,
+								    "Couldn't rename file.",
+								    "Create dir error",
+								    JOptionPane.ERROR_MESSAGE);
+						}
+					}	
+					System.out.println(response);*/
+					table.setEnabled(true);
+				}
+			});
 			table.addMouseListener(new MouseListener() {
 
 				public void mouseClicked(MouseEvent me) {

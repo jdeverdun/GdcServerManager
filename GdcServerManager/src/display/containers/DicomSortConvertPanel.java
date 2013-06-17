@@ -121,6 +121,21 @@ public class DicomSortConvertPanel extends JPanel {
 	            	SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							progressPanel.setVisible(true);
+			                statusThread = new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									while(progressPanel.isVisible()){
+										try {
+											Thread.sleep(1000);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
+										}
+										getLblStatus().setText(droppedFiles.size() + " Dicoms in list." );
+									}
+								}
+							});
+							statusThread.start();
 						}
 					});
 	                evt.acceptDrop(DnDConstants.ACTION_COPY);
@@ -144,21 +159,7 @@ public class DicomSortConvertPanel extends JPanel {
 							setLock(false);
 						}
 					});
-	                statusThread = new Thread(new Runnable() {
-						
-						@Override
-						public void run() {
-							while(progressPanel.isVisible()){
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-								getLblStatus().setText(droppedFiles.size() + " Dicoms in list." );
-							}
-						}
-					});
-					statusThread.start();
+
 	                addThread.start();
 	                setLock(true);
 	            } catch (Exception ex) {
