@@ -17,6 +17,7 @@ public class Serie implements Serializable{
 	private float slicethickness;
 	private float voxelwidth;
 	private float voxelheight;
+	private int hasnifti;
 	private Protocol protocole;
 	private Project projet;
 	private Patient patient;
@@ -142,6 +143,20 @@ public class Serie implements Serializable{
 
 	public void setVoxelheight(float voxelheight) {
 		this.voxelheight = voxelheight;
+	}
+
+	/**
+	 * @return the hasnifti
+	 */
+	public int getHasnifti() {
+		return hasnifti;
+	}
+
+	/**
+	 * @param hasnifti the hasnifti to set
+	 */
+	public void setHasnifti(int hasnifti) {
+		this.hasnifti = hasnifti;
 	}
 
 	public boolean equals(Serie p){

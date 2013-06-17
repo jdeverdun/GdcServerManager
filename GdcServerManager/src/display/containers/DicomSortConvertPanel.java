@@ -118,7 +118,11 @@ public class DicomSortConvertPanel extends JPanel {
 	        public synchronized void drop(DropTargetDropEvent evt) {
 	            try {
 	            	isstop = false;
-	            	progressPanel.setVisible(true);
+	            	SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							progressPanel.setVisible(true);
+						}
+					});
 	                evt.acceptDrop(DnDConstants.ACTION_COPY);
 	                final List<File> listFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 	                Thread addThread = new Thread(new Runnable() {

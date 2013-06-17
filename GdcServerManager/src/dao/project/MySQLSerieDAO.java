@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 import settings.SQLSettings;
 import settings.UserProfile;
+import settings.WindowManager;
 import settings.sql.DBTables;
 import settings.sql.tables.NiftiImageTable;
 import settings.sql.tables.SerieTable;
@@ -46,6 +48,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
+				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
@@ -67,7 +70,7 @@ public class MySQLSerieDAO implements SerieDAO{
 	
 	
 
-	public boolean newSerie(String nom, String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean newSerie(String nom, String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -77,7 +80,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getSerie().TNAME+" values (NULL,'"
-						+ nom + "','"+mri_name+"',"+repetitiontime+","+echotime+","+slicethickness+","+voxelwidth+","+voxelheight+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
+						+ nom + "','"+mri_name+"',"+repetitiontime+","+echotime+","+slicethickness+","+voxelwidth+","+voxelheight+","+hasnifti+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
 				
 				return true;
 				
@@ -152,6 +155,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
+				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				
 				// instantiation en cascade grace à acquisitiondate
@@ -202,6 +206,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setSlicethickness(rset.getFloat(SQLSettings.TABLES.getSerie().getSlicethickness()));
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
+				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -221,7 +226,7 @@ public class MySQLSerieDAO implements SerieDAO{
 	}
 	
 	@Override
-	public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -231,7 +236,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"'," +
 					""+SQLSettings.TABLES.getSerie().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getSerie().getRepetitiontime()+"="+repetitiontime+", " +
 					""+SQLSettings.TABLES.getSerie().getEchotime()+"="+echotime+", "+SQLSettings.TABLES.getSerie().getSlicethickness()+"="+slicethickness+", " +
-					""+SQLSettings.TABLES.getSerie().getVoxelwidth()+"="+voxelwidth+", "+SQLSettings.TABLES.getSerie().getVoxelheight()+"="+voxelheight+", " +
+					""+SQLSettings.TABLES.getSerie().getVoxelwidth()+"="+voxelwidth+", "+SQLSettings.TABLES.getSerie().getVoxelheight()+"="+voxelheight+", " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", " +
 					""+SQLSettings.TABLES.getSerie().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id_acqdate+", "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id_protocol+" where " +
 					""+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			return true;
@@ -244,6 +249,25 @@ public class MySQLSerieDAO implements SerieDAO{
 		}
 	}
 
+	@Override
+	public boolean updateHasNifti(int idserie, int hasnifti) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", where " +
+					""+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
+			return true;
+		} catch (SQLException e2) {
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
+	
 	@Override
 	public Set<Serie> getSerieForPatient(int id)
 			throws SQLException {

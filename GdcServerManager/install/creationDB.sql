@@ -40,7 +40,7 @@ constraint uacqdata_patient_projet_nameprot unique(name,id_project,id_patient,id
 constraint acqdateprotocol_fk foreign key (id_acqdate) references AcquisitionDate(id) on delete cascade);
 
 create table Serie
-(id integer NOT NULL AUTO_INCREMENT, name varchar(150),mri_name varchar(50),repetitiontime float, echotime float, slicethickness float, voxelwidth float, voxelheight float, id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,
+(id integer NOT NULL AUTO_INCREMENT, name varchar(150),mri_name varchar(50),repetitiontime float, echotime float, slicethickness float, voxelwidth float, voxelheight float, hasnifti integer(1), id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,
 constraint serie_pk primary key (id),
 constraint uprot_acqdata_patient_projet_nameserie unique(name,id_project,id_patient,id_acqdate,id_protocol),
 constraint protocolserie_fk foreign key (id_protocol) references Protocol(id) on delete cascade);

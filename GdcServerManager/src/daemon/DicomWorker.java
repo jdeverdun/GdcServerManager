@@ -425,7 +425,7 @@ public class DicomWorker extends DaemonWorker {
 		case "Serie":
 			SerieDAO sdao = new MySQLSerieDAO();
 			try {
-				sdao.newSerie(name.toString(), this.mri_name,this.repetitiontime,this.echotime,this.slicethickness,this.voxelwidth,this.voxelheight, getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id());
+				sdao.newSerie(name.toString(), this.mri_name,this.repetitiontime,this.echotime,this.slicethickness,this.voxelwidth,this.voxelheight,0, getProject_id(), getPatient_id(),getAcqDate_id(),getProtocol_id());
 				setSerie_id(sdao.idmax());
 			} catch (SQLException e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));

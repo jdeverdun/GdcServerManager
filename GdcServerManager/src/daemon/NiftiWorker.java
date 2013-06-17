@@ -285,7 +285,15 @@ public class NiftiWorker extends DaemonWorker {
 				dicdao.newNiftiImage(name.getFileName().toString(), nr.getNSlices(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 			} catch (SQLException e) {
-				System.out.println("SQLException with niftiWorker : "+e.toString());
+				WindowManager.mwLogger.log(Level.SEVERE,"SQLException with niftiWorker",e);
+				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
+			}
+			// on indique a la serie qu'elle est dispo en nifti
+			SerieDAO sdao = new MySQLSerieDAO();
+			try {
+				sdao.updateHasNifti(sourceDicomImage.getSerie().getId(),1);
+			} catch (SQLException e) {
+				WindowManager.mwLogger.log(Level.SEVERE,"Can't update serie.",e);
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 			}
 			break;

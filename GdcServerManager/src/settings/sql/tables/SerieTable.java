@@ -20,6 +20,7 @@ public class SerieTable {
 	private String slicethickness;
 	private String voxelwidth;
 	private String voxelheight;
+	private String hasnifti;
 	private String id_project;
 	private String id_patient;
 	private String id_acqdate;
@@ -35,6 +36,7 @@ public class SerieTable {
 		slicethickness = "slicethickness";
 		voxelwidth = "voxelwidth";
 		voxelheight = "voxelheight";
+		hasnifti = "hasnifti";
 		id_project = "id_project";
 		id_patient = "id_patient";
 		id_acqdate = "id_acqdate";
@@ -90,5 +92,19 @@ public class SerieTable {
 
 	public String getVoxelheight() {
 		return voxelheight;
+	}
+
+	/**
+	 * @return the hasnifti
+	 */
+	public String getHasnifti() {
+		return hasnifti;
+	}
+
+	/**
+	 * @param hasnifti the hasnifti to set
+	 */
+	public void setHasnifti(String hasnifti) {
+		this.hasnifti = hasnifti;
 	}
 }

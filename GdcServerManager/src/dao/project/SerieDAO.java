@@ -26,10 +26,10 @@ public interface SerieDAO {
     public int idmax() throws SQLException;
       
 
-    public boolean newSerie(String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
+    public boolean newSerie(String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
       
-    public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
-      
+    public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int projet_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException;
+    public boolean updateHasNifti(int idserie,int hasnifti) throws SQLException;
 	public Set<Serie> getSerieForPatient(int id) throws SQLException;
 	public Set<Serie> getSerieForProject(int id) throws SQLException; 
 	public Set<Serie> getSerieForAcqDate(int id) throws SQLException; 
