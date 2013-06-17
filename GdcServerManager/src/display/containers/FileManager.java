@@ -783,7 +783,7 @@ public class FileManager {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 if (fileTableModel==null) {
-                    fileTableModel = new FileTableModel();
+                    fileTableModel = new FileTableModel(table);
                     table.setModel(fileTableModel);
                 }
                 table.getSelectionModel().removeListSelectionListener(listSelectionListener);
@@ -828,6 +828,7 @@ public class FileManager {
         SwingWorker<Void, File> worker = new SwingWorker<Void, File>() {
             @Override
             public Void doInBackground() {
+            	table.setEnabled(false);  
                 File file = (File) node.toFile();
                 setCurrentDir(file);
                 if (file.isDirectory()) {
@@ -967,6 +968,7 @@ public class FileManager {
 /** A TableModel to hold File[]. */
 class FileTableModel extends AbstractTableModel {
 
+	private JTable parent;
     private File[] files;
     private Object[] size;// on stock en cache les infos pour eviter les overhead
     private Object[] lastMod;
@@ -978,8 +980,9 @@ class FileTableModel extends AbstractTableModel {
         "Last Modified",
     };
 
-    FileTableModel() {
+    FileTableModel(JTable parent) {
         this(new File[0]);
+        this.parent = parent;
     }
 
     FileTableModel(File[] files) {
@@ -1062,7 +1065,7 @@ class FileTableModel extends AbstractTableModel {
 						fireTableDataChanged();
 					}
 				});
-		        
+		        parent.setEnabled(true);  
 			}
 		});
         tr.start();
