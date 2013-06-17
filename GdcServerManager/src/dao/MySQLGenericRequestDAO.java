@@ -967,13 +967,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			if(project==null)
 				project = "";
 			if(UserProfile.CURRENT_USER.getLevel()!=3)
-				opt="_"+UserProfile.CURRENT_USER.getId();
-			
-			switch(imagetype){
-			case NIFTI:
-				from += tab.getNiftiImage().TNAME+opt+" , ";break;
-			}
-			
+				opt="_"+UserProfile.CURRENT_USER.getId();	
 
 			// ----------  project --------------
 			if(select.equals("select "))
@@ -989,11 +983,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
 				whereopt= " and ";
 			}
-			// selon la table qu'on recupere (dicom ou nifti)
-			switch(imagetype){
-			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_project()+"="+tab.getProject().TNAME+opt+"."+tab.getProject().getId();break;
-			}
+
 			whereopt= " and ";
 			// ----------  patient --------------
 			select += ", "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" as "+tab.getPatient().TNAME;
@@ -1003,10 +993,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
 				else
 					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
-			}
-			switch(imagetype){
-			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_patient()+"="+tab.getPatient().TNAME+opt+"."+tab.getPatient().getId();break;
 			}
 			
 			// ----------  AcqDate --------------
@@ -1025,12 +1011,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
 				else
 					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
-			}
-			switch(imagetype){
-			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId();break;
-			}
-			
+			}			
 			// ----------  protocol --------------
 			
 			select += ", "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" as "+tab.getProtocol().TNAME;
@@ -1040,10 +1021,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
 				else
 					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
-			}
-			switch(imagetype){
-			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_protocol()+"="+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId();break;
 			}
 			
 			// ----------  serie --------------
@@ -1064,7 +1041,12 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 						tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_protocol();
 				break;
 			case NIFTI:
-				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_serie()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId();break;
+				where += whereopt+tab.getProject().TNAME+opt+"."+tab.getProject().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_project()+" and " +
+						tab.getPatient().TNAME+opt+"."+tab.getPatient().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_patient()+" and " +
+						tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_acqdate()+" and " +
+						tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_protocol()+" and " +
+						tab.getSerie().TNAME+opt+"."+tab.getSerie().getHasnifti()+"=1";
+				break;
 			}
 			
 			// ----------- REQUETE -------------
