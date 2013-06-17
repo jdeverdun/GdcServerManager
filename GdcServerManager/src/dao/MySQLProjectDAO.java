@@ -40,7 +40,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getProject().TNAME);
@@ -77,7 +77,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 			Connection connection = null;
 			
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				
@@ -122,7 +122,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -163,7 +163,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -202,7 +202,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -236,7 +236,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProject().TNAME+" set "+SQLSettings.TABLES.getProject().getName()+"='"+name+"', "+SQLSettings.TABLES.getProject().getRkey()+"='"+rkey+"' where " +
 					""+SQLSettings.TABLES.getProject().getId()+"="+id);
@@ -259,7 +259,7 @@ public class MySQLProjectDAO implements ProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			DBTables tab = SQLSettings.TABLES;

@@ -29,7 +29,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -72,7 +72,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			Connection connection = null;
 			
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getNiftiImage().TNAME+" values (NULL,'"
@@ -98,7 +98,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -136,7 +136,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
 			
@@ -177,7 +177,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getNiftiImage().TNAME+" where "+SQLSettings.TABLES.getNiftiImage().getName()+"='"+name+"' and " +
 					""+SQLSettings.TABLES.getNiftiImage().getSlices()+"="+slices+" and "+SQLSettings.TABLES.getNiftiImage().getId_project()+"="+id_project+" and " +
@@ -199,7 +199,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getNiftiImage().TNAME+" set "+SQLSettings.TABLES.getNiftiImage().getName()+"='"+name+"'," +
 					""+SQLSettings.TABLES.getNiftiImage().getSlices()+"="+slices+" , "+SQLSettings.TABLES.getNiftiImage().getId_project()+"="+id_project+", " +
@@ -225,7 +225,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -261,7 +261,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -293,7 +293,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -326,7 +326,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getNiftiImage().TNAME+" where "+SQLSettings.TABLES.getNiftiImage().getId_protocol()+"="+id);
@@ -357,7 +357,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -395,7 +395,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -435,7 +435,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			NiftiImageTable nt = tab.getNiftiImage();
@@ -475,7 +475,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getNiftiImage().TNAME+" where "+SQLSettings.TABLES.getNiftiImage().getName()+"='"+name+"' and " +
 					""+SQLSettings.TABLES.getNiftiImage().getId_project()+"="+id_project+" and " +

@@ -19,15 +19,15 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 	// PAS FINI ? 
 	@Override
 	public boolean createUser(User user) throws SQLException {
-		if(SQLSettings.PDS == null) 
-			System.err.println("PDS not started.");
+		if(SQLSettings.getPDS() == null) 
+			System.err.println("getPDS() not started.");
 		ResultSet rset = null;
 		int rset2;
 		Statement stmt = null;
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			String encryptedPass = null;		
 	
@@ -65,24 +65,24 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 	// PAS FINI ? 
 	@Override
 	public boolean removeUser(User user) throws SQLException {
-		if(SQLSettings.PDS == null) 
-			System.err.println("PDS not started.");
+		if(SQLSettings.getPDS() == null) 
+			System.err.println("getPDS() not started.");
 		int rset2;
 		Statement stmt = null;
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 	
 			String[] viewCommand = Scripts.getDeleteUserViews(user);
 			// On supprime les vues utilisateur et  acces
 			for(String curcom:viewCommand)
 				rset2 = stmt.executeUpdate(curcom);
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			stmt.execute("DROP USER "+user.getLogin()+" ;");
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			stmt.execute("DROP USER "+user.getLogin()+"@'' ;");
 
@@ -107,7 +107,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		Connection connection = null;
 		ResultSet resultSet = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			resultSet = connection.getMetaData().getCatalogs();
 	
 			//iterate each catalog in the ResultSet
@@ -133,7 +133,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();	
 	
 			stmt.executeUpdate("create database "+databaseName+" ;");
@@ -155,7 +155,7 @@ public class MySQLDataBaseAdminDAO implements DataBaseAdminDAO{
 		Connection connection = null;
 		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();	
 	
 			stmt.executeUpdate("set password=password('"+pass+"') ;");

@@ -135,7 +135,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeQuery(nrequest);
 
@@ -384,7 +384,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -515,7 +515,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -628,7 +628,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -722,7 +722,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -795,7 +795,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -849,7 +849,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				Statement stmt = null;
 				Connection connection = null;
 				try {
-					connection = SQLSettings.PDS.getConnection();
+					connection = SQLSettings.getPDS().getConnection();
 					stmt = connection.createStatement();
 					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
 					if(!rset.next())
@@ -957,7 +957,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		Connection connection = null;
 		try {
 			DBTables tab = SQLSettings.TABLES;
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			String select = "select ";
 			String from = " from ";
@@ -970,10 +970,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				opt="_"+UserProfile.CURRENT_USER.getId();
 			
 			switch(imagetype){
-			case DICOM:
-				from += tab.getDicomImage().TNAME+opt;break;
 			case NIFTI:
-				from += tab.getNiftiImage().TNAME+opt;break;
+				from += tab.getNiftiImage().TNAME+opt+" , ";break;
 			}
 			
 
@@ -983,7 +981,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			else
 				select += ", "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" as "+tab.getProject();
 
-			from += ", "+tab.getProject().TNAME+opt;
+			from += tab.getProject().TNAME+opt;
 			if(!project.equals("")){
 				if(where.equals(" where "))
 					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
@@ -993,8 +991,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			// selon la table qu'on recupere (dicom ou nifti)
 			switch(imagetype){
-			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_project()+"="+tab.getProject().TNAME+opt+"."+tab.getProject().getId();break;
 			case NIFTI:
 				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_project()+"="+tab.getProject().TNAME+opt+"."+tab.getProject().getId();break;
 			}
@@ -1009,8 +1005,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
 			}
 			switch(imagetype){
-			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_patient()+"="+tab.getPatient().TNAME+opt+"."+tab.getPatient().getId();break;
 			case NIFTI:
 				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_patient()+"="+tab.getPatient().TNAME+opt+"."+tab.getPatient().getId();break;
 			}
@@ -1033,8 +1027,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
 			}
 			switch(imagetype){
-			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId();break;
 			case NIFTI:
 				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_acqdate()+"="+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId();break;
 			}
@@ -1050,8 +1042,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
 			}
 			switch(imagetype){
-			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_protocol()+"="+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId();break;
 			case NIFTI:
 				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_protocol()+"="+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId();break;
 			}
@@ -1068,7 +1058,11 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			switch(imagetype){
 			case DICOM:
-				where += whereopt+tab.getDicomImage().TNAME+opt+"."+tab.getDicomImage().getId_serie()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId();break;
+				where += whereopt+tab.getProject().TNAME+opt+"."+tab.getProject().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_project()+" and " +
+						tab.getPatient().TNAME+opt+"."+tab.getPatient().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_patient()+" and " +
+						tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_acqdate()+" and " +
+						tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getId()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId_protocol();
+				break;
 			case NIFTI:
 				where += whereopt+tab.getNiftiImage().TNAME+opt+"."+tab.getNiftiImage().getId_serie()+"="+tab.getSerie().TNAME+opt+"."+tab.getSerie().getId();break;
 			}
@@ -1146,7 +1140,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 
 			rset = stmt.executeQuery("select password('na');");

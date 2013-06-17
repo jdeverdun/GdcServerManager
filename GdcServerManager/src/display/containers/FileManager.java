@@ -100,9 +100,8 @@ rename/delete etc. are called that update nodes & file lists.
 public class FileManager {
 
 	
-    /** Title of the application */
-    public static final String APP_TITLE = "FileMan";
-    /** Used to open/edit/print files. */
+    private static boolean stopAction;
+	/** Used to open/edit/print files. */
     private Desktop desktop;
     /** Provides nice icons and names for files. */
     private FileSystemView fileSystemView;
@@ -724,14 +723,25 @@ public class FileManager {
 	 * Recursive copie & decrypt
 	 * @param fi
 	 * @param dir
+	 * @param level le niveau de recursivite dans lequel on se trouve (0)
 	 */
-	public static void copyAndDecrypt(File fi, File dir) {
+	public static void copyAndDecrypt(File fi, File dir,int level) {
+		if(stopAction){
+			if(level == 0)
+				stopAction = false;
+			return;
+		}
 		if(fi.isDirectory()){
 			File ndir = new File(dir.getAbsolutePath()+ File.separator + fi.getName());
 			ndir.mkdirs();
 			for(File cf:fi.listFiles()){
 				if(!cf.getName().contains("..") && !cf.getName().equals(".")){
-					copyAndDecrypt(cf, ndir);
+					copyAndDecrypt(cf, ndir,level+1);
+				}
+				if(stopAction){
+					if(level == 0)
+						stopAction = false;
+					return;
 				}
 			}
 		}else{
@@ -739,6 +749,14 @@ public class FileManager {
 		}
 	}
 	
+	/**
+	 * On definit le niveau 0 de recursivite par defaut
+	 * @param fi
+	 * @param dir
+	 */
+	public static void copyAndDecrypt(File fi, File dir){
+		copyAndDecrypt(fi, dir, 0);
+	}
 	
 	/**
 	 * Stoppe l'action que realise ce filetree (copie de fichier // decryptage etc)
@@ -935,6 +953,13 @@ public class FileManager {
 	}
 	public void setFileTableModel(FileTableModel fileTableModel) {
 		this.fileTableModel = fileTableModel;
+	}
+
+	/**
+	 * Coupe une action realise statiquement (copyAndDecrypt)
+	 */
+	public static void stopAction() {
+		stopAction = true;
 	}
 
 }

@@ -554,11 +554,12 @@ public class AdvancedImportFrame extends JFrame {
 								e.printStackTrace();
 							}
 						}
-						stopImport = false;
 						SystemSettings.DECRYPT_DAEMON.cleanList();
 						popup.hide();
 						setLock(false);
-						dispose();
+						if(!stopImport)
+							dispose();
+						stopImport = false;
 					}
 					
 				});
@@ -856,6 +857,7 @@ public class AdvancedImportFrame extends JFrame {
 	 */
 	public void stopImport() {
 		this.stopImport = true;
+		FileManager.stopAction();
 	}
 	
 	/**
@@ -945,14 +947,30 @@ public class AdvancedImportFrame extends JFrame {
 			String serie = "";
 			switch(count){
 			case 1://project
-				if(chckbxProject.isSelected()){
-					if(getNewProjectName()!=null)
-						project = getNewProjectName();
-					else
-						project = parts[serverdirlen];
-				}
+				chckbxProject.setSelected(true);
+				checkBoxPatient.setSelected(true);
+				checkBoxDate.setSelected(true);
+				chckbxProtocol.setSelected(true);
+				checkBoxSerie.setSelected(true);
+				chckbxProject.setEnabled(false);
+				checkBoxPatient.setEnabled(false);
+				checkBoxDate.setEnabled(false);
+				chckbxProtocol.setEnabled(false);
+				checkBoxSerie.setEnabled(false);
+				if(getNewProjectName()!=null)
+					project = getNewProjectName();
+				else
+					project = parts[serverdirlen];
 				break;
 			case 2://patient
+				checkBoxPatient.setSelected(true);
+				checkBoxDate.setSelected(true);
+				chckbxProtocol.setSelected(true);
+				checkBoxSerie.setSelected(true);
+				checkBoxPatient.setEnabled(false);
+				checkBoxDate.setEnabled(false);
+				chckbxProtocol.setEnabled(false);
+				checkBoxSerie.setEnabled(false);
 				if(chckbxProject.isSelected()){
 					if(getNewProjectName()!=null)
 						project = getNewProjectName();
@@ -967,6 +985,12 @@ public class AdvancedImportFrame extends JFrame {
 				}
 				break;
 			case 3://acqdate
+				checkBoxDate.setSelected(true);
+				chckbxProtocol.setSelected(true);
+				checkBoxSerie.setSelected(true);
+				checkBoxDate.setEnabled(false);
+				chckbxProtocol.setEnabled(false);
+				checkBoxSerie.setEnabled(false);
 				if(chckbxProject.isSelected()){
 					if(getNewProjectName()!=null)
 						project = getNewProjectName();
@@ -987,6 +1011,10 @@ public class AdvancedImportFrame extends JFrame {
 				}
 				break;
 			case 4://protocol
+				chckbxProtocol.setSelected(true);
+				checkBoxSerie.setSelected(true);
+				chckbxProtocol.setEnabled(false);
+				checkBoxSerie.setEnabled(false);
 				if(chckbxProject.isSelected()){
 					if(getNewProjectName()!=null)
 						project = getNewProjectName();
@@ -1013,6 +1041,8 @@ public class AdvancedImportFrame extends JFrame {
 				}
 				break;
 			case 5://serie
+				checkBoxSerie.setSelected(true);
+				checkBoxSerie.setEnabled(false);
 				if(chckbxProject.isSelected()){
 					if(getNewProjectName()!=null)
 						project = getNewProjectName();

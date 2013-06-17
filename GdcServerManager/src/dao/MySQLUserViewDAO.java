@@ -25,7 +25,7 @@ public class MySQLUserViewDAO implements UserViewDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.execute("insert into "+SQLSettings.TABLES.getUser_view().TNAME+" values (NULL,'"
@@ -56,7 +56,7 @@ public class MySQLUserViewDAO implements UserViewDAO {
 		Connection connection = null;
 		int res = -1;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
@@ -82,7 +82,7 @@ public class MySQLUserViewDAO implements UserViewDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_view().TNAME+" where "+SQLSettings.TABLES.getUser_view().getLogin_user()+"='"+u.getLogin()+"'");

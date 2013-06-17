@@ -26,7 +26,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 			stmt = connection.createStatement();
 			
@@ -73,7 +73,7 @@ public class MySQLSerieDAO implements SerieDAO{
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getSerie().TNAME+" values (NULL,'"
@@ -99,7 +99,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -134,7 +134,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 
@@ -181,7 +181,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProtocolDAO pdao = new MySQLProtocolDAO();
 			
@@ -226,7 +226,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getName()+"='"+name+"'," +
 					""+SQLSettings.TABLES.getSerie().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getSerie().getRepetitiontime()+"="+repetitiontime+", " +
@@ -252,7 +252,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -285,7 +285,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -317,7 +317,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -350,7 +350,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -385,7 +385,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -426,7 +426,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			SerieTable nt = tab.getSerie();

@@ -37,7 +37,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getUser().TNAME);
@@ -103,7 +103,7 @@ public class MySQLUserDAO implements UserDAO {
 			}
 			// On recupere une connexion
 			try{
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 			}catch(Exception e){
 				e.printStackTrace();
 				return null;
@@ -174,7 +174,7 @@ public class MySQLUserDAO implements UserDAO {
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into  "+SQLSettings.TABLES.getUser().TNAME+"  values (NULL,'"
@@ -224,7 +224,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -259,7 +259,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -298,7 +298,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -344,7 +344,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -395,7 +395,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
 				rset = stmt.executeUpdate("update  "+SQLSettings.TABLES.getUser().TNAME+"  set "+SQLSettings.TABLES.getUser().getLogin()+"='"+l+"',"+SQLSettings.TABLES.getUser().getPassword()+"='"+pass+"'," +
@@ -451,7 +451,7 @@ public class MySQLUserDAO implements UserDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.executeUpdate("delete from  "+SQLSettings.TABLES.getUser().TNAME+"  where id="+u.getId());

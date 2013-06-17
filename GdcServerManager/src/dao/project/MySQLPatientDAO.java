@@ -31,7 +31,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			stmt = connection.createStatement();
 			
@@ -72,7 +72,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getPatient().TNAME+" values (NULL,'"
@@ -102,7 +102,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -137,7 +137,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();		
 			
@@ -175,7 +175,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();		
 			
@@ -214,7 +214,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();	
 			
@@ -251,7 +251,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getPatient().TNAME+" set "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"',"+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"'," +
 					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getSize()+"="+size+", "+SQLSettings.TABLES.getPatient().getWeight()+"="+weight+", "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
@@ -271,7 +271,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -305,7 +305,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -342,7 +342,7 @@ public class MySQLPatientDAO implements PatientDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			PatientTable nt = tab.getPatient();

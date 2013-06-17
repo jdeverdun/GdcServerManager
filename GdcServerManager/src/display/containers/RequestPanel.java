@@ -1009,7 +1009,7 @@ public class RequestPanel extends JPanel {
 									MAdvImportitem.setVisible(true);
 									if(UserProfile.CURRENT_USER.getLevel()==3)
 										MDelitem.setVisible(true);
-									if(getRqModel().getFileAt(0).getAbsolutePath().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME))
+									if(getRqModel().getFileAt(0).getAbsolutePath().contains(SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME) && isSerie(getRqModel().getFileAt(0)))
 										MViewItem.setVisible(true);
 									else
 										MViewItem.setVisible(false);
@@ -1065,7 +1065,30 @@ public class RequestPanel extends JPanel {
 		setLock(false);
 	}
 	
-	
+	/**
+	 * Verifie que le fichier pointe bien vers une serie sur le serveur
+	 * @param file
+	 * @return
+	 */
+	private boolean isSerie(File file) {
+		String[] parts = file.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return false;
+		if(!file.getName().contains("..")){
+			
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}else{
+					return false;
+				}
+			}
+			return count == 5;
+		}
+		return false;
+	}
 	/**
 	 * Construit l'arborescende de fi dans dirsave a partir du repertoire vmin de fi
 	 * renvoi  le path 

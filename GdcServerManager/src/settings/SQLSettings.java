@@ -1,6 +1,7 @@
 package settings;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import oracle.ucp.UniversalConnectionPoolAdapter;
 import oracle.ucp.UniversalConnectionPoolException;
@@ -11,9 +12,12 @@ import oracle.ucp.jdbc.PoolDataSourceFactory;
 import settings.sql.DBTables;
 
 public class SQLSettings {
+	public static final int reconnectTimeout = 1800000;// temps a attendre depuis la derniere requete pour reouvrir la connection a la bdd
+			
 	public static String ADDRESS = "120.40.30.110";//"localhost";
 	public static String DATABASE_NAME = "gdcserver";
 	public static DBTables TABLES = new DBTables();
+	public static long lastRequestTime = 0; // date de la derniere requete
 	// nom des tables beneficiant de vues pour chaque utilisateur
 	// trie par niveau (le plus bas etant dicomimage puis niftiimage
 	// le plus haut project, le dernier est user
@@ -112,5 +116,21 @@ public class SQLSettings {
 		if(MGR!=null)
 			MGR.destroyConnectionPool("mgr_pool");
 		PDS = null;
+	}
+	
+	public static PoolDataSource getPDS(){
+		// si ca fait plus d'une heure que l'on a pas fait de requete on relance le pool
+		if(lastRequestTime != 0 && ((System.currentTimeMillis()-lastRequestTime)>= reconnectTimeout)){
+			try {
+				stopPDS();
+				launchPDS();
+			} catch (UniversalConnectionPoolException e) {
+				WindowManager.mwLogger.log(Level.SEVERE,"getPDS error.",e);
+			} catch (SQLException e) {
+				WindowManager.mwLogger.log(Level.SEVERE,"getPDS error.",e);
+			}
+		}
+			
+		return PDS;
 	}
 }

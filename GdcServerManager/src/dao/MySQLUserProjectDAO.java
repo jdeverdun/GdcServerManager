@@ -26,7 +26,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			ProjectDAO pdao=new MySQLProjectDAO();
@@ -64,7 +64,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			//PatientDAO patdao=new MySQLPatientDAO();
 			UserDAO udao=new MySQLUserDAO();
@@ -100,7 +100,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+u.getId());
@@ -120,7 +120,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_user()+"="+id_user+" and "+SQLSettings.TABLES.getUser_project().getId_project()+"="+id_project);
@@ -156,7 +156,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 		
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
@@ -183,7 +183,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			// On recupere les id user // projet
@@ -219,7 +219,7 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			rset = stmt.executeUpdate("delete from "+SQLSettings.TABLES.getUser_project().TNAME+" where "+SQLSettings.TABLES.getUser_project().getId_project()+"="+idproject);

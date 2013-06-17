@@ -26,7 +26,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
 			stmt = connection.createStatement();
 			
@@ -65,7 +65,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getProtocol().TNAME+" values (NULL,'"
@@ -95,7 +95,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -130,7 +130,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
 			
@@ -169,7 +169,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();	
 			
@@ -206,7 +206,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProtocol().TNAME+" set "+SQLSettings.TABLES.getProtocol().getName()+"='"+name+"', "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getProtocol().getId_acqdate()+"="+id_acqdate+" where "+SQLSettings.TABLES.getProtocol().getId()+"="+id);
 			return true;
@@ -228,7 +228,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -262,7 +262,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -294,7 +294,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -329,7 +329,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -369,7 +369,7 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			ProtocolTable nt = tab.getProtocol();

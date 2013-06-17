@@ -27,7 +27,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			PatientDAO pdao = new MySQLPatientDAO();
 			stmt = connection.createStatement();
 			
@@ -65,7 +65,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" values (NULL,'"
@@ -95,7 +95,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -130,7 +130,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			PatientDAO pdao=new MySQLPatientDAO();		
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -165,7 +165,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			PatientDAO pdao=new MySQLPatientDAO();		
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
@@ -202,7 +202,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" set "+SQLSettings.TABLES.getAcquisitionDate().getDate()+"='"+date+"'," +
 					" "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+id_patient+" " +
@@ -226,7 +226,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+id);
@@ -258,7 +258,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
@@ -291,7 +291,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -329,7 +329,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			AcquisitionDateTable nt = tab.getAcquisitionDate();

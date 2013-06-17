@@ -27,7 +27,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			SerieDAO sdao = new MySQLSerieDAO();
 			stmt = connection.createStatement();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -69,7 +69,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 			Statement stmt = null;
 			Connection connection = null;
 			try {
-				connection = SQLSettings.PDS.getConnection();
+				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getDicomImage().TNAME+" values (NULL,'"
@@ -96,7 +96,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;		
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			int ident=-1;		
 	
@@ -132,7 +132,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			SerieDAO sdao = new MySQLSerieDAO();
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -172,7 +172,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getDicomImage().TNAME+" set "+SQLSettings.TABLES.getDicomImage().getName()+"='"+name+"'," +
 					""+SQLSettings.TABLES.getDicomImage().getSliceLocation()+"="+sliceloc+", "+SQLSettings.TABLES.getDicomImage().getId_project()+"="+id_project+", " +
@@ -198,7 +198,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -234,7 +234,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -266,7 +266,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -299,7 +299,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -331,7 +331,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
@@ -369,7 +369,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			
 			/*
@@ -409,7 +409,7 @@ public class MySQLDicomImageDAO implements DicomImageDAO {
 		Statement stmt = null;
 		Connection connection = null;
 		try {
-			connection = SQLSettings.PDS.getConnection();
+			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			DBTables tab = SQLSettings.TABLES;
 			DicomImageTable nt = tab.getDicomImage();
