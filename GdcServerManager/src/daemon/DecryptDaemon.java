@@ -29,6 +29,7 @@ public class DecryptDaemon extends Thread {
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a decrypter ou si on travail)
 	private ArrayList<Thread> workers;
 	private int maxWorkers;
+	private int totalEncryptedFile;
 	
 	
 	public DecryptDaemon(){
@@ -36,6 +37,7 @@ public class DecryptDaemon extends Thread {
 		stop = false;
 		workers = new ArrayList<Thread>();
 		maxWorkers = SystemSettings.AVAILABLE_CORES;
+		totalEncryptedFile = 0;
 	}
 	
 	
@@ -49,6 +51,7 @@ public class DecryptDaemon extends Thread {
 				if(isStop())
 					return;
 				try {
+					setTotalEncryptedFile(0);
 					setWaiting(true);
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -120,6 +123,7 @@ public class DecryptDaemon extends Thread {
 		if(!source.toString().endsWith(AESCrypt.ENCRYPTSUFFIX))
 			source = Paths.get(source.getParent().toString()+File.separator+source.getFileName()+AESCrypt.ENCRYPTSUFFIX);
 		setWaiting(false);
+		totalEncryptedFile++;
 		fileToDecrypt.push(new Path[]{source,to});
 	}
 
@@ -144,6 +148,22 @@ public class DecryptDaemon extends Thread {
 
 	public void setWaiting(boolean waiting) {
 		this.waiting = waiting;
+	}
+
+
+	/**
+	 * @return the totalEncryptedFile
+	 */
+	public int getTotalEncryptedFile() {
+		return totalEncryptedFile;
+	}
+
+
+	/**
+	 * @param totalEncryptedFile the totalEncryptedFile to set
+	 */
+	public void setTotalEncryptedFile(int totalEncryptedFile) {
+		this.totalEncryptedFile = totalEncryptedFile;
 	}
 	
 

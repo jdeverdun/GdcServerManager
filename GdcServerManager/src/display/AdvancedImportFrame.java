@@ -574,7 +574,7 @@ public class AdvancedImportFrame extends JFrame {
 					@Override
 					public void run() {
 						while(isLock){
-							ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+							ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()-SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
 							try {
 								Thread.sleep(100);
 							} catch (InterruptedException e) {
@@ -631,7 +631,7 @@ public class AdvancedImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnNiftiNode.isSelected()){
 					rdbtnDicomNode.setSelected(true);
-					return;
+					//return;
 				}
 				rdbtnNiftiNode.setSelected(!rdbtnDicomNode.isSelected());
 				progressBar.setVisible(false);
@@ -648,7 +648,7 @@ public class AdvancedImportFrame extends JFrame {
 							File[] nfiles = new File[getFiles().length];
 							int count = 0;
 							for(File fi:getFiles()){
-								File nfi = new File(fi.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME));
+								File nfi = new File(fi.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME,ServerInfo.NRI_DICOM_NAME));
 								if(!nfi.exists()){
 									SwingUtilities.invokeLater(new Runnable() {
 										
@@ -658,13 +658,13 @@ public class AdvancedImportFrame extends JFrame {
 											JOptionPane.showMessageDialog(AdvancedImportFrame.this,
 												    "One or more series couldn't be found in dicom format ... resetting to nifti",
 												    "Warning",
-												    JOptionPane.WARNING_MESSAGE);
+												    JOptionPane.INFORMATION_MESSAGE);
 										}
 									});
 									rdbtnDicomNode.setSelected(false);
 									rdbtnNiftiNode.setSelected(true);
-									rdbtnDicomNode.setEnabled(true);
-									rdbtnDicomNode.setEnabled(true);
+									rdbtnDicomNode.setEnabled(false);
+									rdbtnNiftiNode.setEnabled(true);
 									progressBar.setVisible(false);
 									hasNiftiDicomCorrespondance = 0;
 									return;
@@ -674,7 +674,7 @@ public class AdvancedImportFrame extends JFrame {
 							setFiles(nfiles);
 							hasNiftiDicomCorrespondance = 1;
 							rdbtnDicomNode.setEnabled(true);
-							rdbtnDicomNode.setEnabled(true);
+							rdbtnNiftiNode.setEnabled(true);
 							progressBar.setVisible(false);
 						}
 					});
@@ -688,7 +688,7 @@ public class AdvancedImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnDicomNode.isSelected()){
 					rdbtnNiftiNode.setSelected(true);
-					return;
+					//return;
 				}
 				progressBar.setVisible(false);
 				rdbtnDicomNode.setSelected(!rdbtnNiftiNode.isSelected());
@@ -715,13 +715,13 @@ public class AdvancedImportFrame extends JFrame {
 											JOptionPane.showMessageDialog(AdvancedImportFrame.this,
 												    "One or more series couldn't be found in nifti format ... resetting to dicom",
 												    "Warning",
-												    JOptionPane.WARNING_MESSAGE);
+												    JOptionPane.INFORMATION_MESSAGE);
 										}
 									});
 									rdbtnDicomNode.setSelected(true);
 									rdbtnNiftiNode.setSelected(false);
 									rdbtnDicomNode.setEnabled(true);
-									rdbtnDicomNode.setEnabled(true);
+									rdbtnNiftiNode.setEnabled(false);
 									progressBar.setVisible(false);
 									hasNiftiDicomCorrespondance = 0;
 									return;
@@ -731,7 +731,7 @@ public class AdvancedImportFrame extends JFrame {
 							setFiles(nfiles);
 							hasNiftiDicomCorrespondance = 1;
 							rdbtnDicomNode.setEnabled(true);
-							rdbtnDicomNode.setEnabled(true);
+							rdbtnNiftiNode.setEnabled(true);
 							progressBar.setVisible(false);
 						}
 					});
@@ -739,6 +739,7 @@ public class AdvancedImportFrame extends JFrame {
 				}
 			}
 		});
+		rdbtnNiftiNode.doClick();
 	}
 
 

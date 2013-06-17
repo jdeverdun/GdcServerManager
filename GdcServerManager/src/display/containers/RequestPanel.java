@@ -103,7 +103,7 @@ public class RequestPanel extends JPanel {
 	private JComboBox comboBoxImageType;
 	private ProgressPanel progressPanel;
 	private JPopupMenu Pmenu;
-	private JMenuItem Mitem;
+	private JMenuItem MimportItem;
 	private JMenuItem MAdvImportitem;
 	private JMenuItem MDelitem;
 	private JMenuItem MViewItem;
@@ -142,11 +142,11 @@ public class RequestPanel extends JPanel {
 		txtPatient.setColumns(10);
 		//------ Menu -------
 		Pmenu = new JPopupMenu();
-		Mitem = new JMenuItem("Import");
+		MimportItem = new JMenuItem("Import");
 		MAdvImportitem = new JMenuItem("Advanced import");
 		MDelitem = new JMenuItem("Delete");
 		MViewItem = new JMenuItem("View");
-		Pmenu.add(Mitem);
+		Pmenu.add(MimportItem);
 		Pmenu.add(MAdvImportitem);
 		Pmenu.add(MDelitem);
 		Pmenu.add(MViewItem);
@@ -641,7 +641,7 @@ public class RequestPanel extends JPanel {
 				updateStatusThread.start();
 			}
 		});
-		Mitem.addActionListener(new ActionListener() {
+		MimportItem.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -754,7 +754,7 @@ public class RequestPanel extends JPanel {
 					@Override
 					public void run() {
 						while(islock){
-							ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+							ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()-SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
 							try {
 								Thread.sleep(100);
 							} catch (InterruptedException e) {
@@ -980,10 +980,6 @@ public class RequestPanel extends JPanel {
 										getRqModel().fireTableDataChanged();
 									}
 								});
-								/*getRqModel().setData(data);
-								getRqModel().fireTableStructureChanged();
-								getRqModel().setFiles(files);
-								getRqModel().fireTableStructureChanged();*/
 							} catch (SQLException e) {
 								setWarning("SQL Error : "+e.toString().substring(0, Math.min(e.toString().length(), 100)));
 								WindowManager.mwLogger.log(Level.WARNING, "btnExecute error.",e);
@@ -1000,12 +996,16 @@ public class RequestPanel extends JPanel {
 								getRqModel().fireTableDataChanged();
 								getRqModel().fireTableStructureChanged();
 								if(getRqModel().getFileAt(0) == null){
-									Mitem.setVisible(false);
+									MimportItem.setVisible(false);
 									MDelitem.setVisible(false);
 									MViewItem.setVisible(false);
 									MAdvImportitem.setVisible(false);
 								}else{
-									Mitem.setVisible(true);
+									// on affiche le mode import simple que lorsque on est sur une requete standard
+									if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT))
+										MimportItem.setVisible(false);
+									else
+										MimportItem.setVisible(true);
 									MAdvImportitem.setVisible(true);
 									if(UserProfile.CURRENT_USER.getLevel()==3)
 										MDelitem.setVisible(true);

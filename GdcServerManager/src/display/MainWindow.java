@@ -761,7 +761,7 @@ public class MainWindow extends JFrame {
 						@Override
 						public void run() {
 							while(isLock){
-								ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+								ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()-SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
 								try {
 									Thread.sleep(100);
 								} catch (InterruptedException e) {
@@ -827,7 +827,7 @@ public class MainWindow extends JFrame {
 						@Override
 						public void run() {
 							while(isLock){
-								ppanel.setTitle(title+"<br /><center>"+SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size()+" left</center>");
+								ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()-SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
 								try {
 									Thread.sleep(100);
 								} catch (InterruptedException e) {
