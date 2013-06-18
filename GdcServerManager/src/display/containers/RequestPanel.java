@@ -201,6 +201,7 @@ public class RequestPanel extends JPanel {
 				txtPutCustomSql.setText(DEFAULT_SQL_REQUEST_TEXT);
 				getRqModel().setColumns(new String[]{"Nothing"});
 				getRqModel().setData(new Object[][]{{"No results found"}});
+				getRqModel().setFiles(null);
 				SwingUtilities.invokeLater(new Runnable() {
 					
 					@Override
@@ -829,7 +830,7 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
-				SwingUtilities.invokeLater(new Runnable(){
+				Thread tr = new Thread(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 							// On execute la requete custom
@@ -1022,7 +1023,7 @@ public class RequestPanel extends JPanel {
 						System.gc();
 					}
 				});
-				//tr.start();
+				tr.start();
 			}
 		});
 	}
