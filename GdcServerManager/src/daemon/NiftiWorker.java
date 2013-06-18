@@ -135,7 +135,16 @@ public class NiftiWorker extends DaemonWorker {
 				if(name.endsWith(AESCrypt.ENCRYPTSUFFIX)){
 					String dpath = path + "/" +  name;
 					String tpath = tempDicomPath + "/" + name.substring(0, name.length()-4); // on recupere le vrai nom du dicom (sans le .enc)
-					aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
+					SystemSettings.DECRYPT_DAEMON.addFileToDecrypt(Paths.get(dpath), tempDicomPath);
+					//aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
+				}
+			}
+			// on attend que le decrypter ai fini son boulot
+			while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty()){
+				try{
+					Thread.sleep(100);
+				}catch(InterruptedException e){
+					e.printStackTrace();
 				}
 			}
 			// On cree la commande (on convertie dans un autre repertoire)
