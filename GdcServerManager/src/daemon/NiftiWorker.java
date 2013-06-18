@@ -281,19 +281,14 @@ public class NiftiWorker extends DaemonWorker {
 		switch(table){
 		case "NiftiImage":
 			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
+			SerieDAO sdao = new MySQLSerieDAO();
 			try {
 				dicdao.newNiftiImage(name.getFileName().toString(), nr.getNSlices(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
 						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
-			} catch (SQLException e) {
-				WindowManager.mwLogger.log(Level.SEVERE,"SQLException with niftiWorker",e);
-				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-			}
-			// on indique a la serie qu'elle est dispo en nifti
-			SerieDAO sdao = new MySQLSerieDAO();
-			try {
+				// on indique a la serie qu'elle est dispo en nifti
 				sdao.updateHasNifti(sourceDicomImage.getSerie().getId(),1);
 			} catch (SQLException e) {
-				WindowManager.mwLogger.log(Level.SEVERE,"Can't update serie.",e);
+				WindowManager.mwLogger.log(Level.SEVERE,"SQLException with niftiWorker",e);
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 			}
 			break;
