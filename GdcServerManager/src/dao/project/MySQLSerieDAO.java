@@ -257,7 +257,7 @@ public class MySQLSerieDAO implements SerieDAO{
 		try {
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", where " +
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+" where " +
 					""+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
 			return true;
 		} catch (SQLException e2) {

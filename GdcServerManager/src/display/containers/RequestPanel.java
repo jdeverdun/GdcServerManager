@@ -245,7 +245,6 @@ public class RequestPanel extends JPanel {
 		centerRenderer.setHorizontalAlignment( JLabel.CENTER );
 		table.setDefaultRenderer(String.class, centerRenderer);
 		
-		
 		splitPane.setRightComponent(new JScrollPane(table));
 		txtProtocol.addFocusListener(new FocusListener() {
 			
@@ -830,7 +829,7 @@ public class RequestPanel extends JPanel {
 				setWarning("");
 				setLock(true);
 				progressPanel.setVisible(true);
-				Thread tr = new Thread(new Runnable(){
+				SwingUtilities.invokeLater(new Runnable(){
 					public void run(){
 						if(!txtPutCustomSql.getText().equals(DEFAULT_SQL_REQUEST_TEXT)){
 							// On execute la requete custom
@@ -846,7 +845,6 @@ public class RequestPanel extends JPanel {
 									progressPanel.setVisible(false);
 									return;
 								}
-								getRqModel().setColumns(results.keySet().toArray(new String[results.keySet().size()]));
 								Object[][] data = null;
 								int count = 0;
 								File[] files = null;
@@ -867,12 +865,14 @@ public class RequestPanel extends JPanel {
 								}
 								final Object[][] cdata = data;
 								final File[] cfiles = files;
+								final HashMap<String,ArrayList<String[]>> resultsf = results;
 								SwingUtilities.invokeLater(new Runnable() {
 									
 									@Override
 									public void run() {
-										getRqModel().setData(cdata);
+										getRqModel().setColumns(resultsf.keySet().toArray(new String[resultsf.keySet().size()]));
 										getRqModel().fireTableStructureChanged();
+										getRqModel().setData(cdata);
 										getRqModel().setFiles(cfiles);
 										
 										getRqModel().fireTableDataChanged();
@@ -1022,7 +1022,7 @@ public class RequestPanel extends JPanel {
 						System.gc();
 					}
 				});
-				tr.start();
+				//tr.start();
 			}
 		});
 	}
@@ -1144,16 +1144,17 @@ class RequestTableModel extends AbstractTableModel {
     }
 
     public File getFileAt(int row){
-    	if(files==null)
+    	if(files==null || files.length==0)
     		return null;
     	return files[row];
     }
     public Object getValueAt(int row, int col) {
-        return data[row][col];
+    	return data[row][col];
     }
 
     public Class getColumnClass(int c) {
-        return getValueAt(0, c).getClass();
+    	return String.class;
+        //return getValueAt(0, c).getClass();
     }
 
 	public boolean isCellEditable(int row, int col) {

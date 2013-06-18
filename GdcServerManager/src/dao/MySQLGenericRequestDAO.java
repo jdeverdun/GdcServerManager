@@ -122,8 +122,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				break;
 			case 6://Project
 				fieldToAdd = ", "+tables.getProject().TNAME+opt+"."+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
-				break;
-				
+				break;				
 		}
 		splitFrom[0] = splitFrom[0] + fieldToAdd;
 		String temp  = "";
@@ -147,7 +146,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			for(int i = 1; i <= rsmd.getColumnCount(); i++){
 				String name = rsmd.getColumnLabel(i);
 				String cname = rsmd.getColumnName(i);
-				// on evite d'afficher les champs id etc et les champs rajouter par le logiciel
+				// on evite d'afficher les champs id etc et les champs rajoute par le logiciel
 				if(!isIllegalHeader(cname) && !name.endsWith(customFieldSuffixe)){
 					// si le nom de la colonne existe deja on 
 					// rajoute le nom de la table pour preciser
@@ -230,7 +229,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					break;
 				}
 				// si on est bien sur une requete portant sur les donnees
-				if(type!=-1){
+				if(type>=0 && type<=6){
 					File file = buildPathFromIdList(customFields,type);
 					if(file!=null){
 						for(String n:indices.keySet()){
