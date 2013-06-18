@@ -1,7 +1,7 @@
 package model.daemon;
 
 import daemon.DicomJobDispatcher;
-import daemon.EncryptDaemon;
+import daemon.DicomEncryptDaemon;
 import daemon.NiftiDaemon;
 
 /**

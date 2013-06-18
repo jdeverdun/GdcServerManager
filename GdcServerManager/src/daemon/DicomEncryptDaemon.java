@@ -31,7 +31,7 @@ import model.daemon.CustomConversionSettings.ServerMode;
  * @author Mobilette
  *
  */
-public class EncryptDaemon extends Thread {
+public class DicomEncryptDaemon extends Thread {
 
 	private static final String BACKUP_FILE = "encryptDaemon.bak";
 	private CustomConversionSettings settings; // pour import only
@@ -46,7 +46,7 @@ public class EncryptDaemon extends Thread {
 	private int maxWorkers;// nombre max d'encryptage en parallele
 	private List<Thread> workers;
 	
-	public EncryptDaemon(DicomDaemon dicomDaemon){
+	public DicomEncryptDaemon(DicomDaemon dicomDaemon){
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
 		stop = false;
@@ -57,7 +57,7 @@ public class EncryptDaemon extends Thread {
 		workers = new ArrayList<Thread>();
 	}
 	
-	public EncryptDaemon(){
+	public DicomEncryptDaemon(){
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
 		stop = false;
@@ -69,7 +69,7 @@ public class EncryptDaemon extends Thread {
 	}
 	
 	
-	public EncryptDaemon(CustomConversionSettings ccs) {
+	public DicomEncryptDaemon(CustomConversionSettings ccs) {
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
 		stop = false;
@@ -141,7 +141,7 @@ public class EncryptDaemon extends Thread {
 								@Override
 								public void run() {
 									// on lance l'encryptage du fichier
-									DicomEncryptWorker dWorker = new DicomEncryptWorker(EncryptDaemon.this,lpath,di);
+									DicomEncryptWorker dWorker = new DicomEncryptWorker(DicomEncryptDaemon.this,lpath,di);
 									dWorker.start();  
 								}
 							});

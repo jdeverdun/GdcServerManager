@@ -32,12 +32,12 @@ import es.vocali.util.AESCrypt;
 public class DicomEncryptWorker extends DaemonWorker {
 
 	protected Path dicomFile;
-	private EncryptDaemon encryptDaemon;
+	private DicomEncryptDaemon encryptDaemon;
 	protected DicomImage dicomImage;
 	protected ImagePlus imp;
 	
 	
-	public DicomEncryptWorker(EncryptDaemon disp, Path p, DicomImage di){
+	public DicomEncryptWorker(DicomEncryptDaemon disp, Path p, DicomImage di){
 		dicomFile = p;
 		encryptDaemon = disp;
 		dicomImage = di;
@@ -99,11 +99,11 @@ public class DicomEncryptWorker extends DaemonWorker {
 		this.dicomFile = dicomFile;
 	}
 
-	public EncryptDaemon getEncryptDaemon() {
+	public DicomEncryptDaemon getEncryptDaemon() {
 		return encryptDaemon;
 	}
 
-	public void setEncryptDaemon(EncryptDaemon encryptDaemon) {
+	public void setEncryptDaemon(DicomEncryptDaemon encryptDaemon) {
 		this.encryptDaemon = encryptDaemon;
 	}
 

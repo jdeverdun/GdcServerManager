@@ -35,7 +35,7 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import daemon.DicomJobDispatcher;
-import daemon.EncryptDaemon;
+import daemon.DicomEncryptDaemon;
 import daemon.NiftiDaemon;
 import display.containers.FileManager;
 import display.containers.WaitingBarPanel;

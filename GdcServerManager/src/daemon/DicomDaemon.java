@@ -35,7 +35,7 @@ public class DicomDaemon extends Thread{
 	// Attributs
 	private ServerInfo serverInfo;
 	private DicomJobDispatcher dicomJobDispatcher;
-	private EncryptDaemon encryptDaemon;
+	private DicomEncryptDaemon encryptDaemon;
 	private MissingDaemon missingDaemon;
 	private boolean stop;
 	private WatchService watcher;
@@ -53,7 +53,7 @@ public class DicomDaemon extends Thread{
 			SystemSettings.MISSING_DAEMON.setStop(true);
 		
 		dicomJobDispatcher = new DicomJobDispatcher(this);
-		encryptDaemon = new EncryptDaemon(this);
+		encryptDaemon = new DicomEncryptDaemon(this);
 		missingDaemon = new MissingDaemon();
 		SystemSettings.ENCRYPT_DAEMON = encryptDaemon;
 		SystemSettings.DICOM_DISPATCHER = dicomJobDispatcher;
@@ -140,10 +140,10 @@ public class DicomDaemon extends Thread{
 		this.dicomJobDispatcher = dicomJobDispatcher;
 		SystemSettings.DICOM_DISPATCHER = this.dicomJobDispatcher;
 	}
-	public EncryptDaemon getEncryptDaemon() {
+	public DicomEncryptDaemon getEncryptDaemon() {
 		return encryptDaemon;
 	}
-	public void setEncryptDaemon(EncryptDaemon encryptDaemon) {
+	public void setEncryptDaemon(DicomEncryptDaemon encryptDaemon) {
 		this.encryptDaemon = encryptDaemon;
 		SystemSettings.ENCRYPT_DAEMON = this.encryptDaemon;
 	}

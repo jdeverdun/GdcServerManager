@@ -43,6 +43,12 @@ import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
 
+/**
+ * Classe permettant de convertir en nifti
+ * il utilise un decrypteur et un encrypteur daemon en interne
+ * @author DEVERDUN Jeremy
+ *
+ */
 public class NiftiWorker extends DaemonWorker {
 
 	protected Path path;
@@ -52,6 +58,8 @@ public class NiftiWorker extends DaemonWorker {
 	protected Nifti_Reader nr;
 	private Path tempDicomPath;
 	private Path tempNiftiPath;
+	private DecryptDaemon ddaemon;
+	private DicomEncryptDaemon edaemon;
 	
 	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
 		if(dimage==null) 
@@ -60,6 +68,7 @@ public class NiftiWorker extends DaemonWorker {
 		setPath(filename);
 		setServerInfo(getNiftiDaemon().getServerInfo());
 		setSourceDicomImage(dimage);
+		ddaemon = new DecryptDaemon();
 	}
 	public Path getPath() {
 		return path;
@@ -135,18 +144,19 @@ public class NiftiWorker extends DaemonWorker {
 				if(name.endsWith(AESCrypt.ENCRYPTSUFFIX)){
 					String dpath = path + "/" +  name;
 					String tpath = tempDicomPath + "/" + name.substring(0, name.length()-4); // on recupere le vrai nom du dicom (sans le .enc)
-					SystemSettings.DECRYPT_DAEMON.addFileToDecrypt(Paths.get(dpath), tempDicomPath);
+					ddaemon.addFileToDecrypt(Paths.get(dpath), tempDicomPath);
 					//aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
 				}
 			}
 			// on attend que le decrypter ai fini son boulot
-			while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty()){
+			while(!ddaemon.getFileToDecrypt().isEmpty()){
 				try{
 					Thread.sleep(100);
 				}catch(InterruptedException e){
 					e.printStackTrace();
 				}
 			}
+			ddaemon.setStop(true);
 			// On cree la commande (on convertie dans un autre repertoire)
 			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);

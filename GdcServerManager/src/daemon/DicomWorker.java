@@ -216,7 +216,7 @@ public class DicomWorker extends DaemonWorker {
 		
 		// On ajoute le fichier brute dans la liste des fichiers
 		// a encrypter 
-		EncryptDaemon encryptd = SystemSettings.ENCRYPT_DAEMON; // daemon pour l'encryptage
+		DicomEncryptDaemon encryptd = SystemSettings.ENCRYPT_DAEMON; // daemon pour l'encryptage
 		if(encryptd!=null && encryptd.isAlive()){
 			encryptd.addDicomToEncrypt(newPath, dicomImage);
 		}else{
