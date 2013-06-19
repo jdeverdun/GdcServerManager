@@ -15,7 +15,10 @@ import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
 
+import daemon.tools.ThreadPool;
+import daemon.tools.ThreadPool.DAEMONTYPE;
 import display.MainWindow;
+import exceptions.ThreadPoolException;
 
 import settings.SystemSettings;
 import settings.WindowManager;
@@ -31,53 +34,38 @@ import model.daemon.CustomConversionSettings.ServerMode;
  * @author Mobilette
  *
  */
-public class DicomEncryptDaemon extends Thread {
-
+public class DicomEncryptDaemon extends EncryptDaemon {
+	private static final DAEMONTYPE DTYPE = DAEMONTYPE.DicomEncryptDaemon;
 	private static final String BACKUP_FILE = "encryptDaemon.bak";
 	private CustomConversionSettings settings; // pour import only
 	private LinkedList<Path> dicomToEncrypt;
 	private LinkedList<DicomImage> dicomImageToEncrypt;
-	private DicomEncryptWorker dEncryptWorker;
-	private ServerInfo serverInfo;
 	private DicomDaemon dicomDaemon;
-	private boolean stop;
-	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
-	private boolean crashed; // pour l'import permet de savoir si le daemon a crashe
-	private int maxWorkers;// nombre max d'encryptage en parallele
-	private List<Thread> workers;
 	
 	public DicomEncryptDaemon(DicomDaemon dicomDaemon){
+		super();
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
-		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
-		crashed = false;
-		maxWorkers = SystemSettings.AVAILABLE_CORES;
-		workers = new ArrayList<Thread>();
 	}
 	
 	public DicomEncryptDaemon(){
+		super();
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
-		stop = false;
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(SystemSettings.SERVER_INFO);
-		crashed = false;
-		maxWorkers = SystemSettings.AVAILABLE_CORES;
-		workers = new ArrayList<Thread>();
 	}
 	
 	
 	public DicomEncryptDaemon(CustomConversionSettings ccs) {
+		super();
 		dicomToEncrypt = new LinkedList<Path>();
 		dicomImageToEncrypt = new  LinkedList<DicomImage>();
-		stop = false;
 		setDicomDaemon(null);
 		setSettings(ccs);
 		setServerInfo(SystemSettings.SERVER_INFO);
-		maxWorkers = SystemSettings.AVAILABLE_CORES;
-		workers = new ArrayList<Thread>();
 	}
 
 	@Override
@@ -95,10 +83,10 @@ public class DicomEncryptDaemon extends Thread {
 			// check si il y a des donnees a encrypter
 			while(dicomToEncrypt.isEmpty() && !isStop()){
 				try {
-					setWaiting(true);
-					for(Thread t:workers)
-						if(t.isAlive())
-							setWaiting(false);
+					if(ThreadPool.contains(DTYPE))
+						setWaiting(false);
+					else
+						setWaiting(true);
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -121,42 +109,32 @@ public class DicomEncryptDaemon extends Thread {
 					break;
 				}
 			}
-			while(workers!=null && workers.size()<maxWorkers && !dicomToEncrypt.isEmpty() && !isStop()){
-				try{
-					try {
-						// limite l'overhead
+			// permet de securiser le thread
+			final Path lpath = (Path)dicomToEncrypt.pop();
+			final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
+			Thread tr = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// on lance l'encryptage du fichier
+					DicomEncryptWorker dWorker = new DicomEncryptWorker(DicomEncryptDaemon.this,lpath,di);
+					dWorker.start();  
+				}
+			});
+			try{
+				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){
+					try{
 						Thread.sleep(50);
-					} catch (InterruptedException e) {
+					}catch(Exception e){
 						e.printStackTrace();
 					}
-					// on essai de lancer autant de worker qu'il y a de coeurs
-					for(int i=0;i<maxWorkers;i++){
-						if(!dicomToEncrypt.isEmpty() && (workers.isEmpty() || (i>workers.size()) || (i<workers.size() && !workers.get(i).isAlive()))){
-							if(i<workers.size())
-								workers.remove(i);
-							// permet de securiser le thread
-							final Path lpath = (Path)dicomToEncrypt.pop();
-							final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
-							Thread tr = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									// on lance l'encryptage du fichier
-									DicomEncryptWorker dWorker = new DicomEncryptWorker(DicomEncryptDaemon.this,lpath,di);
-									dWorker.start();  
-								}
-							});
-							workers.add(tr);
-							tr.start();
-						}
-					}				
-				}catch(Exception e){
-					WindowManager.mwLogger.log(Level.SEVERE,"Critical error in encryptdaemon (unexpected) ... saving & shutdown",e);
-					workers = null;
-					saveBackup();
-					throw e;
 				}
+				tr.start();
+			}catch(ThreadPoolException te){
+				// on replace le dernier fichier a encrypter dans la liste (avant de sauvegarder)
+				dicomToEncrypt.push(lpath);
+				WindowManager.mwLogger.log(Level.SEVERE,"Critical error in DicomEncryptDaemon (addThread) ... saving & shutdown",te);
+				SystemSettings.stopDaemons();
 			}
-			
 		}
 	}
 
@@ -247,15 +225,7 @@ public class DicomEncryptDaemon extends Thread {
 	public void setDicomToEncrypt(LinkedList<Path> dicomToEncrypt) {
 		this.dicomToEncrypt = dicomToEncrypt;
 	}
-	public DicomEncryptWorker getdEncryptWorker() {
-		return dEncryptWorker;
-	}
-	public void setdEncryptWorker(DicomEncryptWorker dEncryptWorker) {
-		this.dEncryptWorker = dEncryptWorker;
-	}
-	public ServerInfo getServerInfo() {
-		return serverInfo;
-	}
+
 	/**
 	 * @return the settings
 	 */
@@ -275,9 +245,6 @@ public class DicomEncryptDaemon extends Thread {
 	}
 	public void setDicomImageToEncrypt(LinkedList<DicomImage> dicomImageToEncrypt) {
 		this.dicomImageToEncrypt = dicomImageToEncrypt;
-	}
-	public void setServerInfo(ServerInfo serverInfo) {
-		this.serverInfo = serverInfo;
 	}
 	public DicomDaemon getDicomDaemon() {
 		return dicomDaemon;
@@ -324,37 +291,10 @@ public class DicomEncryptDaemon extends Thread {
 		dEncryptWorker = null;
 	}
 
-
-	/**
-	 * Force l'arret de l'encrypteur
-	 * @param b
-	 */
-	public void forceStop(boolean b) {
-		this.stop = true;
-	}
-
 	public String getStatus() {
 		if(isAlive())
 			return dicomToEncrypt.size()+" files to encrypt.";
 		else
 			return "";
-	}
-
-
-	public boolean isWaiting() {
-		return waiting;
-	}
-
-
-	public void setWaiting(boolean waiting) {
-		this.waiting = waiting;
-	}
-
-	public boolean isCrashed() {
-		return crashed;
-	}
-
-	public void setCrashed(boolean crashed) {
-		this.crashed = crashed;
 	}
 }

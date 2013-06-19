@@ -59,7 +59,7 @@ public class NiftiWorker extends DaemonWorker {
 	private Path tempDicomPath;
 	private Path tempNiftiPath;
 	private DecryptDaemon ddaemon;
-	private DicomEncryptDaemon edaemon;
+	private NiftiEncryptDaemon edaemon;
 	
 	public NiftiWorker(NiftiDaemon nDaemon, Path filename,DicomImage dimage) {
 		if(dimage==null) 
@@ -69,6 +69,7 @@ public class NiftiWorker extends DaemonWorker {
 		setServerInfo(getNiftiDaemon().getServerInfo());
 		setSourceDicomImage(dimage);
 		ddaemon = new DecryptDaemon();
+		edaemon = new NiftiEncryptDaemon();
 	}
 	public Path getPath() {
 		return path;
@@ -96,6 +97,7 @@ public class NiftiWorker extends DaemonWorker {
 	}
 	@Override
 	public void start() {
+
 		// On recherche l'arborescence et on créé les répertoire si besoin +
 		// NIFTIDIR / NOM_ETUDE / NOM_PATIENT / DATE_IRM / PROTOCOL / SERIE 
 		Path studyName = path.getParent().getParent().getParent().getParent().getFileName();
@@ -148,8 +150,10 @@ public class NiftiWorker extends DaemonWorker {
 					//aes.decrypt(dpath, tpath);// on envoi la version decrypte dans le dossier temp
 				}
 			}
+			// on lance le daemon pr decrypter
+			ddaemon.start();
 			// on attend que le decrypter ai fini son boulot
-			while(!ddaemon.getFileToDecrypt().isEmpty()){
+			while(!ddaemon.isWaiting()){
 				try{
 					Thread.sleep(100);
 				}catch(InterruptedException e){
@@ -176,18 +180,18 @@ public class NiftiWorker extends DaemonWorker {
 			}
 			process.waitFor();
 			
-
 			// On recupere les nom des fichiers nifti cree
 			// on les encrypt et on les deplace dans leur repertoire final
 			HashMap<String,Path> niftis = getNiftiListIn(tempNiftiPath);
 			for(String currNifti:niftis.keySet()){
 				Path finalNiftiPath = Paths.get(getNiftiPath() + "/" + niftis.get(currNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
-				if(nr!=null)
+				edaemon.addNiftiToEncrypt(niftis.get(currNifti), getNiftiPath(), sourceDicomImage);
+				/*if(nr!=null)
 					nr = null;
 				nr = new Nifti_Reader(niftis.get(currNifti).toFile());
 				aes.encrypt(2,niftis.get(currNifti).toString(), newPath.toString());
-				addEntryToDB(finalNiftiPath,"NiftiImage");
+				addEntryToDB(finalNiftiPath,"NiftiImage");*/
 			}
 			// On recupere les noms des fichiers associe aux nifti cree (bval pour dti etc (cf niftiDaemon.suffixe...)
 			// on les encrypt et on les deplace dans leur repertoire final (mais pas d'ajout dans la bdd)
@@ -195,9 +199,20 @@ public class NiftiWorker extends DaemonWorker {
 			for(String assocNifti:associatedInfoFiles.keySet()){
 				Path finalNiftiPath = Paths.get(getNiftiPath() + File.separator + associatedInfoFiles.get(assocNifti).getFileName());
 				Path newPath = Paths.get(finalNiftiPath + AESCrypt.ENCRYPTSUFFIX);
-				aes.encrypt(2,associatedInfoFiles.get(assocNifti).toString(), newPath.toString());
+				edaemon.addNiftiToEncrypt(associatedInfoFiles.get(assocNifti), getNiftiPath());
+				//aes.encrypt(2,associatedInfoFiles.get(assocNifti).toString(), newPath.toString());
 			}
-			
+			// on lance le daemon pour encrypter
+			edaemon.start();
+			// on attend que l'encrypter ai fini son boulot
+			while(!edaemon.isWaiting()){
+				try{
+					Thread.sleep(100);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+			edaemon.setStop(true);
 			// On supprime tous les fichiers cree dans tempDir
 			delete(tempDicomPath.toFile());
 			delete(tempNiftiPath.toFile());

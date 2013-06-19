@@ -7,10 +7,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
+import daemon.tools.ThreadPool;
+import daemon.tools.ThreadPool.DAEMONTYPE;
+
 import settings.SystemSettings;
 import settings.WindowManager;
 
 import es.vocali.util.AESCrypt;
+import exceptions.ThreadPoolException;
 
 import model.DicomImage;
 import model.ServerInfo;
@@ -22,7 +26,7 @@ import model.ServerInfo;
  *
  */
 public class DecryptDaemon extends Thread {
-
+	private static final DAEMONTYPE DTYPE = DAEMONTYPE.DecryptDaemon;
 	private LinkedList<Path[]> fileToDecrypt;
 	private ServerInfo serverInfo;
 	private boolean stop;
@@ -43,7 +47,7 @@ public class DecryptDaemon extends Thread {
 	
 	@Override
 	public void run() {
-		WindowManager.mwLogger.log(Level.INFO, "Decrypter Online.");
+		WindowManager.mwLogger.log(Level.FINE, "Decrypter Online.");
 		setWaiting(false);
 		while(!isStop()){
 			// check si il y a des donnees a decrypter
@@ -52,39 +56,39 @@ public class DecryptDaemon extends Thread {
 					return;
 				try {
 					setTotalEncryptedFile(0);
-					setWaiting(true);
+					if(ThreadPool.contains(DTYPE)){
+						setWaiting(false);
+					}else{
+						setWaiting(true);
+					}
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 			setWaiting(false);
-			while(workers!=null && workers.size()<maxWorkers && !fileToDecrypt.isEmpty() && !isStop()){
-				try {
-					// limite l'overhead
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+			final Path[] toWork = (Path[])fileToDecrypt.pop();
+			Thread tr = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// on lance le decryptage du fichier
+					FileDecryptWorker fileDecryptWorker = new FileDecryptWorker(DecryptDaemon.this, toWork[0], toWork[1]);
+					fileDecryptWorker.start();  
 				}
-				// on essai de lancer autant de worker qu'il y a de coeurs
-				for(int i=0;i<maxWorkers;i++){
-					if(!fileToDecrypt.isEmpty() && (workers.isEmpty() || (i>workers.size()) || (i<workers.size() && !workers.get(i).isAlive()))){
-						if(i<workers.size())
-							workers.remove(i);
-						// permet de securiser le thread
-						final Path[] toWork = (Path[])fileToDecrypt.pop();
-						Thread tr = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								// on lance le decryptage du fichier
-								FileDecryptWorker fileDecryptWorker = new FileDecryptWorker(DecryptDaemon.this, toWork[0], toWork[1]);
-								fileDecryptWorker.start();  
-							}
-						});
-						workers.add(tr);
-						tr.start();
+			});
+			try{
+				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){
+					try{
+						Thread.sleep(50);
+					}catch(Exception e){
+						e.printStackTrace();
 					}
-				}				
+				}
+				tr.start();
+			}catch(ThreadPoolException te){
+				// on replace le dernier fichier a encrypter dans la liste (il sera sauvegarder lorsque le nifti daemon se coupera)
+				WindowManager.mwLogger.log(Level.SEVERE,"Critical error in Decrypter (addThread) ... ",te);
+				SystemSettings.stopDaemons();
 			}
 		}
 	}
@@ -95,7 +99,7 @@ public class DecryptDaemon extends Thread {
 	public void setStop(boolean stop) {
 		this.stop = stop;
 		if(stop)
-			WindowManager.mwLogger.log(Level.INFO, "Stopping DecryptDaemon");
+			WindowManager.mwLogger.log(Level.FINE, "Stopping DecryptDaemon");
 	}
 
 	public LinkedList<Path[]> getFileToDecrypt() {

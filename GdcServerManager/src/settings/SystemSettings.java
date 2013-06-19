@@ -25,4 +25,26 @@ public class SystemSettings {
 	public static DicomJobDispatcher DICOM_DISPATCHER;
 	public static DaemonStatusThread DAEMON_STATUS_THREAD;
 	public static MissingDaemon MISSING_DAEMON;
+	
+	/**
+	 * Coupe les daemons du mode serveur
+	 */
+	public static void stopDaemons() {
+		if(SystemSettings.DICOM_NODE!=null){
+			SystemSettings.DICOM_NODE.stop();
+			SystemSettings.DICOM_NODE = null;
+		}
+		if(SystemSettings.DICOM_DAEMON!=null && SystemSettings.DICOM_DAEMON.isAlive()){
+			SystemSettings.DICOM_DAEMON.setStop(true);
+			if(SystemSettings.DICOM_DAEMON.isStop()){
+				if(SystemSettings.NIFTI_DAEMON!=null){
+					SystemSettings.NIFTI_DAEMON.setStop(true);
+				}
+			}else{
+				if(SystemSettings.DICOM_DAEMON.isAlive()){
+					SystemSettings.NIFTI_DAEMON.setStop(true);
+				}
+			}
+		}
+	}
 }

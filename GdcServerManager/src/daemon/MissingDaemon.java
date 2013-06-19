@@ -194,7 +194,9 @@ public class MissingDaemon extends Thread{
 					return;
 				}
 				if(fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME) && new File(SystemSettings.SERVER_INFO.getServerDir()+File.separator+ServerInfo.WORKSPACE_PREFIXE+project).exists()
-						&& !(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
+						&& (!(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists()) || 
+								((new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists() && 
+										(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).list().length==0))))
 						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
 					try{

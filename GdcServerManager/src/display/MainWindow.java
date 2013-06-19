@@ -34,6 +34,7 @@ import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
 import daemon.DicomNode;
 import daemon.NiftiDaemon;
+import daemon.tools.ThreadPool;
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
@@ -1014,10 +1015,12 @@ public class MainWindow extends JFrame {
 	 * et lancer des daemon au demarrage
 	 */
 	private void init() {
+		ThreadPool.launchThreadPool();
 		// On nettoie le repertoire temporaire quand on quitte le programme
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
 		    	forceStopDaemons();
+		    	ThreadPool.stopThreadPool();
 		    	try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(SystemSettings.SERVER_INFO.getTempDir())) {
 			    	for(Path p:directoryStream){
 			    		if(!p.endsWith(".") && p.toFile().isDirectory())
@@ -1411,26 +1414,9 @@ public class MainWindow extends JFrame {
 	 * l'action a realiser si il reste des donnees dans les listes
 	 */
 	public void stopDaemons(){
-		if(SystemSettings.DICOM_NODE!=null){
-			SystemSettings.DICOM_NODE.stop();
-			SystemSettings.DICOM_NODE = null;
-		}
-		if(SystemSettings.DICOM_DAEMON!=null && SystemSettings.DICOM_DAEMON.isAlive()){
-			SystemSettings.DICOM_DAEMON.setStop(true);
-			if(SystemSettings.DICOM_DAEMON.isStop()){
-				if(SystemSettings.NIFTI_DAEMON!=null){
-					SystemSettings.NIFTI_DAEMON.setStop(true);
-				}
-				daemonLaunched = false;
-				mntmStartstop.setText("Start");
-			}else{
-				if(SystemSettings.DICOM_DAEMON.isAlive()){
-					SystemSettings.NIFTI_DAEMON.setStop(true);
-					daemonLaunched = false;
-					mntmStartstop.setText("Start");
-				}
-			}
-		}
+		SystemSettings.stopDaemons();
+		daemonLaunched = false;
+		mntmStartstop.setText("Start");
 	}
 	
 	/**
