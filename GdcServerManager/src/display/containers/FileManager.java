@@ -128,7 +128,7 @@ public class FileManager {
 	private JPopupMenu Pmenu;
 	private JMenuItem twitem;
 	private JMenuItem tlitem;
-	private JMenuItem renameitem;
+	private JMenuItem changeProjectitem;
 	
     public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
@@ -319,7 +319,7 @@ public class FileManager {
     
             // Menu popup
             Pmenu = new JPopupMenu();
-            renameitem = new JMenuItem("Rename");
+            changeProjectitem = new JMenuItem("Reassign");
     		twitem = new JMenuItem("To workspace");
     		tlitem = new JMenuItem("To local");
     		switch(mode){
@@ -345,7 +345,7 @@ public class FileManager {
 				break;
     		case 2:
     			if(UserProfile.CURRENT_USER.getLevel()==3)
-    				Pmenu.add(renameitem);
+    				Pmenu.add(changeProjectitem);
     			Pmenu.add(twitem);
     			twitem.addActionListener(new ActionListener() {
 					
@@ -364,7 +364,7 @@ public class FileManager {
 				});
 				break;
     		}
-    		renameitem.addActionListener(new ActionListener() {
+    		changeProjectitem.addActionListener(new ActionListener() {
 				
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -411,6 +411,8 @@ public class FileManager {
 
 				public void mouseReleased(MouseEvent me) {
 					if(me.isPopupTrigger() && table.getSelectedRowCount()>0){
+						int row = table.convertRowIndexToModel(table.rowAtPoint(me.getPoint()));
+						changeProjectitem.setVisible(isPatient(((FileTableModel)table.getModel()).getFile(row)));	
 						Pmenu.show(me.getComponent(), me.getX(), me.getY());
 					}
 				}
@@ -422,7 +424,24 @@ public class FileManager {
     }
 
 
-    /**
+    public boolean isPatient(File fi) {
+    	String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return false;
+		if(!fi.getName().contains("..")){
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}
+			}
+			return count==2;
+		}
+		return false;
+	}
+
+	/**
      * Rentre dans un repertoire
      * @param row
      * @param column
