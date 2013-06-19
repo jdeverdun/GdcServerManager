@@ -61,9 +61,11 @@ public class NiftiEncryptWorker extends DaemonWorker {
 		// AES crypt
 		// Encrypte le fichier en rajoutant l'extension definit dans AESCrypt.ENCRYPTSUFFIX
 		try {
-			if(nr!=null)
-				nr = null;
-			nr = new Nifti_Reader(niftiFile.toFile());
+			if(sourceDicomImage!=null){
+				if(nr!=null)
+					nr = null;
+				nr = new Nifti_Reader(niftiFile.toFile());
+			}
 			AESCrypt aes = new AESCrypt(false, getAESPass());
 			aes.encrypt(2, niftiFile.toString(), toDir+File.separator+niftiFile.getFileName()+AESCrypt.ENCRYPTSUFFIX);
 			// On supprime le fichier non encrypte

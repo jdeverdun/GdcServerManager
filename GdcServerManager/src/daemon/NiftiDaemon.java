@@ -84,6 +84,8 @@ public class NiftiDaemon extends Thread{
 	private CustomConversionSettings settings;
 	private float waitTimeToConvert; // cf setServerMode();
 	
+	// le worker nifti
+	private NiftiWorker nworker;
 	
 	// Constructeur
 	public NiftiDaemon(){
@@ -91,6 +93,7 @@ public class NiftiDaemon extends Thread{
 		setDir2convert(new ConcurrentHashMap<Path, DicomImage> ());
 		setStop(false);
 		crashed = false;
+		nworker = null;
 	}
 
 	public NiftiDaemon(ServerInfo si, CustomConversionSettings customConvsettings){
@@ -99,6 +102,7 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		crashed = false;
+		nworker = null;
 	}
 	
 	public NiftiDaemon(ServerInfo si){
@@ -107,6 +111,7 @@ public class NiftiDaemon extends Thread{
 		setStop(false);
 		setServerInfo(si);
 		crashed = false;
+		nworker = null;
 	}
 	
 	// format 
@@ -117,6 +122,7 @@ public class NiftiDaemon extends Thread{
 		setServerInfo(si);
 		setFormat(format);
 		crashed = false;
+		nworker = null;
 	}	
 	
 	/**
@@ -132,6 +138,7 @@ public class NiftiDaemon extends Thread{
 		setServerInfo(si);
 		setFormat(format);
 		crashed = false;
+		nworker = null;
 	}
 	
 	// Accesseurs
@@ -152,6 +159,7 @@ public class NiftiDaemon extends Thread{
 
 	public void setStop(boolean stop) {
 		this.stop = stop;
+		
 		if(stop){
 			WindowManager.mwLogger.log(Level.INFO, "Stopping NiftiDaemon");
 			if(!dir2convert.isEmpty() && settings.getServerMode() == ServerMode.SERVER)
@@ -220,7 +228,7 @@ public class NiftiDaemon extends Thread{
 							// si ce n'est pas le cas on
 							if(!isDirFullyEncrypted(path)) 
 								continue HashLoop;
-							NiftiWorker nworker = null;
+							nworker = null;
 							try{
 								nworker = new NiftiWorker(this, path,dir2convert.get(path));
 								nworker.start();
