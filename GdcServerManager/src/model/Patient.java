@@ -2,6 +2,10 @@ package model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class Patient implements Serializable{
@@ -15,6 +19,7 @@ public class Patient implements Serializable{
 	private String sex;
 	private float weight;
 	private float size;
+	private String remoteKey;
 	private Project project;
 	private String nom;
 	private Set<AcquisitionDate> acquisitionsDates;
@@ -51,7 +56,12 @@ public class Patient implements Serializable{
 	public void setProject(Project p) {
 		this.project = p;
 	}
-
+	public String getRemoteKey() {
+		return remoteKey;
+	}
+	public void setRemoteKey(String remoteKey) {
+		this.remoteKey = remoteKey;
+	}
 	public Set<AcquisitionDate> getAcquisitionsDates() {
 		return acquisitionsDates;
 	}
@@ -124,6 +134,18 @@ public class Patient implements Serializable{
 		this.weight = f;
 	}
 
-
+	// Genere la clef de cryptage locale pour le projet
+	public static String generateLocalKeyFrom(String seed) {
+        List<Character> characters = new ArrayList<Character>();  
+        for(char c : seed.toCharArray()) {  
+            characters.add(c);  
+        }  
+        Collections.shuffle(characters,new Random(seed.length()));  
+        StringBuilder sb = new StringBuilder();  
+        for(char c : characters) {  
+            sb.append(c);  
+        }  
+        return sb.toString();  
+	}
 
 }

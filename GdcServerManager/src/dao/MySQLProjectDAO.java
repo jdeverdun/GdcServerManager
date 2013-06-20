@@ -52,7 +52,6 @@ public class MySQLProjectDAO implements ProjectDAO {
 				Project proj = new Project();
 				proj.setId(rset.getInt("id"));
 				proj.setNom(rset.getString("name"));	
-				proj.setRemoteKey(rset.getString("rkey"));
 				// ajout a la liste des grimpeurs
 				projects.add(proj);
 			}
@@ -80,21 +79,10 @@ public class MySQLProjectDAO implements ProjectDAO {
 				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
 				
-				
-				List<Character> characters = new ArrayList<Character>();  
-		        for(char c : nom.toCharArray()) {  
-		            characters.add(c);  
-		        }  
-		        Collections.shuffle(characters,new Random(nom.length()-1));  
-		        StringBuilder sb = new StringBuilder();  
-		        for(char c : characters) {  
-		            sb.append(c);  
-		        }  
-		        String rkey = sb.toString();  
 		        
 		        
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getProject().TNAME+" values (NULL,'"
-						+ nom + "','"+rkey+"')");
+						+ nom + "')");
 				
 				return true;
 				
@@ -174,7 +162,6 @@ public class MySQLProjectDAO implements ProjectDAO {
 			while(rset.next()){
 				projectC.setNom(rset.getString(SQLSettings.TABLES.getProject().getName()));
 				projectC.setId(rset.getInt(SQLSettings.TABLES.getProject().getId()));
-				projectC.setRemoteKey(rset.getString(SQLSettings.TABLES.getProject().getRkey()));
 			}
 		
 			
@@ -213,7 +200,6 @@ public class MySQLProjectDAO implements ProjectDAO {
 			while(rset.next()){
 				projectC.setNom(rset.getString(SQLSettings.TABLES.getProject().getName()));
 				projectC.setId(rset.getInt(SQLSettings.TABLES.getProject().getId()));
-				projectC.setRemoteKey(rset.getString(SQLSettings.TABLES.getProject().getRkey()));
 			}
 		
 			
@@ -231,14 +217,14 @@ public class MySQLProjectDAO implements ProjectDAO {
 
 
 	@Override
-	public boolean updateProject(int id, String name, String rkey) throws SQLException {
+	public boolean updateProject(int id, String name) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
 		try {
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
-			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProject().TNAME+" set "+SQLSettings.TABLES.getProject().getName()+"='"+name+"', "+SQLSettings.TABLES.getProject().getRkey()+"='"+rkey+"' where " +
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProject().TNAME+" set "+SQLSettings.TABLES.getProject().getName()+"='"+name+"' where " +
 					""+SQLSettings.TABLES.getProject().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {

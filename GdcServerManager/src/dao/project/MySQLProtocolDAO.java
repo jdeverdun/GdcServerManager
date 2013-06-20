@@ -17,6 +17,8 @@ import settings.sql.tables.ProtocolTable;
 import settings.sql.tables.SerieTable;
 
 import model.AcquisitionDate;
+import model.Patient;
+import model.Project;
 import model.Protocol;
 
 public class MySQLProtocolDAO implements ProtocolDAO{
@@ -392,6 +394,26 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			throw e;
 		} finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException {
+		int rset = -1;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProtocol().TNAME+" set "+SQLSettings.TABLES.getProtocol().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_patient()+"="+pat.getId()+" ;");
+			SerieDAO sdao = new MySQLSerieDAO();
+			sdao.changeProject(pat,toproj);
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
 			stmt.close();
 			connection.close();
 		}

@@ -20,6 +20,8 @@ import settings.sql.tables.NiftiImageTable;
 
 
 import model.NiftiImage;
+import model.Patient;
+import model.Project;
 
 
 public class MySQLNiftiImageDAO implements NiftiImageDAO {
@@ -491,4 +493,22 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 		}
 	}
 	
+	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException {
+		int rset = -1;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getNiftiImage().TNAME+" set "+SQLSettings.TABLES.getNiftiImage().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getNiftiImage().getId_patient()+"="+pat.getId()+" ;");
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			stmt.close();
+			connection.close();
+		}
+	}
 }

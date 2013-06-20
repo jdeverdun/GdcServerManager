@@ -31,16 +31,12 @@ public class DecryptDaemon extends Thread {
 	private ServerInfo serverInfo;
 	private boolean stop;
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a decrypter ou si on travail)
-	private ArrayList<Thread> workers;
-	private int maxWorkers;
 	private int totalEncryptedFile;
 	
 	
 	public DecryptDaemon(){
 		fileToDecrypt = new LinkedList<Path[]>();
 		stop = false;
-		workers = new ArrayList<Thread>();
-		maxWorkers = SystemSettings.AVAILABLE_CORES;
 		totalEncryptedFile = 0;
 	}
 	

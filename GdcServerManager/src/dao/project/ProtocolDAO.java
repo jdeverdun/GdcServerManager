@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
 
+import model.Patient;
+import model.Project;
 import model.Protocol;
 
 public interface ProtocolDAO {
@@ -37,6 +39,6 @@ public interface ProtocolDAO {
 
 	void removeProtocol(String project, String patient, String acqdate,
 			String protocol) throws SQLException;
-
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 	
 }

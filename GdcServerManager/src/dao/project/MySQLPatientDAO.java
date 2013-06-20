@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import settings.SQLSettings;
@@ -49,6 +52,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
 				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setRemoteKey(rset.getString(SQLSettings.TABLES.getPatient().getRkey()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 				patients.add(pat);
 			}
@@ -74,9 +78,22 @@ public class MySQLPatientDAO implements PatientDAO {
 			try {
 				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
-				
+				List<Character> characters = new ArrayList<Character>();
+				// on double le nombre de caractere
+				for(char c : nom.toCharArray()) {
+					characters.add(c);
+				}
+				for(char c : nom.toCharArray()) {
+					characters.add(c);
+				}
+				Collections.shuffle(characters,new Random(nom.length()-1));
+				StringBuilder sb = new StringBuilder();
+				for(char c : characters) {
+					sb.append(c);
+				}
+				String rkey = sb.toString(); 
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getPatient().TNAME+" values (NULL,'"
-						+ nom + "','"+birthdate+"','"+sex+"',"+size+","+weight+", "+project_id+")");
+						+ nom + "','"+birthdate+"','"+sex+"',"+size+","+weight+", "+rkey+", "+project_id+")");
 				
 				return true;
 				
@@ -153,6 +170,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
 				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setRemoteKey(rset.getString(SQLSettings.TABLES.getPatient().getRkey()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
@@ -191,6 +209,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
 				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setRemoteKey(rset.getString(SQLSettings.TABLES.getPatient().getRkey()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
@@ -206,7 +225,42 @@ public class MySQLPatientDAO implements PatientDAO {
 		}
 		
 	}
-	
+	public Patient retrievePatient(String name, String projectname) throws SQLException{
+		Patient pat = new Patient();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			ProjectDAO projdao=new MySQLProjectDAO();		
+			Project proj = projdao.retrieveProject(projectname);
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+proj.getId());
+			else
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+proj.getId());
+			while(rset.next()){
+				pat.setNom(rset.getString(SQLSettings.TABLES.getPatient().getName()));
+				pat.setId(rset.getInt(SQLSettings.TABLES.getPatient().getId()));
+				pat.setBirthdate(rset.getDate(SQLSettings.TABLES.getPatient().getBirthdate()));
+				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
+				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
+				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setRemoteKey(rset.getString(SQLSettings.TABLES.getPatient().getRkey()));
+				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
+			}
+		
+			return pat;
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
 	@Override
 	public Patient retrievePatient(String name,String birthdate,String sex,float size,float weight, int project_id) throws SQLException {
 		Patient pat = new Patient();
@@ -230,6 +284,7 @@ public class MySQLPatientDAO implements PatientDAO {
 				pat.setSex(rset.getString(SQLSettings.TABLES.getPatient().getSex()));
 				pat.setSize(rset.getFloat(SQLSettings.TABLES.getPatient().getSize()));
 				pat.setWeight(rset.getFloat(SQLSettings.TABLES.getPatient().getWeight()));
+				pat.setRemoteKey(rset.getString(SQLSettings.TABLES.getPatient().getRkey()));
 				pat.setProject(projdao.retrieveProject(rset.getInt(SQLSettings.TABLES.getPatient().getId_project())));
 			}
 		
@@ -246,7 +301,7 @@ public class MySQLPatientDAO implements PatientDAO {
 	}
 
 	@Override
-	public boolean updatePatient(int id, String name, String birthdate, String sex,float size,float weight, int id_project) throws SQLException {
+	public boolean updatePatient(int id, String name, String birthdate, String sex,float size,float weight, String rkey, int id_project) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -254,7 +309,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getPatient().TNAME+" set "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"',"+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"'," +
-					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getSize()+"="+size+", "+SQLSettings.TABLES.getPatient().getWeight()+"="+weight+", "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
+					" "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"', "+SQLSettings.TABLES.getPatient().getSize()+"="+size+", "+SQLSettings.TABLES.getPatient().getWeight()+"="+weight+", "+SQLSettings.TABLES.getPatient().getRkey()+"='"+rkey+"', "+SQLSettings.TABLES.getPatient().getId_project()+"="+id_project+" where "+SQLSettings.TABLES.getPatient().getId()+"="+id);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
@@ -361,6 +416,57 @@ public class MySQLPatientDAO implements PatientDAO {
 			throw e;
 		} finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+
+	public boolean exists(Patient pat, Project toproj) throws SQLException{
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			DBTables tab = SQLSettings.TABLES;
+			PatientTable nt = tab.getPatient();
+			rset = stmt.executeQuery("select "+nt.TNAME+"."+nt.getId()+" from "+nt.TNAME+", " +
+					""+tab.getProject().TNAME+" where "+nt.TNAME+"."+nt.getId_project()+"="+toproj.getId()+" and "
+					+tab.getPatient().TNAME+"."+tab.getPatient().getName()+"='"+pat.getNom()+"'");
+			
+			// boucle sur les resultats de la requête
+			while (rset.next()) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException {
+		int rset = -1;
+		Statement stmt = null;
+		Connection connection = null;
+		if(exists(pat, toproj))
+			return false;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getPatient().TNAME+" set "+SQLSettings.TABLES.getPatient().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getPatient().getId()+"="+pat.getId()+";");
+			AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
+			boolean acqok = adao.changeProject(pat,toproj);
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
 			stmt.close();
 			connection.close();
 		}

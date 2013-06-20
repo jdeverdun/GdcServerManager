@@ -31,7 +31,7 @@ public interface ProjectDAO {
       
       public boolean newProject(String string) throws SQLException; 
       
-      public boolean updateProject(int id, String name, String rkey) throws SQLException;
+      public boolean updateProject(int id, String name) throws SQLException;
 
       public Project retrieveProject(String name)  throws SQLException;
 

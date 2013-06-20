@@ -51,6 +51,7 @@ public class NiftiEncryptWorker extends DaemonWorker {
 		// on definit le nom de projet
 		Path studyName = to.getParent().getParent().getParent().getParent().getFileName();
 		setProjectFolder(studyName);
+		setPatientFolder(to.getParent().getParent().getParent());
 		setServerInfo(getEncryptDaemon().getServerInfo());
 	}
 	

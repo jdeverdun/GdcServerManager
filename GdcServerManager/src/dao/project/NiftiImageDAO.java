@@ -6,6 +6,8 @@ import java.util.Set;
 
 
 import model.NiftiImage;
+import model.Patient;
+import model.Project;
 
 public interface NiftiImageDAO {
 	public Collection<NiftiImage> retrieveAll() throws SQLException;
@@ -34,6 +36,6 @@ public interface NiftiImageDAO {
 	public int getNiftiIdFor(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException;
 
-
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 
 }

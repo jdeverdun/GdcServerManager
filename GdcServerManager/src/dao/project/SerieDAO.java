@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
 
+import model.Patient;
+import model.Project;
 import model.Serie;
 
 public interface SerieDAO {
@@ -40,6 +42,6 @@ public interface SerieDAO {
 
 	int getSerieIdFor(String project, String patient, String acqdate,
 			String protocol, String serie) throws SQLException;
-
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 	
 }

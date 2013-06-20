@@ -18,6 +18,7 @@ public class PatientTable {
 	private String sex;
 	private String size;
 	private String weight;
+	private String rkey;
 	private String id_project;
 
 	
@@ -30,6 +31,7 @@ public class PatientTable {
 		id_project = "id_project";
 		size = "size";
 		weight = "weight";
+		rkey = "rkey";
 	}
 
 	public String getBirthdate() {
@@ -78,5 +80,19 @@ public class PatientTable {
 	 */
 	public void setSize(String size) {
 		this.size = size;
+	}
+
+	/**
+	 * @return the rkey
+	 */
+	public String getRkey() {
+		return rkey;
+	}
+
+	/**
+	 * @param rkey the rkey to set
+	 */
+	public void setRkey(String rkey) {
+		this.rkey = rkey;
 	}
 }

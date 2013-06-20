@@ -370,25 +370,11 @@ public class FileManager {
 				public void actionPerformed(ActionEvent arg0) {
 					table.setEnabled(false);
 					File from = ((FileTableModel)table.getModel()).getFile(table.convertRowIndexToModel(table.getSelectedRows()[0]));
-					JDialog.setDefaultLookAndFeelDecorated(true);
-					String response = (String) JOptionPane.showInputDialog(null,
-							  "New name",
-							  "Rename",
-							  JOptionPane.QUESTION_MESSAGE,null,null,from.getName());
-					/*if(response!=null && !response.equals("") && isPatient(from)){
-						File to = new File(getCurrentDir() + File.separator + response);
-						if(from.renameTo(to)){
-							fi.mkdir();
-							getFileTreeLocal().refresh();
-						}else{
-							JDialog.setDefaultLookAndFeelDecorated(true);
-							JOptionPane.showMessageDialog(parentFrame,
-								    "Couldn't rename file.",
-								    "Create dir error",
-								    JOptionPane.ERROR_MESSAGE);
-						}
-					}	
-					System.out.println(response);*/
+									
+					ReassignProjectPanel reas = new ReassignProjectPanel(from.toPath()); // mode creation de liens
+					Popup popup = PopupFactory.getSharedInstance().getPopup(WindowManager.MAINWINDOW, reas, (int)WindowManager.MAINWINDOW.getX()+200,(int)WindowManager.MAINWINDOW.getY()+150);
+					reas.setPopupWindow(popup);
+					popup.show();
 					table.setEnabled(true);
 				}
 			});

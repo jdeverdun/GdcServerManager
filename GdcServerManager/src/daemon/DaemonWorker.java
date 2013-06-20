@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import settings.WindowManager;
 
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
+import dao.project.MySQLPatientDAO;
+import dao.project.PatientDAO;
 import exceptions.DicomException;
 
+import model.Patient;
 import model.Project;
 import model.ServerInfo;
 
@@ -88,23 +92,49 @@ public abstract class DaemonWorker {
 	
 	// get AES encrypt / decrypt pass
 	protected String getAESPass() {
+		String patientName = getPatientFolder().getFileName().toString();
 		String projectName = getProjectFolder().getFileName().toString();
 		DBCache cache = getServerInfo().getDbCache();
-		ProjectDAO pdao = new MySQLProjectDAO();
-		String rkey = cache.getRkeyList().get(projectName);
-		if(rkey!=null)
-			return rkey+Project.generateLocalKeyFrom(projectName);
+		PatientDAO pdao = new MySQLPatientDAO();
+		String rkey = cache.getRkeyList().get(patientName+"_"+projectName);
+		
+		if(rkey!=null){
+			// Attention ce patch permet de corriger le fait qu'on a change la facon d'encrypter
+			if(sameChars(rkey, projectName)){
+				// alors on a encrypter comme dans la v1 via le nom de projet -> on genere la clef local a partir
+				// du nom du projet
+				return rkey+Project.generateLocalKeyFrom(projectName);
+			}else{
+				// alors on a encrypter comme dans la v2 via le nom de patient -> on genere la clef local a partir
+				// du nom du patient
+				return rkey+Patient.generateLocalKeyFrom(patientName);
+			}
+		}
 		try {
-			Project proj = pdao.retrieveProject(projectName);
-			cache.getRkeyList().put(proj.getNom(), proj.getRemoteKey());
-			String lkey = Project.generateLocalKeyFrom(proj.getNom());
-			return proj.getRemoteKey()+lkey;
+			Patient pat = pdao.retrievePatient(patientName,projectName);
+			cache.getRkeyList().put(pat.getNom()+"_"+projectName, pat.getRemoteKey());
+			String lkey;
+			if(sameChars(pat.getRemoteKey(), projectName)){
+				// alors on a encrypter comme dans la v1 via le nom de projet -> on genere la clef local a partir
+				// du nom du projet
+				lkey = Project.generateLocalKeyFrom(projectName);
+			}else{
+				lkey = Patient.generateLocalKeyFrom(pat.getNom());
+			}
+			return pat.getRemoteKey()+lkey;
 		} catch (SQLException e) {
 			WindowManager.mwLogger.log(Level.SEVERE, "Can't get decrypt password",e);
 		}
 		return null;
 	}
 	
+	private static boolean sameChars(String firstStr, String secondStr) {
+	  char[] first = firstStr.toCharArray();
+	  char[] second = secondStr.toCharArray();
+	  Arrays.sort(first);
+	  Arrays.sort(second);
+	  return Arrays.equals(first, second);
+	}
 	// Rajoute une entree d'un dossier / image
 	// dans la table "table" de la base de donnee 
 	abstract protected void addEntryToDB(Path name, String table);

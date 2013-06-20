@@ -14,13 +14,11 @@ public class ProjectTable {
 	public final String TNAME = "project"; // nom de la table
 	private String id;
 	private String name;
-	private String rkey;
 	
 	// Constructeur
 	public ProjectTable(){
 		id = "id";
 		name = "name";
-		rkey = "rkey";
 	}
 
 	public String getId() {
@@ -31,7 +29,4 @@ public class ProjectTable {
 		return name;
 	}
 
-	public String getRkey() {
-		return rkey;
-	}
 }

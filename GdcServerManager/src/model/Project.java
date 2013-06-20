@@ -22,16 +22,14 @@ public class Project implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int id;
 	private String nom;
-	private String remoteKey;
 	private Set<User> users = new HashSet<User>();
 	private Set<Patient> patients = new HashSet<Patient>();
 
 	public Project() {
 
 	}
-	public Project(String n, String rkey) {
+	public Project(String n) {
 		setNom(n);
-		setRemoteKey(rkey);
 	}
 
 	public Project(int id) {
@@ -70,12 +68,7 @@ public class Project implements Serializable {
 		this.users = users;
 	}
 	
-	public String getRemoteKey() {
-		return remoteKey;
-	}
-	public void setRemoteKey(String remoteKey) {
-		this.remoteKey = remoteKey;
-	}
+
 	public void addUser(User u){
 		this.users.add(u);
 	}

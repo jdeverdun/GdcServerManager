@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Set;
 
 import model.DicomImage;
+import model.Patient;
+import model.Project;
 
 public interface DicomImageDAO {
 	public Collection<DicomImage> retrieveAll() throws SQLException;
@@ -29,5 +31,5 @@ public interface DicomImageDAO {
 	public int getDicomIdFor(String project, String patient, String acqdate,
 			String protocol, String serie, String image) throws SQLException;
 
-	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 }

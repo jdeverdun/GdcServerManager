@@ -101,7 +101,7 @@ public class NiftiWorker extends DaemonWorker {
 		// On recherche l'arborescence et on créé les répertoire si besoin +
 		// NIFTIDIR / NOM_ETUDE / NOM_PATIENT / DATE_IRM / PROTOCOL / SERIE 
 		Path studyName = path.getParent().getParent().getParent().getParent().getFileName();
-		setProjectFolder(studyName);
+		
 		Path patientName = path.getParent().getParent().getParent().getFileName();
 		Path acqDate = path.getParent().getParent().getFileName();
 		Path protocolAcqName = path.getParent().getFileName() ;
@@ -112,6 +112,10 @@ public class NiftiWorker extends DaemonWorker {
 		Path acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
 		Path protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);
 		Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
+		// important pour le decryptage
+		setProjectFolder(studyDir);
+		setPatientFolder(patientDir);
+		
 		
 		checkAndMakeDir(studyDir);
 		checkAndMakeDir(patientDir);

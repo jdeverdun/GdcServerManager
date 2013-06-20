@@ -18,6 +18,7 @@ import settings.sql.tables.ProtocolTable;
 
 import model.AcquisitionDate;
 import model.Patient;
+import model.Project;
 
 
 public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
@@ -350,6 +351,26 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			throw e;
 		} finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException {
+		int rset = -1;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" set "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_patient()+"="+pat.getId()+" ;");
+			ProtocolDAO pdao = new MySQLProtocolDAO();
+			pdao.changeProject(pat,toproj);
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
 			stmt.close();
 			connection.close();
 		}

@@ -19,6 +19,8 @@ import settings.sql.tables.NiftiImageTable;
 import settings.sql.tables.SerieTable;
 
 
+import model.Patient;
+import model.Project;
 import model.Serie;
 
 public class MySQLSerieDAO implements SerieDAO{
@@ -475,6 +477,28 @@ public class MySQLSerieDAO implements SerieDAO{
 			throw e;
 		} finally {
 			rset.close();
+			stmt.close();
+			connection.close();
+		}
+	}
+	
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException {
+		int rset = -1;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getSerie().getId_patient()+"="+pat.getId()+" ;");
+			DicomImageDAO ddao = new MySQLDicomImageDAO();
+			ddao.changeProject(pat,toproj);
+			NiftiImageDAO ndao = new MySQLNiftiImageDAO();
+			ndao.changeProject(pat,toproj);
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
 			stmt.close();
 			connection.close();
 		}

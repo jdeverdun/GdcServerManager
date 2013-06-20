@@ -13,7 +13,7 @@ constraint login_user_fk foreign key (login_user) references User(login) on dele
 constraint login_view_unique unique(login_user,view_num));
 
 create table Project
-(id integer NOT NULL AUTO_INCREMENT, name varchar(100) UNIQUE, rkey varchar(50), constraint project_pk primary key (id));
+(id integer NOT NULL AUTO_INCREMENT, name varchar(100) UNIQUE, constraint project_pk primary key (id));
 
 create table User_Project
 (id_user integer, id_project integer,
@@ -22,7 +22,7 @@ constraint id_project_fk foreign key (id_project) references Project(id) on dele
 constraint user_project_pk primary key (id_user, id_project));
 
 create table Patient
-(id integer NOT NULL AUTO_INCREMENT, name varchar(100), birthdate date, sex varchar(3), size float, weight float, id_project integer,
+(id integer NOT NULL AUTO_INCREMENT, name varchar(100), birthdate date, sex varchar(3), size float, weight float, rkey varchar(100),id_project integer,
 constraint patient_pk primary key (id),
 constraint uprojet_namepat unique(name,id_project),
 constraint projectpatient_fk foreign key (id_project) references Project(id) on delete cascade);

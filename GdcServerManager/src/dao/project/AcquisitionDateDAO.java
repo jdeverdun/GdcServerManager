@@ -6,6 +6,7 @@ import java.util.Set;
 
 import model.AcquisitionDate;
 import model.Patient;
+import model.Project;
 import model.User;
 
 public interface AcquisitionDateDAO {
@@ -43,7 +44,7 @@ public interface AcquisitionDateDAO {
 
 	int getAcqdateIdFor(String project, String patient, String acqdate)
 			throws SQLException;
-
+	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 
 
 

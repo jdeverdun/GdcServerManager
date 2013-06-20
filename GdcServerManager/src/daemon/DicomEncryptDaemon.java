@@ -146,7 +146,6 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 			this.stop = true;
 			saveBackup();
 			dicomToEncrypt.clear();
-			workers = null;
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
 		}else{
 			this.stop = stop;
