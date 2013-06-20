@@ -56,16 +56,16 @@ public class SQLSettings {
 		PDS.setURL("jdbc:mysql://"+ADDRESS+":3306/"+DATABASE_NAME);
 		PDS.setUser(UserProfile.LOGIN);
 		PDS.setPassword(UserProfile.ENCRYPTEDPASS);
-		  
+		//Setting pool properties
+		PDS.setInitialPoolSize(5);
+		PDS.setMinPoolSize(5);
+		PDS.setMaxPoolSize(Runtime.getRuntime().availableProcessors()*3);
 		// Create connection pool
 		MGR.createConnectionPool((UniversalConnectionPoolAdapter) PDS);
 		
 		// Start pool
 		MGR.startConnectionPool("mgr_pool");
-		//Setting pool properties
-		PDS.setInitialPoolSize(5);
-		PDS.setMinPoolSize(5);
-		PDS.setMaxPoolSize(Runtime.getRuntime().availableProcessors()*2);
+		
 		   
 		
 	}
@@ -100,16 +100,18 @@ public class SQLSettings {
 		PDS.setUser(UserProfile.LOGIN);
 		PDS.setPassword(UserProfile.ENCRYPTEDPASS);
 		   
+
+		//Setting pool properties
+		PDS.setInitialPoolSize(ipoolsize);
+		PDS.setMinPoolSize(minpoolsize);
+		PDS.setMaxPoolSize(maxpoolsize);
+		
 		// Create connection pool
 		MGR.createConnectionPool((UniversalConnectionPoolAdapter) PDS);
 		
 		// Start pool
 		MGR.startConnectionPool("mgr_pool");
 		
-		//Setting pool properties
-		PDS.setInitialPoolSize(ipoolsize);
-		PDS.setMinPoolSize(minpoolsize);
-		PDS.setMaxPoolSize(maxpoolsize);
 		   
 		
 	}
