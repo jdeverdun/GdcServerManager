@@ -326,9 +326,9 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 32:
     		FloatProcessor fp = (FloatProcessor) niftiImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return coefficients[0]+coefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
-    		else
     			return coefficients[0]+coefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return coefficients[0]+coefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	default:
     		return -1;
     	}
@@ -357,9 +357,9 @@ public class NiftiImagePanel extends JPanel implements ComponentListener, MouseW
     	case 32:
     		FloatProcessor fp = (FloatProcessor) overlayImage.getProcessor();
     		if(orientation != Plan.AXIAL)
-    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
-    		else
     			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(imageDim.getHeight()-p.getY()));
+    		else
+    			return overlayCoefficients[0]+overlayCoefficients[1]*(double)fp.getf((int)Math.round(p.getX())-1, (int)Math.round(p.getY())-1);
     	default:
     		return -1;
     	}
