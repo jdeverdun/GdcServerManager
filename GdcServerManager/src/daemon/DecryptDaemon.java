@@ -44,6 +44,7 @@ public class DecryptDaemon extends Thread {
 	@Override
 	public void run() {
 		WindowManager.mwLogger.log(Level.FINE, "Decrypter Online.");
+		setTotalEncryptedFile(0);
 		setWaiting(false);
 		while(!isStop()){
 			// check si il y a des donnees a decrypter
@@ -51,7 +52,6 @@ public class DecryptDaemon extends Thread {
 				if(isStop())
 					return;
 				try {
-					setTotalEncryptedFile(0);
 					if(ThreadPool.contains(DTYPE)){
 						setWaiting(false);
 					}else{
@@ -130,6 +130,7 @@ public class DecryptDaemon extends Thread {
 
 	public void cleanList() {
 		fileToDecrypt.clear();
+		setTotalEncryptedFile(0);
 	}
 
 

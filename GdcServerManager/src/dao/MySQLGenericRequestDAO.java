@@ -980,10 +980,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
 				else
 					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
-				whereopt= " and ";
+				whereopt = " and ";
 			}
 
-			whereopt= " and ";
 			// ----------  patient --------------
 			select += ", "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" as "+tab.getPatient().TNAME;
 			from += ", "+tab.getPatient().TNAME+opt;
@@ -992,6 +991,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
 				else
 					where += " and "+tab.getPatient().TNAME+opt+"."+tab.getPatient().getName()+" regexp '"+patient+"'";
+				whereopt = " and ";
 			}
 			
 			// ----------  AcqDate --------------
@@ -1004,12 +1004,14 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+">="+begin;
 				else
 					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+">="+begin;
+				whereopt = " and ";
 			}
 			if(!end.equals("")){
 				if(where.equals(" where "))
 					where += tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
 				else
 					where += " and "+tab.getAcquisitionDate().TNAME+opt+"."+tab.getAcquisitionDate().getDate()+"<="+end;
+				whereopt = " and ";
 			}			
 			// ----------  protocol --------------
 			
@@ -1020,6 +1022,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
 				else
 					where += " and "+tab.getProtocol().TNAME+opt+"."+tab.getProtocol().getName()+" regexp '"+protocol+"'";
+				whereopt = " and ";
 			}
 			
 			// ----------  serie --------------
@@ -1031,6 +1034,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					where += tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+" regexp '"+serie+"'";
 				else
 					where += " and "+tab.getSerie().TNAME+opt+"."+tab.getSerie().getName()+" regexp '"+serie+"'";
+				whereopt = " and ";
 			}
 			switch(imagetype){
 			case DICOM:
@@ -1049,6 +1053,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			}
 			
 			// ----------- REQUETE -------------
+
 			rset = stmt.executeQuery(select+" "+from+" "+where);
 
 			

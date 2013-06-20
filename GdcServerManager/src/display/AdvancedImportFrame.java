@@ -642,8 +642,7 @@ public class AdvancedImportFrame extends JFrame {
 						
 						@Override
 						public void run() {
-							rdbtnDicomNode.setEnabled(false);
-							rdbtnDicomNode.setEnabled(false);
+							rdbtnNiftiNode.setEnabled(false);
 							progressBar.setVisible(true);
 							File[] nfiles = new File[getFiles().length];
 							int count = 0;
@@ -700,7 +699,6 @@ public class AdvancedImportFrame extends JFrame {
 						@Override
 						public void run() {
 							rdbtnDicomNode.setEnabled(false);
-							rdbtnDicomNode.setEnabled(false);
 							progressBar.setVisible(true);
 							File[] nfiles = new File[getFiles().length];
 							int count = 0;
@@ -739,7 +737,11 @@ public class AdvancedImportFrame extends JFrame {
 				}
 			}
 		});
-		rdbtnNiftiNode.doClick();
+		if(getFiles()[0].getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME))
+			rdbtnDicomNode.doClick();
+		else
+			rdbtnNiftiNode.doClick();
+		
 	}
 
 
