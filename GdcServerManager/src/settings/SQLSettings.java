@@ -1,5 +1,6 @@
 package settings;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
@@ -64,7 +65,7 @@ public class SQLSettings {
 		//Setting pool properties
 		PDS.setInitialPoolSize(5);
 		PDS.setMinPoolSize(5);
-		PDS.setMaxPoolSize(10);
+		PDS.setMaxPoolSize(Runtime.getRuntime().availableProcessors()*2);
 		   
 		
 	}
@@ -132,5 +133,21 @@ public class SQLSettings {
 		}
 			
 		return PDS;
+	}
+	public static Connection getConnection() throws SQLException{
+		boolean continu = true;
+		Connection conn = null;
+		while(continu){
+			try{
+				conn = getPDS().getConnection();
+				continu=false;
+			}catch(SQLException e){
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
+		return conn;
 	}
 }

@@ -257,9 +257,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			throw e;
 		} finally {
 			try{
-				rset.close();
-				stmt.close();
-				connection.close();
+				try { if(rset!=null) rset.close();  } catch (Exception e) {};
+				try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+				try { if(connection!=null) connection.close();  } catch (Exception e) {};
 			}catch(Exception e){};
 		}
 	}
@@ -414,9 +414,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 1:
@@ -545,9 +545,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 2:// par defaut repertoire analyze
@@ -655,9 +655,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 3:
@@ -746,9 +746,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 4:
@@ -816,9 +816,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 5:
@@ -867,9 +867,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					rset.close();
-					stmt.close();
-					connection.close();
+					try { if(rset!=null) rset.close();  } catch (Exception e) {};
+					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
 		case 6 :
@@ -1100,9 +1100,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		}catch(SQLException e){
 			throw e;
 		}finally{
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -1129,9 +1129,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		}catch(Exception e){
 			throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}

@@ -52,9 +52,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -80,8 +80,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 				e.printStackTrace();	throw e;
 			}
 			finally {
-				stmt.close();
-				connection.close();
+				try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+				try { if(connection!=null) connection.close();  } catch (Exception e) {};
 			}
 		
 	}
@@ -118,9 +118,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 		}catch(Exception e){
 			e.printStackTrace();	throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -156,9 +156,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -196,9 +196,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -216,8 +216,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			System.err.println("Erreur SQL " + e2);
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -249,9 +249,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			return null;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -283,9 +283,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	@Override
@@ -315,9 +315,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -349,8 +349,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -393,9 +393,9 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -414,8 +414,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 }

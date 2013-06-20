@@ -61,9 +61,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -102,8 +102,8 @@ public class MySQLPatientDAO implements PatientDAO {
 				System.err.println("Erreur de chargement du driver " + e);	throw e;
 			}
 			finally {
-				stmt.close();
-				connection.close();
+				try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+				try { if(connection!=null) connection.close();  } catch (Exception e) {};
 			}
 		
 	}
@@ -140,9 +140,9 @@ public class MySQLPatientDAO implements PatientDAO {
 		}catch(Exception e){
 			e.printStackTrace();	throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -180,9 +180,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -219,9 +219,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -256,9 +256,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	@Override
@@ -294,9 +294,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -315,8 +315,8 @@ public class MySQLPatientDAO implements PatientDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -345,9 +345,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -378,8 +378,8 @@ public class MySQLPatientDAO implements PatientDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -415,9 +415,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -444,9 +444,9 @@ public class MySQLPatientDAO implements PatientDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -467,8 +467,8 @@ public class MySQLPatientDAO implements PatientDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 }

@@ -62,9 +62,9 @@ public class MySQLUserDAO implements UserDAO {
 			e.printStackTrace();
 			return null;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -130,7 +130,7 @@ public class MySQLUserDAO implements UserDAO {
 				userC.setLevel(rset.getInt(SQLSettings.TABLES.getUser().getLevel()));
 				userC.setFirstConnect(rset.getInt(SQLSettings.TABLES.getUser().getFirstconnect()));
 				UserProfile.CURRENT_USER = userC;
-				rset.close();
+				try { if(rset!=null) rset.close();  } catch (Exception e) {};
 			}else{
 				return null;
 			}
@@ -143,9 +143,9 @@ public class MySQLUserDAO implements UserDAO {
 			throw e;
 			//return null;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 
 	}
@@ -192,8 +192,8 @@ public class MySQLUserDAO implements UserDAO {
 				}
 			}
 			finally {
-				stmt.close();
-				connection.close();
+				try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+				try { if(connection!=null) connection.close();  } catch (Exception e) {};
 			}
 		
 	}
@@ -245,9 +245,9 @@ public class MySQLUserDAO implements UserDAO {
 		}catch(Exception e){
 			e.printStackTrace();	throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -279,9 +279,9 @@ public class MySQLUserDAO implements UserDAO {
 			e.printStackTrace();	
 			throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -323,9 +323,9 @@ public class MySQLUserDAO implements UserDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -369,9 +369,9 @@ public class MySQLUserDAO implements UserDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -411,8 +411,8 @@ public class MySQLUserDAO implements UserDAO {
 			System.err.println("Erreur SQL " + e2);
 			return false;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e1) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e1) {};
 		}
 	}
 	
@@ -439,9 +439,9 @@ public class MySQLUserDAO implements UserDAO {
 			e.printStackTrace();
 			return null;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -464,8 +464,8 @@ public class MySQLUserDAO implements UserDAO {
 			throw e2;
 			//return false;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 }

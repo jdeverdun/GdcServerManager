@@ -51,9 +51,9 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -88,9 +88,9 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -110,8 +110,8 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			System.err.println("Erreur SQL " + e2);
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -130,8 +130,8 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			System.err.println("Erreur SQL " + e2);
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	public int removeLink(String login, String projectname) throws SQLException{
@@ -171,9 +171,9 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -207,8 +207,8 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			throw e;
 		}
 		finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	
 	}
@@ -229,8 +229,8 @@ public class MySQLUserProjectDAO implements UserProjectDAO {
 			System.err.println("Erreur SQL " + e2);
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 

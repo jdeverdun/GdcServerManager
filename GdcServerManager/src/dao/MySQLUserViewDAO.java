@@ -43,8 +43,8 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			}
 		}
 		finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	
 	}
@@ -71,9 +71,9 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			e.printStackTrace();
 			return -1;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -92,8 +92,8 @@ public class MySQLUserViewDAO implements UserViewDAO {
 			e2.printStackTrace();
 			return false;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 

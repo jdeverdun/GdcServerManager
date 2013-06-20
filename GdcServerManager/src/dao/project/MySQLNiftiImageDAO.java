@@ -58,9 +58,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -88,8 +88,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 				throw e;
 			}
 			finally {
-				stmt.close();
-				connection.close();
+				try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+				try { if(connection!=null) connection.close();  } catch (Exception e) {};
+				
 			}	
 	}
 	
@@ -122,9 +123,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		}finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -165,9 +166,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 		
 	}
@@ -190,8 +191,8 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -213,8 +214,8 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -246,9 +247,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -282,9 +283,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	@Override
@@ -314,9 +315,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -346,9 +347,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	@Override
@@ -378,9 +379,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 
@@ -414,8 +415,8 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -464,9 +465,9 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			rset.close();
-			stmt.close();
-			connection.close();
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -488,8 +489,8 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 	
@@ -507,8 +508,8 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			e2.printStackTrace();
 			throw e2;
 		} finally {
-			stmt.close();
-			connection.close();
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
 }
