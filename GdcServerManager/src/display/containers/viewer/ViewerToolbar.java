@@ -131,6 +131,8 @@ public class ViewerToolbar extends JToolBar {
 					
 					@Override
 					public boolean accept(File f) {
+						if(f==null || f.toString()==null)
+							return false;
 						if(f.isDirectory())
 							return true;
 						if(f.toString().endsWith(".nii") || f.toString().endsWith(".img") || 

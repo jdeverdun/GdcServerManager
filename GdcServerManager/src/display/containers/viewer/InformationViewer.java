@@ -463,7 +463,7 @@ public class InformationViewer extends JPanel {
 	 * @param filename
 	 */
 	public void setOverlayFilename(String filename) {
-		titleOverlay.setTitle((DEFAULT_OVERLAY_TITLE+filename).substring(0,Math.min(50, filename.length())));
+		titleOverlay.setTitle((DEFAULT_OVERLAY_TITLE+filename).substring(0,Math.min(50, (DEFAULT_OVERLAY_TITLE+filename).length())));
 	}
 	
 	/**
@@ -497,10 +497,12 @@ public class InformationViewer extends JPanel {
 	}
 
 	public double getMinOverlay(){
-		return (double) spinnerOverlayMin.getValue();
+		return ((double) spinnerOverlayMin.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0];
+		//return (double) spinnerOverlayMin.getValue();
 	}
 	public double getMaxOverlay(){
-		return (double) spinnerOverlayMax.getValue();
+		return ((double) spinnerOverlayMax.getValue())/coefficientsOverlay[1]-coefficientsOverlay[0];
+		//return (double) spinnerOverlayMax.getValue();
 	}
 
 
@@ -509,14 +511,16 @@ public class InformationViewer extends JPanel {
 	 * @return
 	 */
 	public double getMin(){
-		return (double) spinnerMin.getValue();
+		return ((double) spinnerMin.getValue())/coefficientsImage[1]-coefficientsImage[0];
+		//return (double) spinnerMin.getValue();
 	}
 	/**
 	 * Renvoi le max de al colormap actuelle
 	 * @return
 	 */
 	public double getMax(){
-		return (double) spinnerMax.getValue();
+		return ((double) spinnerMax.getValue())/coefficientsImage[1]-coefficientsImage[0];
+		//return (double) spinnerMax.getValue();
 	}
 
 

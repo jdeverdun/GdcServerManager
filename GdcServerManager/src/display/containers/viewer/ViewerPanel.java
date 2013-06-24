@@ -421,6 +421,9 @@ public class ViewerPanel extends JPanel{
 			setDisplayOverlayMinMax(min, max);
 			revalidate();
 			updateCrosshair();
+			getAxialPanel().refreshImage();
+			getCoronalPanel().refreshImage();
+			getSagittalPanel().refreshImage();
 			return true;
 		}catch(final Exception e){
 			SwingUtilities.invokeLater(new Runnable() {
