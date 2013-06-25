@@ -73,7 +73,7 @@ public class DecryptDaemon extends Thread {
 				}
 			});
 			try{
-				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){
+				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){//ThreadPool.numberOfThreadFor(DTYPE) >= SystemSettings.AVAILABLE_CORES &&
 					try{
 						Thread.sleep(50);
 					}catch(Exception e){

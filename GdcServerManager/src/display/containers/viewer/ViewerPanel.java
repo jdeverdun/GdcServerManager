@@ -521,6 +521,7 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().reset();
 		getSagittalPanel().reset();
 		getAxialPanel().reset();
+		resetOverlay();
 	}
 	
 	/**

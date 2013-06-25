@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import daemon.tools.ThreadPool.DAEMONTYPE;
+
 import exceptions.ThreadPoolException;
 
 /**
@@ -121,6 +123,39 @@ public class ThreadPool {
 			}
 		}else{
 			return false;
+		}
+	}
+	
+	/**
+	 * Renvoi le nombre de thread d'un certain type dans le pool
+	 * @param dtype
+	 * @return
+	 */
+	public static int numberOfThreadFor(DAEMONTYPE dtype) {
+		if(!isLaunched)
+			return 0;
+		if(!workers.isEmpty()){
+			synchronized(workers){
+				synchronized(workersDType){
+					// update des thread vivant
+					for(int i = 0; i < workers.size();i++){
+						if(!workers.get(i).isAlive()){
+							workers.remove(i);
+							workersDType.remove(i);
+						}
+					}
+					int count = 0;
+					// on compte le nombre de thread du bon type
+					for(int i = 0; i < workersDType.size();i++){
+						if(workersDType.get(i) == dtype){
+							count++;
+						}
+					}
+					return count;
+				}
+			}
+		}else{
+			return 0;
 		}
 	}
 }
