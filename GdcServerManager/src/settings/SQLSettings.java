@@ -133,6 +133,7 @@ public class SQLSettings {
 				WindowManager.mwLogger.log(Level.SEVERE,"getPDS error.",e);
 			}
 		}
+		lastRequestTime = System.currentTimeMillis();
 			
 		return PDS;
 	}
