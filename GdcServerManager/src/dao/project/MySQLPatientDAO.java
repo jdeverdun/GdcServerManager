@@ -93,12 +93,13 @@ public class MySQLPatientDAO implements PatientDAO {
 				}
 				String rkey = sb.toString(); 
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getPatient().TNAME+" values (NULL,'"
-						+ nom + "','"+birthdate+"','"+sex+"',"+size+","+weight+", "+rkey+", "+project_id+")");
+						+ nom + "','"+birthdate+"','"+sex+"',"+size+","+weight+", '"+rkey+"', "+project_id+")");
 				
 				return true;
 				
 			}
 			catch(Exception e){
+				e.printStackTrace();
 				System.err.println("Erreur de chargement du driver " + e);	throw e;
 			}
 			finally {

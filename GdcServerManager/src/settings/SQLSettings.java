@@ -8,8 +8,11 @@ import oracle.ucp.UniversalConnectionPoolAdapter;
 import oracle.ucp.UniversalConnectionPoolException;
 import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
+import oracle.ucp.jdbc.JDBCConnectionPoolStatisticsImpl;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
+import oracle.ucp.jdbc.oracle.OracleJDBCConnectionPoolStatistics;
+import oracle.ucp.jdbc.oracle.OracleJDBCConnectionPoolStatisticsImpl;
 import settings.sql.DBTables;
 
 public class SQLSettings {
@@ -134,7 +137,9 @@ public class SQLSettings {
 			}
 		}
 		lastRequestTime = System.currentTimeMillis();
-			
+		//String fcfInfo = ((JDBCConnectionPoolStatisticsImpl)PDS.getStatistics()).toString();
+				//  getFCFProcessingInfo();
+				//System.out.println("The FCF information: "+fcfInfo+".");
 		return PDS;
 	}
 	public static Connection getConnection() throws SQLException{
