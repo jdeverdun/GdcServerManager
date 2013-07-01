@@ -66,7 +66,7 @@ public class SQLSettings {
 		// Start pool
 		MGR.startConnectionPool("mgr_pool");
 		//Setting pool properties
-		PDS.setInitialPoolSize(5);
+		PDS.setInitialPoolSize(Runtime.getRuntime().availableProcessors()*2);
 		PDS.setMinPoolSize(5);
 		PDS.setMaxPoolSize(Runtime.getRuntime().availableProcessors()*3);
 		   
