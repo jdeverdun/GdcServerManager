@@ -44,6 +44,7 @@ public class NiftiEncryptWorker extends DaemonWorker {
 	
 	
 	public NiftiEncryptWorker(NiftiEncryptDaemon disp, Path p,Path to, DicomImage di){
+		super();
 		niftiFile = p;
 		toDir = to;
 		sourceDicomImage = di;

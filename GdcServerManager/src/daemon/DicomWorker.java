@@ -75,6 +75,7 @@ public class DicomWorker extends DaemonWorker {
 	protected Path newPath;// nouveau chemin vers le fichier (apres deplacement dans repertoire dicom)
 	
 	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException{
+		super();
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
 		setServerInfo(getDispatcher().getServerInfo());
@@ -84,7 +85,7 @@ public class DicomWorker extends DaemonWorker {
 	 * Constructeur vide
 	 */
 	public DicomWorker(){
-		
+		super();
 	}
 	
 	// Accesseurs

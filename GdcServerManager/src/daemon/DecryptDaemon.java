@@ -32,12 +32,13 @@ public class DecryptDaemon extends Thread {
 	private boolean stop;
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a decrypter ou si on travail)
 	private int totalEncryptedFile;
-	
+	private int pid;
 	
 	public DecryptDaemon(){
 		fileToDecrypt = new LinkedList<Path[]>();
 		stop = false;
 		totalEncryptedFile = 0;
+		pid = System.identityHashCode(this); 
 	}
 	
 	
@@ -49,8 +50,10 @@ public class DecryptDaemon extends Thread {
 		while(!isStop()){
 			// check si il y a des donnees a decrypter
 			while(fileToDecrypt.isEmpty()){
-				if(isStop())
+				if(isStop()){
+					ThreadPool.stopThreadsByPid(pid);
 					return;
+				}
 				try {
 					if(ThreadPool.contains(DTYPE)){
 						setWaiting(false);
@@ -73,13 +76,15 @@ public class DecryptDaemon extends Thread {
 				}
 			});
 			try{
-				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){//ThreadPool.numberOfThreadFor(DTYPE) >= SystemSettings.AVAILABLE_CORES &&
+				while(!ThreadPool.addThread(tr,pid,DTYPE) && !isStop() ){//ThreadPool.numberOfThreadFor(DTYPE) >= SystemSettings.AVAILABLE_CORES &&
 					try{
 						Thread.sleep(50);
 					}catch(Exception e){
 						e.printStackTrace();
 					}
 				}
+				if(isStop())
+					ThreadPool.stopThreadsByPid(pid);
 				tr.start();
 			}catch(ThreadPoolException te){
 				// on replace le dernier fichier a encrypter dans la liste (il sera sauvegarder lorsque le nifti daemon se coupera)
@@ -131,6 +136,7 @@ public class DecryptDaemon extends Thread {
 	public void cleanList() {
 		fileToDecrypt.clear();
 		setTotalEncryptedFile(0);
+		ThreadPool.stopThreadsByPid(pid);
 	}
 
 
@@ -167,5 +173,10 @@ public class DecryptDaemon extends Thread {
 		this.totalEncryptedFile = totalEncryptedFile;
 	}
 	
+	
+	public int getDoneEncryptedFile(){
+		return getTotalEncryptedFile() - (getFileToDecrypt().size() + ThreadPool.numberOfThreadFor(pid));
+	}
+
 
 }

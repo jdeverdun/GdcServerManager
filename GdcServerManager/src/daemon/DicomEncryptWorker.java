@@ -38,6 +38,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 	
 	
 	public DicomEncryptWorker(DicomEncryptDaemon disp, Path p, DicomImage di){
+		super();
 		dicomFile = p;
 		encryptDaemon = disp;
 		dicomImage = di;
@@ -48,6 +49,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 	}
 	
 	public DicomEncryptWorker(Path p, DicomImage di){
+		super();
 		dicomFile = p;
 		dicomImage = di;
 		setSerieFolder(dicomFile.getParent());

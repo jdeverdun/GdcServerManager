@@ -547,7 +547,7 @@ public class AdvancedImportFrame extends JFrame {
 								}
 							}
 						}
-						while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && !stopImport){
+						while(!SystemSettings.DECRYPT_DAEMON.isWaiting() && !stopImport){
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
@@ -574,7 +574,7 @@ public class AdvancedImportFrame extends JFrame {
 					@Override
 					public void run() {
 						while(isLock){
-							ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()-SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().size())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
+							ppanel.setTitle(title+"<br /><center>"+(SystemSettings.DECRYPT_DAEMON.getDoneEncryptedFile())+" / "+SystemSettings.DECRYPT_DAEMON.getTotalEncryptedFile()+"</center>");
 							try {
 								Thread.sleep(100);
 							} catch (InterruptedException e) {

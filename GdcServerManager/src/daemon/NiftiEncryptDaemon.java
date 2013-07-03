@@ -84,7 +84,7 @@ public class NiftiEncryptDaemon extends EncryptDaemon {
 				}
 			});
 			try{
-				while(!ThreadPool.addThread(tr,DTYPE) && !isStop() ){
+				while(!ThreadPool.addThread(tr,getPid(),DTYPE) && !isStop() ){
 					try{
 						Thread.sleep(50);
 					}catch(Exception e){

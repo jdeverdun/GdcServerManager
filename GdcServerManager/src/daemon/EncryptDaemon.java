@@ -12,10 +12,12 @@ public abstract class EncryptDaemon extends Thread{
 	protected boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a encrypter ou si on travail)
 	protected boolean crashed; // pour l'import permet de savoir si le daemon a crashe
 	protected ServerInfo serverInfo;
+	private int pid;
 	
 	public EncryptDaemon(){
 		stop = false;
 		crashed = false;
+		pid = System.identityHashCode(this); 
 	}
 
 	public boolean isStop() {
@@ -48,5 +50,19 @@ public abstract class EncryptDaemon extends Thread{
 
 	protected void setServerInfo(ServerInfo serverInfo) {
 		this.serverInfo = serverInfo;
+	}
+
+	/**
+	 * @return the pid
+	 */
+	public int getPid() {
+		return pid;
+	}
+
+	/**
+	 * @param pid the pid to set
+	 */
+	public void setPid(int pid) {
+		this.pid = pid;
 	}
 }

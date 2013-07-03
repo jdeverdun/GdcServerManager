@@ -27,6 +27,9 @@ public abstract class DaemonWorker {
 	protected Path projectFolder;
 	protected ServerInfo serverInfo;
 	
+	public DaemonWorker(){
+
+	}
 	// Accesseurs
 	
 	public Path getPatientFolder() {
@@ -138,4 +141,5 @@ public abstract class DaemonWorker {
 	// Rajoute une entree d'un dossier / image
 	// dans la table "table" de la base de donnee 
 	abstract protected void addEntryToDB(Path name, String table);
+
 }

@@ -25,6 +25,7 @@ public class FileDecryptWorker extends DaemonWorker {
 	private DecryptDaemon decryptDaemon;
 	
 	public FileDecryptWorker(DecryptDaemon daemon, Path from, Path to){
+		super();
 		setDecryptDaemon(daemon);
 		setFrom(from);
 		setTo(to);
