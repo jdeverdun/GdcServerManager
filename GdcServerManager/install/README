@@ -16,3 +16,8 @@ et en placant le contenu de l'archive dans <java_home>/lib/security
 3. Mettre convertizer.exe dans le path de windows
 
 Sur le serveur : Installer DavMail
+
+Informations noeud dicom : 
+AET : GDC_RECHPASS
+IP : 120.40.30.110
+Port : 104

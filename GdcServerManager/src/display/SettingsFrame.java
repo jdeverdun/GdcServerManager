@@ -136,7 +136,7 @@ public class SettingsFrame extends JFrame {
 		txtNodeport.setHorizontalAlignment(SwingConstants.CENTER);
 		serverSettingPanel.add(txtNodeport, "cell 1 4");
 		txtNodeport.setColumns(4);
-		txtNodeport.setText("114");
+		txtNodeport.setText(""+DicomNode.DEFAULT_PORT);
 		
 		JLabel lblDicomNodeAETitle = new JLabel("Dicom node AETitle (*)");
 		lblDicomNodeAETitle.setToolTipText("Require restart.");

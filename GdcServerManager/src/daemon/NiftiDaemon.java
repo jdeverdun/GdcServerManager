@@ -224,6 +224,9 @@ public class NiftiDaemon extends Thread{
 						// Si ca fait plus de 2 min on convertit (ou si on est pas en servermode
 						// /!\ convertizer.exe DOIT etre dans le path
 						if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT){
+							// si il reste des donnees a deplacer vers le serveur on attend la fin de se deplacement
+							if(getSettings().getServerMode() == ServerMode.SERVER && !SystemSettings.DICOM_DISPATCHER.getDicomToMove().isEmpty())
+								continue HashLoop;
 							// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
 							// si ce n'est pas le cas on
 							if(!isDirFullyEncrypted(path)) 
@@ -317,7 +320,7 @@ public class NiftiDaemon extends Thread{
 	public void setSettings(CustomConversionSettings settings) {
 		this.settings = settings;
 		if(this.settings.getServerMode() == ServerMode.SERVER)
-			waitTimeToConvert = 120000.0f;
+			waitTimeToConvert = 600000.0f;
 		else if(this.settings.getServerMode() == ServerMode.IMPORT)
 			waitTimeToConvert = 60000.0f;
 		else
