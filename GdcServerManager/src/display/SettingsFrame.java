@@ -51,6 +51,7 @@ public class SettingsFrame extends JFrame {
 	private JIPTextField textIP;
 	private JTextField txtNodeport;
 	private JTextField txtDatabasename;
+	private JTextField txtAetitle;
 	public SettingsFrame() {
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 		
@@ -64,10 +65,10 @@ public class SettingsFrame extends JFrame {
 		JPanel filesSettingPanel = new JPanel();
 		JPanel serverSettingPanel = new JPanel();
 		tabbedPane.addTab("Server", null, serverSettingPanel, null);
-		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][18.00][]"));
+		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][][18.00][]"));
 		
 		JLabel lblRootServerDirectory = new JLabel("Root server directory");
-		serverSettingPanel.add(lblRootServerDirectory, "cell 0 0,alignx trailing");
+		serverSettingPanel.add(lblRootServerDirectory, "cell 0 0,alignx left");
 		
 		txtServerDir = new JTextField(SystemSettings.SERVER_INFO.getServerDir().toString());
 		txtServerDir.setToolTipText("Directory of the data server ( Default : J:/ )");
@@ -137,17 +138,27 @@ public class SettingsFrame extends JFrame {
 		txtNodeport.setColumns(4);
 		txtNodeport.setText("114");
 		
+		JLabel lblDicomNodeAETitle = new JLabel("Dicom node AETitle (*)");
+		lblDicomNodeAETitle.setToolTipText("Require restart.");
+		serverSettingPanel.add(lblDicomNodeAETitle, "cell 0 5,alignx left");
+		
+		txtAetitle = new JTextField();
+		txtAetitle.setHorizontalAlignment(SwingConstants.CENTER);
+		txtAetitle.setText(DicomNode.DEFAULT_AE_TITLE);
+		serverSettingPanel.add(txtAetitle, "cell 1 5,growx");
+		txtAetitle.setColumns(10);
+		
 		JSeparator separator = new JSeparator();
-		serverSettingPanel.add(separator, "cell 0 5 3 1,growx");
+		serverSettingPanel.add(separator, "cell 0 6 3 1,growx");
 		
 		JLabel lblDatabaseName = new JLabel("Database name (*)");
 		lblDatabaseName.setToolTipText("Require restart.");
-		serverSettingPanel.add(lblDatabaseName, "cell 0 6,alignx left");
+		serverSettingPanel.add(lblDatabaseName, "cell 0 7,alignx left");
 		
 		txtDatabasename = new JTextField();
 		txtDatabasename.setHorizontalAlignment(SwingConstants.CENTER);
 		txtDatabasename.setText(SQLSettings.DATABASE_NAME);
-		serverSettingPanel.add(txtDatabasename, "cell 1 6,growx");
+		serverSettingPanel.add(txtDatabasename, "cell 1 7,growx");
 		txtDatabasename.setColumns(10);
 		
 		JLabel lblTempDirectory = new JLabel("Temp directory");
@@ -171,6 +182,8 @@ public class SettingsFrame extends JFrame {
 			label.setEnabled(false);
 			lblDicomNodeIp.setEnabled(false);
 			lblDatabaseName.setEnabled(false);
+			lblDicomNodeAETitle.setEnabled(false);
+			txtAetitle.setEnabled(false);
 			txtDatabasename.setEnabled(false);
 			lblRootServerDirectory.setEnabled(false);
 			txtServerDir.setEnabled(false);
@@ -241,6 +254,22 @@ public class SettingsFrame extends JFrame {
 							JDialog.setDefaultLookAndFeelDecorated(true);
 							JOptionPane.showMessageDialog(SettingsFrame.this,
 									"IP should contain only integer",
+								    "Saving error",
+								    JOptionPane.ERROR_MESSAGE);
+						}
+					});
+			    	return;
+			    }
+			    if(txtAetitle.getText().length()>0){
+			    	DicomNode.DEFAULT_AE_TITLE = txtAetitle.getText();
+			    }else{
+			    	SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(SettingsFrame.this,
+									"AETitle should not be empty",
 								    "Saving error",
 								    JOptionPane.ERROR_MESSAGE);
 						}
@@ -334,7 +363,7 @@ public class SettingsFrame extends JFrame {
         }
 		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Settings");
-		setSize(400, 300);
+		setSize(420, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		setLocationRelativeTo(null);

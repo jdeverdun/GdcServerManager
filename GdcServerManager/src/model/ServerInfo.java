@@ -33,10 +33,12 @@ public class ServerInfo {
 	private static final String DICOM_NODE_IP = "dicomNodeIp";
 	private static final String DICOM_NODE_PORT = "dicomNodePort";
 	private static final String DATABASE_NAME = "databaseName";
+	private static final String DICOM_NODE_AETITLE = "dicomNodeAETitle";
 	
 	// fichier contenant la liste des projets pour lesquels il faut utiliser le patient ID a la place du Patient name
 	// le fichier contient un nom de projet par ligne
 	private static final String PPID_FILE = "projectsId.conf";
+	
 	public static String CONF_FILE = "params.conf";
 	// Attributs
 	private Path incomingDir; // dossier des dicom en vrac
@@ -99,6 +101,8 @@ public class ServerInfo {
 				DicomNode.DEFAULT_HOSTNAME = params.get(DICOM_NODE_IP);
 			if(params.containsKey(DICOM_NODE_PORT))
 				DicomNode.DEFAULT_PORT = Integer.parseInt(params.get(DICOM_NODE_PORT));
+			if(params.containsKey(DICOM_NODE_AETITLE))
+				DicomNode.DEFAULT_AE_TITLE = params.get(DICOM_NODE_AETITLE);
 			if(params.containsKey(DATABASE_NAME))
 				SQLSettings.DATABASE_NAME = params.get(DATABASE_NAME);
 		}else{
@@ -235,6 +239,7 @@ public class ServerInfo {
 		lines.add(SERVER_DIR_NAME+"="+getServerDir());
 		lines.add(DICOM_NODE_IP+"="+DicomNode.DEFAULT_HOSTNAME);
 		lines.add(DICOM_NODE_PORT+"="+DicomNode.DEFAULT_PORT);
+		lines.add(DICOM_NODE_AETITLE+"="+DicomNode.DEFAULT_AE_TITLE);
 		lines.add(DATABASE_NAME+"="+SQLSettings.DATABASE_NAME);
 		try {
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
@@ -295,6 +300,8 @@ public class ServerInfo {
 				DicomNode.DEFAULT_HOSTNAME = params.get(DICOM_NODE_IP);
 			if(params.containsKey(DICOM_NODE_PORT))
 				DicomNode.DEFAULT_PORT = Integer.parseInt(params.get(DICOM_NODE_PORT));
+			if(params.containsKey(DICOM_NODE_AETITLE))
+				DicomNode.DEFAULT_AE_TITLE = params.get(DICOM_NODE_AETITLE);
 			if(params.containsKey(DATABASE_NAME))
 				SQLSettings.DATABASE_NAME = params.get(DATABASE_NAME);
 		}else{

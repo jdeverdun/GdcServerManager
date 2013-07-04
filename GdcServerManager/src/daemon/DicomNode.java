@@ -14,6 +14,7 @@ public class DicomNode {
 	// Static
 	public static int DEFAULT_PORT = 104;//11112;
 	public static String DEFAULT_HOSTNAME = "127.0.0.1";//"120.40.30.110";
+	public static String DEFAULT_AE_TITLE = "RECHPASS";
 	// Attributs
 	private DcmRcv dcmrcv;
 	private int port;
@@ -47,6 +48,7 @@ public class DicomNode {
 	}
 	public void initDcmRcv(){
 		alive = false;
+		dcmrcv.setAEtitle(DEFAULT_AE_TITLE);
 		dcmrcv.setDestination(SystemSettings.SERVER_INFO.getIncomingDir().toString());
 		dcmrcv.setStgCmtReuseFrom(false);
         dcmrcv.setStgCmtReuseTo(false);
