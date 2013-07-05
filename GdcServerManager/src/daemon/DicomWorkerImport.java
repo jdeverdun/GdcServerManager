@@ -20,6 +20,8 @@ import java.util.logging.Level;
 import settings.SystemSettings;
 import settings.WindowManager;
 
+import daemon.tools.ThreadPool;
+import daemon.tools.ThreadPool.DAEMONTYPE;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -34,6 +36,7 @@ import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
 import exceptions.DicomException;
+import exceptions.ThreadPoolException;
 
 import model.AcquisitionDate;
 import model.DICOM;
@@ -58,12 +61,15 @@ public class DicomWorkerImport extends DicomWorker {
 
 	private ArrayList<Path> dicomFileblock; // list contenant les fichiers a traite (on travail par bloc)
 	private ArrayList<Thread> workerThread; // threads pour l'encryptage
+	private int pid;
+	
 	public DicomWorkerImport(DicomJobDispatcher pDaemon, ArrayList<Path> paths) {
 		super();
 		setDispatcher(pDaemon);
 		setDicomFileblock(paths);
 		setServerInfo(getDispatcher().getServerInfo());
 		workerThread = new ArrayList<Thread>();
+		setPid(System.identityHashCode(this)); 
 	}
 	
 	// Methodes
@@ -195,8 +201,20 @@ public class DicomWorkerImport extends DicomWorker {
 					}
 				}
 			});
-			workerThread.add(tr);
-			tr.start();
+			try{
+				while(!ThreadPool.addThread(tr,getPid(),DAEMONTYPE.DicomEncryptDaemon)){
+					try{
+						Thread.sleep(50);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				tr.start();
+				workerThread.add(tr);
+			}catch(ThreadPoolException te){
+				WindowManager.mwLogger.log(Level.SEVERE,"Critical error in DicomWorkerImport (addThread).",te);
+				SystemSettings.stopDaemons();
+			}
 		}
 		// on attend que l'encryptage soit ok
 		boolean cont = true;
@@ -233,6 +251,20 @@ public class DicomWorkerImport extends DicomWorker {
 	 */
 	public void setDicomFileblock(ArrayList<Path> dicomFileblock) {
 		this.dicomFileblock = dicomFileblock;
+	}
+
+	/**
+	 * @return the pid
+	 */
+	public int getPid() {
+		return pid;
+	}
+
+	/**
+	 * @param pid the pid to set
+	 */
+	public void setPid(int pid) {
+		this.pid = pid;
 	}
 
 }

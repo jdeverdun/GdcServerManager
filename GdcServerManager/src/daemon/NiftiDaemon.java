@@ -225,7 +225,7 @@ public class NiftiDaemon extends Thread{
 						// /!\ convertizer.exe DOIT etre dans le path
 						if(getSettings().getServerMode() == ServerMode.SERVER || getSettings().getServerMode() == ServerMode.IMPORT){
 							// si il reste des donnees a deplacer vers le serveur on attend la fin de se deplacement
-							if(getSettings().getServerMode() == ServerMode.SERVER && !SystemSettings.DICOM_DISPATCHER.getDicomToMove().isEmpty())
+							if(!SystemSettings.DICOM_DISPATCHER.getDicomToMove().isEmpty())
 								continue HashLoop;
 							// on s'assure que tout le repertoire dicom a ete encrypte avant de convertir
 							// si ce n'est pas le cas on

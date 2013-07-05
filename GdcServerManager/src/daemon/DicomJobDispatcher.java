@@ -16,6 +16,9 @@ import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
+import daemon.tools.ThreadPool;
+import daemon.tools.ThreadPool.DAEMONTYPE;
+
 import exceptions.DicomException;
 
 import settings.SystemSettings;
