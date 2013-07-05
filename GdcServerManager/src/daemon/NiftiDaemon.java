@@ -277,11 +277,20 @@ public class NiftiDaemon extends Thread{
 	 * @return
 	 */
 	public boolean isDirFullyEncrypted(Path path) {
+		boolean returnval = true;
 		for(String p:path.toFile().list()){
-			if(p.length()>2 && !p.endsWith(AESCrypt.ENCRYPTSUFFIX))
-				return false;
+			if(p.length()>2 && !p.endsWith(AESCrypt.ENCRYPTSUFFIX)){
+				try {
+					SystemSettings.MISSING_DAEMON.moveNotEncodedDicomFile(new File(path.toString()+File.separator+p));
+					if(new File(path.toString()+File.separator+p+AESCrypt.ENCRYPTSUFFIX).exists())
+						new File(path.toString()+File.separator+p+AESCrypt.ENCRYPTSUFFIX).delete();
+					returnval = false;
+				} catch (Exception e) {
+					WindowManager.mwLogger.log(Level.SEVERE,"Unable to move not encoded dicom. ["+path.toString()+File.separator+p+"]",e);
+				}
+			}
 		}
-		return true;
+		return returnval;
 	}
 
 	public void addDir(Path dir,DicomImage di){

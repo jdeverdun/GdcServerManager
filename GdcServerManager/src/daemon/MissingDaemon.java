@@ -75,7 +75,7 @@ public class MissingDaemon extends Thread{
 				e1.printStackTrace();
 			}
 			try {
-				moveNotEncodedDicom(listenDirectory.toFile());
+				moveNotEncodedDicomDir(listenDirectory.toFile());
 			} catch (Exception e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 				WindowManager.mwLogger.log(Level.WARNING, "Missing Daemon error",e);
@@ -121,7 +121,7 @@ public class MissingDaemon extends Thread{
 	 * @param dir
 	 * @throws Exception 
 	 */
-	private void moveNotEncodedDicom(File dir) throws Exception {
+	public void moveNotEncodedDicomDir(File dir) throws Exception {
 		if(isStop())
 			return;
 		if(!dir.isDirectory())
@@ -130,12 +130,13 @@ public class MissingDaemon extends Thread{
 			if(isStop())
 				return;
 			if(fi.isDirectory()){
-				moveNotEncodedDicom(fi);
+				moveNotEncodedDicomDir(fi);
 				// on regarde si il n'y a pas des nifti a convertir
 				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
 					checkForNonConvertedDicom(fi);
 			}else{
-				if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
+				moveNotEncodedDicomFile(fi);
+				/*if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
 					try{
 						File fileTo = new File(SystemSettings.SERVER_INFO.getIncomingDir()+File.separator+fi.getName()+".part");
 						// on s'assure que rien ne va bloquer le deplacement
@@ -150,7 +151,36 @@ public class MissingDaemon extends Thread{
 					}catch(Exception e){
 						throw e;
 					}
+				}*/
+			}
+		}
+	}
+	
+	/**
+	 * Deplace les dicom non encrypte
+	 *  et les deplace dans le repertoire d'incoming
+	 * @param dir
+	 * @throws Exception 
+	 */
+	public void moveNotEncodedDicomFile(File fi) throws Exception {
+		if(isStop())
+			return;
+		if(fi.isDirectory())
+			return;
+		if(!fi.toString().endsWith(AESCrypt.ENCRYPTSUFFIX) && !SystemSettings.ENCRYPT_DAEMON.getDicomToEncrypt().contains(fi.toPath())){
+			try{
+				File fileTo = new File(SystemSettings.SERVER_INFO.getIncomingDir()+File.separator+fi.getName()+".part");
+				// on s'assure que rien ne va bloquer le deplacement
+				if(fi.exists() && fi.canWrite() && !new File(fi.toString()+AESCrypt.ENCRYPTSUFFIX).exists()){
+					// on deplace en rajoutant l'extension .part tant que la copie n'est pas termine
+					FileUtils.moveFile(fi, fileTo);
+					File renameFile = new File(fileTo.toString().substring(0,fileTo.toString().length()-5)); // nom sans le .part
+					if(!fileTo.renameTo(renameFile))// securite
+						throw new Exception("Unable to rename "+fileTo.toString()+" to "+renameFile.toString());
+					nbMoved++;
 				}
+			}catch(Exception e){
+				throw e;
 			}
 		}
 	}
