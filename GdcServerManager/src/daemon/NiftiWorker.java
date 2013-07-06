@@ -142,8 +142,8 @@ public class NiftiWorker extends DaemonWorker {
 			String command = "";
 			AESCrypt aes = null;
 			aes = new AESCrypt(false, getAESPass());
-			tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + serieName);
-			tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + serieName);
+			tempDicomPath = Paths.get(getServerInfo().getTempDir() + "/Dicom" + System.currentTimeMillis() + "_" + serieName);
+			tempNiftiPath = Paths.get(getServerInfo().getTempDir() + "/Nifti" + System.currentTimeMillis() + "_" + serieName);
 			buildIfNotExist(tempDicomPath);
 			buildIfNotExist(tempNiftiPath);
 			for(String name:path.toFile().list()){

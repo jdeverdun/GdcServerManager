@@ -1,5 +1,6 @@
 package dao.project;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
@@ -45,6 +46,32 @@ public interface AcquisitionDateDAO {
 	int getAcqdateIdFor(String project, String patient, String acqdate)
 			throws SQLException;
 	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
+
+
+	/**
+	 * Recupere le nombre d'acquisition pour un projet
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getAcqDateCountForProject(int id) throws SQLException;
+
+
+	/**
+	 * Recupere la date d'acquisition la plus ancienne
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 */
+	public Date getAcqDateMinForProject(int id) throws SQLException;
+	
+	/**
+	 * Recupere la date d'acquisition la plus recente
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 */
+	public Date getAcqDateMaxForProject(int id) throws SQLException;
 
 
 

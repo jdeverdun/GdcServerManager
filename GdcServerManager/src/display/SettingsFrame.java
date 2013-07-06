@@ -8,6 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JPanel;
+
+import model.ProjectStatistics;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.ImageIcon;
@@ -52,6 +54,8 @@ public class SettingsFrame extends JFrame {
 	private JTextField txtNodeport;
 	private JTextField txtDatabasename;
 	private JTextField txtAetitle;
+	private JIPTextField textDBip;
+	
 	public SettingsFrame() {
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
 		
@@ -65,7 +69,7 @@ public class SettingsFrame extends JFrame {
 		JPanel filesSettingPanel = new JPanel();
 		JPanel serverSettingPanel = new JPanel();
 		tabbedPane.addTab("Server", null, serverSettingPanel, null);
-		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][][18.00][]"));
+		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][][18.00][grow][]"));
 		
 		JLabel lblRootServerDirectory = new JLabel("Root server directory");
 		serverSettingPanel.add(lblRootServerDirectory, "cell 0 0,alignx left");
@@ -151,14 +155,22 @@ public class SettingsFrame extends JFrame {
 		JSeparator separator = new JSeparator();
 		serverSettingPanel.add(separator, "cell 0 6 3 1,growx");
 		
+		JLabel lblDBip = new JLabel("Database IP (*)");
+		lblDBip.setToolTipText("Require restart.");
+		serverSettingPanel.add(lblDBip, "cell 0 7");
+		
+		textDBip = new JIPTextField(SQLSettings.ADDRESS);
+		serverSettingPanel.add(textDBip, "cell 1 7,alignx center,growy");
+		textDBip.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 5));
+		
 		JLabel lblDatabaseName = new JLabel("Database name (*)");
 		lblDatabaseName.setToolTipText("Require restart.");
-		serverSettingPanel.add(lblDatabaseName, "cell 0 7,alignx left");
+		serverSettingPanel.add(lblDatabaseName, "cell 0 8,alignx left");
 		
 		txtDatabasename = new JTextField();
 		txtDatabasename.setHorizontalAlignment(SwingConstants.CENTER);
 		txtDatabasename.setText(SQLSettings.DATABASE_NAME);
-		serverSettingPanel.add(txtDatabasename, "cell 1 7,growx");
+		serverSettingPanel.add(txtDatabasename, "cell 1 8,growx");
 		txtDatabasename.setColumns(10);
 		
 		JLabel lblTempDirectory = new JLabel("Temp directory");
@@ -184,7 +196,7 @@ public class SettingsFrame extends JFrame {
 			lblDatabaseName.setEnabled(false);
 			lblDicomNodeAETitle.setEnabled(false);
 			txtAetitle.setEnabled(false);
-			txtDatabasename.setEnabled(false);
+			//txtDatabasename.setEnabled(false);
 			lblRootServerDirectory.setEnabled(false);
 			txtServerDir.setEnabled(false);
 		}
@@ -253,7 +265,7 @@ public class SettingsFrame extends JFrame {
 						public void run() {
 							JDialog.setDefaultLookAndFeelDecorated(true);
 							JOptionPane.showMessageDialog(SettingsFrame.this,
-									"IP should contain only integer",
+									"DicomNode IP should contain only integer",
 								    "Saving error",
 								    JOptionPane.ERROR_MESSAGE);
 						}
@@ -270,6 +282,25 @@ public class SettingsFrame extends JFrame {
 							JDialog.setDefaultLookAndFeelDecorated(true);
 							JOptionPane.showMessageDialog(SettingsFrame.this,
 									"AETitle should not be empty",
+								    "Saving error",
+								    JOptionPane.ERROR_MESSAGE);
+						}
+					});
+			    	return;
+			    }
+			    
+			    // on check l'ip de la bdd
+				m = p.matcher(textDBip.getText());
+			    if(m.find()){
+			    	SQLSettings.ADDRESS = textDBip.getText();
+			    }else{
+			    	SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(SettingsFrame.this,
+									"DB IP should contain only integer",
 								    "Saving error",
 								    JOptionPane.ERROR_MESSAGE);
 						}
@@ -363,7 +394,7 @@ public class SettingsFrame extends JFrame {
         }
 		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Settings");
-		setSize(420, 300);
+		setSize(420, 350);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		setLocationRelativeTo(null);

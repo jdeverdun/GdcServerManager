@@ -1,6 +1,7 @@
 package dao.project;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -273,6 +274,90 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 					acqs.add(acq);
 			}
 			return acqs;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public int getAcqDateCountForProject(int id)
+			throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getId()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+			else
+				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getId()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+
+			if(rset.next())
+				return rset.getInt(1);
+			else
+				return -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public Date getAcqDateMinForProject(int id)
+			throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select min("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+			else
+				rset = stmt.executeQuery("select min("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+
+			if(rset.next())
+				return rset.getDate(1);
+			else
+				return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public Date getAcqDateMaxForProject(int id)
+			throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+			else
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+
+			if(rset.next())
+				return rset.getDate(1);
+			else
+				return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

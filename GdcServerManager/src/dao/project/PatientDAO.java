@@ -71,6 +71,13 @@ public interface PatientDAO {
 			throws SQLException;
 
 	/**
+	 * Renvoi le nombre de patients pour un projet donne
+	 * @param project_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getPatientsCountForProject(int project_id) throws SQLException;
+	/**
 	 * Veirifie si le couple nom de patient, projet existe deja
 	 * @param pat
 	 * @param toproj
