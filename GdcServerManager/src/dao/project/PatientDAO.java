@@ -71,6 +71,37 @@ public interface PatientDAO {
 			throws SQLException;
 
 	/**
+	 * Renvoi l'age moyen des patients d'un projet donnee
+	 * @param project_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public float getPatientsMeanAgeForProject(int project_id) throws SQLException;
+	
+	/**
+	 * Renvoi l'age mini des patients pour un projet donnee
+	 * @param project_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getPatientsMinAgeForProject(int project_id) throws SQLException;
+	
+	/**
+	 * Renvoi l'age max des patients pour un projet donnee
+	 * @param project_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public int getPatientsMaxAgeForProject(int project_id) throws SQLException;
+	
+	/**
+	 * Renvoi l'ecart type de l'age des patients d'un projet
+	 * @param project_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public float getPatientsStdAgeForProject(int project_id) throws SQLException;
+	/**
 	 * Renvoi le nombre de patients pour un projet donne
 	 * @param project_id
 	 * @return

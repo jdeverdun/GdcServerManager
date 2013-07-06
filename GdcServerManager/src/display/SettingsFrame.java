@@ -199,6 +199,13 @@ public class SettingsFrame extends JFrame {
 			//txtDatabasename.setEnabled(false);
 			lblRootServerDirectory.setEnabled(false);
 			txtServerDir.setEnabled(false);
+			btnSelectserverdir.setEnabled(false);
+			if(UserProfile.CURRENT_USER.getLevel() == 0){
+				txtDatabasename.setEnabled(false);
+				lblDBip.setEnabled(false);
+				textDBip.setEnabled(false);
+			}
+				
 		}
 		btnSelecttemp.addActionListener(new ActionListener() {
 			
@@ -399,6 +406,8 @@ public class SettingsFrame extends JFrame {
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		setLocationRelativeTo(null);
 		setVisible(true);
+		if(UserProfile.CURRENT_USER.getLevel()!=3)
+			tabbedPane.setSelectedIndex(1);
 	}
 	public static void main(String args[]){
 

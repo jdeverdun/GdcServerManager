@@ -380,6 +380,118 @@ public class MySQLPatientDAO implements PatientDAO {
 		}
 	}
 
+	public float getPatientsMeanAgeForProject(int project_id) throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select CURDATE()-avg("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			else
+				rset = stmt.executeQuery("select CURDATE()-avg("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+
+			// boucle sur les resultats de la requête
+			if(rset.next())
+				return rset.getFloat(1)/10000;//pour convertir en annee
+			else
+				return -1.0f;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	public int getPatientsMaxAgeForProject(int project_id) throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select CURDATE()-min("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			else
+				rset = stmt.executeQuery("select CURDATE()-min("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+
+			// boucle sur les resultats de la requête
+			if(rset.next())
+				return rset.getInt(1)/10000;//pour convertir en annee
+			else
+				return -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	public int getPatientsMinAgeForProject(int project_id) throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select CURDATE()-max("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			else
+				rset = stmt.executeQuery("select CURDATE()-max("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+
+			// boucle sur les resultats de la requête
+			if(rset.next())
+				return rset.getInt(1)/10000;//pour convertir en annee
+			else
+				return -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	public float getPatientsStdAgeForProject(int project_id) throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select std("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+			else
+				rset = stmt.executeQuery("select std("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+
+			// boucle sur les resultats de la requête
+			if(rset.next())
+				return rset.getFloat(1)/10000;//pour convertir en annee
+			else
+				return -1.0f;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
 	/**
 	 * Supprime une entree patient via ses noms de patient etc
 	 */

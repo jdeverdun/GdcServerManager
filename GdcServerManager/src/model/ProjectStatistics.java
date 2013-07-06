@@ -1,5 +1,6 @@
 package model;
 
+import java.awt.Component;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -24,12 +25,43 @@ public class ProjectStatistics {
 	private int nacquisitions; // nombre d'acquisitions
 	private Date firstAcquisitionDate; // date de la premiere acquisition
 	private Date lastAcquisitionDate; // date de la derniere acquisition
-	private int meanAge; //age moyen
+	private float meanAge; //age moyen
 	private int minAge; //age minimal
 	private int maxAge; // age max
 	private float stdAge; // ecart type age
 	
 	public ProjectStatistics(String projectname){
+		initVars();
+		ProjectDAO prdao = new MySQLProjectDAO();
+		try {
+			project = prdao.retrieveProject(projectname);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get project for statistics ["+projectname+"]",e);
+			return;
+		}
+		fillFields();
+	}
+	
+	public ProjectStatistics(int projectid){
+		initVars();
+		ProjectDAO prdao = new MySQLProjectDAO();
+		try {
+			project = prdao.retrieveProject(projectid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get project for statistics ["+projectid+"]",e);
+			return;
+		}
+		fillFields();
+	}
+	public String toString(){
+		return "Project : "+project.getNom()+" / NPatients : "+npatients+" / NAcquisitions : "+nacquisitions+" / first Acquisition : "+firstAcquisitionDate+" / " +
+				" Last Acquisition : "+lastAcquisitionDate+" / meanAge : "+meanAge+" / stdAge : "+stdAge+" / minAge : "+minAge+" / maxAge : "+maxAge;
+				
+	}
+	
+	private void initVars(){
 		project = new Project("unknown");
 		project.setId(-1);
 		npatients = -1;
@@ -40,52 +72,65 @@ public class ProjectStatistics {
 		minAge = -1;
 		maxAge = -1;
 		stdAge = -1;
-		ProjectDAO prdao = new MySQLProjectDAO();
-		try {
-			project = prdao.retrieveProject(projectname);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get project for statistics ["+projectname+"]",e);
+	}
+	private void fillFields(){
+		if(project == null)
 			return;
-		}
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
 			npatients = pdao.getPatientsCountForProject(project.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get npatients for statistics ["+projectname+"]",e);
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get npatients for statistics ["+project.getNom()+"]",e);
 		}
 		AcquisitionDateDAO acqdao = new MySQLAcquisitionDateDAO();
 		try {
 			nacquisitions = acqdao.getAcqDateCountForProject(project.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get nacquisitions for statistics ["+projectname+"]",e);
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get nacquisitions for statistics ["+project.getNom()+"]",e);
 		}
 		try {
 			firstAcquisitionDate = acqdao.getAcqDateMinForProject(project.getId());
 		} catch (SQLException e) {
-			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get firstAcquisitionDate for statistics ["+projectname+"]",e);
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get firstAcquisitionDate for statistics ["+project.getNom()+"]",e);
 			e.printStackTrace();
 		}
 		try {
 			lastAcquisitionDate = acqdao.getAcqDateMaxForProject(project.getId());
 		} catch (SQLException e) {
-			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get lastAcquisitionDate for statistics ["+projectname+"]",e);
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get lastAcquisitionDate for statistics ["+project.getNom()+"]",e);
+			e.printStackTrace();
+		}
+		
+		try {
+			meanAge = pdao.getPatientsMeanAgeForProject(project.getId());
+		} catch (SQLException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get meanAge for statistics ["+project.getNom()+"]",e);
+			e.printStackTrace();
+		}
+		
+		try {
+			stdAge = pdao.getPatientsStdAgeForProject(project.getId());
+		} catch (SQLException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get stdAge for statistics ["+project.getNom()+"]",e);
+			e.printStackTrace();
+		}
+		
+		try {
+			maxAge = pdao.getPatientsMaxAgeForProject(project.getId());
+		} catch (SQLException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get maxAge for statistics ["+project.getNom()+"]",e);
+			e.printStackTrace();
+		}
+		
+		try {
+			minAge = pdao.getPatientsMinAgeForProject(project.getId());
+		} catch (SQLException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get minAge for statistics ["+project.getNom()+"]",e);
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public String toString(){
-		return "Project : "+project.getNom()+" / NPatients : "+npatients+" / NAcquisitions : "+nacquisitions+" / first Acquisition : "+firstAcquisitionDate+" / " +
-				" Last Acquisition : "+lastAcquisitionDate;
-				
-	}
-	public ProjectStatistics(int projectid){
-		
-	}
-
 	public int getNpatients() {
 		return npatients;
 	}
@@ -118,7 +163,7 @@ public class ProjectStatistics {
 		this.lastAcquisitionDate = lastAcquisitionDate;
 	}
 
-	public int getMeanAge() {
+	public float getMeanAge() {
 		return meanAge;
 	}
 
@@ -148,6 +193,10 @@ public class ProjectStatistics {
 
 	public void setStdAge(float stdAge) {
 		this.stdAge = stdAge;
+	}
+
+	public Project getProject() {
+		return project;
 	}
 
 }

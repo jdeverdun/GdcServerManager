@@ -15,6 +15,7 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import model.ProjectStatistics;
 import model.ServerInfo;
 import model.User;
 import net.miginfocom.swing.MigLayout;
@@ -49,7 +50,9 @@ import display.containers.FileManager;
 import display.containers.LinkProjectPanel;
 import display.containers.PassChangePanel;
 import display.containers.ProgressPanel;
+import display.containers.ProjectStatsSelecter;
 import display.containers.ServerStatusPanel;
+import display.containers.StatisticsPanel;
 import display.containers.UserCreationPanel;
 import display.containers.WaitingBarPanel;
 import display.containers.RequestPanel;
@@ -145,6 +148,11 @@ public class MainWindow extends JFrame {
 	private ViewerToolbar viewerToolbar;
 	private JMenuItem mntmResetList;
 	private JButton btnImport;
+	private JMenu mnTools;
+	private JMenu mnProject;
+	private JMenuItem mntmStatistics;
+	private StatisticsPanel statsPanel;
+	
 	/**
 	 * Si i = 0 : mode offline
 	 * i = 1 : mode online
@@ -164,6 +172,7 @@ public class MainWindow extends JFrame {
 		mnFile = new JMenu("File      ");
 		menuBar.add(mnFile);
 		
+
 		mntmOpenNifti = new JMenuItem("Open Nifti");
 		mntmOpenNifti.addActionListener(new ActionListener() {
 			
@@ -222,10 +231,12 @@ public class MainWindow extends JFrame {
 		
 		mnEdit = new JMenu("Edit     ");
 		menuBar.add(mnEdit);
+
 		
 		mntmPreferences = new JMenuItem("Preferences");
 		mnEdit.add(mntmPreferences);
-		
+		mnTools = new JMenu("Tools      ");
+		menuBar.add(mnTools);
 		menuBar.add(mnAdministration);
 		
 		mnUsers = new JMenu("Users         ");
@@ -262,7 +273,7 @@ public class MainWindow extends JFrame {
 		mntmResetList.setToolTipText("Delete existing backup server files (the server needs to be stopped)");
 		mnServer.add(mntmResetList);
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
-		
+		mnTools.setVisible(false);
 		toolBar = new JToolBar();
 		//getContentPane().add(toolBar, BorderLayout.NORTH);
 		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
@@ -519,7 +530,25 @@ public class MainWindow extends JFrame {
 			
 			SystemSettings.DAEMON_STATUS_THREAD = new DaemonStatusThread(sstatusPanel);
 			SystemSettings.DAEMON_STATUS_THREAD.start();
+			
+			mnTools.setVisible(true);
+			mnProject = new JMenu("Project");
+			
+			mnTools.add(mnProject);
+			
+			mntmStatistics = new JMenuItem("Statistics");
+			mnProject.add(mntmStatistics);
 			// Listeners
+			mntmStatistics.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ProjectStatsSelecter pstat = new ProjectStatsSelecter();
+					Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, pstat, (int)getX()+200,(int)getY()+150);
+					pstat.setPopupWindow(popup);
+					popup.show();
+				}
+			});
 			btnRefresh.addActionListener(new ActionListener() {
 				
 				@Override
@@ -1460,6 +1489,39 @@ public class MainWindow extends JFrame {
 		getBtnWorkTolocal().setEnabled(!b);
 		getDistautresplitPane().setEnabled(!b);
 		getDistworklocalPane().setEnabled(!b);
+	}
+	
+	public void addStatisticPane(String projectname){
+		if(statsPanel != null)
+			ongletPane.remove(statsPanel);
+		final ProjectStatistics stats = new ProjectStatistics(projectname);
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				statsPanel = new StatisticsPanel(stats);
+				ongletPane.addTab("Statistics", null, statsPanel,
+		                "Project statistics");
+				ongletPane.setSelectedComponent(statsPanel);
+			}
+		});
+		
+	}
+	
+	public void addStatisticPane(int projectid){
+		if(statsPanel != null)
+			ongletPane.remove(statsPanel);
+		final ProjectStatistics stats = new ProjectStatistics(projectid);
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				statsPanel = new StatisticsPanel(stats);
+				ongletPane.addTab("Statistics", null, statsPanel,
+		                "Project statistics");
+				ongletPane.setSelectedComponent(statsPanel);
+			}
+		});
 	}
 	public static void main(String args[]){
 
