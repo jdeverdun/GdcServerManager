@@ -193,17 +193,17 @@ public class SettingsFrame extends JFrame {
 			btnbufferselect.setEnabled(false);
 			label.setEnabled(false);
 			lblDicomNodeIp.setEnabled(false);
-			lblDatabaseName.setEnabled(false);
 			lblDicomNodeAETitle.setEnabled(false);
 			txtAetitle.setEnabled(false);
 			//txtDatabasename.setEnabled(false);
-			lblRootServerDirectory.setEnabled(false);
-			txtServerDir.setEnabled(false);
 			btnSelectserverdir.setEnabled(false);
 			if(UserProfile.CURRENT_USER.getLevel() == 0){
 				txtDatabasename.setEnabled(false);
+				lblDatabaseName.setEnabled(false);
 				lblDBip.setEnabled(false);
 				textDBip.setEnabled(false);
+				lblRootServerDirectory.setEnabled(false);
+				txtServerDir.setEnabled(false);
 			}
 				
 		}
