@@ -60,6 +60,8 @@ public class DicomEncryptWorker extends DaemonWorker {
 	
 	@Override
 	public void start() {
+		if(!dicomFile.toFile().exists())
+			return;
 		System.out.println("Encrypt : "+dicomFile.getFileName());
 		WindowManager.mwLogger.log(Level.FINE,"Encrypt : "+dicomFile.getFileName());
 		// AES crypt

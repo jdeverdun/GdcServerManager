@@ -2,16 +2,11 @@ package daemon;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 
@@ -20,21 +15,6 @@ import settings.WindowManager;
 import model.DicomImage;
 import model.daemon.CustomConversionSettings;
 
-import dao.MySQLProjectDAO;
-import dao.ProjectDAO;
-import dao.project.AcquisitionDateDAO;
-import dao.project.DicomImageDAO;
-import dao.project.MySQLAcquisitionDateDAO;
-import dao.project.MySQLDicomImageDAO;
-import dao.project.MySQLNiftiImageDAO;
-import dao.project.MySQLPatientDAO;
-import dao.project.MySQLProtocolDAO;
-import dao.project.MySQLSerieDAO;
-import dao.project.NiftiImageDAO;
-import dao.project.PatientDAO;
-import dao.project.ProtocolDAO;
-import dao.project.SerieDAO;
-import es.vocali.util.AESCrypt;
 
 /**
  * Classe utilisee lors de la conversion en mode offline 
