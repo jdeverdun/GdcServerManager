@@ -220,7 +220,7 @@ public class DicomJobDispatcher extends Thread{
 									// on supprime le fichier dans le buffer (si il est present) 
 									if(locp.toFile().exists())
 										locp.toFile().delete();
-									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+									if(dworker != null && dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
 										dworker.getNewPath().toFile().delete();
 									}
 									cont=false;
