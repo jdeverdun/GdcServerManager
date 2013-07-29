@@ -363,7 +363,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getName()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getName()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getPatient().getName()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			if(rset.next())
@@ -391,7 +391,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select CURDATE()-avg("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select CURDATE()-avg("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+				rset = stmt.executeQuery("select CURDATE()-avg("+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			if(rset.next())
@@ -419,7 +419,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select CURDATE()-min("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select CURDATE()-min("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+				rset = stmt.executeQuery("select CURDATE()-min("+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			if(rset.next())
@@ -447,7 +447,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select CURDATE()-max("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select CURDATE()-max("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+				rset = stmt.executeQuery("select CURDATE()-max("+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			if(rset.next())
@@ -475,7 +475,7 @@ public class MySQLPatientDAO implements PatientDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select std("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			else
-				rset = stmt.executeQuery("select std("+SQLSettings.TABLES.getPatient().TNAME+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
+				rset = stmt.executeQuery("select std("+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getPatient().getBirthdate()+") from "+SQLSettings.TABLES.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 
 			// boucle sur les resultats de la requête
 			if(rset.next())

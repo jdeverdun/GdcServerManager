@@ -296,7 +296,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getId()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getId()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getAcquisitionDate().getId()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 
 			if(rset.next())
 				return rset.getInt(1);
@@ -324,7 +324,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select min("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select min("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+				rset = stmt.executeQuery("select min("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 
 			if(rset.next())
 				return rset.getDate(1);
@@ -352,7 +352,7 @@ public class MySQLAcquisitionDateDAO implements AcquisitionDateDAO {
 			if(UserProfile.CURRENT_USER.getLevel() == 3)
 				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 			else
-				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
+				rset = stmt.executeQuery("select max("+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getAcquisitionDate().getDate()+") from "+SQLSettings.TABLES.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getAcquisitionDate().getId_project()+"="+id);
 
 			if(rset.next())
 				return rset.getDate(1);
