@@ -21,3 +21,16 @@ Informations noeud dicom :
 AET : GDC_RECHPASS
 IP : 120.40.30.110
 Port : 104
+
+
+
+
+
+
+========================= REQUETES SQL ===========================
+
+
+exemple de requetes :
+
+Pour récupérer les patients qui dispose à la fois de l'ASL et d'un T1, on peut utiliser une requete imbrique
+select patient.name, serie.name  from patient, project,serie where project.name ='crescendo' and project.id = patient.id_project and patient.id = serie.id_patient and serie.name regexp 'asl' and patient.id =any(select patient.id from patient, serie where serie.name regexp 'T1_MP' and serie.id_patient=patient.id)
