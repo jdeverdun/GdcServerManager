@@ -124,10 +124,11 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				fieldToAdd = ", "+tables.getProject().TNAME+opt+"."+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
 				break;				
 		}
-		splitFrom[0] = splitFrom[0] + fieldToAdd;
-		String temp  = "";
-		for(int i = 0; i < splitFrom.length-1; i++)
-			temp = temp + splitFrom[i] + " from " + splitFrom[i+1];
+		//temp = splitFrom[0] + fieldToAdd;
+		String temp  = splitFrom[0] + fieldToAdd;
+		for(int i = 0; i < splitFrom.length-1; i++){
+			temp = temp +  " from " + splitFrom[i+1];
+		}
 		nrequest = temp;
 
 		ResultSet rset = null;
