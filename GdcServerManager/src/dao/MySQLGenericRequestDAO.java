@@ -904,8 +904,14 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 
 		String rightpart="";
 		
-		for(int i=1;i<splitFrom.length;i++){
-			rightpart += " "+splitFrom[i];
+		if(splitFrom.length==2){
+			for(int i=1;i<splitFrom.length;i++){
+				rightpart += " "+splitFrom[i];
+			}
+		}else{
+			for(int i=1;i<splitFrom.length-1;i++){
+				rightpart += " "+splitFrom[i]+ " from "+splitFrom[i+1];
+			}
 		}
 		for(String view:SQLSettings.LOCAL_VIEW_NAME){
 			// on rajoute les "_num" dans les nom de table
@@ -915,6 +921,25 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			rightpart = rightpart.replaceAll(","+view+"\\.", ","+view+"_"+UserProfile.CURRENT_USER.getId()+".");
 			rightpart = rightpart.replaceAll(" "+view+"$", view+"_"+UserProfile.CURRENT_USER.getId());
 			rightpart = rightpart.replaceAll(","+view+"$", ","+view+"_"+UserProfile.CURRENT_USER.getId());
+			rightpart = rightpart.replaceAll(","+view+" ", ","+view+"_"+UserProfile.CURRENT_USER.getId()+" ");	
+			rightpart = rightpart.replaceAll("="+view+"$", "="+view+"_"+UserProfile.CURRENT_USER.getId());
+			rightpart = rightpart.replaceAll("="+view+"\\.", "="+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			rightpart = rightpart.replaceAll("="+view+",", "="+view+"_"+UserProfile.CURRENT_USER.getId()+",");
+			rightpart = rightpart.replaceAll("="+view+" ", "="+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
+		}
+		for(String view:SQLSettings.LOCAL_VIEW_NAME){
+			// on rajoute les "_num" dans les nom de table
+			nrequest = nrequest.replaceAll(" "+view+" ", " "+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
+			nrequest = nrequest.replaceAll(" "+view+",", " "+view+"_"+UserProfile.CURRENT_USER.getId()+",");
+			nrequest = nrequest.replaceAll(" "+view+"\\.", " "+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			nrequest = nrequest.replaceAll(","+view+"\\.", ","+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			nrequest = nrequest.replaceAll(" "+view+"$", view+"_"+UserProfile.CURRENT_USER.getId());
+			nrequest = nrequest.replaceAll(","+view+"$", ","+view+"_"+UserProfile.CURRENT_USER.getId());
+			nrequest = nrequest.replaceAll(","+view+" ", ","+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
+			nrequest = nrequest.replaceAll("="+view+"$", "="+view+"_"+UserProfile.CURRENT_USER.getId());
+			nrequest = nrequest.replaceAll("="+view+"\\.", "="+view+"_"+UserProfile.CURRENT_USER.getId()+".");
+			nrequest = nrequest.replaceAll("="+view+",", "="+view+"_"+UserProfile.CURRENT_USER.getId()+",");
+			nrequest = nrequest.replaceAll("="+view+" ", "="+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
 		}
 		nrequest = nrequest + " from " + rightpart;
 		
