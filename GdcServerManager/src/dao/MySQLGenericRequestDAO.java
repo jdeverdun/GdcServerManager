@@ -926,6 +926,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			rightpart = rightpart.replaceAll("="+view+"\\.", "="+view+"_"+UserProfile.CURRENT_USER.getId()+".");
 			rightpart = rightpart.replaceAll("="+view+",", "="+view+"_"+UserProfile.CURRENT_USER.getId()+",");
 			rightpart = rightpart.replaceAll("="+view+" ", "="+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
+			rightpart = rightpart.replaceAll("("+view+")", "("+view+"_"+UserProfile.CURRENT_USER.getId()+")");
+			rightpart = rightpart.replaceAll("("+view+"\\.", "("+view+"_"+UserProfile.CURRENT_USER.getId()+".");
 		}
 		for(String view:SQLSettings.LOCAL_VIEW_NAME){
 			// on rajoute les "_num" dans les nom de table
@@ -940,6 +942,8 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			nrequest = nrequest.replaceAll("="+view+"\\.", "="+view+"_"+UserProfile.CURRENT_USER.getId()+".");
 			nrequest = nrequest.replaceAll("="+view+",", "="+view+"_"+UserProfile.CURRENT_USER.getId()+",");
 			nrequest = nrequest.replaceAll("="+view+" ", "="+view+"_"+UserProfile.CURRENT_USER.getId()+" ");
+			nrequest = nrequest.replaceAll("("+view+")", "("+view+"_"+UserProfile.CURRENT_USER.getId()+")");
+			nrequest = nrequest.replaceAll("("+view+"\\.", "("+view+"_"+UserProfile.CURRENT_USER.getId()+".");
 		}
 		nrequest = nrequest + " from " + rightpart;
 		

@@ -36,6 +36,7 @@ import daemon.DicomDaemon;
 import daemon.DicomNode;
 import daemon.NiftiDaemon;
 import daemon.tools.ThreadPool;
+import daemon.tools.firstNameDB;
 import dao.DataBaseAdminDAO;
 import dao.MySQLDataBaseAdminDAO;
 import dao.MySQLUserDAO;
@@ -1422,20 +1423,24 @@ public class MainWindow extends JFrame {
 
 
 	public void startDeamons(){
-		if(SystemSettings.NIFTI_DAEMON!=null)
-			SystemSettings.NIFTI_DAEMON = null;
-		if(SystemSettings.DICOM_DAEMON!=null)
-			SystemSettings.DICOM_DAEMON = null;
-		// On lance le daemon Nifti
-		SystemSettings.NIFTI_DAEMON = new NiftiDaemon(SystemSettings.SERVER_INFO);
-		SystemSettings.NIFTI_DAEMON.start();
-		// On lance le daemon Dicom
-		SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO);
-		SystemSettings.DICOM_DAEMON.start();
-		SystemSettings.DICOM_NODE  = new DicomNode();
-		SystemSettings.DICOM_NODE.start();
-		daemonLaunched = true;
-		mntmStartstop.setText("Stop");
+		// on ne lance les daemon que si on arrive a charger la base des prenom 
+		// pour limiter le risque d'integrer sur le serveur des donnees non anonymise
+		if(firstNameDB.init()){
+			if(SystemSettings.NIFTI_DAEMON!=null)
+				SystemSettings.NIFTI_DAEMON = null;
+			if(SystemSettings.DICOM_DAEMON!=null)
+				SystemSettings.DICOM_DAEMON = null;
+			// On lance le daemon Nifti
+			SystemSettings.NIFTI_DAEMON = new NiftiDaemon(SystemSettings.SERVER_INFO);
+			SystemSettings.NIFTI_DAEMON.start();
+			// On lance le daemon Dicom
+			SystemSettings.DICOM_DAEMON = new DicomDaemon(SystemSettings.SERVER_INFO);
+			SystemSettings.DICOM_DAEMON.start();
+			SystemSettings.DICOM_NODE  = new DicomNode();
+			SystemSettings.DICOM_NODE.start();
+			daemonLaunched = true;
+			mntmStartstop.setText("Stop");
+		}
 	}
 	
 	/**
