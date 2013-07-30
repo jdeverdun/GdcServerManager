@@ -153,6 +153,7 @@ public class MainWindow extends JFrame {
 	private JMenu mnProject;
 	private JMenuItem mntmStatistics;
 	private StatisticsPanel statsPanel;
+	private JMenuItem mntmImportFnDb;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -273,6 +274,10 @@ public class MainWindow extends JFrame {
 		mntmResetList = new JMenuItem("Reset");
 		mntmResetList.setToolTipText("Delete existing backup server files (the server needs to be stopped)");
 		mnServer.add(mntmResetList);
+		
+		mntmImportFnDb = new JMenuItem("Import FN DB");
+		mntmImportFnDb.setToolTipText("Flood the first name database with selected text file.");
+		mnServer.add(mntmImportFnDb);
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		mnTools.setVisible(false);
 		toolBar = new JToolBar();
@@ -592,6 +597,15 @@ public class MainWindow extends JFrame {
 					}
 				}
 			});
+			
+			mntmImportFnDb.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					firstNameDB.importDB();
+				}
+			});
+
 			mntmResetList.addActionListener(new ActionListener() {
 				
 				@Override

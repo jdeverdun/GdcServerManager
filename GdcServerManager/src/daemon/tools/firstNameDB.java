@@ -50,60 +50,7 @@ public class firstNameDB {
 			loadFNDB(bddpath);
 			return true;
 		}else{
-			firstNameList = new HashSet<String>();
-			// on demande de charger une base de donnee via un fichier texte (une ligne par prenom)
-			JDialog.setDefaultLookAndFeelDecorated(true);
-			JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-					"No first name DB found, please import one.",
-				    "Select a first name DB",
-				    JOptionPane.INFORMATION_MESSAGE);
-			JFileChooser fc = new JFileChooser(SystemSettings.APP_DIR.toString());
-			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			fc.setFileFilter(new FileFilter() {
-				
-				@Override
-				public String getDescription() {
-					return "Text files (.txt, .bdd)";
-				}
-				
-				@Override
-				public boolean accept(File f) {
-					if(f.isDirectory())
-						return true;
-					if(f.toString().endsWith(".txt") || f.toString().endsWith(".bdd"))
-						return true;
-					return false;
-					
-				}
-			});
-			int retval = fc.showOpenDialog(WindowManager.MAINWINDOW);
-            if (retval == JFileChooser.APPROVE_OPTION) {
-            	final File file = fc.getSelectedFile();
-            	WindowManager.mwLogger.log(Level.INFO, "Importing "+file.getAbsolutePath()+" as fnDB");
-            	WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
-				try {
-					if(!importDB(file.toPath())){
-						JDialog.setDefaultLookAndFeelDecorated(true);
-						JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-								"Couldn't import first name database.",
-							    "Import BDD error",
-							    JOptionPane.ERROR_MESSAGE);
-					}else{
-						WindowManager.mwLogger.log(Level.INFO, "Import successfull.");
-						saveFNDB();
-						setDbLoaded(true);
-						WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
-						return true;
-					}
-						
-				} catch (IOException e) {
-					WindowManager.mwLogger.log(Level.SEVERE, "couldn't import fnDB",e);
-					WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
-					return false;
-				}
-				WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
-            }
-            return false;
+			return importDB();
 		}
 	}
 	
@@ -159,19 +106,87 @@ public class firstNameDB {
 	 * @param p
 	 * @throws IOException 
 	 */
-	public static boolean importDB(Path p) throws IOException{
+	private static boolean importDB(Path p) throws IOException{
 		if(!Files.exists(p) || Files.isDirectory(p)){
 			return false;
 		}
 		firstNameList.clear();
 		BufferedReader reader = Files.newBufferedReader(p, Charset.defaultCharset() );
 		String line = null;
+		int ignored = 0;// nombre de noms ignore du fait de lmeur petite taille
 		while ( (line = reader.readLine()) != null ) {
-			firstNameList.add(deAccent(line));
+			if(line.length()>3)
+				firstNameList.add(deAccent(line));
+			else
+				ignored++;
 		}
+		WindowManager.mwLogger.log(Level.INFO, ignored+" names ignored (length < 4)");
 		return true;
 	}
 	
+	/**
+	 * Impor d'une base de donnee avec demande aupres de l'utilisateur 
+	 * du chemin d'access vers le fichier texte
+	 * @return
+	 */
+	public static boolean importDB(){
+		firstNameList = new HashSet<String>();
+		// on demande de charger une base de donnee via un fichier texte (une ligne par prenom)
+		JDialog.setDefaultLookAndFeelDecorated(true);
+		JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+				"No first name DB found, please import one.",
+			    "Select a first name DB",
+			    JOptionPane.INFORMATION_MESSAGE);
+		JFileChooser fc = new JFileChooser(SystemSettings.APP_DIR.toString());
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileFilter(new FileFilter() {
+			
+			@Override
+			public String getDescription() {
+				return "Text files (.txt, .bdd)";
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				if(f.isDirectory())
+					return true;
+				if(f.toString().endsWith(".txt") || f.toString().endsWith(".bdd"))
+					return true;
+				return false;
+				
+			}
+		});
+		int retval = fc.showOpenDialog(WindowManager.MAINWINDOW);
+		boolean res = false;
+        if (retval == JFileChooser.APPROVE_OPTION) {
+        	final File file = fc.getSelectedFile();
+        	WindowManager.mwLogger.log(Level.INFO, "Importing "+file.getAbsolutePath()+" as fnDB");
+        	WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(true);
+			try {
+				if(!importDB(file.toPath())){
+					JDialog.setDefaultLookAndFeelDecorated(true);
+					JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+							"Couldn't import first name database.",
+						    "Import BDD error",
+						    JOptionPane.ERROR_MESSAGE);
+					res = false;
+				}else{
+					WindowManager.mwLogger.log(Level.INFO, "Import successfull.");
+					saveFNDB();
+					setDbLoaded(true);
+					WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+					res = true;
+				}
+					
+			} catch (IOException e) {
+				WindowManager.mwLogger.log(Level.SEVERE, "couldn't import fnDB",e);
+				WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+				res = false;
+			}
+			WindowManager.MAINWINDOW.getProgressBarPanel().setVisible(false);
+        }
+        return res;
+	}
 	
 	/**
 	 * Remplace les caracteres accentues
@@ -189,8 +204,13 @@ public class firstNameDB {
 	 * @param s
 	 * @return
 	 */
-	public static boolean contains(String s){
-		return firstNameList.contains(s);
+	public static boolean matches(String s){
+		for(String ch:firstNameList){
+			if(s.toLowerCase().matches(".*"+ch+".*")){
+				return true;
+			}
+		}
+		return false;
 	}
 
 

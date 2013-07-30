@@ -13,6 +13,7 @@ import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.MySQLPatientDAO;
 import dao.project.PatientDAO;
+import exceptions.AnonymizationException;
 import exceptions.DicomException;
 
 import model.Patient;
@@ -73,7 +74,7 @@ public abstract class DaemonWorker {
 	}
 
 
-	abstract public void start() throws DicomException;
+	abstract public void start() throws DicomException, AnonymizationException;
 	
 	
 	

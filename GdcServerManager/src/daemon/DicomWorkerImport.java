@@ -21,6 +21,7 @@ import settings.SystemSettings;
 import settings.WindowManager;
 
 import daemon.tools.ThreadPool;
+import daemon.tools.firstNameDB;
 import daemon.tools.ThreadPool.DAEMONTYPE;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
@@ -35,6 +36,7 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
+import exceptions.AnonymizationException;
 import exceptions.DicomException;
 import exceptions.ThreadPoolException;
 
@@ -74,7 +76,7 @@ public class DicomWorkerImport extends DicomWorker {
 	
 	// Methodes
 
-	public void start() throws DicomException{
+	public void start() throws DicomException, AnonymizationException{
 		for(Path p:dicomFileblock){
 			// on redefinit le fichier courant
 			resetVars();
@@ -107,6 +109,8 @@ public class DicomWorkerImport extends DicomWorker {
 			if(getDispatcher().getSettings().getImportSettings().changePatientName()){
 				patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
 			}
+			if(firstNameDB.matches(patientName))
+				throw new AnonymizationException("DICOM not anonymized.");
 			birthdate = getBirthdate();
 			sex = getSex();
 			size = getPatientSize();

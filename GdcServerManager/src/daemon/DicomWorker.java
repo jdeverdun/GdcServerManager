@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import settings.SystemSettings;
 import settings.WindowManager;
 
+import daemon.tools.firstNameDB;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
@@ -33,6 +34,7 @@ import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
+import exceptions.AnonymizationException;
 import exceptions.DicomException;
 
 import model.AcquisitionDate;
@@ -120,7 +122,7 @@ public class DicomWorker extends DaemonWorker {
 	
 	// Methodes
 
-	public void start() throws DicomException{
+	public void start() throws DicomException, AnonymizationException{
 		String studyName = null;
 		String patientName = null;
 		String protocolName = null;
@@ -139,6 +141,8 @@ public class DicomWorker extends DaemonWorker {
 			patientName = getPatientId();
 		else
 			patientName = getPatientName();
+		if(firstNameDB.matches(patientName))
+			throw new AnonymizationException("DICOM not anonymized.");
 		birthdate = getBirthdate();
 		sex = getSex();
 		size = getPatientSize();

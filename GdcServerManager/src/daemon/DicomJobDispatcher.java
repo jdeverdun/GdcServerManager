@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import daemon.tools.ThreadPool;
 import daemon.tools.ThreadPool.DAEMONTYPE;
 
+import exceptions.AnonymizationException;
 import exceptions.DicomException;
 
 import settings.SystemSettings;
@@ -224,6 +225,18 @@ public class DicomJobDispatcher extends Thread{
 										dworker.getNewPath().toFile().delete();
 									}
 									cont=false;
+								} catch (AnonymizationException ae) {
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									// a cause d'une erreur de copie ne contiennent pas tout les champs
+									WindowManager.mwLogger.log(Level.WARNING, locp+" : not anonymized ... deleted",ae);
+									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(ae.toString().substring(0, Math.min(ae.toString().length(), 100)));
+									// on supprime le fichier dans le buffer (si il est present) 
+									if(locp.toFile().exists())
+										locp.toFile().delete();
+									if(dworker != null && dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+										dworker.getNewPath().toFile().delete();
+									}
+									cont=false;
 								} catch(Exception e1){
 									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
 									// a cause d'une erreur de copie sont mal formattee
@@ -282,6 +295,8 @@ public class DicomJobDispatcher extends Thread{
 						dworker.start();
 					} catch (DicomException e) {
 						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : corrupted ... skipped [IMPORT]",e);
+					} catch (AnonymizationException e) {
+						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : Anonymization exception ... skipped [IMPORT]",e);
 					} 
 				}
 				break;
