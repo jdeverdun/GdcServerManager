@@ -45,7 +45,7 @@ public class ThreadPool {
 		
 		maxWorkerForDaemonType = new HashMap<DAEMONTYPE,Integer>();
 		maxWorkerForDaemonType.put(DAEMONTYPE.NiftiEncryptDaemon, Integer.MAX_VALUE);
-		maxWorkerForDaemonType.put(DAEMONTYPE.DecryptDaemon, 1);
+		maxWorkerForDaemonType.put(DAEMONTYPE.DecryptDaemon, 3);
 		maxWorkerForDaemonType.put(DAEMONTYPE.DicomEncryptDaemon, Integer.MAX_VALUE);// Integer.MAX_VALUE correspond a un nombre infini (on definit le nombre max de worker en fonction du daemon)
 			
 		return true;
