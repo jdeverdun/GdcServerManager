@@ -21,6 +21,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import com.sun.org.apache.bcel.internal.generic.FNEG;
+
 
 import settings.SystemSettings;
 import settings.WindowManager;
@@ -227,5 +229,13 @@ public class firstNameDB {
 	 */
 	public static void setDbLoaded(boolean dl) {
 		dbLoaded = dl;
+	}
+	
+	/**
+	 * Vide la bdd
+	 */
+	public static void stop(){
+		dbLoaded = false;
+		firstNameList.clear();
 	}
 }

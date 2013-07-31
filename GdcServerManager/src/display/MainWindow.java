@@ -1462,6 +1462,7 @@ public class MainWindow extends JFrame {
 	 * l'action a realiser si il reste des donnees dans les listes
 	 */
 	public void stopDaemons(){
+		firstNameDB.stop();
 		SystemSettings.stopDaemons();
 		daemonLaunched = false;
 		mntmStartstop.setText("Start");
@@ -1471,6 +1472,7 @@ public class MainWindow extends JFrame {
 	 * Coupe les daemons sans rien demander a l'utilisateur
 	 */
 	public void forceStopDaemons(){
+		firstNameDB.stop();
 		if(SystemSettings.DICOM_NODE!=null){
 			SystemSettings.DICOM_NODE.stop();
 			SystemSettings.DICOM_NODE = null;
