@@ -34,9 +34,12 @@ import javax.swing.UIManager;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import com.sun.org.apache.bcel.internal.generic.FNEG;
+
 import daemon.DicomJobDispatcher;
 import daemon.DicomEncryptDaemon;
 import daemon.NiftiDaemon;
+import daemon.tools.firstNameDB;
 import display.containers.FileManager;
 import display.containers.WaitingBarPanel;
 import display.containers.WarningPanel;
@@ -237,6 +240,9 @@ public class ImportFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if(!firstNameDB.init())
+					return;
+				
 				String pname = null;
 				String patname = null;
 				if(!txtProjectname.getText().equals(DEFAULT_NPROJECT_TEXT) && !txtProjectname.getText().equals(""))
