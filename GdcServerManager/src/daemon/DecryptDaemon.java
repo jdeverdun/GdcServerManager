@@ -52,6 +52,7 @@ public class DecryptDaemon extends Thread {
 			while(fileToDecrypt.isEmpty()){
 				if(isStop()){
 					ThreadPool.stopThreadsByPid(pid);
+					setTotalEncryptedFile(0);
 					return;
 				}
 				try {
@@ -59,6 +60,7 @@ public class DecryptDaemon extends Thread {
 						setWaiting(false);
 					}else{
 						setWaiting(true);
+						setTotalEncryptedFile(0);
 					}
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
