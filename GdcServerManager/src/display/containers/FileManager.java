@@ -53,6 +53,7 @@ import settings.SystemSettings;
 import settings.UserProfile;
 import settings.WindowManager;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -129,6 +130,7 @@ public class FileManager {
 	private JMenuItem twitem;
 	private JMenuItem tlitem;
 	private JMenuItem changeProjectitem;
+	private JMenuItem renameProjectitem;
 	
     public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
@@ -320,6 +322,7 @@ public class FileManager {
             // Menu popup
             Pmenu = new JPopupMenu();
             changeProjectitem = new JMenuItem("Reassign");
+            renameProjectitem = new JMenuItem("Rename");
     		twitem = new JMenuItem("To workspace");
     		tlitem = new JMenuItem("To local");
     		switch(mode){
@@ -344,8 +347,10 @@ public class FileManager {
 				});
 				break;
     		case 2:
-    			if(UserProfile.CURRENT_USER.getLevel()==3)
+    			if(UserProfile.CURRENT_USER.getLevel()==3){
     				Pmenu.add(changeProjectitem);
+    				Pmenu.add(renameProjectitem);
+    			}
     			Pmenu.add(twitem);
     			twitem.addActionListener(new ActionListener() {
 					
@@ -378,6 +383,70 @@ public class FileManager {
 					table.setEnabled(true);
 				}
 			});
+    		renameProjectitem.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					table.setEnabled(false);
+					final File from = ((FileTableModel)table.getModel()).getFile(table.convertRowIndexToModel(table.getSelectedRows()[0]));
+							
+					String s = (String)JOptionPane.showInputDialog(
+					                    WindowManager.MAINWINDOW,
+					                    "New project name ?",
+					                    "Rename project",
+					                    JOptionPane.PLAIN_MESSAGE,
+					                    null,
+					                    null,
+					                    from.getName());
+
+					//If a string was returned, say so.
+					if ((s != null) && (s.length() > 0)) {
+					    ProjectDAO pdao = new MySQLProjectDAO();
+					    try {
+							boolean succeed = pdao.renameProject(from.getName(), s);
+							if(!succeed){
+								SwingUtilities.invokeLater(new Runnable() {
+
+									@Override
+									public void run() {
+										JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+												"Couldn't rename "+from.getName()+" (no project with this name)",
+												"Renaming error",
+												JOptionPane.ERROR_MESSAGE);
+									}
+								});
+							}else{
+								from.renameTo(new File(from.getParent()+File.separator+s));
+								// on renomme le repertoire nifti ou dicom correspondant si il existe
+								switch(from.getParentFile().getName()){
+								case ServerInfo.NRI_ANALYSE_NAME:
+									if(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).exists())
+										from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
+									break;
+								case ServerInfo.NRI_DICOM_NAME:
+									if(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
+										from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
+									break;
+								}
+								refresh();
+							}
+					    } catch (final SQLException e) {
+					    	WindowManager.mwLogger.log(Level.SEVERE,"Error during SQL project renaming",e);
+					    	SwingUtilities.invokeLater(new Runnable() {
+
+					    		@Override
+					    		public void run() {
+					    			JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+					    					"Exception : "+e.toString(),
+					    					"Openning error",
+					    					JOptionPane.ERROR_MESSAGE);
+					    		}
+					    	});
+					    }
+					}
+					table.setEnabled(true);
+				}
+			});
 			table.addMouseListener(new MouseListener() {
 
 				public void mouseClicked(MouseEvent me) {
@@ -399,6 +468,7 @@ public class FileManager {
 					if(me.isPopupTrigger() && table.getSelectedRowCount()>0){
 						int row = table.convertRowIndexToModel(table.rowAtPoint(me.getPoint()));
 						changeProjectitem.setVisible(isPatient(((FileTableModel)table.getModel()).getFile(row)));	
+						renameProjectitem.setVisible(isProject(((FileTableModel)table.getModel()).getFile(row)));	
 						Pmenu.show(me.getComponent(), me.getX(), me.getY());
 					}
 				}
@@ -423,6 +493,23 @@ public class FileManager {
 				}
 			}
 			return count==2;
+		}
+		return false;
+	}
+    
+    public boolean isProject(File fi) {
+    	String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return false;
+		if(!fi.getName().contains("..")){
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}
+			}
+			return count==1;
 		}
 		return false;
 	}

@@ -235,6 +235,29 @@ public class MySQLProjectDAO implements ProjectDAO {
 			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
+	
+	@Override
+	public boolean renameProject(String name,String newname) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		Project proj = retrieveProject(name);
+		if(proj == null || proj.getId()<1)
+			return false;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getProject().TNAME+" set "+SQLSettings.TABLES.getProject().getName()+"='"+newname+"' where " +
+					""+SQLSettings.TABLES.getProject().getId()+"="+proj.getId());
+			return true;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
 
 	/**
 	 * Supprime une entree project via ses noms 

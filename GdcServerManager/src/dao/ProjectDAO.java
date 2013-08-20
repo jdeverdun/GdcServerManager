@@ -37,6 +37,8 @@ public interface ProjectDAO {
 
 	void removeProject(String project) throws SQLException;
 
+	boolean renameProject(String name, String newname) throws SQLException;
+
 	
 
 }
