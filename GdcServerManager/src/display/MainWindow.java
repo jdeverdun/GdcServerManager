@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
@@ -592,8 +593,36 @@ public class MainWindow extends JFrame {
 						startDeamons();
 						mntmResetList.setVisible(false);
 					}else{
+						//MainWindow.this.setEnabled(false);
 						stopDaemons();
 						mntmResetList.setVisible(true);
+						Thread tr = new Thread(new Runnable() {
+							private Popup pop;
+							@Override
+							public void run() {
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JButton jb = new JButton("Server is stopping.");
+										jb.setEnabled(false);
+										pop = PopupFactory.getSharedInstance().getPopup(MainWindow.this, jb, (int)getX()+Math.round(getWidth()/2)-20,(int)getY()+Math.round(getHeight()/2)-20);
+										pop.show();
+									}
+								});
+								
+								while(SystemSettings.daemonsAlive()){
+									try {
+										Thread.sleep(100);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								}
+								pop.hide();
+								MainWindow.this.setEnabled(true);
+							}
+						});
+						tr.start();
 					}
 				}
 			});

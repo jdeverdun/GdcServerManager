@@ -47,4 +47,12 @@ public class SystemSettings {
 			}
 		}
 	}
+	
+	/**
+	 * Verifie si au moins un des daemon fonctionne
+	 * @return
+	 */
+	public static boolean daemonsAlive(){
+		return SystemSettings.DICOM_NODE!=null || SystemSettings.NIFTI_DAEMON.isAlive() || SystemSettings.DICOM_DAEMON.isAlive();
+	}
 }
