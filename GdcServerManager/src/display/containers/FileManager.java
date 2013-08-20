@@ -1114,6 +1114,8 @@ class FileTableModel extends AbstractTableModel {
 
     // Attention beaucoup d'overhead
     public Object getValueAt(int row, int column) {
+    	if(row>=files.length)
+    		return null;
         File file = files[row];
         switch (column) {
             case 0:
