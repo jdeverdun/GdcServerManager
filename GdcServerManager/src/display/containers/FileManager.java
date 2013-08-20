@@ -389,7 +389,7 @@ public class FileManager {
 				public void actionPerformed(ActionEvent arg0) {
 					table.setEnabled(false);
 					final File from = ((FileTableModel)table.getModel()).getFile(table.convertRowIndexToModel(table.getSelectedRows()[0]));
-							
+					JDialog.setDefaultLookAndFeelDecorated(true);		
 					String s = (String)JOptionPane.showInputDialog(
 					                    WindowManager.MAINWINDOW,
 					                    "New project name ?",
@@ -409,6 +409,7 @@ public class FileManager {
 
 									@Override
 									public void run() {
+										JDialog.setDefaultLookAndFeelDecorated(true);
 										JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
 												"Couldn't rename "+from.getName()+" (no project with this name)",
 												"Renaming error",
@@ -436,6 +437,7 @@ public class FileManager {
 
 					    		@Override
 					    		public void run() {
+					    			JDialog.setDefaultLookAndFeelDecorated(true);
 					    			JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
 					    					"Exception : "+e.toString(),
 					    					"Openning error",
