@@ -209,10 +209,9 @@ public class firstNameDB {
 	 */
 	public static boolean matches(String s){
 		for(String ch:firstNameList){
-			if(s.equals(ch) || (s.toLowerCase().endsWith(ch) && s.toLowerCase().matches(".*[^a-zA-Z]"+ch))
+			if(!s.matches(".*\\d.*") && (s.equals(ch) || (s.toLowerCase().endsWith(ch) && s.toLowerCase().matches(".*[^a-zA-Z]"+ch))
 					|| (s.toLowerCase().startsWith(ch) && s.toLowerCase().matches(ch+"[^a-zA-Z].*"))
-					|| s.toLowerCase().matches(".*[^a-zA-Z]"+ch+"[^a-zA-Z].*")
-					&& !s.toLowerCase().matches(".*\\d.*")){
+					|| s.toLowerCase().matches(".*[^a-zA-Z]"+ch+"[^a-zA-Z].*"))){
 				return true;
 			}
 		}
