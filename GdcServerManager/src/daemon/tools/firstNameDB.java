@@ -202,13 +202,17 @@ public class firstNameDB {
 	}
 	
 	/**
-	 * Test si une chaine de caractere est presente dans la bdd
+	 * Test si une chaine de caractere est presente dans la bdd et si elle n'est pas presente au sein d'un chaine plus grande
+	 * Si la chaine contient des chiffre alors on considere que c'est anonymise
 	 * @param s
 	 * @return
 	 */
 	public static boolean matches(String s){
 		for(String ch:firstNameList){
-			if(s.toLowerCase().matches(".*"+ch+".*")){
+			if(s.equals(ch) || (s.toLowerCase().endsWith(ch) && s.toLowerCase().matches(".*[^a-zA-Z]"+ch))
+					|| (s.toLowerCase().startsWith(ch) && s.toLowerCase().matches(ch+"[^a-zA-Z].*"))
+					|| s.toLowerCase().matches(".*[^a-zA-Z]"+ch+"[^a-zA-Z].*")
+					&& !s.toLowerCase().matches(".*\\d.*")){
 				return true;
 			}
 		}
@@ -237,5 +241,10 @@ public class firstNameDB {
 	public static void stop(){
 		dbLoaded = false;
 		firstNameList.clear();
+	}
+	
+	public static void main(String[] args){
+		firstNameDB.init();
+		System.out.println(firstNameDB.matches("844574anna4"));
 	}
 }
