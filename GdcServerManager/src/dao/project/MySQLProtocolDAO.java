@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 import settings.SQLSettings;
 import settings.UserProfile;
@@ -20,6 +22,7 @@ import model.AcquisitionDate;
 import model.Patient;
 import model.Project;
 import model.Protocol;
+import model.Serie;
 
 public class MySQLProtocolDAO implements ProtocolDAO{
 	public Collection<Protocol> retrieveAll() throws SQLException {
@@ -414,6 +417,69 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			e2.printStackTrace();
 			throw e2;
 		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public int getSpecificProtocolCountForProject(String protname,int id)
+			throws SQLException {
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		int res = -1;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select count("+SQLSettings.TABLES.getProtocol().TNAME+"."+SQLSettings.TABLES.getProtocol().getName()+") from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().TNAME+"."+SQLSettings.TABLES.getProtocol().getName()+"='"+protname+"' and "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
+			else
+				rset = stmt.executeQuery("select distinct("+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getProtocol().getName()+") from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getProtocol().getName()+"='"+protname+"' and "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
+
+			// boucle sur les resultats de la requête
+			while (rset.next()) {
+				res = rset.getInt(1);
+			}
+			return res;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public TreeMap<String, Integer> getUniqueProtocolCountForProject(int id)
+			throws SQLException {
+		TreeMap<String,Integer> prots = new TreeMap<String, Integer>();
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select distinct("+SQLSettings.TABLES.getProtocol().TNAME+"."+SQLSettings.TABLES.getProtocol().getName()+") from "+SQLSettings.TABLES.getProtocol().TNAME+" where "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
+			else
+				rset = stmt.executeQuery("select distinct("+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getProtocol().getName()+") from "+SQLSettings.TABLES.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getProtocol().getId_project()+"="+id);
+
+			// boucle sur les resultats de la requête
+			while (rset.next()) {
+				String pname = rset.getString(1);
+				prots.put(pname, getSpecificProtocolCountForProject(pname, id));
+			}
+			return prots;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
 			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
 			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}

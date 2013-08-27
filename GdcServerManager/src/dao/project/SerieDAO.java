@@ -2,6 +2,7 @@ package dao.project;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
 
 import model.Patient;
@@ -43,5 +44,7 @@ public interface SerieDAO {
 	int getSerieIdFor(String project, String patient, String acqdate,
 			String protocol, String serie) throws SQLException;
 	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
+
+
 	
 }

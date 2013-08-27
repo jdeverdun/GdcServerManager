@@ -3,6 +3,8 @@ package model;
 import java.awt.Component;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 import settings.WindowManager;
@@ -12,7 +14,11 @@ import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
 import dao.project.MySQLAcquisitionDateDAO;
 import dao.project.MySQLPatientDAO;
+import dao.project.MySQLProtocolDAO;
+import dao.project.MySQLSerieDAO;
 import dao.project.PatientDAO;
+import dao.project.ProtocolDAO;
+import dao.project.SerieDAO;
 
 /**
  * Classe permettant de stocker les statistiques d'un projet (apres requete sur la bdd)
@@ -29,6 +35,7 @@ public class ProjectStatistics {
 	private int minAge; //age minimal
 	private int maxAge; // age max
 	private float stdAge; // ecart type age
+	private TreeMap<String, Integer> countPerProtocol;
 	
 	public ProjectStatistics(String projectname){
 		initVars();
@@ -72,6 +79,7 @@ public class ProjectStatistics {
 		minAge = -1;
 		maxAge = -1;
 		stdAge = -1;
+		countPerProtocol = new TreeMap<String,Integer>();
 	}
 	private void fillFields(){
 		if(project == null)
@@ -130,6 +138,14 @@ public class ProjectStatistics {
 			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get minAge for statistics ["+project.getNom()+"]",e);
 			e.printStackTrace();
 		}
+		ProtocolDAO prdao = new MySQLProtocolDAO();
+		try {
+			countPerProtocol = prdao.getUniqueProtocolCountForProject(project.getId());
+		} catch (SQLException e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Could'nt get countPerProtocol for statistics ["+project.getNom()+"]",e);
+			e.printStackTrace();
+		}
+		
 	}
 	public int getNpatients() {
 		return npatients;
@@ -197,6 +213,10 @@ public class ProjectStatistics {
 
 	public Project getProject() {
 		return project;
+	}
+
+	public TreeMap<String, Integer> getCountPerSequence() {
+		return countPerProtocol;
 	}
 
 }

@@ -2,7 +2,9 @@ package dao.project;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import model.Patient;
 import model.Project;
@@ -40,5 +42,11 @@ public interface ProtocolDAO {
 	void removeProtocol(String project, String patient, String acqdate,
 			String protocol) throws SQLException;
 	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
+	
+	public TreeMap<String, Integer> getUniqueProtocolCountForProject(int id) throws SQLException;
+
+	int getSpecificProtocolCountForProject(
+			String protname, int id) throws SQLException;
+	
 	
 }

@@ -239,7 +239,8 @@ public class firstNameDB {
 	 */
 	public static void stop(){
 		dbLoaded = false;
-		firstNameList.clear();
+		if(firstNameList!=null)
+			firstNameList.clear();
 	}
 	
 	public static void main(String[] args){

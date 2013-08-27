@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -503,4 +504,6 @@ public class MySQLSerieDAO implements SerieDAO{
 			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
+	
+	
 }

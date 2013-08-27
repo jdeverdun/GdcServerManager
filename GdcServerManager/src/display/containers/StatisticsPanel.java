@@ -6,11 +6,15 @@ import model.ProjectStatistics;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import java.awt.ComponentOrientation;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 import javax.swing.UIManager;
 
 public class StatisticsPanel extends JPanel{
@@ -141,7 +145,41 @@ public class StatisticsPanel extends JPanel{
 		
 		JPanel panelData = new JPanel();
 		splitPane.setRightComponent(panelData);
-		panelData.setBorder(new TitledBorder(null, "Data", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelData.setLayout(new MigLayout("", "[]", "[]"));
+		panelData.setBorder(new TitledBorder(null, "Sequence count", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelData.setLayout(new MigLayout("", "[grow]", "[grow]"));
+		
+		JPanel panel_2 = new JPanel();
+		//panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Sequences count", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_2.setLayout(new MigLayout("", "[]", "[]"));
+		JScrollPane jsp = new JScrollPane(panel_2);
+		TreeMap<String,Integer> countPerSeq = stats.getCountPerSequence();
+		int line = 0;
+		int bcol = 0;
+		int itemPerCol = countPerSeq.size()/3; 
+		int count = 0;
+		for(String s:countPerSeq.keySet()){
+			if(count>itemPerCol){
+				bcol+=3;
+				line=0;
+				count=0;
+				JSeparator separator_2 = new JSeparator();
+				separator_2.setOrientation(SwingConstants.VERTICAL);
+				panel_2.add(separator_2, "cell "+(bcol-1)+" 0 "+(bcol-1)+" "+itemPerCol+",growy");
+				panel_2.revalidate();
+				
+			}
+			JLabel cjl = new JLabel(s);
+			panel_2.add(cjl, "cell "+bcol+" "+line);
+			panel_2.revalidate();
+			JTextField cjt = new JTextField(""+countPerSeq.get(s));
+			cjt.setColumns(10);
+			cjt.setEditable(false);
+			panel_2.add(cjt, "cell "+(bcol+1)+" "+line);
+			panel_2.revalidate();
+			line++;
+			count++;
+			
+		}
+		panelData.add(jsp, "cell 0 0,grow");
 	}
 }
