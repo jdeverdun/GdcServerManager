@@ -1,5 +1,6 @@
 package display.containers;
 
+import ij.IJ;
 import ij.plugin.DICOM;
 import ij.util.DicomTools;
 
@@ -183,6 +184,7 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		chckbxConvertToNifti = new JCheckBox("Convert to nifti");
 		chckbxConvertToNifti.setSelected(true);
+
 		panel.add(chckbxConvertToNifti, "flowx,cell 0 1,alignx left");
 		
 		comboBox = new JComboBox();
@@ -239,7 +241,12 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		chckb4d = new JCheckBox("4D");
 		panel.add(chckb4d, "cell 0 1");
-		
+		if(!IJ.isWindows()){
+			chckbxConvertToNifti.setSelected(false);
+			chckbxConvertToNifti.setEnabled(false);
+			comboBox.setEnabled(false);
+			chckb4d.setEnabled(false);
+		}
 		btnReset.addActionListener(new ActionListener() {
 			
 			@Override
