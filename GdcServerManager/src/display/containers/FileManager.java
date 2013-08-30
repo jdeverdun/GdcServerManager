@@ -62,6 +62,7 @@ import java.util.regex.Pattern;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -421,12 +422,44 @@ public class FileManager {
 								// on renomme le repertoire nifti ou dicom correspondant si il existe
 								switch(from.getParentFile().getName()){
 								case ServerInfo.NRI_ANALYSE_NAME:
-									if(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).exists())
-										from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
+									if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).exists())
+										try {
+											Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
+										} catch (IOException e) {
+											e.printStackTrace();
+											SwingUtilities.invokeLater(new Runnable() {
+
+												@Override
+												public void run() {
+													JDialog.setDefaultLookAndFeelDecorated(true);
+													JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+															"Couldn't rename "+from.getName()+" (error with file system)",
+															"Renaming error",
+															JOptionPane.ERROR_MESSAGE);
+												}
+											});
+											WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
+										}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
 									break;
 								case ServerInfo.NRI_DICOM_NAME:
-									if(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
-										from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
+									if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
+										try {
+											Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
+										} catch (IOException e) {
+											SwingUtilities.invokeLater(new Runnable() {
+
+												@Override
+												public void run() {
+													JDialog.setDefaultLookAndFeelDecorated(true);
+													JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+															"Couldn't rename "+from.getName()+" (error with file system)",
+															"Renaming error",
+															JOptionPane.ERROR_MESSAGE);
+												}
+											});
+											e.printStackTrace();
+											WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
+										}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
 									break;
 								}
 								refresh();
@@ -833,7 +866,7 @@ public class FileManager {
 				copyAndDecrypt(fi, dir);
 			}
 		}
-		while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
+		while(!SystemSettings.DECRYPT_DAEMON.isWaiting() && continueAction){
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
