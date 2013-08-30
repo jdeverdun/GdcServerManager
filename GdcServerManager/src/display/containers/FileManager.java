@@ -403,80 +403,95 @@ public class FileManager {
 					//If a string was returned, say so.
 					if ((s != null) && (s.length() > 0)) {
 					    ProjectDAO pdao = new MySQLProjectDAO();
-					    try {
-							boolean succeed = pdao.renameProject(from.getName(), s);
-							if(!succeed){
-								SwingUtilities.invokeLater(new Runnable() {
-
-									@Override
-									public void run() {
-										JDialog.setDefaultLookAndFeelDecorated(true);
-										JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-												"Couldn't rename "+from.getName()+" (no project with this name)",
-												"Renaming error",
-												JOptionPane.ERROR_MESSAGE);
-									}
-								});
-							}else{
-								from.renameTo(new File(from.getParent()+File.separator+s));
-								// on renomme le repertoire nifti ou dicom correspondant si il existe
-								switch(from.getParentFile().getName()){
-								case ServerInfo.NRI_ANALYSE_NAME:
-									if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).exists())
-										try {
-											Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
-										} catch (IOException e) {
-											e.printStackTrace();
-											SwingUtilities.invokeLater(new Runnable() {
-
-												@Override
-												public void run() {
-													JDialog.setDefaultLookAndFeelDecorated(true);
-													JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-															"Couldn't rename "+from.getName()+" (error with file system)",
-															"Renaming error",
-															JOptionPane.ERROR_MESSAGE);
-												}
-											});
-											WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
-										}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
-									break;
-								case ServerInfo.NRI_DICOM_NAME:
-									if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
-										try {
-											Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
-										} catch (IOException e) {
-											SwingUtilities.invokeLater(new Runnable() {
-
-												@Override
-												public void run() {
-													JDialog.setDefaultLookAndFeelDecorated(true);
-													JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-															"Couldn't rename "+from.getName()+" (error with file system)",
-															"Renaming error",
-															JOptionPane.ERROR_MESSAGE);
-												}
-											});
-											e.printStackTrace();
-											WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
-										}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
-									break;
-								}
-								refresh();
-							}
-					    } catch (final SQLException e) {
-					    	WindowManager.mwLogger.log(Level.SEVERE,"Error during SQL project renaming",e);
+					    if(new File(from.getParent()+File.separator+s).exists()){
 					    	SwingUtilities.invokeLater(new Runnable() {
 
-					    		@Override
-					    		public void run() {
-					    			JDialog.setDefaultLookAndFeelDecorated(true);
-					    			JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
-					    					"Exception : "+e.toString(),
-					    					"Openning error",
-					    					JOptionPane.ERROR_MESSAGE);
-					    		}
-					    	});
+								@Override
+								public void run() {
+									JDialog.setDefaultLookAndFeelDecorated(true);
+									JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+											"Couldn't rename "+from.getName()+" (A file with this filename already exists)",
+											"Renaming error",
+											JOptionPane.ERROR_MESSAGE);
+								}
+							});
+							WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+"). [Duplication error]");
+					    }else{
+						    try {
+								boolean succeed = pdao.renameProject(from.getName(), s);
+								if(!succeed){
+									SwingUtilities.invokeLater(new Runnable() {
+	
+										@Override
+										public void run() {
+											JDialog.setDefaultLookAndFeelDecorated(true);
+											JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+													"Couldn't rename "+from.getName()+" (no project with this name)",
+													"Renaming error",
+													JOptionPane.ERROR_MESSAGE);
+										}
+									});
+								}else{
+									from.renameTo(new File(from.getParent()+File.separator+s));
+									// on renomme le repertoire nifti ou dicom correspondant si il existe
+									switch(from.getParentFile().getName()){
+									case ServerInfo.NRI_ANALYSE_NAME:
+										if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).exists())
+											try {
+												Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
+											} catch (IOException e) {
+												e.printStackTrace();
+												SwingUtilities.invokeLater(new Runnable() {
+	
+													@Override
+													public void run() {
+														JDialog.setDefaultLookAndFeelDecorated(true);
+														JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+																"Couldn't rename "+from.getName()+" (error with file system)",
+																"Renaming error",
+																JOptionPane.ERROR_MESSAGE);
+													}
+												});
+												WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
+											}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)+File.separator+s));
+										break;
+									case ServerInfo.NRI_DICOM_NAME:
+										if(new File(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists())
+											try {
+												Files.move(Paths.get(from.getAbsolutePath().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)), Paths.get(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
+											} catch (IOException e) {
+												SwingUtilities.invokeLater(new Runnable() {
+	
+													@Override
+													public void run() {
+														JDialog.setDefaultLookAndFeelDecorated(true);
+														JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+																"Couldn't rename "+from.getName()+" (error with file system)",
+																"Renaming error",
+																JOptionPane.ERROR_MESSAGE);
+													}
+												});
+												e.printStackTrace();
+												WindowManager.mwLogger.log(Level.SEVERE,"Error during file project renaming ("+from.getName()+")",e);
+											}//from.renameTo(new File(from.getParent().replaceAll(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)+File.separator+s));
+										break;
+									}
+									refresh();
+								}
+						    } catch (final SQLException e) {
+						    	WindowManager.mwLogger.log(Level.SEVERE,"Error during SQL project renaming",e);
+						    	SwingUtilities.invokeLater(new Runnable() {
+	
+						    		@Override
+						    		public void run() {
+						    			JDialog.setDefaultLookAndFeelDecorated(true);
+						    			JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+						    					"Exception : "+e.toString(),
+						    					"Openning error",
+						    					JOptionPane.ERROR_MESSAGE);
+						    		}
+						    	});
+						    }
 					    }
 					}
 					table.setEnabled(true);

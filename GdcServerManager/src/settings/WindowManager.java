@@ -9,5 +9,5 @@ public class WindowManager {
 	public static Authentificator AUTHENTIFICATOR = null;
 	public static MainWindow MAINWINDOW = null;
 	public static Logger mwLogger = null;
-	public static String PROGRAM_NAME = "Panthera";
+	public static String PROGRAM_NAME = "XellSior";
 }
