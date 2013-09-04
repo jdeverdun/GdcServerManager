@@ -19,6 +19,7 @@ import java.util.logging.Level;
 
 import settings.SystemSettings;
 import settings.WindowManager;
+import tools.DicomTools;
 
 import daemon.tools.ThreadPool;
 import daemon.tools.firstNameDB;
@@ -50,6 +51,7 @@ import model.Serie;
 import model.ServerInfo;
 import model.User;
 import model.daemon.CustomConversionSettings.ServerMode;
+import model.daemon.ImportSettings.DicomNamingTag;
 import static java.nio.file.StandardCopyOption.*;
 
 /**
@@ -102,16 +104,34 @@ public class DicomWorkerImport extends DicomWorker {
 				prepareToStop();
 				return;
 			}	
-			if(!getDispatcher().getSettings().getImportSettings().isUsePatientName())
+			if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.PATIENTID)
 				patientName = getPatientId();
 			else
 				patientName = getPatientName();
 			if(getDispatcher().getSettings().getImportSettings().changePatientName()){
 				patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
 			}
-			if(firstNameDB.matches(patientName))
-				throw new AnonymizationException("DICOM not anonymized.");
 			birthdate = getBirthdate();
+			// si donnees non anonymises on anonymise
+			if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE || firstNameDB.matches(patientName)){
+				String lpt = getDicomFile().getFileName().toString();
+				String filename = lpt;
+				if(lpt.split(".").length>1){
+					String[] parts = lpt.split("\\.");
+					filename = parts[0];
+				}
+				Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
+				String npatname;
+				try {
+					npatname = DicomTools.anonymize(getDicomFile(),newDicom,patientName,birthdate);
+					setDicomFile(newDicom);
+				} catch (IOException e) {
+					throw new AnonymizationException("DICOM could not be anonymized.");
+				}
+				patientName = npatname;
+				
+			}
+			
 			sex = getSex();
 			size = getPatientSize();
 			weight = getPatientWeight();

@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 
@@ -9,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.commons.io.FileUtils;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
@@ -35,7 +37,7 @@ public class GDCSM {
 		
 		// On définit les paramètres du serveur
 		SystemSettings.SERVER_INFO = new ServerInfo(SystemSettings.APP_DIR);
-		
+		init();
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);
@@ -50,6 +52,15 @@ public class GDCSM {
 				
 			}
 		});
+	}
+
+	/**
+	 * nettoi les repertoires au demarrage
+	 */
+	private static void init() {
+		for(File fi:SystemSettings.SERVER_INFO.getTempDir().toFile().listFiles()){
+			fi.delete();
+		}
 	}
 
 }

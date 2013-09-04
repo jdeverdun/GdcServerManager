@@ -15,8 +15,10 @@ import javax.swing.JPanel;
 import model.daemon.CustomConversionSettings;
 import model.daemon.CustomConversionSettings.ServerMode;
 import model.daemon.ImportSettings;
+import model.daemon.ImportSettings.DicomNamingTag;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -75,6 +77,8 @@ public class ImportFrame extends JFrame {
 	private JTextField txtProjectname;
 	private JRadioButton rdbtnPatientname;
 	private JRadioButton rdbtnPatientid;
+	private JTextField txtNewPatientName;
+	private JRadioButton rdbtnAnonymize;
 	private JButton btnSelectdicomdir;
 	private JLabel lblForceProjectName;
 	private JLabel lblPatientIdentification;
@@ -84,7 +88,8 @@ public class ImportFrame extends JFrame {
 	// variable permettant de stopper l'import
 	private boolean stopImport;
 	private JLabel lblForcePatientName;
-	private JTextField txtNewPatientName;
+
+	
 	
 	public ImportFrame() {
 		stopImport = false;
@@ -160,6 +165,9 @@ public class ImportFrame extends JFrame {
 		rdbtnPatientid = new JRadioButton("PatientID");
 		panel_1.add(rdbtnPatientid, "cell 1 2");
 		
+		rdbtnAnonymize = new JRadioButton("Anonymize");
+		panel_1.add(rdbtnAnonymize, "cell 1 2");
+		
 		JPanel panelSaveClose = new JPanel();
 		getContentPane().add(panelSaveClose, BorderLayout.SOUTH);
 		panelSaveClose.setLayout(new MigLayout("", "[grow][grow]", "[]"));
@@ -213,9 +221,12 @@ public class ImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnPatientname.isSelected()){
 					rdbtnPatientname.setSelected(true);
+					rdbtnPatientid.setSelected(false);
+					rdbtnAnonymize.setSelected(false);
 					return;
 				}
-				rdbtnPatientid.setSelected(!rdbtnPatientname.isSelected());
+				rdbtnPatientid.setSelected(false);
+				rdbtnAnonymize.setSelected(false);
 			}
 		});
 		rdbtnPatientid.addActionListener(new ActionListener() {
@@ -224,9 +235,26 @@ public class ImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnPatientid.isSelected()){
 					rdbtnPatientid.setSelected(true);
+					rdbtnPatientname.setSelected(false);
+					rdbtnAnonymize.setSelected(false);
 					return;
 				}
-				rdbtnPatientname.setSelected(!rdbtnPatientname.isSelected());
+				rdbtnPatientname.setSelected(false);
+				rdbtnAnonymize.setSelected(false);
+			}
+		});
+		rdbtnAnonymize.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!rdbtnAnonymize.isSelected()){
+					rdbtnAnonymize.setSelected(true);
+					rdbtnPatientname.setSelected(false);
+					rdbtnPatientid.setSelected(false);
+					return;
+				}
+				rdbtnPatientname.setSelected(false);
+				rdbtnPatientid.setSelected(false);
 			}
 		});
 		btnClose.addActionListener(new ActionListener() {
@@ -250,7 +278,15 @@ public class ImportFrame extends JFrame {
 				if(!txtNewPatientName.getText().equals(DEFAULT_NPATIENT_TEXT) && !txtNewPatientName.getText().equals(""))
 					patname = txtNewPatientName.getText();
 				// On definit les parametres de l'import
-				ImportSettings is = new ImportSettings(pname,patname, rdbtnPatientname.isSelected(),dispatcher,niftid);
+				DicomNamingTag dtag;
+				if(rdbtnAnonymize.isSelected())
+					dtag = DicomNamingTag.ANONYMIZE;
+				else 
+					if(rdbtnPatientname.isSelected())
+						dtag = DicomNamingTag.PATIENTNAME;
+					else
+						dtag = DicomNamingTag.PATIENTID;
+				ImportSettings is = new ImportSettings(pname,patname, dtag,dispatcher,niftid);
 				CustomConversionSettings ccs = new CustomConversionSettings(ServerMode.IMPORT, is);
 				// On lance les daemons
 				niftid = new NiftiDaemon(SystemSettings.SERVER_INFO,ccs);
@@ -397,6 +433,7 @@ public class ImportFrame extends JFrame {
 		txtProjectname.setEnabled(!b);
 		rdbtnPatientname.setEnabled(!b);
 		rdbtnPatientid.setEnabled(!b);
+		rdbtnAnonymize.setEnabled(!b);
 		btnSelectdicomdir.setEnabled(!b);
 		lblForceProjectName.setEnabled(!b);
 		lblPatientIdentification.setEnabled(!b);
@@ -426,7 +463,7 @@ public class ImportFrame extends JFrame {
         }
 		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Import");
-		setSize(400, 250);
+		setSize(420, 270);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
 		setLocationRelativeTo(null);

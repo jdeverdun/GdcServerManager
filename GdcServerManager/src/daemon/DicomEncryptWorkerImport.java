@@ -20,6 +20,7 @@ import model.DicomImage;
 import model.ServerInfo;
 import model.daemon.CustomConversionSettings;
 import model.daemon.CustomConversionSettings.ServerMode;
+import model.daemon.ImportSettings.DicomNamingTag;
 
 import dao.project.DicomImageDAO;
 import dao.project.MySQLDicomImageDAO;
@@ -67,6 +68,8 @@ public class DicomEncryptWorkerImport extends DicomEncryptWorker {
 			// On ajoute l'entree du DICOM dans la database
 			addEntryToDB(dicomFile.getFileName(),"DicomImage");
 			
+			if(settings.getImportSettings().getNamingTag() == DicomNamingTag.ANONYMIZE)
+				Files.delete(oldpath);
 			
 		} catch (Exception e) {
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));

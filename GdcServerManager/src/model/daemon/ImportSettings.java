@@ -11,20 +11,22 @@ import daemon.NiftiDaemon;
  *
  */
 public class ImportSettings {
+	public static enum DicomNamingTag{PATIENTNAME,PATIENTID,ANONYMIZE};
 	private String newProjectName;
 	private String newPatientName;
-	private boolean usePatientName;
+	private DicomNamingTag namingTag;
 	private DicomJobDispatcher dispatcher; // le dispatcher associe a l'import
 	private NiftiDaemon niftid; // le daemon nifti associe a l'impot
 	
 	
-	public ImportSettings(String newProjectName,String patname, boolean usePatientName,DicomJobDispatcher dispatcher, NiftiDaemon niftid){
+	public ImportSettings(String newProjectName,String patname, DicomNamingTag tag, DicomJobDispatcher dispatcher, NiftiDaemon niftid){
 		this.setNewProjectName(newProjectName);
-		this.setUsePatientName(usePatientName);
-		this.setNewPatientName(patname);
+		setNamingTag(tag);
 		setDispatcher(dispatcher);
 		setNiftid(niftid);
 	}
+
+
 
 
 	/**
@@ -67,21 +69,6 @@ public class ImportSettings {
 		return newPatientName != null;
 	}
 	
-	/**
-	 * @return the usePatientName
-	 */
-	public boolean isUsePatientName() {
-		return usePatientName;
-	}
-
-
-	/**
-	 * @param usePatientName the usePatientName to set
-	 */
-	public void setUsePatientName(boolean usePatientName) {
-		this.usePatientName = usePatientName;
-	}
-
 
 	public DicomJobDispatcher getDispatcher() {
 		return dispatcher;
@@ -100,6 +87,22 @@ public class ImportSettings {
 
 	public void setNiftid(NiftiDaemon niftid) {
 		this.niftid = niftid;
+	}
+
+
+	/**
+	 * @return the namingTag
+	 */
+	public DicomNamingTag getNamingTag() {
+		return namingTag;
+	}
+
+
+	/**
+	 * @param namingTag the namingTag to set
+	 */
+	public void setNamingTag(DicomNamingTag namingTag) {
+		this.namingTag = namingTag;
 	}
 	
 	
