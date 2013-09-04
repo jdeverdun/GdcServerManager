@@ -46,6 +46,7 @@ import display.containers.FileManager;
 import display.containers.WaitingBarPanel;
 import display.containers.WarningPanel;
 import display.containers.viewer.ViewerPanel;
+import exceptions.AnonymizationException;
 
 import settings.SystemSettings;
 import settings.UserProfile;
@@ -286,7 +287,24 @@ public class ImportFrame extends JFrame {
 						dtag = DicomNamingTag.PATIENTNAME;
 					else
 						dtag = DicomNamingTag.PATIENTID;
-				ImportSettings is = new ImportSettings(pname,patname, dtag,dispatcher,niftid);
+				ImportSettings is;
+				try {
+					is = new ImportSettings(pname,patname, dtag,dispatcher,niftid);
+				} catch (final AnonymizationException e1) {
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(ImportFrame.this,
+								    e1.toString(),
+								    "Warning",
+								    JOptionPane.INFORMATION_MESSAGE);
+						}
+					});
+					WindowManager.mwLogger.log(Level.SEVERE, "Import error [selection]", e1);
+					return;
+				}
 				CustomConversionSettings ccs = new CustomConversionSettings(ServerMode.IMPORT, is);
 				// On lance les daemons
 				niftid = new NiftiDaemon(SystemSettings.SERVER_INFO,ccs);

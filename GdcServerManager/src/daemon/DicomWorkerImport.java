@@ -128,6 +128,7 @@ public class DicomWorkerImport extends DicomWorker {
 				} catch (IOException e) {
 					throw new AnonymizationException("DICOM could not be anonymized.");
 				}
+				getDispatcher().getSettings().getImportSettings().addAnomynizationLine(patientName,npatname);
 				patientName = npatname;
 				
 			}
@@ -167,8 +168,15 @@ public class DicomWorkerImport extends DicomWorker {
 			newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
 			
 			// si le fichier encrypte existe deja je sors
-			if(new File(newPath.toString()+AESCrypt.ENCRYPTSUFFIX).exists())
+			if(new File(newPath.toString()+AESCrypt.ENCRYPTSUFFIX).exists()){
+				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE)
+					try {
+						Files.delete(getDicomFile());
+					} catch (IOException e) {
+						WindowManager.mwLogger.log(Level.WARNING,"Couldn't delete anonymized dicom "+getDicomFile().toString(),e);
+					}
 				continue;
+			}
 			// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
 			// si on les cree alors on doit rajouter l'info dans la database
 			// sinon recuperer les ID des projets etc
