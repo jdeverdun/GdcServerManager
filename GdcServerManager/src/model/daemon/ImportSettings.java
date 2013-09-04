@@ -126,7 +126,7 @@ public class ImportSettings {
 			anonymizedName = new LinkedHashSet<String>();
 			DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 			Date date = new Date();
-			File fian = new File(SystemSettings.SERVER_INFO.getTempDir()+File.separator+"Anonymization_"+dateFormat.format(date)+".csv");
+			File fian = new File(SystemSettings.APP_DIR+File.separator+"Anonymization_"+dateFormat.format(date)+".csv");
 			if(fian.exists())
 				fian.delete();
 			try(PrintWriter output = new PrintWriter(new FileWriter(fian,true))) 

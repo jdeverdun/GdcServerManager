@@ -1,5 +1,6 @@
 package display;
 
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -299,7 +300,7 @@ public class ImportFrame extends JFrame {
 							JOptionPane.showMessageDialog(ImportFrame.this,
 								    e1.toString(),
 								    "Warning",
-								    JOptionPane.INFORMATION_MESSAGE);
+								    JOptionPane.WARNING_MESSAGE);
 						}
 					});
 					WindowManager.mwLogger.log(Level.SEVERE, "Import error [selection]", e1);
@@ -314,7 +315,7 @@ public class ImportFrame extends JFrame {
 				is.setDispatcher(dispatcher);
 				is.setNiftid(niftid);
 				stopImport = false;
-				
+				final File anomFile = is.getAnonymizationFile();
 				// on gere les thread status // recherche fichier
 				setLock(true);
 				final WaitingBarPanel ppanel = new WaitingBarPanel(ImportFrame.this); // mode creation de liens
@@ -407,9 +408,10 @@ public class ImportFrame extends JFrame {
 							int nbdicomToMove = dispatcher.getDicomToMove().size();
 							int nbdirToConvert = niftid.getDir2convert().size();
 							// si tout est fini
-							if(!fileSeeking.isAlive()  && nbdicomToMove==0 && nbdirToConvert==0){
+							if(!fileSeeking.isAlive() && nbdicomToMove==0 && nbdirToConvert==0){
 								continu = false;
 								setLock(false);
+								WindowManager.mwLogger.log(Level.INFO, "Import succeeded");
 								popup.hide();
 							}
 								
@@ -422,6 +424,26 @@ public class ImportFrame extends JFrame {
 						}
 						setLock(false);
 						popup.hide();
+						SwingUtilities.invokeLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								JDialog.setDefaultLookAndFeelDecorated(true);
+								String[] options = new String[] {"Open directory", "Close"};
+							    int option = JOptionPane.showOptionDialog(ImportFrame.this, "Import terminated. Anonymization file has been saved to \n"+SystemSettings.APP_DIR+".","Information", 
+							            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+							            null, options, options[0]);
+								if(option==0){
+									Desktop desktop = Desktop.getDesktop();
+									try {
+										desktop.open(anomFile.getParentFile());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+						
 					}
 				});
 				ppanel.setPopup(popup);
