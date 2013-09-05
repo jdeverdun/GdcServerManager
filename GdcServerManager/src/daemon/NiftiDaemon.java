@@ -446,4 +446,8 @@ public class NiftiDaemon extends Thread{
 		addDir(path, dicomImage);
 	}
 
+	public void clear() {
+		dir2convert.clear();
+	}
+
 }

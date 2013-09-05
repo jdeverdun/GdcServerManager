@@ -68,7 +68,7 @@ public class DicomEncryptWorkerImport extends DicomEncryptWorker {
 			// On ajoute l'entree du DICOM dans la database
 			addEntryToDB(dicomFile.getFileName(),"DicomImage");
 			
-			if(settings.getImportSettings().getNamingTag() == DicomNamingTag.ANONYMIZE)
+			if(settings.getImportSettings().getNamingTag() == DicomNamingTag.ANONYMIZE  || settings.getImportSettings().changePatientName())
 				Files.delete(oldpath);
 			
 		} catch (Exception e) {

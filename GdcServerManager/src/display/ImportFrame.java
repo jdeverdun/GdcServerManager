@@ -237,10 +237,14 @@ public class ImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnPatientid.isSelected()){
 					rdbtnPatientid.setSelected(true);
+					txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+					txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 					rdbtnPatientname.setSelected(false);
 					rdbtnAnonymize.setSelected(false);
 					return;
 				}
+				txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+				txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 				rdbtnPatientname.setSelected(false);
 				rdbtnAnonymize.setSelected(false);
 			}
@@ -251,10 +255,14 @@ public class ImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!rdbtnAnonymize.isSelected()){
 					rdbtnAnonymize.setSelected(true);
+					txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+					txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 					rdbtnPatientname.setSelected(false);
 					rdbtnPatientid.setSelected(false);
 					return;
 				}
+				txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+				txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 				rdbtnPatientname.setSelected(false);
 				rdbtnPatientid.setSelected(false);
 			}
@@ -275,6 +283,11 @@ public class ImportFrame extends JFrame {
 				
 				String pname = null;
 				String patname = null;
+				// on ne force pas le nom du patient quand on anonymise ou qu'on utilise l'id
+				if(rdbtnAnonymize.isSelected() || rdbtnPatientid.isSelected()){
+					txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
+					txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
+				}
 				if(!txtProjectname.getText().equals(DEFAULT_NPROJECT_TEXT) && !txtProjectname.getText().equals(""))
 					pname = txtProjectname.getText();
 				if(!txtNewPatientName.getText().equals(DEFAULT_NPATIENT_TEXT) && !txtNewPatientName.getText().equals(""))
@@ -397,7 +410,9 @@ public class ImportFrame extends JFrame {
 										wmess.setPopupWindow(popup);
 										popup.show();
 										dispatcher.setStop(true);
+										dispatcher.clear();
 										niftid.setStop(true);
+										niftid.clear();
 									}
 								});
 								
@@ -424,26 +439,27 @@ public class ImportFrame extends JFrame {
 						}
 						setLock(false);
 						popup.hide();
-						SwingUtilities.invokeLater(new Runnable() {
-							
-							@Override
-							public void run() {
-								JDialog.setDefaultLookAndFeelDecorated(true);
-								String[] options = new String[] {"Open directory", "Close"};
-							    int option = JOptionPane.showOptionDialog(ImportFrame.this, "Import terminated. Anonymization file has been saved to \n"+SystemSettings.APP_DIR+".","Information", 
-							            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-							            null, options, options[0]);
-								if(option==0){
-									Desktop desktop = Desktop.getDesktop();
-									try {
-										desktop.open(anomFile.getParentFile());
-									} catch (IOException e) {
-										e.printStackTrace();
+						if(anomFile!=null){
+							SwingUtilities.invokeLater(new Runnable() {
+								
+								@Override
+								public void run() {
+									JDialog.setDefaultLookAndFeelDecorated(true);
+									String[] options = new String[] {"Open directory", "Close"};
+								    int option = JOptionPane.showOptionDialog(ImportFrame.this, "Import terminated. Anonymization file has been saved to \n"+SystemSettings.APP_DIR+".","Information", 
+								            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+								            null, options, options[0]);
+									if(option==0){
+										Desktop desktop = Desktop.getDesktop();
+										try {
+											desktop.open(anomFile.getParentFile());
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
 									}
 								}
-							}
-						});
-						
+							});
+						}
 					}
 				});
 				ppanel.setPopup(popup);

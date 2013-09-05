@@ -38,8 +38,10 @@ public class ImportSettings {
 	
 	
 	public ImportSettings(String newProjectName,String patname, DicomNamingTag tag, DicomJobDispatcher dispatcher, NiftiDaemon niftid) throws AnonymizationException{
+		anonymizationFile = null;
 		this.setNewProjectName(newProjectName);
 		setNamingTag(tag);
+		this.setNewPatientName(patname); 
 		setDispatcher(dispatcher);
 		setNiftid(niftid);
 	}

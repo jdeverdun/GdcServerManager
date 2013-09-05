@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.VR;
+
 import settings.SystemSettings;
 import settings.WindowManager;
 import tools.DicomTools;
@@ -94,59 +97,71 @@ public class DicomWorkerImport extends DicomWorker {
 			String serieName = null;
 			String acqDate = null;
 	
-			// On recupere le nom du protocole medical
-			studyName = getStudyDescription();
-			if(getDispatcher().getSettings().getImportSettings().changeProjectName()){
-				studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
-			}
-			// Si le protocole est null alors le fichier est encore en cours de copie
-			if(studyName == null){
-				prepareToStop();
-				return;
-			}	
-			if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.PATIENTID)
-				patientName = getPatientId();
-			else
-				patientName = getPatientName();
-			if(getDispatcher().getSettings().getImportSettings().changePatientName()){
-				patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
-			}
-			birthdate = getBirthdate();
-			// si donnees non anonymises on anonymise
-			if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE || firstNameDB.matches(patientName)){
-				String lpt = getDicomFile().getFileName().toString();
-				String filename = lpt;
-				if(lpt.split(".").length>1){
-					String[] parts = lpt.split("\\.");
-					filename = parts[0];
+			// si une DicomException est genere je passe au fichier suivant
+			try{
+				// On recupere le nom du protocole medical
+				studyName = getStudyDescription();
+				if(getDispatcher().getSettings().getImportSettings().changeProjectName()){
+					studyName = getDispatcher().getSettings().getImportSettings().getNewProjectName();
 				}
-				Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
-				String npatname;
-				try {
-					npatname = DicomTools.anonymize(getDicomFile(),newDicom,patientName,birthdate);
-					setDicomFile(newDicom);
-				} catch (IOException e) {
-					throw new AnonymizationException("DICOM could not be anonymized.");
-				}
-				getDispatcher().getSettings().getImportSettings().addAnomynizationLine(patientName,npatname);
-				patientName = npatname;
+				// Si le protocole est null alors le fichier est encore en cours de copie
+				if(studyName == null){
+					prepareToStop();
+					throw new DicomException("Study Name is empty.");
+				}	
+
+				birthdate = getBirthdate();
 				
+				
+				sex = getSex();
+				size = getPatientSize();
+				weight = getPatientWeight();
+				mri_name = getMri_name();
+				repetitiontime = getRepetitionTime();
+				echotime = getEchoTime();
+				slicethickness = getSliceThickness();
+				String[] pspacing = getPixelSpacing();
+				voxelwidth = Float.parseFloat(pspacing[0]);
+				voxelheight = Float.parseFloat(pspacing[1]);
+				
+				protocolName = getProtocolName();
+				serieName = getSeriesDescription();
+				acqDate = getAcquisitionDate();	
+				
+				// -------------- Modif des noms etc ---------------
+				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.PATIENTID)
+					patientName = getPatientId();
+				else
+					patientName = getPatientName();
+				if(getDispatcher().getSettings().getImportSettings().changePatientName()){
+					patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
+					String lpt = getDicomFile().getFileName().toString();
+					String filename = lpt;
+					if(lpt.split(".").length>1){
+						String[] parts = lpt.split("\\.");
+						filename = parts[0];
+					}
+					Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
+					DicomTools.changementTag(getDicomFile().toFile(), newDicom.toFile(), Tag.PatientName, VR.PN, patientName);
+					setDicomFile(newDicom);
+				}else{
+					// si donnees non anonymises on anonymise
+					if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE || firstNameDB.matches(patientName)){
+						patientName = anonymizeCurrentFile(patientName);					
+					}
+				}
+				// ----------------- Fin modif des noms ------------
+				
+				
+			}catch(DicomException di){
+				WindowManager.mwLogger.log(Level.WARNING,"DicomException with "+p+" ... skipped.",di);
+				continue;
+			} catch (IOException e) {
+				throw new AnonymizationException("Dicom Tag update [changementTag] failed with "+p);
 			}
 			
-			sex = getSex();
-			size = getPatientSize();
-			weight = getPatientWeight();
-			mri_name = getMri_name();
-			repetitiontime = getRepetitionTime();
-			echotime = getEchoTime();
-			slicethickness = getSliceThickness();
-			String[] pspacing = getPixelSpacing();
-			voxelwidth = Float.parseFloat(pspacing[0]);
-			voxelheight = Float.parseFloat(pspacing[1]);
 			
-			protocolName = getProtocolName();
-			serieName = getSeriesDescription();
-			acqDate = getAcquisitionDate();	
+			
 			// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
 			if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
 				protocolName = serieName;
@@ -169,11 +184,11 @@ public class DicomWorkerImport extends DicomWorker {
 			
 			// si le fichier encrypte existe deja je sors
 			if(new File(newPath.toString()+AESCrypt.ENCRYPTSUFFIX).exists()){
-				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE)
+				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.ANONYMIZE || getDispatcher().getSettings().getImportSettings().changePatientName())
 					try {
 						Files.delete(getDicomFile());
 					} catch (IOException e) {
-						WindowManager.mwLogger.log(Level.WARNING,"Couldn't delete anonymized dicom "+getDicomFile().toString(),e);
+						WindowManager.mwLogger.log(Level.WARNING,"Couldn't delete anonymized/renamed dicom "+getDicomFile().toString(),e);
 					}
 				continue;
 			}
@@ -299,4 +314,22 @@ public class DicomWorkerImport extends DicomWorker {
 		this.pid = pid;
 	}
 
+	private String anonymizeCurrentFile(String patientName) throws AnonymizationException, DicomException{
+		String lpt = getDicomFile().getFileName().toString();
+		String filename = lpt;
+		if(lpt.split(".").length>1){
+			String[] parts = lpt.split("\\.");
+			filename = parts[0];
+		}
+		Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
+		String npatname;
+		try {
+			npatname = DicomTools.anonymize(getDicomFile(),newDicom,patientName,birthdate);
+			setDicomFile(newDicom);
+		} catch (IOException e) {
+			throw new AnonymizationException("DICOM could not be anonymized.");
+		}
+		getDispatcher().getSettings().getImportSettings().addAnomynizationLine(patientName,npatname);
+		return npatname;
+	}
 }

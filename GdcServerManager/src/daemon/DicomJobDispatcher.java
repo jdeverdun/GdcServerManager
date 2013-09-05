@@ -296,7 +296,8 @@ public class DicomJobDispatcher extends Thread{
 					} catch (DicomException e) {
 						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : corrupted ... skipped [IMPORT]",e);
 					} catch (AnonymizationException e) {
-						WindowManager.mwLogger.log(Level.WARNING, "locpBlock : Anonymization exception ... skipped [IMPORT]",e);
+						setCrashed(true);
+						WindowManager.mwLogger.log(Level.SEVERE, "locpBlock : Anonymization exception ... skipped [IMPORT]",e);
 					} 
 				}
 				break;
@@ -382,5 +383,12 @@ public class DicomJobDispatcher extends Thread{
 	}
 	public boolean isCrashed(){
 		return this.crashed;
+	}
+
+	/**
+	 * Vide la liste des dicom a deplacer
+	 */
+	public void clear() {
+		dicomToMove.clear();
 	}
 }
