@@ -24,6 +24,7 @@ import javax.swing.UIManager;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import settings.SystemSettings;
 import settings.UserProfile;
 import settings.WindowManager;
 
@@ -84,14 +85,14 @@ public class Authentificator extends JFrame {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		setTitle("Authentificator");
+		setTitle(WindowManager.PROGRAM_NAME+" - Authentificator");
 		getContentPane().setLayout(new GridLayout(0, 1, 0, 0));
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel);
 		panel.setLayout(new MigLayout("", "[48px,grow,fill][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][7.00]"));
 		
-		ImagePanel panel_2 = new ImagePanel("logovd.png");
+		ImagePanel panel_2 = new ImagePanel("logovd2.png");
 		panel.add(panel_2, "cell 0 0 1 8,grow");
 		
 		
