@@ -79,7 +79,7 @@ public class DicomTools {
 	}
 	
 	/**
-	 * Anonymise un dicom grace a son nom et a sa date de naissance
+	 * Anonymise un dicom grace a son nom et a sa date de naissance format [prenom[1:2]_nom[1:3]_datenaissance]
 	 * @param dicomPath
 	 * @param oldName
 	 * @param birthdate
