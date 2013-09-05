@@ -140,11 +140,12 @@ public class Authentificator extends JFrame {
 		
 		// ---- Params JFrame ----
 		setLocationRelativeTo(null);
+		setLocation(getX()-Math.round(WIDTH/2), getY()-Math.round(HEIGHT/2));
 		setSize(WIDTH,HEIGHT);
 		setResizable(false);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
+		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		// ====================== Event ==============================
 		// on appui sur Entrée quand on est sur le pass -> tente le login
 		passwordField.addKeyListener(new KeyAdapter() {

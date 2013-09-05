@@ -1145,7 +1145,7 @@ public class MainWindow extends JFrame {
        
         this.setSize(1000, 700);
         setTitle(WindowManager.PROGRAM_NAME);
-        setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
+        setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
         //Display the window.
         this.setVisible(true);
         this.setLocationRelativeTo(null);
