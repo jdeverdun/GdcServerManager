@@ -10,4 +10,6 @@ public class WindowManager {
 	public static MainWindow MAINWINDOW = null;
 	public static Logger mwLogger = null;
 	public static String PROGRAM_NAME = "XellSior";
+	public static String UPDATER_JARFILE = "gsm_updater.jar";
+	public static String  VERSION = "0.9.9";
 }

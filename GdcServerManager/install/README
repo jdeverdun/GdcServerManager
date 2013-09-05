@@ -22,7 +22,13 @@ AET : GDC_RECHPASS
 IP : 120.40.30.110
 Port : 104
 
+=================== Notes ======================
+Le programme fonctionne de paire avec gsm_updater.jar (https://github.com/jdeverdun/GSMupdater.git)
+Pour compiler le programme sous eclispe il faut rajouter en working set (librairies en gros) le projet GSMupdater
 
+Le programme check les mises à jours via le fichier update.xml sur le serveur (exemple dans ce meme repertoire).
+
+Penser a renseigner la version du programme dans WindowManager.java
 
 
 

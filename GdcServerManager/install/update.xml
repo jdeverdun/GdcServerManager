@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<versions>
+	<version>
+		<nom>0.9.7</nom>
+		<files>
+			<file>
+				<url>http://120.40.30.110:8888/XellSior/versions/0_9_8/panther2.jar</url>
+				<destination>/panther2.jar</destination>
+			</file>
+		</files>
+	</version>
+	<version>
+		<nom>0.9.9</nom>
+		<files>
+			<file>
+				<url>http://120.40.30.110:8888/XellSior/versions/0_9_8/panther2.jar</url>
+				<destination>/panther2.jar</destination>
+			</file>
+		</files>
+	</version>
+</versions>
