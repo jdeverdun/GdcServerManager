@@ -537,7 +537,7 @@ public class ImportFrame extends JFrame {
 		setTitle("Import");
 		setSize(420, 270);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
+		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}

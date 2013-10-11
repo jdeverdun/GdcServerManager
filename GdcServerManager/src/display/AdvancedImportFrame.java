@@ -850,7 +850,7 @@ public class AdvancedImportFrame extends JFrame {
 		setTitle("Advanced import (from server to local)");
 		setSize(490, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setIconImage(new ImageIcon(this.getClass().getResource("/images/mainicon.png")).getImage());
+		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}

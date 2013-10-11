@@ -332,6 +332,7 @@ public class Authentificator extends JFrame {
 						
 				} catch (Exception e) {
 					e.printStackTrace();
+					setWarning("Warning", e.toString());
 					setActive(true);
 				}
 	        }
