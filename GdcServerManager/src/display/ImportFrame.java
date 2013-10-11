@@ -75,7 +75,7 @@ public class ImportFrame extends JFrame {
 	
 	// les daemons dedie a l'import
 	private NiftiDaemon niftid;
-	private DicomJobDispatcher dispatcher;// on appel directement le worker de l'envrypter et pas l'encrypt daemon
+	private DicomJobDispatcher dispatcher;// on appel directement le worker de l'envrypter et pas l'encrypt daemon 
 	
 	private JTextField txtDicomDirectory;
 	private JTextField txtProjectname;
