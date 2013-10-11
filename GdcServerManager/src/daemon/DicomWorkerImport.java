@@ -127,7 +127,7 @@ public class DicomWorkerImport extends DicomWorker {
 				protocolName = getProtocolName();
 				serieName = getSeriesDescription();
 				acqDate = getAcquisitionDate();	
-				
+
 				// -------------- Modif des noms etc ---------------
 				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.PATIENTID)
 					patientName = getPatientId();

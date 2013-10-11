@@ -1,7 +1,11 @@
 package model.daemon;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,7 +39,6 @@ public class ImportSettings {
 	private LinkedHashSet<String> anonymizedName;
 	private DicomJobDispatcher dispatcher; // le dispatcher associe a l'import
 	private NiftiDaemon niftid; // le daemon nifti associe a l'impot
-	
 	
 	public ImportSettings(String newProjectName,String patname, DicomNamingTag tag, DicomJobDispatcher dispatcher, NiftiDaemon niftid) throws AnonymizationException{
 		anonymizationFile = null;
@@ -124,7 +127,7 @@ public class ImportSettings {
 	 */
 	public void setNamingTag(DicomNamingTag namingTag) throws AnonymizationException {
 		this.namingTag = namingTag;
-		if(this.namingTag == DicomNamingTag.ANONYMIZE){
+		//if(this.namingTag == DicomNamingTag.ANONYMIZE){
 			anonymizedName = new LinkedHashSet<String>();
 			DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 			Date date = new Date();
@@ -141,7 +144,7 @@ public class ImportSettings {
 				throw new AnonymizationException("Couldn't create Anonymization file.");
 			}
 			setAnonymizationFile(fian);
-		}
+		//}
 	}
 
 
@@ -180,7 +183,5 @@ public class ImportSettings {
 			WindowManager.mwLogger.log(Level.SEVERE,"Couldn't add line to Anonymization file.",e);
 			throw new AnonymizationException("Couldn't add line to Anonymization file.");
 		}
-	}
-	
-	
+	}	
 }

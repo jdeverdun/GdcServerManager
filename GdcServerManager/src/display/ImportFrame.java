@@ -7,7 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 
@@ -439,26 +441,40 @@ public class ImportFrame extends JFrame {
 						}
 						setLock(false);
 						popup.hide();
-						if(anomFile!=null){
-							SwingUtilities.invokeLater(new Runnable() {
-								
-								@Override
-								public void run() {
-									JDialog.setDefaultLookAndFeelDecorated(true);
-									String[] options = new String[] {"Open directory", "Close"};
-								    int option = JOptionPane.showOptionDialog(ImportFrame.this, "Import terminated. Anonymization file has been saved to \n"+SystemSettings.APP_DIR+".","Information", 
-								            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-								            null, options, options[0]);
-									if(option==0){
-										Desktop desktop = Desktop.getDesktop();
-										try {
-											desktop.open(anomFile.getParentFile());
-										} catch (IOException e) {
-											e.printStackTrace();
+						
+						// On check le nombre de ligne du fichier d'anonymisation
+						try {
+							BufferedReader reader = new BufferedReader(new FileReader(anomFile.getAbsolutePath()));
+							int lines = 0;
+						
+							while (reader.readLine() != null) lines++;
+							reader.close();
+							
+							if(lines>1){
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JDialog.setDefaultLookAndFeelDecorated(true);
+										String[] options = new String[] {"Open directory", "Close"};
+									    int option = JOptionPane.showOptionDialog(ImportFrame.this, "Import terminated. An anonymization file has been saved to \n"+SystemSettings.APP_DIR+".","Information", 
+									            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+									            null, options, options[0]);
+										if(option==0){
+											Desktop desktop = Desktop.getDesktop();
+											try {
+												desktop.open(anomFile.getParentFile());
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
 										}
 									}
-								}
-							});
+								});
+							}else{
+								anomFile.delete();
+							}
+						} catch (IOException e1) {
+							e1.printStackTrace();
 						}
 					}
 				});

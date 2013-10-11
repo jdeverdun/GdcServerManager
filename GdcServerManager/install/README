@@ -43,6 +43,8 @@ select patient.name, serie.name  from patient, project,serie where project.name 
 ou pour recuperer les T1
 select patient.name, serie.name  from patient, project,serie where project.name ='crescendo' and project.id = patient.id_project and patient.id = serie.id_patient and serie.name ='T1_MPRAGE_3D' and patient.id =any(select patient.id from patient, serie where serie.name regexp 'asl' and serie.id_patient=patient.id)
 
+Recuperer les series epi_IGT, gre_field_mapping, T1 quand ces 3 sont presente
+select patient.name, serie.name  from patient, project,serie where project.name ='PHRC_SERVIER' and project.id = patient.id_project and patient.id = serie.id_patient and (serie.name = 'epi_IGT' or serie.name = 'gre_field_mapping' or serie.name = 'T1_MPR3D_TRA') and patient.id =any(select patient.id from patient, serie where serie.name = 'T1_MPR3D_TRA' and serie.id_patient=patient.id and patient.id =any(select patient.id from patient, serie where serie.name = 'gre_field_mapping' and serie.id_patient=patient.id and patient.id =any(select patient.id from patient, serie where serie.name = 'epi_IGT' and serie.id_patient=patient.id)))
 
 recuperer les noms des patient qui n'ont pas toutes les images d'asl (105)
 
