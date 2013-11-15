@@ -38,4 +38,18 @@ public interface NiftiImageDAO {
 
 	public boolean changeProject(Patient pat, Project toproj) throws SQLException;
 
+	void removeNiftisForSerie(String project, String patient, String acqdate,
+			String protocol, String serie) throws SQLException;
+
+	void removeNiftisForProtocol(String project, String patient,
+			String acqdate, String protocol) throws SQLException;
+
+	void removeNiftisForAcqDate(String project, String patient, String acqdate)
+			throws SQLException;
+
+	void removeNiftisForProject(String project) throws SQLException;
+
+	void removeNiftisForPatient(String project, String patient)
+			throws SQLException;
+
 }

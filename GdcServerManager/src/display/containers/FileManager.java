@@ -736,6 +736,10 @@ public class FileManager {
 		if(parts.length==(serverdirlen)) 
 			return;
 		if(!fi.getName().contains("..")){
+			if(!fi.canWrite()){
+				throw new Exception("Can't delete "+fi.getAbsolutePath());
+			}		
+			// on met a jours la bdd
 			int count = 0;
 			for(int i = serverdirlen;i <parts.length;i++){
 				if(!parts[i].isEmpty()){
@@ -750,82 +754,137 @@ public class FileManager {
 			String protocol = null;
 			String serie = null;
 			String image = null;
-			switch(count){
-			case 1:// on delete un projet complet
-				project = parts[serverdirlen];
-				ProjectDAO pdao = new MySQLProjectDAO();
-				pdao.removeProject(project);
-				break;
-			case 2: // delete d'un patient
-				project = parts[serverdirlen];
-				patient = parts[serverdirlen+1];
-				PatientDAO patdao = new MySQLPatientDAO();
-				patdao.removePatient(project,patient);
-				break;
-			case 3://acqdate
-				project = parts[serverdirlen];
-				patient = parts[serverdirlen+1];
-				acqdate = parts[serverdirlen+2];
-				AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
-				adao.removeAcqdate(project,patient,acqdate);
-				break;
-			case 4://protocol
-				project = parts[serverdirlen];
-				patient = parts[serverdirlen+1];
-				acqdate = parts[serverdirlen+2];
-				protocol = parts[serverdirlen+3];
-				ProtocolDAO prdao = new MySQLProtocolDAO();
-				prdao.removeProtocol(project,patient,acqdate,protocol);
-				break;
-			case 5://serie
-				project = parts[serverdirlen];
-				patient = parts[serverdirlen+1];
-				acqdate = parts[serverdirlen+2];
-				protocol = parts[serverdirlen+3];
-				serie = parts[serverdirlen+4];
-				SerieDAO sdao = new MySQLSerieDAO();
-				sdao.removeSerie(project,patient,acqdate,protocol,serie);
-				break;
-			case 6://Image
-				project = parts[serverdirlen];
-				patient = parts[serverdirlen+1];
-				acqdate = parts[serverdirlen+2];
-				protocol = parts[serverdirlen+3];
-				serie = parts[serverdirlen+4];
-				image = parts[serverdirlen+5];
-				image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
-				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
-				case ServerInfo.NRI_DICOM_NAME:
-					DicomImageDAO ddao = new MySQLDicomImageDAO();
-					ddao.removeDicom(project,patient,acqdate,protocol,serie,image);
+			if(parts[serverdirlen-1].equals(ServerInfo.NRI_DICOM_NAME)){
+				switch(count){
+				case 1:// on delete un projet complet
+					project = parts[serverdirlen];
+					ProjectDAO pdao = new MySQLProjectDAO();
+					pdao.removeProject(project);
 					break;
-				case ServerInfo.NRI_ANALYSE_NAME:
-					NiftiImageDAO ndao = new MySQLNiftiImageDAO();
-					ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
+				case 2: // delete d'un patient
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					PatientDAO patdao = new MySQLPatientDAO();
+					patdao.removePatient(project,patient);
+					break;
+				case 3://acqdate
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
+					adao.removeAcqdate(project,patient,acqdate);
+					break;
+				case 4://protocol
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					ProtocolDAO prdao = new MySQLProtocolDAO();
+					prdao.removeProtocol(project,patient,acqdate,protocol);
+					break;
+				case 5://serie
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					SerieDAO sdao = new MySQLSerieDAO();
+					sdao.removeSerie(project,patient,acqdate,protocol,serie);
+					break;
+				case 6://Image
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					image = parts[serverdirlen+5];
+					image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
+					switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
+					case ServerInfo.NRI_DICOM_NAME:
+						DicomImageDAO ddao = new MySQLDicomImageDAO();
+						ddao.removeDicom(project,patient,acqdate,protocol,serie,image);
+						break;
+					case ServerInfo.NRI_ANALYSE_NAME:
+						NiftiImageDAO ndao = new MySQLNiftiImageDAO();
+						ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
+						break;
+					}
+					
 					break;
 				}
-				
-				break;
+			}else{
+				// dans le cas des nifti on delete que les images de la bdd 
+				NiftiImageDAO ndao = new MySQLNiftiImageDAO();
+				switch(count){
+				case 1:// on delete un projet complet
+					project = parts[serverdirlen];
+					ndao.removeNiftisForProject(project);
+					break;
+				case 2: // delete d'un patient
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					ndao.removeNiftisForPatient(project, patient);
+					break;
+				case 3://acqdate
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					ndao.removeNiftisForAcqDate(project, patient, acqdate);
+					break;
+				case 4://protocol
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					ndao.removeNiftisForProtocol(project, patient, acqdate, protocol);
+					break;
+				case 5://serie
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					ndao.removeNiftisForSerie(project, patient, acqdate, protocol, serie);
+					break;
+				case 6://Image
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					image = parts[serverdirlen+5];
+					image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
+					ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
+
+					break;
+				}
 			}
+			// on supprime d'abord les fichiers (au moins si ca plante on aura pas de decalage bdd
 			if(fi.isDirectory()){
+				if(!fi.canWrite()){
+					throw new Exception("Can't delete "+fi.getAbsolutePath());
+				}
 				FileUtils.deleteQuietly(fi);
-				// on supprime l'equivalent dans l'autre repertoire (DICOM ou NIFTI)
+				// on supprime l'equivalent dans l'autre repertoire (DICOM ou NIFTI) enfin sauf si on supprime que nifti !
 				switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
 				case ServerInfo.NRI_DICOM_NAME:
 					parts[serverdirlen-1] = ServerInfo.NRI_ANALYSE_NAME;
+					String opath = "";
+					for(String p:parts)
+						opath += p+File.separator;
+					// on enleve le dernier separator 
+					opath = opath.substring(0,opath.length()-1);
+					File temp = new File(opath);
+					if(temp.exists())
+						FileUtils.deleteQuietly(new File(opath));
 					break;
 				case ServerInfo.NRI_ANALYSE_NAME:
-					parts[serverdirlen-1] = ServerInfo.NRI_DICOM_NAME;
+					// Pourquoi supprimer dicom si on demande juste la supression du nifti ?
+					// on peut tres bien vouloir forcer une nouvelle conversion nifti
+					//parts[serverdirlen-1] = ServerInfo.NRI_DICOM_NAME;
 					break;
 				}
-				String opath = "";
-				for(String p:parts)
-					opath += p+File.separator;
-				// on enleve le dernier separator 
-				opath = opath.substring(0,opath.length()-1);
-				File temp = new File(opath);
-				if(temp.exists())
-					FileUtils.deleteQuietly(new File(opath));
+
 			}else{
 				fi.delete();
 				if(parts[serverdirlen-1].equals(ServerInfo.NRI_ANALYSE_NAME)){

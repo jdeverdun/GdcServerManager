@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import dao.MySQLProjectDAO;
+import dao.ProjectDAO;
+
 
 import settings.SQLSettings;
 import settings.UserProfile;
@@ -419,6 +422,169 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}
 	}
+	
+	/**
+	 * Supprime une entree nifti via ses nom de patient 
+	 */
+	@Override
+	public void removeNiftisForPatient(String project, String patient) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			NiftiImageTable nt = tab.getNiftiImage();
+			// id
+			PatientDAO pat = new MySQLPatientDAO();
+			int id = pat.getPatientIdFor(project, patient);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_patient()+" = " +id);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	/**
+	 * Supprime une entree nifti via nom de projet
+	 */
+	@Override
+	public void removeNiftisForProject(String project) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			NiftiImageTable nt = tab.getNiftiImage();
+			// id
+			ProjectDAO p = new MySQLProjectDAO();
+			Project pr = p.retrieveProject(project);
+			
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_project()+" = " +pr.getId());
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	/**
+	 * Supprime une entree nifti via date
+	 */
+	@Override
+	public void removeNiftisForAcqDate(String project,String patient, String acqdate) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			NiftiImageTable nt = tab.getNiftiImage();
+			// id
+			AcquisitionDateDAO ac = new MySQLAcquisitionDateDAO();
+			int id = ac.getAcqdateIdFor(project, patient, acqdate);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_acqdate()+" = " +id);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	/**
+	 * Supprime une entree nifti via protocol
+	 */
+	@Override
+	public void removeNiftisForProtocol(String project,String patient, String acqdate, String protocol) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			NiftiImageTable nt = tab.getNiftiImage();
+			// id
+			ProtocolDAO p = new MySQLProtocolDAO();
+			int id = p.getProtocolIdFor(project, patient, acqdate, protocol);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_protocol()+" = " +id);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	/**
+	 * Supprime une entree nifti via Serie
+	 */
+	@Override
+	public void removeNiftisForSerie(String project,String patient, String acqdate, String protocol, String serie) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			
+			/*
+			 *  delete from dicomimage where dicomimage.id in (select id from (select dicomimage.id from dicomimage, serie, protocol, acquisitiondate, patient, project where dicomimage.id_project=project.id and dicomimage.id_serie=serie.id and dicomimage.id_protocol=protocol.id and dicomimage.id_acqdate=acquisitiondate.id and dicomimage.id_patient=patient.id and project.name='RECHERCHE_PHRC_PARKIMAGE_MENJOT_' and patient.name='PHANTOM_SWI_' and acquisitiondate.date=20121016 and protocol.name='SWI3D_TRA_1_5mm_3__ECHOS' and serie.name='SWI3D_TRA_1_5mm_3__ECHOS' and dicomimage.name='IM000010') as tmp)
+			 */
+			DBTables tab = SQLSettings.TABLES;
+			NiftiImageTable nt = tab.getNiftiImage();
+			// id
+			SerieDAO sdao = new MySQLSerieDAO();
+			int id = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
+
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_serie()+" = " +id);
+			return;
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	
 	
 	/**
 	 * Permet de recuperer les id associés a une serie de noms de projets etc
