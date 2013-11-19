@@ -144,7 +144,8 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 	public void setStop(boolean stop) {
 		if(stop = true){
 			this.stop = true;
-			saveBackup();
+			if(!dicomToEncrypt.isEmpty() && settings.getServerMode() == ServerMode.SERVER)
+				saveBackup();
 			dicomToEncrypt.clear();
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Encrypter");
 		}else{
