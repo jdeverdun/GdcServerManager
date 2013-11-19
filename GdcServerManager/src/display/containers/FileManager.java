@@ -879,6 +879,21 @@ public class FileManager {
 						FileUtils.deleteQuietly(new File(opath));
 					break;
 				case ServerInfo.NRI_ANALYSE_NAME:
+					// on delete en cascade les parent si ils deviennent vide
+					boolean continu = true;
+					File parent = fi.getParentFile();
+					do{
+						if(getLocationOfFile(parent)>1){
+							if(parent.isDirectory() && parent.list().length == 0){
+								FileUtils.deleteQuietly(parent);
+								parent = parent.getParentFile();
+							}else{
+								continu = false;
+							}
+						}else{
+							continu = false;
+						}
+					}while(continu);
 					// Pourquoi supprimer dicom si on demande juste la supression du nifti ?
 					// on peut tres bien vouloir forcer une nouvelle conversion nifti
 					//parts[serverdirlen-1] = ServerInfo.NRI_DICOM_NAME;
@@ -1154,7 +1169,35 @@ public class FileManager {
         return created;
     }
 
-
+	/**
+	 * Renvoi le code du type de repertoire dans lequel on se trouve dans le serveur (patient, acqdate etc)
+	 * @param fi
+	 * @return
+	 */
+	public int getLocationOfFile(File fi){
+		if(!fi.getAbsolutePath().startsWith(SystemSettings.SERVER_INFO.getServerDir().toString()))
+			return -1;
+		String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return -1;
+		if(!fi.getName().contains("..")){
+			if(!fi.canWrite()){
+				return -1;
+			}		
+			// on met a jours la bdd
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}else{
+					return -1;
+				}
+			}
+			return count;
+		}
+		return -1;
+	}
 
 	public void refresh() {
 		table.setEnabled(false);

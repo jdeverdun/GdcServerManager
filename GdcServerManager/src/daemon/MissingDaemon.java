@@ -3,6 +3,7 @@ package daemon;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -117,7 +118,7 @@ public class MissingDaemon extends Thread{
 	}
 	/**
 	 * Recherche de maniere iterative les dicom non encrypte (et pas en attente de decryptage)
-	 *  et les deplace dans le repertoire d'incoming
+	 *  et les deplace dans le repertoire d'incoming, gere aussi la conversion si elel n'a pas ete faite
 	 * @param dir
 	 * @throws Exception 
 	 */
@@ -131,6 +132,8 @@ public class MissingDaemon extends Thread{
 				return;
 			if(fi.isDirectory()){
 				moveNotEncodedDicomDir(fi);
+				// on verifie si c'est un patient et si il est bien dans la bdd si non on supprime le repertoire
+				checkForPatientValidity(fi);
 				// on regarde si il n'y a pas des nifti a convertir
 				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
 					checkForNonConvertedDicom(fi);
@@ -156,6 +159,44 @@ public class MissingDaemon extends Thread{
 		}
 	}
 	
+	
+	/**
+	 * Controle si ce repertoire est un repertoire type patient et si il est bien entre dans la bdd
+	 * si non, on le supprime
+	 * @param fi
+	 */
+	private void checkForPatientValidity(File fi) {
+		String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
+		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
+		if(parts.length==(serverdirlen)) 
+			return;
+		if(!fi.getName().contains("..")){	
+			int count = 0;
+			for(int i = serverdirlen;i <parts.length;i++){
+				if(!parts[i].isEmpty()){
+					count++;
+				}
+			}
+			if(count==2){
+				String project = parts[serverdirlen];
+				String patient = parts[serverdirlen+1];
+				PatientDAO patDAO = new MySQLPatientDAO();
+				int idp;
+				try {
+					idp = patDAO.getPatientIdFor(project,patient);
+					System.out.println(patient+"-"+project+" || "+idp);
+					if(idp==-1){
+						System.out.println(patient+"-"+project+" || "+idp);
+						WindowManager.mwLogger.log(Level.INFO,"MissingDaemon deleting [not existing patient in BDD] "+fi.getAbsolutePath());
+						//FileUtils.deleteQuietly(fi);
+					}
+				} catch (SQLException e) {
+					WindowManager.mwLogger.log(Level.WARNING,e.toString());
+					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString());
+				}
+			}
+		}
+	}
 	/**
 	 * Deplace les dicom non encrypte
 	 *  et les deplace dans le repertoire d'incoming

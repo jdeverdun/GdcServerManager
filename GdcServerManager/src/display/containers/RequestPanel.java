@@ -456,7 +456,6 @@ public class RequestPanel extends JPanel {
 							try {
 								if((fi.isDirectory() && fi.getAbsolutePath().contains(ServerInfo.NRI_ANALYSE_NAME)) || new File(fi.getAbsolutePath().replace(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)).isDirectory()){
 									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(fi);
-									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_ANALYSE_NAME, ServerInfo.NRI_DICOM_NAME)));
 								}
 								if((fi.isDirectory() && fi.getAbsolutePath().contains(ServerInfo.NRI_DICOM_NAME))  || new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).isDirectory()){
 									WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(fi);

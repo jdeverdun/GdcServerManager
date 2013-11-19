@@ -157,14 +157,23 @@ public class NiftiWorker extends DaemonWorker {
 			// on lance le daemon pr decrypter
 			ddaemon.start();
 			// on attend que le decrypter ai fini son boulot
-			while(!ddaemon.isWaiting()){
+			int iter = 0;
+			while(!ddaemon.isWaiting() && !dirContainsPart(tempDicomPath)){
 				try{
-					Thread.sleep(100);
+					Thread.sleep(1000);
+					iter++;
+					if(iter == 1000){
+						WindowManager.mwLogger.log(Level.SEVERE, "NiftiWorker in infinite loop ... stopping. ["+tempDicomPath+"]");
+						WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText("NiftiWorker in infinite loop ... stopping");
+					}
 				}catch(InterruptedException e){
 					e.printStackTrace();
 				}
 			}
 			ddaemon.setStop(true);
+			// ----------- TEST 
+			System.out.println(tempDicomPath.toFile().list().length);
+			// ----------- TEST 
 			// On cree la commande (on convertie dans un autre repertoire)
 			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);
@@ -183,7 +192,11 @@ public class NiftiWorker extends DaemonWorker {
 	            WindowManager.mwLogger.log(Level.FINE, "</OUTPUT>");
 			}
 			process.waitFor();
-			
+			// ----------- TEST 
+			System.out.println(tempNiftiPath.toFile().list().length);
+			if(tempNiftiPath.toFile().list().length!=3)
+				Thread.sleep(100000);
+			// ----------- TEST 
 			// On recupere les nom des fichiers nifti cree
 			// on les encrypt et on les deplace dans leur repertoire final
 			HashMap<String,Path> niftis = getNiftiListIn(tempNiftiPath);
@@ -236,6 +249,13 @@ public class NiftiWorker extends DaemonWorker {
 	}
 
 
+	private boolean dirContainsPart(Path path) {
+		for(String s:path.toFile().list()){
+			if(s.endsWith(".part"))
+				return true;
+		}
+		return false;
+	}
 	// supprime les fichiers renseignes dans une hashmap
 	protected void removeFiles(HashMap<String, Path> niftis) {
 		for(String currNifti:niftis.keySet())

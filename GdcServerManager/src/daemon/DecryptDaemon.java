@@ -59,8 +59,10 @@ public class DecryptDaemon extends Thread {
 					if(ThreadPool.contains(DTYPE)){
 						setWaiting(false);
 					}else{
-						setWaiting(true);
-						setTotalEncryptedFile(0);
+						if(fileToDecrypt.isEmpty()){
+							setWaiting(true);
+							setTotalEncryptedFile(0);
+						}
 					}
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
