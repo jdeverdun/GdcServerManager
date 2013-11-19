@@ -184,7 +184,6 @@ public class MissingDaemon extends Thread{
 				int idp;
 				try {
 					idp = patDAO.getPatientIdFor(project,patient);
-					System.out.println(patient+"-"+project+" || "+idp);
 					if(idp==-1){
 						System.out.println(patient+"-"+project+" || "+idp);
 						WindowManager.mwLogger.log(Level.INFO,"MissingDaemon deleting [not existing patient in BDD] "+fi.getAbsolutePath());
