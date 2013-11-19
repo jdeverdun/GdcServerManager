@@ -15,7 +15,7 @@ import ij.ImagePlus;
 public class Test {
 	public static void main(String[] args){
 		try {
-			DcmQR dcmQR = new DcmQR("GDCNEURO3");
+			DcmQR dcmQR = new DcmQR("GDC_RECHPASS2");
 
 			dcmQR.setCalledAET("GEPACS28", true);
 			dcmQR.setRemoteHost("120.50.150.28");

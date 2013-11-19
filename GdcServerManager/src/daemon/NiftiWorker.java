@@ -158,7 +158,8 @@ public class NiftiWorker extends DaemonWorker {
 			ddaemon.start();
 			// on attend que le decrypter ai fini son boulot
 			int iter = 0;
-			while(!ddaemon.isWaiting() && !dirContainsPart(tempDicomPath)){
+			Thread.sleep(1000);
+			while(!ddaemon.isWaiting() || dirContainsPart(tempDicomPath)){
 				try{
 					Thread.sleep(1000);
 					iter++;
@@ -171,9 +172,6 @@ public class NiftiWorker extends DaemonWorker {
 				}
 			}
 			ddaemon.setStop(true);
-			// ----------- TEST 
-			System.out.println(tempDicomPath.toFile().list().length);
-			// ----------- TEST 
 			// On cree la commande (on convertie dans un autre repertoire)
 			command = buildConvertizerConvertCommandFor(tempDicomPath,tempNiftiPath,false);
 			//command = buildDcm2niiConvertCommandFor(tempDicomPath,tempNiftiPath,false);
@@ -192,11 +190,6 @@ public class NiftiWorker extends DaemonWorker {
 	            WindowManager.mwLogger.log(Level.FINE, "</OUTPUT>");
 			}
 			process.waitFor();
-			// ----------- TEST 
-			System.out.println(tempNiftiPath.toFile().list().length);
-			if(tempNiftiPath.toFile().list().length!=3)
-				Thread.sleep(100000);
-			// ----------- TEST 
 			// On recupere les nom des fichiers nifti cree
 			// on les encrypt et on les deplace dans leur repertoire final
 			HashMap<String,Path> niftis = getNiftiListIn(tempNiftiPath);
