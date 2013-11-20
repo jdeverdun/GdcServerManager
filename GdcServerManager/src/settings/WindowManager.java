@@ -11,5 +11,5 @@ public class WindowManager {
 	public static Logger mwLogger = null;
 	public static String PROGRAM_NAME = "XellSior";
 	public static String UPDATER_JARFILE = "gsm_updater.jar";
-	public static String  VERSION = "0.9.9.4";
+	public static String  VERSION = "0.9.9.5";
 }

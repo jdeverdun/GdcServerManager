@@ -241,12 +241,38 @@ public class DicomSortConvertPanel extends JPanel {
 		
 		chckb4d = new JCheckBox("4D");
 		panel.add(chckb4d, "cell 0 1");
-		if(!IJ.isWindows()){
+		if(!IJ.isWindows() && !IJ.isMacOSX()){
 			chckbxConvertToNifti.setSelected(false);
 			chckbxConvertToNifti.setEnabled(false);
 			comboBox.setEnabled(false);
 			chckb4d.setEnabled(false);
 		}
+		chckbxSortDicom.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!chckbxSortDicom.isSelected() && IJ.isMacOSX()){
+					chckbxSerie.setEnabled(false);
+					chckbxProtocol.setEnabled(false);
+					chckbxPatientName.setEnabled(false);
+					chckbxDate.setEnabled(false);
+					chckbxProject.setEnabled(false);
+					chckbxSerie.setSelected(true);
+					chckbxProtocol.setSelected(false);
+					chckbxPatientName.setSelected(true);
+					chckbxDate.setSelected(false);
+					chckbxProject.setSelected(true);
+				}else{
+					if(chckbxSortDicom.isSelected() && IJ.isMacOSX()){
+						chckbxSerie.setEnabled(true);
+						chckbxProtocol.setEnabled(true);
+						chckbxPatientName.setEnabled(true);
+						chckbxDate.setEnabled(true);
+						chckbxProject.setEnabled(true);
+					}
+				}
+			}
+		});
 		btnReset.addActionListener(new ActionListener() {
 			
 			@Override

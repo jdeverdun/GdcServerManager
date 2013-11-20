@@ -1,5 +1,7 @@
 package daemon;
 
+import ij.IJ;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -76,47 +78,53 @@ public class NiftiWorkerClient extends NiftiWorker {
 		
 		// ----- les sorties (nifti) -----
 		Path studyDir;
-		if(csettings.isWorkingWithProjectDir())
-			studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
-		else
-			studyDir = serverInfo.getNiftiDir();
+		if(IJ.isWindows()){
+			if(csettings.isWorkingWithProjectDir())
+				studyDir = Paths.get(serverInfo.getNiftiDir().toString() + File.separator + studyName);
+			else
+				studyDir = serverInfo.getNiftiDir();
+			
+			Path patientDir = Paths.get(studyDir + File.separator +  patientName);
+			Path acqDateDir;
+			if(csettings.isWorkingWithAcqDateDir())
+				acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
+			else
+				acqDateDir = patientDir;
+			
+			Path protocolDir;
+			if(csettings.isWorkingWithProtocolDir())
+				protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);
+			else
+				protocolDir = acqDateDir;
+			
+			Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
+			
+			
+			// --- On verifie que les repertoires sont crees ---
+			checkAndMakeDir(studyDir);
+			checkAndMakeDir(patientDir);
+			checkAndMakeDir(acqDateDir);
+			checkAndMakeDir(protocolDir);
+			checkAndMakeDir(serieDir);
 		
-		Path patientDir = Paths.get(studyDir + File.separator +  patientName);
-		Path acqDateDir;
-		if(csettings.isWorkingWithAcqDateDir())
-			acqDateDir = Paths.get(patientDir + File.separator +  acqDate);
-		else
-			acqDateDir = patientDir;
 		
-		Path protocolDir;
-		if(csettings.isWorkingWithProtocolDir())
-			protocolDir = Paths.get(acqDateDir + File.separator +  protocolAcqName);
-		else
-			protocolDir = acqDateDir;
-		
-		Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
-		
-		
-		// --- On verifie que les repertoires sont crees ---
-		checkAndMakeDir(studyDir);
-		checkAndMakeDir(patientDir);
-		checkAndMakeDir(acqDateDir);
-		checkAndMakeDir(protocolDir);
-		checkAndMakeDir(serieDir);
-		
-		niftiPath = serieDir;
-		
+			niftiPath = serieDir;
+		}else{
+			niftiPath = serverInfo.getNiftiDir();
+		}
 		WindowManager.mwLogger.log(Level.INFO,"Nifti convert : "+path);
 
 		Process process;
 		try {
-			//process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");//-x 
-			// On recupere la liste des nifti qui existait avant la conversion
-			// sous la forme "nom_datamodif"
-			HashMap<String,Path> niftiBefore = getNiftiListIn(niftiPath);
-			// on les efface (car dcm2nii n'overwrite pas !)
-			removeFiles(niftiBefore);
-			
+			// sous windows on controle l'arborescence des nifti
+			if(IJ.isWindows()){
+				//process = Runtime.getRuntime().exec("mcverter.exe "+ path +" -o "+ niftiPath.toString() + " -f fsl -x -r");//-x 
+				// On recupere la liste des nifti qui existait avant la conversion
+				// sous la forme "nom_datamodif"
+				HashMap<String,Path> niftiBefore = getNiftiListIn(niftiPath);
+				// on les efface (car dcm2nii n'overwrite pas !)
+				removeFiles(niftiBefore);
+			}
 			// ------------------------------------------------------------------- //
 			// on decrypte les fichiers dicom temporairement (pour la conversion)  //
 			// que l'on place dans le repertoire temporaire (tempDir)              //
