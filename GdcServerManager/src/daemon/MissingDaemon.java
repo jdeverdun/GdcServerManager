@@ -123,7 +123,7 @@ public class MissingDaemon extends Thread{
 	 * @throws Exception 
 	 */
 	public void moveNotEncodedDicomDir(File dir) throws Exception {
-		if(isStop())
+		if(isStop() || (SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive() && !SystemSettings.ENCRYPT_DAEMON.isWaiting()))
 			return;
 		if(!dir.isDirectory())
 			return;

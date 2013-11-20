@@ -1238,6 +1238,10 @@ public class FileManager {
 		stopAction = true;
 	}
 
+	public static void setStopAction(boolean b) {
+		stopAction = b;
+	}
+
 }
 
 /** A TableModel to hold File[]. */
