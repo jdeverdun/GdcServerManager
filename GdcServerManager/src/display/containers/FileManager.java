@@ -515,7 +515,7 @@ public class FileManager {
 
 
 				public void mouseReleased(MouseEvent me) {
-					if(me.isPopupTrigger() && table.getSelectedRowCount()>0){
+					if(me.getButton()==3 && table.getSelectedRowCount()>0){
 						int row = table.convertRowIndexToModel(table.rowAtPoint(me.getPoint()));
 						changeProjectitem.setVisible(isPatient(((FileTableModel)table.getModel()).getFile(row)));	
 						renameProjectitem.setVisible(isProject(((FileTableModel)table.getModel()).getFile(row)));	

@@ -14,6 +14,7 @@ import model.ServerInfo;
 
 public class SystemSettings {
 	public static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+	public static String OS = System.getProperty("os.name").toLowerCase();
 	public static Path APP_DIR;
 	public static final String logdir = "logs";
 	public static ServerInfo SERVER_INFO;
@@ -54,5 +55,29 @@ public class SystemSettings {
 	 */
 	public static boolean daemonsAlive(){
 		return SystemSettings.DICOM_NODE!=null || SystemSettings.NIFTI_DAEMON.isAlive() || SystemSettings.DICOM_DAEMON.isAlive();
+	}
+	
+	public static boolean isWindows() {
+		 
+		return (OS.indexOf("win") >= 0);
+ 
+	}
+ 
+	public static boolean isMac() {
+		//return true;
+		return (OS.indexOf("mac") >= 0);
+ 
+	}
+ 
+	public static boolean isUnix() {
+ 
+		return (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0 );
+ 
+	}
+ 
+	public static boolean isSolaris() {
+ 
+		return (OS.indexOf("sunos") >= 0);
+ 
 	}
 }

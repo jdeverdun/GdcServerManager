@@ -125,6 +125,7 @@ public class AdvancedImportFrame extends JFrame {
 
 	
 	public AdvancedImportFrame(File[] files) {
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setFiles(files);
 		setNewProjectName(null);
 		setNewDate(null);
@@ -266,7 +267,7 @@ public class AdvancedImportFrame extends JFrame {
 		
 		JPanel panelSaveClose = new JPanel();
 		getContentPane().add(panelSaveClose, BorderLayout.SOUTH);
-		panelSaveClose.setLayout(new MigLayout("", "[grow][grow]", "[][]"));
+		panelSaveClose.setLayout(new MigLayout("", "[7.00,grow,fill][grow,fill]", "[][]"));
 		
 		btnImport = new JButton("Import");
 		panelSaveClose.add(btnImport, "cell 0 0,growx");
@@ -836,6 +837,8 @@ public class AdvancedImportFrame extends JFrame {
 		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Advanced import (from server to local)");
 		setSize(490, 600);
+		if(SystemSettings.isMac())
+			this.pack();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		setLocationRelativeTo(null);

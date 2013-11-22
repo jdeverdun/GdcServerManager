@@ -85,12 +85,12 @@ public class Authentificator extends JFrame {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		setTitle(WindowManager.PROGRAM_NAME+" - Authentificator");
+		setTitle("Authentificator");//WindowManager.PROGRAM_NAME+" - Authentificator");
 		getContentPane().setLayout(new GridLayout(0, 1, 0, 0));
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel);
-		panel.setLayout(new MigLayout("", "[48px,grow,fill][68.00px][85.00px]", "[20px][14px][20px][19.00px][][][][][7.00]"));
+		panel.setLayout(new MigLayout("", "[70px,fill][68.00px,grow][85.00px,grow]", "[20px][14px][20px][19.00px][][][][grow][7.00]"));
 		
 		ImagePanel panel_2 = new ImagePanel("logovd2.png");
 		panel.add(panel_2, "cell 0 0 1 8,grow");
@@ -144,7 +144,8 @@ public class Authentificator extends JFrame {
 		setLocation(getX()-Math.round(WIDTH/2), getY()-Math.round(HEIGHT/2));
 		setSize(WIDTH,HEIGHT);
 		setResizable(false);
-		
+		if(SystemSettings.isMac())
+			this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		// ====================== Event ==============================

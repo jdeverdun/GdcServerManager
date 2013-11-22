@@ -770,15 +770,15 @@ public class RequestPanel extends JPanel {
 		});
 		table.addMouseListener(new MouseListener(){
 			public void mouseReleased(MouseEvent Me){
-				if(Me.isPopupTrigger() && table.getSelectedRowCount()>0 && getRqModel().getFileAt(0) != null){
+				if(Me.getButton()==3 && table.getSelectedRowCount()>0 && getRqModel().getFileAt(0) != null){
 					Pmenu.show(Me.getComponent(), Me.getX(), Me.getY());
 				}
+				//Me.isPopupTrigger()
 			}
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void mouseClicked(MouseEvent Me) {
+
 			}
 
 			@Override
@@ -794,9 +794,8 @@ public class RequestPanel extends JPanel {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void mousePressed(MouseEvent Me) {
+
 			}
 		});
 		pickerDateEnd.getEditor().addFocusListener(new FocusListener() {

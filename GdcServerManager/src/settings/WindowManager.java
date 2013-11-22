@@ -9,7 +9,8 @@ public class WindowManager {
 	public static Authentificator AUTHENTIFICATOR = null;
 	public static MainWindow MAINWINDOW = null;
 	public static Logger mwLogger = null;
-	public static String PROGRAM_NAME = "XellSior";
+	public static String PROGRAM_NAME = "Constellation";
+	public static String RELEASE_NAME = "Pegasus";
 	public static String UPDATER_JARFILE = "gsm_updater.jar";
 	public static String  VERSION = "0.9.9.5";
 }

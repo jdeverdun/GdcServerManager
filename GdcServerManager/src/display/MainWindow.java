@@ -282,8 +282,10 @@ public class MainWindow extends JFrame {
 		getContentPane().setLayout(new MigLayout("", "[][grow][][][grow][][][][][][][][][][][][][][][][][][][][][][][][][][132.00,fill]", "[][grow][grow][][][][][][][][][][][][][][][][][][][][][]"));
 		mnTools.setVisible(false);
 		toolBar = new JToolBar();
-		//getContentPane().add(toolBar, BorderLayout.NORTH);
-		getContentPane().add(toolBar, "cell 0 0 31 1,grow");
+		if(SystemSettings.isMac())
+			getContentPane().add(toolBar, BorderLayout.NORTH);// a mettre quand on est ok sur la version finale
+		else
+			getContentPane().add(toolBar, "cell 0 0 31 1,grow");
 		ImageIcon icon;
 		Image img;
 		Image newimg;
@@ -1141,10 +1143,11 @@ public class MainWindow extends JFrame {
 
         //Create and set up the window.
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        if(SystemSettings.isMac())
+			this.pack();
        
         this.setSize(1000, 700);
-        setTitle(WindowManager.PROGRAM_NAME);
+        setTitle(WindowManager.RELEASE_NAME+"@"+WindowManager.PROGRAM_NAME+" ["+WindowManager.VERSION+"]");
         setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
         //Display the window.
         this.setVisible(true);
