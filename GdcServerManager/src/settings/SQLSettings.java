@@ -99,7 +99,7 @@ public class SQLSettings {
 		//Setting connection properties of the data source
 		PDS.setConnectionFactoryClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
 		   
-		PDS.setURL("jdbc:mysql://"+ADDRESS+":3306/"+DATABASE_NAME);
+		PDS.setURL("jdbc:mysql://"+ADDRESS+":3306/"+DATABASE_NAME+"?autoReconnect=true");
 		PDS.setUser(UserProfile.LOGIN);
 		PDS.setPassword(UserProfile.ENCRYPTEDPASS);
 		   

@@ -187,7 +187,7 @@ public class MissingDaemon extends Thread{
 					if(idp==-1){
 						System.out.println(patient+"-"+project+" || "+idp);
 						WindowManager.mwLogger.log(Level.INFO,"MissingDaemon deleting [not existing patient in BDD] "+fi.getAbsolutePath());
-						//FileUtils.deleteQuietly(fi);
+						FileUtils.deleteQuietly(fi);
 					}
 				} catch (SQLException e) {
 					WindowManager.mwLogger.log(Level.WARNING,e.toString());
