@@ -574,6 +574,7 @@ public class MySQLNiftiImageDAO implements NiftiImageDAO {
 			int id = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
 
 			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.TNAME+"."+nt.getId_serie()+" = " +id);
+			sdao.updateHasNifti(id, 0);
 			return;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

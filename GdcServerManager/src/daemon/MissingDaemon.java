@@ -69,6 +69,7 @@ public class MissingDaemon extends Thread{
 	
 	public void run(){
 		WindowManager.mwLogger.log(Level.INFO, "Missing Daemon Online.");
+		boolean doCheck = false;
 		while(!isStop()){
 			try {
 				Thread.sleep(DELAY);
@@ -76,7 +77,11 @@ public class MissingDaemon extends Thread{
 				e1.printStackTrace();
 			}
 			try {
-				moveNotEncodedDicomDir(listenDirectory.toFile());
+				doCheck = false;
+				float val = (((float)nbIteration) / 10.0f);
+				if(nbIteration==0 ||  val == ((int)val) )
+					doCheck = true;
+				moveNotEncodedDicomDir(listenDirectory.toFile(),doCheck);
 			} catch (Exception e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 				WindowManager.mwLogger.log(Level.WARNING, "Missing Daemon error",e);
@@ -122,7 +127,7 @@ public class MissingDaemon extends Thread{
 	 * @param dir
 	 * @throws Exception 
 	 */
-	public void moveNotEncodedDicomDir(File dir) throws Exception {
+	public void moveNotEncodedDicomDir(File dir, boolean doCheck) throws Exception {
 		if(isStop() || (SystemSettings.ENCRYPT_DAEMON!=null && SystemSettings.ENCRYPT_DAEMON.isAlive() && !SystemSettings.ENCRYPT_DAEMON.isWaiting()))
 			return;
 		if(!dir.isDirectory())
@@ -131,9 +136,11 @@ public class MissingDaemon extends Thread{
 			if(isStop())
 				return;
 			if(fi.isDirectory()){
-				moveNotEncodedDicomDir(fi);
-				// on verifie si c'est un patient et si il est bien dans la bdd si non on supprime le repertoire
-				checkForPatientValidity(fi);
+				moveNotEncodedDicomDir(fi,doCheck);
+				if(doCheck){
+					// on verifie si c'est un patient et si il est bien dans la bdd si non on supprime le repertoire
+					checkForPatientValidity(fi);
+				}
 				// on regarde si il n'y a pas des nifti a convertir
 				if(SystemSettings.NIFTI_DAEMON!=null && SystemSettings.NIFTI_DAEMON.isAlive())
 					checkForNonConvertedDicom(fi);

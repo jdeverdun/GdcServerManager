@@ -105,6 +105,7 @@ public class DicomDaemon extends Thread{
 		            WatchEvent<Path> ev = (WatchEvent<Path>)event;
 		            Path filename = ev.context();
 		            Path realPath = Paths.get(dir.toString() + File.separator + filename.getFileName());
+		            
 		            if(!realPath.toString().endsWith(".part")) // fichier dont la copie n'est pas encore termine
 		            	dicomJobDispatcher.addDicomToMove(realPath);// on va tester si c'est un dicom ou pas par la suite
 		        }

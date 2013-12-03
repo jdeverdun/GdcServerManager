@@ -30,6 +30,7 @@ import dao.project.SerieDAO;
 
 import es.vocali.util.AESCrypt;
 
+import settings.SQLSettings;
 import settings.SystemSettings;
 import settings.WindowManager;
 
@@ -296,6 +297,13 @@ public class NiftiDaemon extends Thread{
 	}
 
 	public void addDir(Path dir,DicomImage di){
+		if(dir2convert.isEmpty()){
+			if(!SQLSettings.connectionIsWorking()){
+				setCrashed(true);
+				setStop(true);
+				return;
+			}
+		}
 		if(dir2convert.containsKey(dir)) return;
 		WindowManager.mwLogger.log(Level.INFO, "Added dir : "+dir+" to convert");
 		dir2convert.put(dir, di);

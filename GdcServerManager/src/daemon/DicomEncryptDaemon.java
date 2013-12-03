@@ -20,6 +20,7 @@ import daemon.tools.ThreadPool.DAEMONTYPE;
 import display.MainWindow;
 import exceptions.ThreadPoolException;
 
+import settings.SQLSettings;
 import settings.SystemSettings;
 import settings.WindowManager;
 
@@ -253,6 +254,13 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 		this.dicomDaemon = dicomDaemon;
 	}
 	public void addDicomToEncrypt(Path p, DicomImage di){
+		if(isWaiting()){
+			if(!SQLSettings.connectionIsWorking()){
+				setCrashed(true);
+				setStop(true);
+				return;
+			}
+		}
 		if(!dicomToEncrypt.contains(p)){
 			dicomToEncrypt.push(p);
 			dicomImageToEncrypt.push(di);

@@ -736,7 +736,7 @@ public class FileManager {
 		if(parts.length==(serverdirlen)) 
 			return;
 		if(!fi.getName().contains("..")){
-			if(!fi.canWrite()){
+			if(!fi.canWrite() && fi.exists()){
 				throw new Exception("Can't delete "+fi.getAbsolutePath());
 			}		
 			// on met a jours la bdd
@@ -861,7 +861,7 @@ public class FileManager {
 			}
 			// on supprime d'abord les fichiers (au moins si ca plante on aura pas de decalage bdd
 			if(fi.isDirectory()){
-				if(!fi.canWrite()){
+				if(!fi.canWrite() && fi.exists()){
 					throw new Exception("Can't delete "+fi.getAbsolutePath());
 				}
 				FileUtils.deleteQuietly(fi);
