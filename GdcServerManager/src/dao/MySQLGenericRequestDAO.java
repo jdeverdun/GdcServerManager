@@ -1007,9 +1007,9 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 			from += tab.getProject().TNAME+opt;
 			if(!project.equals("")){
 				if(where.equals(" where "))
-					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
+					where += tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" = '"+project+"'";
 				else
-					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" regexp '"+project+"'";
+					where += " and "+tab.getProject().TNAME+opt+"."+tab.getProject().getName()+" = '"+project+"'";
 				whereopt = " and ";
 			}
 
