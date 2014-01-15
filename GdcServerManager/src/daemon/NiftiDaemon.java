@@ -298,7 +298,7 @@ public class NiftiDaemon extends Thread{
 
 	public void addDir(Path dir,DicomImage di){
 		if(dir2convert.isEmpty()){
-			if(!SQLSettings.connectionIsWorking() && this.settings.getServerMode() != ServerMode.CLIENT){
+			if(this.settings.getServerMode() != ServerMode.CLIENT && !SQLSettings.connectionIsWorking()){
 				setCrashed(true);
 				setStop(true);
 				return;
