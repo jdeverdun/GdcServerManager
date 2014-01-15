@@ -46,6 +46,9 @@ public class SystemSettings {
 					SystemSettings.NIFTI_DAEMON.setStop(true);
 				}
 			}
+		}else{
+			if(SystemSettings.DICOM_DAEMON!=null && !SystemSettings.DICOM_DAEMON.isAlive() && SystemSettings.NIFTI_DAEMON!=null)
+				SystemSettings.NIFTI_DAEMON.setStop(true);
 		}
 	}
 	
