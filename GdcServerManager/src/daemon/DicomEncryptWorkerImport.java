@@ -1,5 +1,6 @@
 package daemon;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.util.DicomTools;
 
@@ -89,6 +90,9 @@ public class DicomEncryptWorkerImport extends DicomEncryptWorker {
 	 */
 	private void prepareToStop() {
 		imp = null;
+		// si on est sous mac ou linux on convertie pas !!
+		if(!IJ.isWindows())
+			return;
 		// On enleve le worker de la liste des worker et on ajoute
 		// le patient à la liste des patients à convertir en nifti
 		// On ne le ratjoute que si le workspace du protocole existe prefixe de serverInfo.WORKSPACE_PREFIXE
