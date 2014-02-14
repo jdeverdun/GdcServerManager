@@ -100,7 +100,7 @@ public class NiftiWorkerClient extends NiftiWorker {
 			Path serieDir = Paths.get(protocolDir + File.separator +  serieName);
 			
 			
-			// --- On verifie que les repertoires sont crees ---
+			// --- On verifie que les repertoires sont crees ---//
 			checkAndMakeDir(studyDir);
 			checkAndMakeDir(patientDir);
 			checkAndMakeDir(acqDateDir);
