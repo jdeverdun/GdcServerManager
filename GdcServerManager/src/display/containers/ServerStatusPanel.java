@@ -23,6 +23,7 @@ import javax.swing.SwingConstants;
 import daemon.DecryptDaemon;
 import daemon.DicomDaemon;
 import daemon.DicomNode;
+import daemon.MissingDaemon;
 import daemon.NiftiDaemon;
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -82,7 +83,7 @@ public class ServerStatusPanel extends JPanel {
 	private ImageIcon iconRed;
 	private ImageIcon iconYellow;
 	private JLabel lblMissingDaemon;
-	private JLabel labelMissingDaemonStatus;
+	private JButton btnMissingDaemonStatus;
 	private JLabel labelCommentMissingDaemon;
 	private JLabel labelWarningMissingDaemon;
 
@@ -230,8 +231,8 @@ public class ServerStatusPanel extends JPanel {
 		lblMissingDaemon = new JLabel("Missing Daemon");
 		add(lblMissingDaemon, "cell 0 12,alignx left,aligny center");
 		
-		labelMissingDaemonStatus = new JLabel(iconMissingDaemon);
-		add(labelMissingDaemonStatus, "cell 2 12,growx");
+		btnMissingDaemonStatus = new JButton(iconMissingDaemon);
+		add(btnMissingDaemonStatus, "cell 2 12,growx");
 		
 		labelCommentMissingDaemon = new JLabel("");
 		add(labelCommentMissingDaemon, "cell 4 12,alignx left");
@@ -294,7 +295,7 @@ public class ServerStatusPanel extends JPanel {
 			btnDicomnodestatus.setVisible(false);
 			btnEncrypterdaemonstatus.setVisible(false);
 			btnNiftidaemonstatus.setVisible(false);
-			labelMissingDaemonStatus.setVisible(false);
+			btnMissingDaemonStatus.setVisible(false);
 			lblCommentdicomdaemon.setVisible(false);
 			lblCommentdicomdispatcher.setVisible(false);
 			lblCommentdicomnode.setVisible(false);
@@ -402,6 +403,53 @@ public class ServerStatusPanel extends JPanel {
 					lblCommentniftidaemon.setText("Started");
 					lblWarningniftidaemon.setText("");
 					btnNiftidaemonstatus.setIcon(iconGreen);
+				}
+			}
+		});
+		btnMissingDaemonStatus.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(isMissingDaemonAlive()){
+					if(SystemSettings.MISSING_DAEMON!=null && SystemSettings.MISSING_DAEMON.isAlive()){
+						SystemSettings.MISSING_DAEMON.setStop(true);
+						labelCommentMissingDaemon.setText("Stopping ... ");
+						SwingUtilities.invokeLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								while(SystemSettings.MISSING_DAEMON.isAlive()){
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								}
+								setMissingDaemonAlive(false);
+								labelCommentMissingDaemon.setText("Stopped");
+								labelWarningMissingDaemon.setText("");
+								btnMissingDaemonStatus.setIcon(iconRed);
+							}
+						});
+						
+					}else{
+						setMissingDaemonAlive(false);
+						labelCommentMissingDaemon.setText("Stopped");
+						labelWarningMissingDaemon.setText("");
+						btnMissingDaemonStatus.setIcon(iconRed);
+					}
+					
+				}else{
+					if(SystemSettings.MISSING_DAEMON!=null && SystemSettings.MISSING_DAEMON.isAlive()){
+						setMissingDaemonAlive(true);
+					}else{
+						SystemSettings.MISSING_DAEMON = new MissingDaemon();
+						SystemSettings.MISSING_DAEMON.start();
+					}
+					setMissingDaemonAlive(true);
+					labelCommentMissingDaemon.setText("Started");
+					labelWarningMissingDaemon.setText("");
+					btnMissingDaemonStatus.setIcon(iconGreen);
 				}
 			}
 		});
@@ -629,9 +677,9 @@ public class ServerStatusPanel extends JPanel {
 		if(this.missingDaemonAlive != missingDaemonAlive){
 			this.missingDaemonAlive = missingDaemonAlive;
 			if(this.missingDaemonAlive)
-				labelMissingDaemonStatus.setIcon(iconGreen);
+				btnMissingDaemonStatus.setIcon(iconGreen);
 			else
-				labelMissingDaemonStatus.setIcon(iconRed);
+				btnMissingDaemonStatus.setIcon(iconRed);
 		}
 	}
 	public JLabel getLblCommentdicomdaemon() {
