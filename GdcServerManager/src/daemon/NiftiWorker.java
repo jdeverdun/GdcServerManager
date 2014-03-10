@@ -305,7 +305,7 @@ public class NiftiWorker extends DaemonWorker {
 		// -i id in filename | -p protocol in filename
 		String command = "";
 		if(IJ.isWindows())
-			command = "\""+SystemSettings.APP_DIR+File.separator+"convertizer.exe\" \""+dicomPath+"\" -o \""+niftiPath+"\" ";
+			command = "\""+SystemSettings.APP_DIR+File.separator+"mcverter.exe\" \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		else
 			command = "mcverter \""+dicomPath+"\" -o \""+niftiPath+"\" ";
 		command+= " -r "; // apply rescale slope & intercept
