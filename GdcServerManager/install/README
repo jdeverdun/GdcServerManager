@@ -13,7 +13,8 @@ et en placant le contenu de l'archive dans <java_home>/lib/security
 	Quand les identifiants sont demandees, rentrez votre login (matricule CHU) precede de CHUMPT\ et votre mot de passe
 	Puis selectionnez memoriser le mot de passe 
 
-3. Mettre convertizer.exe dans le path de windows
+3. Mettre mcverter.exe dans le path de windows
+4. Pour assurer le fonctionnement de mcverter il faut MSVCP100.dll bref Microsoft Visual C++, telechargeable ici : http://www.microsoft.com/en-us/download/details.aspx?id=5555
 
 Sur le serveur : Installer DavMail
 
