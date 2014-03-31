@@ -17,8 +17,8 @@ import javax.swing.Popup;
 public class Mailer {
 	private final String HOST =  "120.40.30.110";
 	private final String FROM = "GDC_Server";
-	private final String USER = "1245";
-	private final String EncryptedPass = "147t%596354m";
+	private final String USER = "django";
+	private final String EncryptedPass = "159t%75354m";
 	private String host;
 	private String from;
 	private String to;
@@ -58,7 +58,7 @@ public class Mailer {
 		properties.put("mail.smtp.auth", "true");
 
 		final String username = user;
-		final String password = EncryptedPass.substring(0, 3)+EncryptedPass.substring(5, 9);
+		final String password = EncryptedPass.substring(0, 3)+EncryptedPass.substring(5, 8);
 		Authenticator authenticator = new Authenticator() {
 		    protected PasswordAuthentication getPasswordAuthentication() {
 		        return new PasswordAuthentication(username, password);
