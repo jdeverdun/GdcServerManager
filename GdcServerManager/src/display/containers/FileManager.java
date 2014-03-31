@@ -67,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.net.URL;
+import display.imageprocessing.*;
 
 /**
 A basic File Manager.  Requires 1.6+ for the Desktop & SwingWorker
@@ -132,6 +133,7 @@ public class FileManager {
 	private JMenuItem tlitem;
 	private JMenuItem changeProjectitem;
 	private JMenuItem renameProjectitem;
+	private JMenuItem processitem;
 	
     public FileManager(MainWindow parent,Path defdir){
     	setCurrentDir(defdir.toFile());
@@ -326,6 +328,7 @@ public class FileManager {
             renameProjectitem = new JMenuItem("Rename");
     		twitem = new JMenuItem("To workspace");
     		tlitem = new JMenuItem("To local");
+    		processitem = new JMenuItem("Select for process");
     		switch(mode){
     		case 0:
     			Pmenu.add(twitem);
@@ -339,11 +342,35 @@ public class FileManager {
     			break;
     		case 1:
     			Pmenu.add(tlitem);
+    			Pmenu.add(processitem);
     			tlitem.addActionListener(new ActionListener() {
 					
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						parentFrame.getBtnWorkTolocal().doClick();
+					}
+				});
+    			processitem.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						SwingUtilities.invokeLater(new Runnable(){
+							public void run(){
+								// Recupere les lignes selectionnees
+								int[] indices = table.getSelectedRows();
+								// On recupere les fichiers correspondants
+								ArrayList<File> files = new ArrayList<File>();
+								for(int i=0;i<indices.length;i++){
+									int row = table.convertRowIndexToModel(indices[i]);
+									File fi = ((FileTableModel)table.getModel()).getFile(row);
+									if(fi.isDirectory())
+										files.add(fi);
+								}
+								ImageProcessingFrame imf = new ImageProcessingFrame(files);
+							}
+						});
+
+
 					}
 				});
 				break;
