@@ -196,7 +196,6 @@ public class SettingsFrame extends JFrame {
 			lblDicomNodeAETitle.setEnabled(false);
 			txtAetitle.setEnabled(false);
 			//txtDatabasename.setEnabled(false);
-			btnSelectserverdir.setEnabled(false);
 			if(UserProfile.CURRENT_USER.getLevel() == 0){
 				txtDatabasename.setEnabled(false);
 				lblDatabaseName.setEnabled(false);
