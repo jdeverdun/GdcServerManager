@@ -35,6 +35,7 @@ import model.ServerInfo;
 public class GDCSM {
 
 	/**
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
