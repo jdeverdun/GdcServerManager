@@ -18,6 +18,7 @@ public class Serie implements Serializable{
 	private float voxelwidth;
 	private float voxelheight;
 	private int hasnifti;
+	private int impossibleNiftiConversion;
 	private Protocol protocole;
 	private Project projet;
 	private Patient patient;
@@ -161,6 +162,20 @@ public class Serie implements Serializable{
 
 	public boolean equals(Serie p){
 		return this.id==p.id;
+	}
+
+	/**
+	 * @return the impossibleNiftiConversion
+	 */
+	public int getImpossibleNiftiConversion() {
+		return impossibleNiftiConversion;
+	}
+
+	/**
+	 * @param impossibleNiftiConversion the impossibleNiftiConversion to set
+	 */
+	public void setImpossibleNiftiConversion(int impossibleNiftiConversion) {
+		this.impossibleNiftiConversion = impossibleNiftiConversion;
 	}
 
 }

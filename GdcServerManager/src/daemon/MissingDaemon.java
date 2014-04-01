@@ -277,7 +277,8 @@ public class MissingDaemon extends Thread{
 						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
 					try{
-						SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
+						if(serieIsConvertable(project,patient,acqdate,protocol,serie))
+							SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
 					}catch(Exception e){
 						WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 						WindowManager.mwLogger.log(Level.SEVERE, "Missing Daemon error, couldn't add dir to nifti daemon ["+fi.toPath()+" | "+project+" | "+patient+" | "+acqdate+" | "+protocol+" | "+serie+"]",e);
@@ -286,6 +287,31 @@ public class MissingDaemon extends Thread{
 				}
 				return;
 			}
+		}
+	}
+	
+	/**
+	 * Verifie si on doit convertir la serie
+	 * @param project
+	 * @param patient
+	 * @param acqdate
+	 * @param protocol
+	 * @param serie
+	 */
+	private boolean serieIsConvertable(String project, String patient,
+			String acqdate, String protocol, String serie) {
+		SerieDAO sdao = new MySQLSerieDAO();
+		try {
+			int sid = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
+			int status = sdao.isImpossibleNiftiConversion(sid);
+			if(status == 1)
+				return false;
+			else
+				return true;
+		} catch (SQLException e) {
+			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
+			WindowManager.mwLogger.log(Level.SEVERE, "Missing Daemon error, couldn't retrieve serie id for ["+project+" | "+patient+" | "+acqdate+" | "+protocol+" | "+serie+"]",e);
+			return false;
 		}
 	}
 	/**

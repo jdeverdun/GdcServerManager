@@ -52,6 +52,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setImpossibleNiftiConversion(rset.getInt(SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
@@ -73,7 +74,7 @@ public class MySQLSerieDAO implements SerieDAO{
 	
 	
 
-	public boolean newSerie(String nom, String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean newSerie(String nom, String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti,int impossibleNiftiConversion, int project_id, int patient_id, int id_acqdate, int id_protocol) throws SQLException {
 		
 			boolean rset = false;
 			Statement stmt = null;
@@ -83,7 +84,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				stmt = connection.createStatement();
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getSerie().TNAME+" values (NULL,'"
-						+ nom + "','"+mri_name+"',"+repetitiontime+","+echotime+","+slicethickness+","+voxelwidth+","+voxelheight+","+hasnifti+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
+						+ nom + "','"+mri_name+"',"+repetitiontime+","+echotime+","+slicethickness+","+voxelwidth+","+voxelheight+","+hasnifti+","+impossibleNiftiConversion+","+project_id+","+patient_id+","+id_acqdate+", "+id_protocol+")");
 				
 				return true;
 				
@@ -159,6 +160,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setImpossibleNiftiConversion(rset.getInt(SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion()));
 				serie.setProtocole(pdao.retrieveProtocol(rset.getInt(SQLSettings.TABLES.getSerie().getId_protocol())));
 				
 				// instantiation en cascade grace à acquisitiondate
@@ -210,6 +212,7 @@ public class MySQLSerieDAO implements SerieDAO{
 				serie.setVoxelwidth(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelwidth()));
 				serie.setVoxelheight(rset.getFloat(SQLSettings.TABLES.getSerie().getVoxelheight()));
 				serie.setHasnifti(rset.getInt(SQLSettings.TABLES.getSerie().getHasnifti()));
+				serie.setImpossibleNiftiConversion(rset.getInt(SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion()));
 				// instantiation en cascade grace à acquisitiondate
 				serie.setAcquistionDate(serie.getProtocole().getAcquisitionDate());
 				serie.setPatient(serie.getAcquistionDate().getPatient());
@@ -229,7 +232,7 @@ public class MySQLSerieDAO implements SerieDAO{
 	}
 	
 	@Override
-	public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
+	public boolean updateSerie(int id, String name,String mri_name, float repetitiontime, float echotime, float slicethickness, float voxelwidth, float voxelheight,int hasnifti,int impossibleNiftiConversion, int id_project, int id_patient, int id_acqdate, int id_protocol) throws SQLException {
 		int rset = 0;
 		Statement stmt = null;
 		Connection connection = null;
@@ -240,6 +243,7 @@ public class MySQLSerieDAO implements SerieDAO{
 					""+SQLSettings.TABLES.getSerie().getMri_name()+"='"+mri_name+"', "+SQLSettings.TABLES.getSerie().getRepetitiontime()+"="+repetitiontime+", " +
 					""+SQLSettings.TABLES.getSerie().getEchotime()+"="+echotime+", "+SQLSettings.TABLES.getSerie().getSlicethickness()+"="+slicethickness+", " +
 					""+SQLSettings.TABLES.getSerie().getVoxelwidth()+"="+voxelwidth+", "+SQLSettings.TABLES.getSerie().getVoxelheight()+"="+voxelheight+", " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+", " +
+					""+SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion()+"="+impossibleNiftiConversion+", " +
 					""+SQLSettings.TABLES.getSerie().getId_project()+"="+id_project+", "+SQLSettings.TABLES.getSerie().getId_patient()+"="+id_patient+", "+SQLSettings.TABLES.getSerie().getId_acqdate()+"="+id_acqdate+", "+SQLSettings.TABLES.getSerie().getId_protocol()+"="+id_protocol+" where " +
 					""+SQLSettings.TABLES.getSerie().getId()+"="+id);
 			return true;
@@ -261,6 +265,25 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set " +SQLSettings.TABLES.getSerie().getHasnifti()+"="+hasnifti+" where " +
+					""+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
+			return true;
+		} catch (SQLException e2) {
+			throw e2;
+		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+	
+	@Override
+	public boolean updateImpossibleNiftiConversion(int idserie, int impossibleNiftiConversion) throws SQLException {
+		int rset = 0;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			stmt = connection.createStatement();
+			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set " +SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion()+"="+impossibleNiftiConversion+" where " +
 					""+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
 			return true;
 		} catch (SQLException e2) {
@@ -500,6 +523,40 @@ public class MySQLSerieDAO implements SerieDAO{
 			e2.printStackTrace();
 			throw e2;
 		} finally {
+			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
+			try { if(connection!=null) connection.close();  } catch (Exception e) {};
+		}
+	}
+
+
+
+
+	@Override
+	public int isImpossibleNiftiConversion(int idserie) throws SQLException {
+		int returnvalue = -1;
+		ResultSet rset = null;
+		Statement stmt = null;
+		Connection connection = null;
+		try {
+			connection = SQLSettings.getPDS().getConnection();
+			ProtocolDAO pdao = new MySQLProtocolDAO();
+			stmt = connection.createStatement();
+			
+			if(UserProfile.CURRENT_USER.getLevel() == 3)
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+" where "+SQLSettings.TABLES.getSerie().TNAME+"."+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
+			else
+				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+" where "+SQLSettings.TABLES.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId()+"."+SQLSettings.TABLES.getSerie().getId()+"="+idserie);
+
+			// boucle sur les resultats de la requÃªte
+			while (rset.next()) {
+				returnvalue = rset.getInt(SQLSettings.TABLES.getSerie().getImpossibleNiftiConversion());
+			}
+			return returnvalue;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			try { if(rset!=null) rset.close();  } catch (Exception e) {};
 			try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
 			try { if(connection!=null) connection.close();  } catch (Exception e) {};
 		}

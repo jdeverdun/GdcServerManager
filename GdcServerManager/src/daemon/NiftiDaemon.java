@@ -296,17 +296,18 @@ public class NiftiDaemon extends Thread{
 		return returnval;
 	}
 
-	public void addDir(Path dir,DicomImage di){
+	public boolean addDir(Path dir,DicomImage di){
 		if(dir2convert.isEmpty()){
 			if(this.settings.getServerMode() != ServerMode.CLIENT && !SQLSettings.connectionIsWorking()){
 				setCrashed(true);
 				setStop(true);
-				return;
+				return false;
 			}
 		}
-		if(dir2convert.containsKey(dir)) return;
+		if(dir2convert.containsKey(dir)) return false;
 		WindowManager.mwLogger.log(Level.INFO, "Added dir : "+dir+" to convert");
 		dir2convert.put(dir, di);
+		return true;
 	}
 	
 	// On recupere le temps depuis la derniere modif du repertoire
@@ -438,7 +439,7 @@ public class NiftiDaemon extends Thread{
 		this.crashed = crashed;
 	}
 
-	public void addDir(Path path, String project, String patient,
+	public boolean addDir(Path path, String project, String patient,
 			String acqdate, String protocol, String serie) throws SQLException {
 		DicomImage dicomImage = new DicomImage();
 		ProjectDAO pdao = new MySQLProjectDAO();
@@ -451,7 +452,7 @@ public class NiftiDaemon extends Thread{
 		dicomImage.setProtocole(new Protocol(prdao.getProtocolIdFor(project, patient, acqdate, protocol)));
 		SerieDAO sdao = new MySQLSerieDAO();
 		dicomImage.setSerie(new Serie(sdao.getSerieIdFor(project, patient, acqdate, protocol, serie)));
-		addDir(path, dicomImage);
+		return addDir(path, dicomImage);
 	}
 
 	public void clear() {

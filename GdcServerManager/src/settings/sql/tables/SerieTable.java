@@ -21,6 +21,7 @@ public class SerieTable {
 	private String voxelwidth;
 	private String voxelheight;
 	private String hasnifti;
+	private String impossibleNiftiConversion;
 	private String id_project;
 	private String id_patient;
 	private String id_acqdate;
@@ -37,6 +38,7 @@ public class SerieTable {
 		voxelwidth = "voxelwidth";
 		voxelheight = "voxelheight";
 		hasnifti = "hasnifti";
+		impossibleNiftiConversion = "impossibleNiftiConversion";
 		id_project = "id_project";
 		id_patient = "id_patient";
 		id_acqdate = "id_acqdate";
@@ -106,5 +108,19 @@ public class SerieTable {
 	 */
 	public void setHasnifti(String hasnifti) {
 		this.hasnifti = hasnifti;
+	}
+
+	/**
+	 * @return the impossibleNiftiConversion
+	 */
+	public String getImpossibleNiftiConversion() {
+		return impossibleNiftiConversion;
+	}
+
+	/**
+	 * @param impossibleNiftiConversion the impossibleNiftiConversion to set
+	 */
+	public void setImpossibleNiftiConversion(String impossibleNiftiConversion) {
+		this.impossibleNiftiConversion = impossibleNiftiConversion;
 	}
 }
