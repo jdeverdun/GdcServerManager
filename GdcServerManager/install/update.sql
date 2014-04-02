@@ -11,3 +11,4 @@ alter table project drop rkey;
 
 # update 3 (01/04/2014)
 ALTER TABLE serie ADD COLUMN impossibleNiftiConversion int(1) DEFAULT 0;
+ALTER TABLE serie MODIFY COLUMN impossibleNiftiConversion int(1) DEFAULT 0 AFTER hasnifti;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -51,6 +52,7 @@ public class MissingDaemon extends Thread{
 	private int nbIteration; // nombre de parcours de l'arborescence qu'a fait le programme
 	private int nbMoved; // nombre de fichiers deplace
 	private int nbConvert; // nombre de serie a reconvertir
+	private HashMap<Path, Integer[]> nbOfConversionTries;// permet de savoir combien de fois on a tente de convertir un repertoire
 	
 	public MissingDaemon(){
 		setStop(false);
@@ -58,6 +60,7 @@ public class MissingDaemon extends Thread{
 		nbIteration = 0;
 		nbMoved = 0;
 		nbConvert = 0;
+		nbOfConversionTries = new HashMap<Path, Integer[]>();
 	}
 	public MissingDaemon(Path p){
 		setStop(false);
@@ -65,6 +68,7 @@ public class MissingDaemon extends Thread{
 		nbIteration = 0;
 		nbMoved = 0;
 		nbConvert = 0;
+		nbOfConversionTries = new HashMap<Path, Integer[]>();
 	}
 	
 	public void run(){
@@ -82,6 +86,12 @@ public class MissingDaemon extends Thread{
 				if(nbIteration==0 ||  val == ((int)val) )
 					doCheck = true;
 				moveNotEncodedDicomDir(listenDirectory.toFile(),doCheck);
+				// on nettoie la hashmap
+				for(Path key : nbOfConversionTries.keySet()){
+					if(nbOfConversionTries.get(key)[0] == 1 && (nbIteration - nbOfConversionTries.get(key)[1])>5){
+						nbOfConversionTries.remove(key);
+					}
+				}
 			} catch (Exception e) {
 				WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 				WindowManager.mwLogger.log(Level.WARNING, "Missing Daemon error",e);
@@ -277,8 +287,28 @@ public class MissingDaemon extends Thread{
 						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
 					try{
-						if(serieIsConvertable(project,patient,acqdate,protocol,serie))
-							SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
+						if(serieIsConvertable(project,patient,acqdate,protocol,serie)){
+							boolean wasAdded = SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
+							// si on a pu l'ajouter
+							if(wasAdded){
+								if(nbOfConversionTries.containsKey(fi.toPath())){
+									Integer[] tries = nbOfConversionTries.get(fi.toPath());
+									if(tries[0]>5){
+										// si ca fait au moins 5 iteration que le fichier est ajoute
+										SerieDAO sdao = new MySQLSerieDAO();
+										int idserie = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
+										sdao.updateImpossibleNiftiConversion(idserie, 1);
+										nbOfConversionTries.remove(fi.toPath());
+									}else{
+										tries[0]++;
+										nbOfConversionTries.get(fi.toPath())[0] = tries[0];
+									}
+								}else{
+									nbOfConversionTries.put(fi.toPath(), new Integer[]{1,nbIteration});
+								}
+									
+							}
+						}
 					}catch(Exception e){
 						WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 						WindowManager.mwLogger.log(Level.SEVERE, "Missing Daemon error, couldn't add dir to nifti daemon ["+fi.toPath()+" | "+project+" | "+patient+" | "+acqdate+" | "+protocol+" | "+serie+"]",e);
