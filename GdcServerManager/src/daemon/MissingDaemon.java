@@ -294,7 +294,7 @@ public class MissingDaemon extends Thread{
 								if(nbOfConversionTries.containsKey(fi.toPath())){
 									Integer[] tries = nbOfConversionTries.get(fi.toPath());
 									if(tries[0]>5){
-										// si ca fait au moins 5 iteration que le fichier est ajoute
+										// si ca fait au moins 5 iteration que le fichier est ajoute 
 										SerieDAO sdao = new MySQLSerieDAO();
 										int idserie = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
 										sdao.updateImpossibleNiftiConversion(idserie, 1);
