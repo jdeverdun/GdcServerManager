@@ -54,6 +54,9 @@ import javax.swing.event.DocumentListener;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
+import plugins.FolderProcessingPlugins;
+import plugins.PluginsLoader;
+
 import daemon.DecryptDaemon;
 import daemon.NiftiDaemon;
 import display.containers.FileManager;
@@ -78,6 +81,7 @@ import java.awt.ComponentOrientation;
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
 import javax.swing.JSeparator;
+import javax.swing.JComboBox;
 
 public class ImageProcessingFrame extends JFrame {
 	
@@ -86,6 +90,9 @@ public class ImageProcessingFrame extends JFrame {
 	public static final int WIDTH = 500;
 	public static final int HEIGHT = 400;
 	
+	// plugins
+	private PluginsLoader pluginLoader;
+	private FolderProcessingPlugins[] folderProcessingPlugins;
 	private String newProjectName;
 	private String newPatientName;
 	private String newProtocolName;
@@ -101,48 +108,42 @@ public class ImageProcessingFrame extends JFrame {
 	private JCheckBox checkBoxDate;
 	private JCheckBox chckbxProtocol;
 	private JCheckBox checkBoxSerie;
+	private JComboBox comboBox;
+	private JButton btnOk;
 	
 	public ImageProcessingFrame(ArrayList<File> directories){
 		super();
 		setDirectories(directories);
 		
 		// init de la fenetre
-				createAndShowGUI();
-				
-		getContentPane().setLayout(new MigLayout("", "", ""));
+		createAndShowGUI();
+		// init plugin 
+		pluginLoader = new PluginsLoader();
+		try {
+			folderProcessingPlugins = pluginLoader.loadAllFolderProcessingPlugins();
+		} catch (Exception e) {
+			WindowManager.mwLogger.log(Level.SEVERE,"Couldn't load folderProcessingPlugins ... ["+e.toString()+"]");
+			e.printStackTrace();
+		}
+		comboBox.removeAllItems();
+		for(FolderProcessingPlugins fp : folderProcessingPlugins){
+			comboBox.addItem(fp.getLabel());
+		}
 		
 		
 		
-		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, "cell 4 10 2 11,aligny bottom");
-		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][][][][][15px][grow][]"));
 		
-		separator = new JSeparator();
-		panel_1.add(separator, "cell 0 5 2 1,growx");
 		
-		lblFolderStructure = new JLabel("Folder structure");
-		panel_1.add(lblFolderStructure, "cell 0 7,alignx left");
 		
-		chckbxProject = new JCheckBox("Project");
-		panel_1.add(chckbxProject, "flowx,cell 1 7,alignx left");
 		
-		checkBoxPatient = new JCheckBox("Patient");
-		panel_1.add(checkBoxPatient, "cell 1 7,alignx left");
-		
-		checkBoxDate = new JCheckBox("Date");
-		panel_1.add(checkBoxDate, "cell 1 7,alignx left");
-		
-		chckbxProtocol = new JCheckBox("Protocol");
-		chckbxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		panel_1.add(chckbxProtocol, "cell 1 7,alignx left");
-		checkBoxSerie = new JCheckBox("Serie");
-		checkBoxSerie.setEnabled(false);
-		checkBoxSerie.setSelected(true);
-		panel_1.add(checkBoxSerie, "cell 1 7,alignx left");
+	}
+
+	private void createAndShowGUI() {
+		// panels and co
+
+		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][]"));
 		
 		DefaultListModel<String> model = new DefaultListModel<String>();  
-		list = new JList<String>();
-		list.setModel(model);
 		updateList();
 		
 		
@@ -159,14 +160,63 @@ public class ImageProcessingFrame extends JFrame {
 
 		}
 		
+		JPanel panel_1 = new JPanel();
+		getContentPane().add(panel_1, "cell 0 0 2 4,growx,aligny bottom");
+		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][15px][grow][]"));
+		
+		separator = new JSeparator();
+		panel_1.add(separator, "cell 0 1 2 1,growx");
+		
+		comboBox = new JComboBox();
+		panel_1.add(comboBox, "cell 0 2,growx");
+		
+		btnOk = new JButton("Ok");
+		panel_1.add(btnOk, "cell 1 2");
+		
+		lblFolderStructure = new JLabel("Folder structure");
+		panel_1.add(lblFolderStructure, "cell 0 3,alignx left");
+		
+		chckbxProject = new JCheckBox("Project");
+		panel_1.add(chckbxProject, "flowx,cell 1 3,alignx left");
+		
+		checkBoxPatient = new JCheckBox("Patient");
+		panel_1.add(checkBoxPatient, "cell 1 3,alignx left");
+		
+		checkBoxDate = new JCheckBox("Date");
+		panel_1.add(checkBoxDate, "cell 1 3,alignx left");
+		
+		chckbxProtocol = new JCheckBox("Protocol");
+		chckbxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		panel_1.add(chckbxProtocol, "cell 1 3,alignx left");
+		checkBoxSerie = new JCheckBox("Serie");
+		checkBoxSerie.setEnabled(false);
+		checkBoxSerie.setSelected(true);
+		panel_1.add(checkBoxSerie, "cell 1 3,alignx left");
+		list = new JList<String>();
+		list.setModel(model);
+		
 		//JList<String>list2 = new JList<String>(liste);
 		verticalGlue = Box.createVerticalGlue();
 		verticalGlue.setPreferredSize(new Dimension(20, 0));
-		panel_1.add(verticalGlue, "cell 0 8,grow");
-		panel_1.add(new JScrollPane(list), "cell 0 9 2 2,grow");
-	}
-
-	private void createAndShowGUI() {
+		panel_1.add(verticalGlue, "cell 0 4,grow");
+		panel_1.add(new JScrollPane(list), "cell 0 5 2 2,grow");
+		
+		
+		// =============== EVENTS ==============
+		btnOk.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String label = (String) comboBox.getSelectedItem();
+				for(FolderProcessingPlugins fp : folderProcessingPlugins){
+					if(fp.getLabel().equals(label)){
+						fp.actionOnFolders(directories, A_METTRE);
+					}
+				}
+				dispose();
+			}
+		});
+		// Autres
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setSize(480,400);
 		this.setTitle(TITLE);
@@ -424,7 +474,7 @@ public class ImageProcessingFrame extends JFrame {
 				return "Unknown";
 			}
 			// cast en file pour eviter les multiple slash
-			return new File(txtOutputDirectory.getText()+File.separator+project+File.separator+patient+File.separator+acqdate+File.separator+protocol+File.separator+serie).getAbsolutePath();
+			return null;//new File(txtOutputDirectory.getText()+File.separator+project+File.separator+patient+File.separator+acqdate+File.separator+protocol+File.separator+serie).getAbsolutePath();
 		}
 		return "Unknow";
 	}

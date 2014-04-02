@@ -16,6 +16,7 @@ public class SystemSettings {
 	public static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
 	public static String OS = System.getProperty("os.name").toLowerCase();
 	public static Path APP_DIR;
+	public static final String relativePluginsDir = "plugins";
 	public static final String logdir = "logs";
 	public static ServerInfo SERVER_INFO;
 	public static DicomDaemon DICOM_DAEMON;
