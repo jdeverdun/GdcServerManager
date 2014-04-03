@@ -55,6 +55,7 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import plugins.FolderProcessingPlugins;
+import plugins.FolderProcessingPlugins.FolderStructure;
 import plugins.PluginsLoader;
 
 import daemon.DecryptDaemon;
@@ -84,12 +85,12 @@ import javax.swing.JSeparator;
 import javax.swing.JComboBox;
 
 public class ImageProcessingFrame extends JFrame {
-	
+
 	// ----- Variables static --------
 	public static final String TITLE = "Image Processing";
 	public static final int WIDTH = 500;
 	public static final int HEIGHT = 400;
-	
+
 	// plugins
 	private PluginsLoader pluginLoader;
 	private FolderProcessingPlugins[] folderProcessingPlugins;
@@ -97,24 +98,23 @@ public class ImageProcessingFrame extends JFrame {
 	private String newPatientName;
 	private String newProtocolName;
 	private String newDate;
-	
+
 	private ArrayList<File> directories;
 	private JList<String> list;
 	private Component verticalGlue;
 	private JSeparator separator;
 	private JLabel lblFolderStructure;
-	private JCheckBox chckbxProject;
 	private JCheckBox checkBoxPatient;
 	private JCheckBox checkBoxDate;
-	private JCheckBox chckbxProtocol;
+	private JCheckBox checkboxProtocol;
 	private JCheckBox checkBoxSerie;
 	private JComboBox comboBox;
 	private JButton btnOk;
-	
+
 	public ImageProcessingFrame(ArrayList<File> directories){
 		super();
 		setDirectories(directories);
-		
+
 		// init de la fenetre
 		createAndShowGUI();
 		// init plugin 
@@ -129,24 +129,24 @@ public class ImageProcessingFrame extends JFrame {
 		for(FolderProcessingPlugins fp : folderProcessingPlugins){
 			comboBox.addItem(fp.getLabel());
 		}
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
 	}
 
 	private void createAndShowGUI() {
 		// panels and co
 
 		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][]"));
-		
+
 		DefaultListModel<String> model = new DefaultListModel<String>();  
 		updateList();
-		
-		
+
+
 
 		// Affiche les repertoires selectionnes
 		String[] liste = new String[directories.size()];
@@ -156,64 +156,78 @@ public class ImageProcessingFrame extends JFrame {
 			liste[count++] =fi.getAbsolutePath();
 			//System.out.println(fi.getAbsolutePath());
 			//System.out.println(Arrays.toString(liste));
-			
+
 
 		}
-		
+
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, "cell 0 0 2 4,growx,aligny bottom");
 		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][15px][grow][]"));
-		
+
 		separator = new JSeparator();
 		panel_1.add(separator, "cell 0 1 2 1,growx");
-		
+
 		comboBox = new JComboBox();
 		panel_1.add(comboBox, "cell 0 2,growx");
-		
+
 		btnOk = new JButton("Ok");
 		panel_1.add(btnOk, "cell 1 2");
-		
+
 		lblFolderStructure = new JLabel("Folder structure");
+		lblFolderStructure.setToolTipText("Please select the folder structure of yours paths.");
 		panel_1.add(lblFolderStructure, "cell 0 3,alignx left");
-		
-		chckbxProject = new JCheckBox("Project");
-		panel_1.add(chckbxProject, "flowx,cell 1 3,alignx left");
-		
+
 		checkBoxPatient = new JCheckBox("Patient");
-		panel_1.add(checkBoxPatient, "cell 1 3,alignx left");
-		
+		panel_1.add(checkBoxPatient, "flowx,cell 1 3,alignx left");
+
 		checkBoxDate = new JCheckBox("Date");
 		panel_1.add(checkBoxDate, "cell 1 3,alignx left");
-		
-		chckbxProtocol = new JCheckBox("Protocol");
-		chckbxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		panel_1.add(chckbxProtocol, "cell 1 3,alignx left");
+
+		checkboxProtocol = new JCheckBox("Protocol");
+		checkboxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		panel_1.add(checkboxProtocol, "cell 1 3,alignx left");
 		checkBoxSerie = new JCheckBox("Serie");
 		checkBoxSerie.setEnabled(false);
 		checkBoxSerie.setSelected(true);
 		panel_1.add(checkBoxSerie, "cell 1 3,alignx left");
 		list = new JList<String>();
 		list.setModel(model);
-		
+
 		//JList<String>list2 = new JList<String>(liste);
 		verticalGlue = Box.createVerticalGlue();
 		verticalGlue.setPreferredSize(new Dimension(20, 0));
 		panel_1.add(verticalGlue, "cell 0 4,grow");
 		panel_1.add(new JScrollPane(list), "cell 0 5 2 2,grow");
-		
-		
+
+
 		// =============== EVENTS ==============
 		btnOk.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				System.out.println(getFolderStructure());
+				if ( getFolderStructure()==null){
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							JDialog.setDefaultLookAndFeelDecorated(true);
+							JOptionPane.showMessageDialog(ImageProcessingFrame.this,
+									"Unknown folder structure",
+									"Parameters error",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					});
+					return;
+				}
 				String label = (String) comboBox.getSelectedItem();
 				for(FolderProcessingPlugins fp : folderProcessingPlugins){
 					if(fp.getLabel().equals(label)){
-						fp.actionOnFolders(directories, A_METTRE);
+						fp.actionOnFolders(directories, getFolderStructure());
 					}
 				}
 				dispose();
+
 			}
 		});
 		// Autres
@@ -223,31 +237,31 @@ public class ImageProcessingFrame extends JFrame {
 		this.setLocation(WindowManager.MAINWINDOW.getLocation());
 		this.setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		this.setVisible(true);
-		
+
 	}
-	
+
 	public void setDirectories(ArrayList<File> directories) {
 		this.directories = directories;
 	}
-	
+
 	private void updateList()  
-    {  
+	{  
 		SwingUtilities.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
-		        DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();  
-		        String[] values = getOutputFilesAsStringArray();		        
-		        model.removeAllElements();  
-		        for(String s:values)  
-		        {   
-		            model.addElement(s);  
-		        }  
+				DefaultListModel<String> model = (DefaultListModel<String>)list.getModel();  
+				String[] values = getOutputFilesAsStringArray();		        
+				model.removeAllElements();  
+				for(String s:values)  
+				{   
+					model.addElement(s);  
+				}  
 			}
 		});
 
-    }
-	
+	}
+
 	public String[] getOutputFilesAsStringArray() {
 		if(directories==null || directories.size()==0)
 			return new String[]{};
@@ -255,24 +269,12 @@ public class ImageProcessingFrame extends JFrame {
 		int count=0;
 		for(File fi:directories){
 			try {
-				list[count++] =fi.getAbsolutePath(); //formatOuput(fi.getAbsolutePath());
+				list[count++] =fi.getAbsolutePath();
 			} catch (Exception e) {
 				WindowManager.mwLogger.log(Level.WARNING,"Error while formatting output files for the import [getOutputFilesAsStringArray] with "+fi.getAbsolutePath(),e);
 			}
 		}
 		return list;
-	}
-	
-	public String getNewProjectName() {
-		return newProjectName;
-	}
-
-
-	/**
-	 * @param newProjectName the newProjectName to set
-	 */
-	public void setNewProjectName(String newProjectName) {
-		this.newProjectName = newProjectName;
 	}
 
 
@@ -322,161 +324,24 @@ public class ImageProcessingFrame extends JFrame {
 	public void setNewDate(String newDate) {
 		this.newDate = newDate;
 	}
-	
-	private String formatOuput(String path) throws Exception {
-		File fi = new File(path);
-		String[] parts = path.split(Pattern.quote(File.separator));
-		int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
-		if(parts.length==(serverdirlen)) 
-			return "Unknown";
-		if(!fi.getName().contains("..")){
-			
-			int count = 0;
-			for(int i = serverdirlen;i <parts.length;i++){
-				if(!parts[i].isEmpty()){
-					count++;
-				}else{
-					throw new Exception("Error with file path structure.");
-				}
-			}
-			// on s'assure de la structure
-			String project = "";
-			String patient = "";
-			String acqdate = "";
-			String protocol = "";
-			String serie = "";
-			switch(count){
-			case 1://project
-				chckbxProject.setSelected(true);
-				checkBoxPatient.setSelected(true);
-				checkBoxDate.setSelected(true);
-				chckbxProtocol.setSelected(true);
-				checkBoxSerie.setSelected(true);
-				chckbxProject.setEnabled(false);
-				checkBoxPatient.setEnabled(false);
-				checkBoxDate.setEnabled(false);
-				chckbxProtocol.setEnabled(false);
-				checkBoxSerie.setEnabled(false);
-				if(getNewProjectName()!=null)
-					project = getNewProjectName();
-				else
-					project = parts[serverdirlen];
-				break;
-			case 2://patient
-				checkBoxPatient.setSelected(true);
-				checkBoxDate.setSelected(true);
-				chckbxProtocol.setSelected(true);
-				checkBoxSerie.setSelected(true);
-				checkBoxPatient.setEnabled(false);
-				checkBoxDate.setEnabled(false);
-				chckbxProtocol.setEnabled(false);
-				checkBoxSerie.setEnabled(false);
-				if(chckbxProject.isSelected()){
-					if(getNewProjectName()!=null)
-						project = getNewProjectName();
-					else
-						project = parts[serverdirlen];
-				}
-				if(checkBoxPatient.isSelected()){
-					if(getNewPatientName()!=null)
-						patient = getNewPatientName();
-					else
-						patient = parts[serverdirlen+1];
-				}
-				break;
-			case 3://acqdate
-				checkBoxDate.setSelected(true);
-				chckbxProtocol.setSelected(true);
-				checkBoxSerie.setSelected(true);
-				checkBoxDate.setEnabled(false);
-				chckbxProtocol.setEnabled(false);
-				checkBoxSerie.setEnabled(false);
-				if(chckbxProject.isSelected()){
-					if(getNewProjectName()!=null)
-						project = getNewProjectName();
-					else
-						project = parts[serverdirlen];
-				}
-				if(checkBoxPatient.isSelected()){
-					if(getNewPatientName()!=null)
-						patient = getNewPatientName();
-					else
-						patient = parts[serverdirlen+1];
-				}
-				if(checkBoxDate.isSelected()){
-					if(getNewDate()!=null)
-						acqdate = getNewDate();
-					else
-						acqdate = parts[serverdirlen+2];
-				}
-				break;
-			case 4://protocol
-				chckbxProtocol.setSelected(true);
-				checkBoxSerie.setSelected(true);
-				chckbxProtocol.setEnabled(false);
-				checkBoxSerie.setEnabled(false);
-				if(chckbxProject.isSelected()){
-					if(getNewProjectName()!=null)
-						project = getNewProjectName();
-					else
-						project = parts[serverdirlen];
-				}
-				if(checkBoxPatient.isSelected()){
-					if(getNewPatientName()!=null)
-						patient = getNewPatientName();
-					else
-						patient = parts[serverdirlen+1];
-				}
-				if(checkBoxDate.isSelected()){
-					if(getNewDate()!=null)
-						acqdate = getNewDate();
-					else
-						acqdate = parts[serverdirlen+2];
-				}
-				if(chckbxProtocol.isSelected()){
-					if(getNewProtocolName()!=null)
-						protocol = getNewProtocolName();
-					else
-						protocol = parts[serverdirlen+3];
-				}
-				break;
-			case 5://serie
-				checkBoxSerie.setSelected(true);
-				checkBoxSerie.setEnabled(false);
-				if(chckbxProject.isSelected()){
-					if(getNewProjectName()!=null)
-						project = getNewProjectName();
-					else
-						project = parts[serverdirlen];
-				}
-				if(checkBoxPatient.isSelected()){
-					if(getNewPatientName()!=null)
-						patient = getNewPatientName();
-					else
-						patient = parts[serverdirlen+1];
-				}
-				if(checkBoxDate.isSelected()){
-					if(getNewDate()!=null)
-						acqdate = getNewDate();
-					else
-						acqdate = parts[serverdirlen+2];
-				}
-				if(chckbxProtocol.isSelected()){
-					if(getNewProtocolName()!=null)
-						protocol = getNewProtocolName();
-					else
-						protocol = parts[serverdirlen+3];
-				}
-				if(checkBoxSerie.isSelected())
-					serie = parts[serverdirlen+4];
-				break;
-			default:
-				return "Unknown";
-			}
-			// cast en file pour eviter les multiple slash
-			return null;//new File(txtOutputDirectory.getText()+File.separator+project+File.separator+patient+File.separator+acqdate+File.separator+protocol+File.separator+serie).getAbsolutePath();
-		}
-		return "Unknow";
-	}
 
+	private FolderStructure getFolderStructure() {
+
+		// on s'assure de la structure
+		if (checkBoxPatient.isSelected() && checkBoxDate.isSelected() && checkboxProtocol.isSelected() && checkBoxSerie.isSelected())
+			return FolderStructure.PatDatProtSer;
+		else if(checkBoxPatient.isSelected() && checkboxProtocol.isSelected() && checkBoxSerie.isSelected() && !(checkBoxDate.isSelected()))
+			return FolderStructure.PatProtSer;
+		else if (checkBoxPatient.isSelected() && checkBoxDate.isSelected() && !(checkboxProtocol.isSelected()) && checkBoxSerie.isSelected())
+			return FolderStructure.PatDatSer;
+		else if (checkBoxPatient.isSelected() && !(checkBoxDate.isSelected() || checkboxProtocol.isSelected()) && checkBoxSerie.isSelected())
+			return FolderStructure.PatSer;
+		else if (checkBoxPatient.isSelected() && !(checkBoxDate.isSelected() || checkboxProtocol.isSelected() || checkBoxSerie.isSelected()))
+			return FolderStructure.Pat;
+		else if (!(checkBoxPatient.isSelected() || checkBoxDate.isSelected() || checkboxProtocol.isSelected()) && checkBoxSerie.isSelected())
+			return FolderStructure.Ser;
+
+		return null;
+
+	}
 }

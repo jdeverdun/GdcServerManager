@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public interface FolderProcessingPlugins extends PluginsBase {
 
-	public enum FolderStructure{PatDatProtSer, PatProtSer, PatSer, Pat, Ser};
+	public enum FolderStructure{PatDatProtSer, PatProtSer, PatDatSer, PatSer, Pat, Ser};
 	/**
 	 * Fonction de traitement principale du plugins de manipulation de String
 	 * @param ini La chaine initiale
