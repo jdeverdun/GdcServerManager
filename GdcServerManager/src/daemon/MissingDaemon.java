@@ -87,7 +87,7 @@ public class MissingDaemon extends Thread{
 					doCheck = true;
 				moveNotEncodedDicomDir(listenDirectory.toFile(),doCheck);
 				// on nettoie la hashmap
-				Iterator it = nbOfConversionTries.entrySet().iterator();
+				Iterator it = nbOfConversionTries.keySet().iterator();
 				while (it.hasNext()){
 					Integer[] item = (Integer[]) it.next();
 					if(item[0] == 1 && (nbIteration - item[1])>5){
