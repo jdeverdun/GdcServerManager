@@ -50,6 +50,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.html.HTMLEditorKit;
 
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
@@ -83,6 +84,9 @@ import javax.swing.JList;
 import javax.swing.AbstractListModel;
 import javax.swing.JSeparator;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class ImageProcessingFrame extends JFrame {
 
@@ -110,9 +114,18 @@ public class ImageProcessingFrame extends JFrame {
 	private JCheckBox checkBoxSerie;
 	private JComboBox comboBox;
 	private JButton btnOk;
+	private JButton btnCancel;
+	private JPanel panel_1;
+	private JLabel lblChooseTheProcess;
+	private JSeparator separator_1;
+	private JTextArea txtrSelectThe;
+	private JPanel panel_2;
+	private JSeparator separator_2;
+	private JEditorPane dtrpnSelectThe;
 
 	public ImageProcessingFrame(ArrayList<File> directories){
 		super();
+		this.setResizable(false);
 		setDirectories(directories);
 
 		// init de la fenetre
@@ -141,7 +154,7 @@ public class ImageProcessingFrame extends JFrame {
 	private void createAndShowGUI() {
 		// panels and co
 
-		getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][]"));
+
 
 		DefaultListModel<String> model = new DefaultListModel<String>();  
 		updateList();
@@ -159,45 +172,60 @@ public class ImageProcessingFrame extends JFrame {
 
 
 		}
+		JPanel panel = new JPanel();
+		getContentPane().add(panel);//, BorderLayout.CENTER);
+		panel.setLayout(new MigLayout("", "[18px][130.00px,grow][100px][18px]", "[-31.00,grow][52.00][][32.00][125.00]"));
 
-		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, "cell 0 0 2 4,growx,aligny bottom");
-		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][15px][grow][]"));
 
-		separator = new JSeparator();
-		panel_1.add(separator, "cell 0 1 2 1,growx");
+
+		separator_2 = new JSeparator();
+		separator_2.setForeground(Color.BLACK);
+		separator_2.setBackground(Color.BLACK);
+		panel.add(separator_2, "cell 1 0 2 1,growx");
+
+		lblChooseTheProcess = new JLabel("Choose the process");
+		panel.add(lblChooseTheProcess, "cell 1 1,alignx left");
 
 		comboBox = new JComboBox();
-		panel_1.add(comboBox, "cell 0 2,growx");
+		panel.add(comboBox, "cell 2 1,growx");
 
-		btnOk = new JButton("Ok");
-		panel_1.add(btnOk, "cell 1 2");
+		separator_1 = new JSeparator();
+		separator_1.setBackground(Color.BLACK);
+		separator_1.setForeground(Color.BLACK);
+		panel.add(separator_1, "cell 1 2 2 1,growx");
 
 		lblFolderStructure = new JLabel("Folder structure");
 		lblFolderStructure.setToolTipText("Please select the folder structure of yours paths.");
-		panel_1.add(lblFolderStructure, "cell 0 3,alignx left");
+		panel.add(lblFolderStructure, "cell 1 3,alignx left,aligny center");
 
 		checkBoxPatient = new JCheckBox("Patient");
-		panel_1.add(checkBoxPatient, "flowx,cell 1 3,alignx left");
+		panel.add(checkBoxPatient, "flowx,cell 2 3,alignx left,aligny center");
 
 		checkBoxDate = new JCheckBox("Date");
-		panel_1.add(checkBoxDate, "cell 1 3,alignx left");
+		panel.add(checkBoxDate, "cell 2 3,alignx left,aligny center");
 
 		checkboxProtocol = new JCheckBox("Protocol");
 		checkboxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		panel_1.add(checkboxProtocol, "cell 1 3,alignx left");
+		panel.add(checkboxProtocol, "cell 2 3,alignx left,aligny center");
 		checkBoxSerie = new JCheckBox("Serie");
 		checkBoxSerie.setEnabled(false);
 		checkBoxSerie.setSelected(true);
-		panel_1.add(checkBoxSerie, "cell 1 3,alignx left");
+		panel.add(checkBoxSerie, "cell 2 3,alignx left,aligny center");
 		list = new JList<String>();
 		list.setModel(model);
 
 		//JList<String>list2 = new JList<String>(liste);
-		verticalGlue = Box.createVerticalGlue();
-		verticalGlue.setPreferredSize(new Dimension(20, 0));
-		panel_1.add(verticalGlue, "cell 0 4,grow");
-		panel_1.add(new JScrollPane(list), "cell 0 5 2 2,grow");
+		/*verticalGlue = Box.createVerticalGlue();
+																				verticalGlue.setPreferredSize(new Dimension(20, 0));
+																				panel.add(verticalGlue, "cell 0 2,grow");*/
+		panel.add(new JScrollPane(list), "cell 1 4 2 1,alignx center,grow");
+
+		panel_1 = new JPanel();
+		getContentPane().add(panel_1, BorderLayout.SOUTH);
+		panel_1.setLayout(new MigLayout("", "[15.00px][195.00px][195.00px][15px]", "[23px]"));
+
+		btnOk = new JButton("Ok");
+		panel_1.add(btnOk, "cell 1 0,growx,aligny top");
 
 
 		// =============== EVENTS ==============
@@ -205,7 +233,6 @@ public class ImageProcessingFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println(getFolderStructure());
 				if ( getFolderStructure()==null){
 					SwingUtilities.invokeLater(new Runnable() {
 
@@ -230,11 +257,34 @@ public class ImageProcessingFrame extends JFrame {
 
 			}
 		});
+
+		btnCancel = new JButton("Close");
+		panel_1.add(btnCancel, "cell 2 0,growx,aligny top");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		btnCancel.setActionCommand("Close");
+
+		panel_2 = new JPanel();
+		getContentPane().add(panel_2, BorderLayout.NORTH);
+		panel_2.setLayout(new MigLayout("", "[20px][356px,grow]", "[58px,grow]"));
+		
+
+		txtrSelectThe = new JTextArea();
+		txtrSelectThe.setText("1. Select the process\r\n2. Give the folder structure (eg : \\patient\\date\\serie\\....nii)\r\n3. Ok");
+		txtrSelectThe.setDisabledTextColor(Color.LIGHT_GRAY);
+		txtrSelectThe.setEnabled(false);
+		txtrSelectThe.setForeground(Color.GRAY);
+		txtrSelectThe.setEditable(false);
+		panel_2.add(txtrSelectThe, "cell 1 0,alignx left,aligny top");
+		//txtrSelectThe.setText("");
 		// Autres
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.setSize(480,400);
+		this.setSize(437,296);
 		this.setTitle(TITLE);
-		this.setLocation(WindowManager.MAINWINDOW.getLocation());
+		this.setLocationRelativeTo(null);//(WindowManager.MAINWINDOW.getLocation());
 		this.setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		this.setVisible(true);
 
