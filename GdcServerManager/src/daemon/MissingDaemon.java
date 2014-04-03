@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -53,14 +54,13 @@ public class MissingDaemon extends Thread{
 	private int nbMoved; // nombre de fichiers deplace
 	private int nbConvert; // nombre de serie a reconvertir
 	private HashMap<Path, Integer[]> nbOfConversionTries;// permet de savoir combien de fois on a tente de convertir un repertoire
-	
+
 	public MissingDaemon(){
 		setStop(false);
 		listenDirectory = Paths.get(SystemSettings.SERVER_INFO.getServerDir()+File.separator+ServerInfo.NRI_DICOM_NAME);
 		nbIteration = 0;
 		nbMoved = 0;
 		nbConvert = 0;
-		nbOfConversionTries = new HashMap<Path, Integer[]>();
 	}
 	public MissingDaemon(Path p){
 		setStop(false);
@@ -68,11 +68,11 @@ public class MissingDaemon extends Thread{
 		nbIteration = 0;
 		nbMoved = 0;
 		nbConvert = 0;
-		nbOfConversionTries = new HashMap<Path, Integer[]>();
 	}
-	
+
 	public void run(){
 		WindowManager.mwLogger.log(Level.INFO, "Missing Daemon Online.");
+		nbOfConversionTries = new HashMap<Path, Integer[]>();
 		boolean doCheck = false;
 		while(!isStop()){
 			try {
@@ -87,9 +87,11 @@ public class MissingDaemon extends Thread{
 					doCheck = true;
 				moveNotEncodedDicomDir(listenDirectory.toFile(),doCheck);
 				// on nettoie la hashmap
-				for(Path key : nbOfConversionTries.keySet()){
-					if(nbOfConversionTries.get(key)[0] == 1 && (nbIteration - nbOfConversionTries.get(key)[1])>5){
-						nbOfConversionTries.remove(key);
+				Iterator it = nbOfConversionTries.keySet().iterator();
+				while (it.hasNext()){
+					Integer[] item = (Integer[]) it.next();
+					if(item[0] == 1 && (nbIteration - item[1])>5){
+						it.remove();
 					}
 				}
 			} catch (Exception e) {
@@ -108,7 +110,7 @@ public class MissingDaemon extends Thread{
 		if(this.stop)
 			WindowManager.mwLogger.log(Level.INFO, "Stopping Missing Daemon");
 	}
-	
+
 	public int getNbIteration() {
 		if(nbIteration>1000000)
 			nbIteration = 0;
@@ -175,8 +177,8 @@ public class MissingDaemon extends Thread{
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Controle si ce repertoire est un repertoire type patient et si il est bien entre dans la bdd
 	 * si non, on le supprime
@@ -241,7 +243,7 @@ public class MissingDaemon extends Thread{
 			}
 		}
 	}
-	
+
 	private void checkForNonConvertedDicom(File fi) throws Exception {
 		if(!fi.isDirectory() || fi==null)
 			return;
@@ -253,7 +255,7 @@ public class MissingDaemon extends Thread{
 			if(parts.length==(serverdirlen)) 
 				return;
 			if(!fi.getName().contains("..")){
-				
+
 				int count = 0;
 				for(int i = serverdirlen;i <parts.length;i++){
 					if(!parts[i].isEmpty()){
@@ -284,7 +286,7 @@ public class MissingDaemon extends Thread{
 						&& (!(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists()) || 
 								((new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).exists() && (new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).list()!=null) &&
 										(new File(fi.getAbsolutePath().replace(ServerInfo.NRI_DICOM_NAME, ServerInfo.NRI_ANALYSE_NAME)).list().length==0))))
-						&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
+										&& !SystemSettings.NIFTI_DAEMON.getDir2convert().containsKey(fi.toPath())){
 					// si le repertoire n'est pas convertie --> on copie un dicom dans le buffer pour forcer la reconversion
 					try{
 						if(serieIsConvertable(project,patient,acqdate,protocol,serie)){
@@ -306,7 +308,7 @@ public class MissingDaemon extends Thread{
 								}else{
 									nbOfConversionTries.put(fi.toPath(), new Integer[]{1,nbIteration});
 								}
-									
+
 							}
 						}
 					}catch(Exception e){
@@ -319,7 +321,7 @@ public class MissingDaemon extends Thread{
 			}
 		}
 	}
-	
+
 	/**
 	 * Verifie si on doit convertir la serie
 	 * @param project
