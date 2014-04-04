@@ -114,6 +114,8 @@ public class ServerInfo {
 				SQLSettings.DATABASE_NAME = params.get(DATABASE_NAME);
 			if(params.containsKey(CONDOR_JOB_DIR_NAME))
 				setCondorJobDir(params.get(CONDOR_JOB_DIR_NAME));
+			else
+				setCondorJobDir(app_dir + File.separator + CONDOR_JOB_DIR_NAME);
 			
 		}else{
 			setIncomingDir(app_dir+ "/" +INCOMING_DIR_NAME);
