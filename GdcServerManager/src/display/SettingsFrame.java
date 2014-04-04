@@ -334,6 +334,7 @@ public class SettingsFrame extends JFrame {
 				SystemSettings.SERVER_INFO.setNiftiDir(niftiField.getText());
 				SystemSettings.SERVER_INFO.setTempDir(txtTempdir.getText());
 				SystemSettings.SERVER_INFO.setServerDir(txtServerDir.getText());
+				SystemSettings.SERVER_INFO.setCondorJobDir(textFieldRelativeJobDir.getText());
 				SystemSettings.SERVER_INFO.saveConfiguration();
 				dispose();
 				
@@ -392,6 +393,20 @@ public class SettingsFrame extends JFrame {
 	            if (retval == JFileChooser.APPROVE_OPTION) {
 	            	File file = fc.getSelectedFile();
 	            	txtServerDir.setText(file.getAbsolutePath());
+	            }
+			}
+		});
+		btnRelativeJobDir.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
+				JFileChooser fc = new JFileChooser(SystemSettings.SERVER_INFO.getCondorJobDir().toString());
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int retval = fc.showOpenDialog(SettingsFrame.this);
+	            if (retval == JFileChooser.APPROVE_OPTION) {
+	            	File file = fc.getSelectedFile();
+	            	textFieldRelativeJobDir.setText(file.getAbsolutePath());
 	            }
 			}
 		});
