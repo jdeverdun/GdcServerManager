@@ -89,7 +89,8 @@ public class MissingDaemon extends Thread{
 				// on nettoie la hashmap
 				Iterator it = nbOfConversionTries.keySet().iterator();
 				while (it.hasNext()){
-					Integer[] item = (Integer[]) it.next();
+					Path p = (Path) it.next();
+					Integer[] item = nbOfConversionTries.get(p);
 					if(item[0] == 1 && (nbIteration - item[1])>5){
 						it.remove();
 					}
