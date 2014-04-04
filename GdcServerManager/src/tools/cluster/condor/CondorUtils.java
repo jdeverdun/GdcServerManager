@@ -1,7 +1,9 @@
 package tools.cluster.condor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,8 +14,12 @@ import java.util.logging.Level;
 import settings.WindowManager;
 
 
-public class CondorUtils {
 
+public class CondorUtils {
+	enum OS {UNIX, WINDOWS};
+	enum Arch {bit_64,bit_32}; 
+	public static String mapdriveDir;
+	
 	public static String getJobStatus(String JobId) throws IOException{
 		
 		String status="";
@@ -46,17 +52,17 @@ public class CondorUtils {
 			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2"))
 			{
 				status="R";
-				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1")){
 				status="I";
-				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5")){
 				status="H";
-				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
 				j=sortie_condorq.size();
 			}
 			else {j++;}
@@ -93,12 +99,12 @@ public class CondorUtils {
 			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("4"))
 			{
 				status="C";
-				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is completed");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is completed");
 				j=sortie_condorh.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("3")){
 				status="X";
-				 WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +"  is removed");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +"  is removed");
 				j=sortie_condorh.size();
 			}
 			else {j++;}
@@ -108,8 +114,29 @@ public class CondorUtils {
 		return status;
 	}
 	
-	public static void submitJob(File path, ArrayList<String> commande, int cpu, int memory, String os, String arch){
+	public static void submitJob(File path){//, ArrayList<File> commande, int cpu, int memory, OS Arch){
 		
+			Long time=System.nanoTime();
+			String nom="job_"+time.toString();
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path.toString()+File.separator+nom+".submit")));
+			// normalement si le fichier n'existe pas, il est crée à la racine du projet
+			writer.write("Universe = vanilla\n");
+			writer.write("Executable = .bat\n");
+			writer.write("Arguments =\n");
+			writer.write("Output = "+nom+"\n");
+			writer.write("Error = "+nom+"\n");
+			writer.write("Log = "+nom+"\n");
+			writer.write("request_cpus = \n");
+			writer.write("request_memory = \n");
+			writer.write("trequirements = TARGET.OpSys== OS && TARGET.Arch == Arch \n");
+			writer.write("Queue\n");
+			writer.close();
+			}
+			catch (IOException e)
+			{
+			e.printStackTrace();
+			}
 	}
 	public static void main(String[] args){
 
@@ -120,6 +147,8 @@ public class CondorUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		File path =new File("C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java");;
+		submitJob(path);
 	}
 
 }
