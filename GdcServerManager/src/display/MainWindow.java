@@ -1110,7 +1110,13 @@ public class MainWindow extends JFrame {
 		    }
 		}));
 		WindowManager.MAINWINDOW = this;
-		File logfiledir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.logdir);
+		File pluginsdir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_PLUGINS_DIR);
+		if(!pluginsdir.exists())
+			pluginsdir.mkdir();
+		File jobdir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_CONDOR_JOB_DIR);
+		if(!jobdir.exists())
+			jobdir.mkdir();
+		File logfiledir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_LOG_DIR);
 		if(!logfiledir.exists())
 			logfiledir.mkdir();
 		WindowManager.mwLogger = Logger.getLogger("flogger");

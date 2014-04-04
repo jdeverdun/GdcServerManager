@@ -36,7 +36,7 @@ public class PluginsLoader {
 	 * @param files
 	 */
 	public void updateFiles(){
-		files = new File(SystemSettings.APP_DIR + File.separator + SystemSettings.relativePluginsDir).listFiles(new FilenameFilter() {
+		files = new File(SystemSettings.APP_DIR + File.separator + SystemSettings.RELATIVE_PLUGINS_DIR).listFiles(new FilenameFilter() {
 		    public boolean accept(File directory, String fileName) {
 		        return fileName.endsWith(".jar");
 		    }
