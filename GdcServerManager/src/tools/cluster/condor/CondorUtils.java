@@ -44,17 +44,17 @@ public class CondorUtils {
 			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2"))
 			{
 				status="R";
-				System.out.println("The job "+ JobId +" is running");
+				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1")){
 				status="I";
-				System.out.println("The job "+ JobId +"  is idle");
+				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5")){
 				status="H";
-				System.out.println("The job "+ JobId +"  is held");
+				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
 				j=sortie_condorq.size();
 			}
 			else {j++;}
@@ -91,7 +91,7 @@ public class CondorUtils {
 			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("4"))
 			{
 				status="C";
-				System.out.println("The job "+ JobId +" is completed");
+				WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is completed");
 				j=sortie_condorh.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("3")){
