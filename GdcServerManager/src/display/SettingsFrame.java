@@ -41,6 +41,7 @@ import java.awt.Insets;
 import java.awt.FlowLayout;
 import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
+import javax.swing.Icon;
 
 public class SettingsFrame extends JFrame {
 	
@@ -55,6 +56,7 @@ public class SettingsFrame extends JFrame {
 	private JTextField txtDatabasename;
 	private JTextField txtAetitle;
 	private JIPTextField textDBip;
+	private JTextField textFieldRelativeJobDir;
 	
 	public SettingsFrame() {
 		getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[grow,fill]"));
@@ -68,7 +70,19 @@ public class SettingsFrame extends JFrame {
 		
 		JPanel filesSettingPanel = new JPanel();
 		JPanel serverSettingPanel = new JPanel();
+		JPanel clusterSettingPanel = new JPanel();
 		tabbedPane.addTab("Server", null, serverSettingPanel, null);
+		tabbedPane.addTab("Cluster", null, clusterSettingPanel, null);
+		clusterSettingPanel.setLayout(new MigLayout("", "[][grow][]", "[]"));
+		
+		JLabel lblRelativeJobDir = new JLabel("Job dir");
+		clusterSettingPanel.add(lblRelativeJobDir, "cell 0 0,alignx trailing");
+		
+		textFieldRelativeJobDir = new JTextField();
+		clusterSettingPanel.add(textFieldRelativeJobDir, "cell 1 0,growx");
+		textFieldRelativeJobDir.setColumns(10);
+		
+
 		serverSettingPanel.setLayout(new MigLayout("", "[][grow][grow]", "[][][][18.00][][][18.00][grow][]"));
 		
 		JLabel lblRootServerDirectory = new JLabel("Root server directory");
@@ -82,7 +96,8 @@ public class SettingsFrame extends JFrame {
 		Image img = icon.getImage();  
 		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
 		ImageIcon icon2 = new ImageIcon(newimg); 
-		
+		JButton btnRelativeJobDir = new JButton(icon2);
+		clusterSettingPanel.add(btnRelativeJobDir, "cell 2 0");
 		JButton btnSelectserverdir = new JButton(icon2);
 		serverSettingPanel.add(btnSelectserverdir, "cell 2 0");
 		tabbedPane.addTab("Converter", null, filesSettingPanel, null);

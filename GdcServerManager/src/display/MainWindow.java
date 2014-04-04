@@ -1113,7 +1113,7 @@ public class MainWindow extends JFrame {
 		File pluginsdir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_PLUGINS_DIR);
 		if(!pluginsdir.exists())
 			pluginsdir.mkdir();
-		File jobdir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_CONDOR_JOB_DIR);
+		File jobdir = SystemSettings.SERVER_INFO.getCondorJobDir().toFile();
 		if(!jobdir.exists())
 			jobdir.mkdir();
 		File logfiledir = new File(SystemSettings.APP_DIR+File.separator+SystemSettings.RELATIVE_LOG_DIR);
