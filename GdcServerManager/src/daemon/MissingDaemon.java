@@ -294,6 +294,7 @@ public class MissingDaemon extends Thread{
 							boolean wasAdded = SystemSettings.NIFTI_DAEMON.addDir(fi.toPath(),project,patient,acqdate,protocol,serie);
 							// si on a pu l'ajouter
 							if(wasAdded){
+								nbConvert++;
 								if(nbOfConversionTries.containsKey(fi.toPath())){
 									Integer[] tries = nbOfConversionTries.get(fi.toPath());
 									if(tries[0]>5){
@@ -316,7 +317,7 @@ public class MissingDaemon extends Thread{
 						WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningMissingDaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
 						WindowManager.mwLogger.log(Level.SEVERE, "Missing Daemon error, couldn't add dir to nifti daemon ["+fi.toPath()+" | "+project+" | "+patient+" | "+acqdate+" | "+protocol+" | "+serie+"]",e);
 					}
-					nbConvert++;
+					
 				}
 				return;
 			}
