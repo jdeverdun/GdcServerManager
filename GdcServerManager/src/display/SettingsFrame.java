@@ -195,7 +195,7 @@ public class SettingsFrame extends JFrame {
 		txtTempdir.setToolTipText("Directory for temp files.");
 		filesSettingPanel.add(txtTempdir, "cell 1 2,growx");
 		txtTempdir.setColumns(10);
-		
+		textFieldRelativeJobDir.setText(SystemSettings.SERVER_INFO.getCondorJobDir().toString());
 		JButton btnSelecttemp = new JButton(icon2);
 		filesSettingPanel.add(btnSelecttemp, "cell 2 2");
 		
@@ -218,6 +218,7 @@ public class SettingsFrame extends JFrame {
 				textDBip.setEnabled(false);
 				lblRootServerDirectory.setEnabled(false);
 				txtServerDir.setEnabled(false);
+				textFieldRelativeJobDir.setEnabled(false);
 			}
 				
 		}
