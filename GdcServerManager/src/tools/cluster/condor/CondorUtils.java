@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+
 import settings.WindowManager;
 
 
@@ -117,10 +118,10 @@ public class CondorUtils {
 		return status;
 	}
 	
-	public static void submitJob(File path, ArrayList<String> files, int cpu, int memory, OS os, Arch arch){
-		
-			Long time=System.nanoTime();
-			String nom="job_"+time.toString();
+	public static void submitJob(File path, ArrayList<String> files, int cpu, int memory, OS os, Arch arch) throws IOException{
+
+		Long time=System.nanoTime();
+		String nom="job_"+time.toString();
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path.toString()+File.separator+nom+".submit")));
 			// normalement si le fichier n'existe pas, il est crée à la racine du projet
@@ -151,43 +152,65 @@ public class CondorUtils {
 				writer.write("requirements = TARGET.OpSys== WINDOWS && TARGET.Arch == INTEL \n");
 			writer.write("Queue\n");
 			writer.close();
-			}
-			catch (IOException e)
-			{
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
-			}
-	}
-	
-	public static void removeJob(String JobId) throws IOException{
+		}
+		
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
-		java.lang.Process p = cs.exec("condor_rm 181.0");//+JobId);
-		//System.out.println("condor_rm "+JobId);
+		java.lang.Process p = cs.exec("condor_submit "+nom+".submit");
 		try {
 			p.waitFor();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		InputStream is = p.getInputStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		// And print each line
+		String ligne = null;
+		ArrayList<String> sortie_condors = new ArrayList<String>();
+		while ((ligne = reader.readLine()) != null) {
+			if (ligne.isEmpty()==false){
+				sortie_condors.add(ligne);}
+		}
+		is.close();
+	}
+	
+	public static void removeJob(String JobId) throws IOException{
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		java.lang.Process p = cs.exec("condor_rm "+JobId);
+		try {
+			p.waitFor();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 // get the error stream of the process and print it
+		BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+		String line;
+		while((line = br.readLine()) != null) {
+		System.out.println(line);
+		}
 		//System.out.println("Process exited with code = " + p.exitValue());
 		InputStream is = p.getInputStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		// And print each line
 		String ligne = null;
-		ArrayList<String> sortie_condorrm = new ArrayList<String>();
+		String sortie_condorrm = new String();
 		while ((ligne = reader.readLine()) != null) {
-			//if (ligne.isEmpty()==false){
-				sortie_condorrm.add(ligne);
-				//}
-			//System.out.println("condor_rm "+JobId);
+				sortie_condorrm=ligne;
 		}
-		//System.out.println(sortie_condorrm);
+		System.out.println(sortie_condorrm);
 		is.close();
 	}
 	public static void main(String[] args){
 
 		try {
 			String status=getJobStatus("177.0");
-			System.out.println(status);
+			//System.out.println(status);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -198,13 +221,13 @@ public class CondorUtils {
 		ArrayList<String> files = new ArrayList<String>();
 		files.add(0,"mapdrive.p");
 		files.add(1,"job_154563.m");
-		submitJob(path,files,cpu,m,OS.UNIX,Arch.X84_64);
-		/*try {
-			removeJob("176.0");
+		//submitJob(path,files,cpu,m,OS.UNIX,Arch.X84_64);
+		try {
+			removeJob("178.0");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 }
