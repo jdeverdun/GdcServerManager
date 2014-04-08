@@ -61,7 +61,7 @@ constraint serienifti_fk foreign key (id_serie) references Serie(id) on delete c
 create table job
 (id integer NOT NULL AUTO_INCREMENT, id_user integer, jobid varchar(10), submitDate date, os varchar(20), description varchar(300),
 constraint jobs_pk primary key(id),
-constraint id_user_fk foreign key (id_user) references User(id) on delete cascade)
+constraint id_user_job_fk foreign key (id_user) references User(id) on delete cascade);
 
 -- INSERTION DE QUELQUES TUPLES
 INSERT INTO `user` (`id`, `nom`, `prenom`, `email`, `login`, `password`, `level`, `firstconnect`) VALUES
