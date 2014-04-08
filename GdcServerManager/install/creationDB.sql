@@ -57,6 +57,11 @@ constraint niftiimage_pk primary key (id),
 constraint uprot_serie_acqdata_patient_projet_namenifti unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
 constraint serienifti_fk foreign key (id_serie) references Serie(id) on delete cascade);
 
+--RAJOUT TABLE JOBS
+create table job
+(id integer NOT NULL AUTO_INCREMENT, id_user integer, jobid varchar(10), submitDate date, os varchar(20), description varchar(300),
+constraint jobs_pk primary key(id),
+constraint id_user_fk foreign key (id_user) references User(id) on delete cascade)
 
 -- INSERTION DE QUELQUES TUPLES
 INSERT INTO `user` (`id`, `nom`, `prenom`, `email`, `login`, `password`, `level`, `firstconnect`) VALUES
