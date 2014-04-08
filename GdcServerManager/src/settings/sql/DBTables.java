@@ -10,6 +10,7 @@ import settings.sql.tables.SerieTable;
 import settings.sql.tables.UserProjectTable;
 import settings.sql.tables.UserTable;
 import settings.sql.tables.UserViewTable;
+import settings.sql.tables.JobTable;
 
 
 /**
@@ -33,7 +34,7 @@ public class DBTables {
 	private SerieTable serie;
 	private DicomImageTable dicomImage;
 	private NiftiImageTable niftiImage;
-	
+	private JobTable job;
 	
 	// Constructeur
 	public DBTables(){
@@ -47,6 +48,7 @@ public class DBTables {
 		serie = new SerieTable();
 		dicomImage = new DicomImageTable();
 		niftiImage = new NiftiImageTable();
+		job = new JobTable();
 		
 	}
 
@@ -99,6 +101,10 @@ public class DBTables {
 
 	public NiftiImageTable getNiftiImage() {
 		return niftiImage;
+	}
+	
+	public JobTable getJob() {
+		return job;
 	}
 
 }
