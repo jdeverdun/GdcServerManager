@@ -5,7 +5,7 @@ public class JobTable {
 	// Les noms des champs
 		public final String TNAME = "serie"; // nom de la table
 		private String id;
-		private String id_user;
+		private String user_id;
 		private String jobid;
 		private String submitDate;
 		private String os;
@@ -14,19 +14,19 @@ public class JobTable {
 		// Constructeur
 		public JobTable(){
 			id = "id";
-			id_user = "id_user";
+			user_id = "user_id";
 			jobid = "jobid";
 			submitDate = "submitDate";
 			os = "os";
 			description = "description";
 		}
 
-		public String getIdUser() {
-			return id_user;
+		public String getUserId() {
+			return user_id;
 		}
 
 
-		public String getJobid() {
+		public String getJobId() {
 			return jobid;
 		}
 

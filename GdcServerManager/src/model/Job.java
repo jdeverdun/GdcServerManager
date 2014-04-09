@@ -6,7 +6,7 @@ import java.sql.Date;
 public class Job implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private int id;
-	private User id_user;
+	private User user_id;
 	private String jobid;
 	private Date submitDate;
 	private String os;
@@ -29,8 +29,12 @@ public class Job implements Serializable{
 		this.id = id;
 	}
 
-	public User getIdUser() {
-		return id_user;
+	public User getUserId() {
+		return user_id;
+	}
+	
+	public void setUserId(User user_id) {
+		this.user_id = user_id;
 	}
 	
 	public String getJobId() {
