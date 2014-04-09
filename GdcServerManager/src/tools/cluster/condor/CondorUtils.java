@@ -2,11 +2,22 @@ package tools.cluster.condor;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
+
+import model.Job;
+import model.ServerInfo;
+import model.User;
+
+import dao.project.JobDAO;
+import dao.project.MySQLJobDAO;
 
 
 import settings.SystemSettings;
+import settings.UserProfile;
 import settings.WindowManager;
 
 
@@ -114,20 +125,26 @@ public class CondorUtils {
 			status="The job "+JobId+" doesn't exist.";
 		return status;
 	}
+	public static boolean isLibrary(){
+		//WindowManager.MAINWINDOW==null -->library
+		if(WindowManager.MAINWINDOW==null && UserProfile.CURRENT_USER!=null)
+			return true;
+		else
+			return false;
+	}
 
-	public static String submitJob(File path, ArrayList<String> filesToTransfer, String executable, int cpu, int memory, OS os, Arch arch) throws IOException{
-
+	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch) throws IOException, SQLException{
 		Long time=System.nanoTime();
 		String nom="job_"+time.toString();
-		File dir=new File(path.toString()+File.separator+nom);
+		File dir=new File(path.toString()+File.separator+ServerInfo.CONDOR_JOB_DIR_NAME+nom);
 		dir.mkdirs();
-		File exe=new File(executable);
-		File exe_copy=new File(dir+File.separator+"job_22668661.bat");
-		Files.copy(exe.toPath(), exe_copy.toPath());
-		File m=new File(filesToTransfer.get(0));
-		File m_copy=new File(dir+File.separator+"job_22668661.m");
-		Files.copy(m.toPath(), m_copy.toPath());
-		File md=new File("C:\\Users\\Administrateur\\git\\GdcServerManager\\GdcServerManager\\lib\\MATLAB\\mapdrive.p");
+		File exe=new File(executable.getAbsolutePath());
+		File exe_move=new File(dir+File.separator+executable.getName());
+		Files.move(exe.toPath(), exe_move.toPath());
+		File m=new File(filesToTransfer.get(0).getAbsolutePath());
+		File m_move=new File(dir+File.separator+filesToTransfer.get(0).getName());
+		Files.move(m.toPath(), m_move.toPath());
+		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
 		try {
@@ -166,7 +183,7 @@ public class CondorUtils {
 			e.printStackTrace();
 		}
 
-		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -193,7 +210,26 @@ public class CondorUtils {
 		String[] sortie=sortie_condors.get(1).split(" ");
 		reader.close();
 		is.close();
-		return sortie[5]+"0";
+
+		User user = new User();
+		JobDAO jobdao = new MySQLJobDAO();
+		user=UserProfile.CURRENT_USER;
+		String jobid=sortie[5]+"0";
+		Date d = new Date();
+
+		SimpleDateFormat dateStandard = new SimpleDateFormat("dd/MM/yyyy");
+
+		String submitDate = dateStandard.format(d);
+		String description="test";
+		if(!isLibrary()){
+			if(os.equals(OS.UNIX))
+				jobdao.newJob(user.getId(), jobid, submitDate, "LINUX", description);
+
+			else
+				jobdao.newJob(user.getId(), jobid, submitDate, "WINDOWS", description);
+		}*/
+		
+		//return null;//sortie[5]+"0";
 	}
 
 	public static void removeJob(String JobId) throws IOException{
@@ -234,13 +270,20 @@ public class CondorUtils {
 		}*/
 		ArrayList<String> job_id= new ArrayList<String>() ;
 		String status=null;
-		File path =new File("C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java");
+		File path =new File(SystemSettings.APP_DIR.);
 		int m = 1024;
 		int cpu = 2;
-		ArrayList<String> files = new ArrayList<String>();
-		files.add(0,"C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java\\job_22668661.m");
-		String exe="C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java\\job_22668661.bat";
+		ArrayList<File> files = new ArrayList<File>();
+		File file =new File("C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java\\job_22668661.m");
+		files.add(0,file.getAbsoluteFile());
+		File exe= new File("C:\\Users\\Administrateur\\Documents\\MATLAB\\Joris\\test_java\\job_22668661.bat");
 		try {
+			submitJob(path,files,exe,cpu,m,OS.WINDOWS,Arch.X86_64);
+		} catch (IOException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*try {
 			for(int i=0;i<2;i++)
 				job_id.add(submitJob(path,files,exe,cpu,m,OS.WINDOWS,Arch.X86_64));
 		} catch (IOException e) {
@@ -265,7 +308,7 @@ public class CondorUtils {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 
 	}
 

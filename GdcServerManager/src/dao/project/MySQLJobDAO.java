@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 
 
 import settings.SQLSettings;
@@ -17,7 +16,6 @@ import settings.sql.tables.JobTable;
 import dao.MySQLUserDAO;
 import dao.UserDAO;
 
-import model.Patient;
 import model.User;
 import model.Job;
 
