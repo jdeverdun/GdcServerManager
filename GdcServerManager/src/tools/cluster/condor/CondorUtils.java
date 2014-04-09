@@ -23,8 +23,8 @@ import settings.WindowManager;
 
 
 public class CondorUtils {
-	enum OS {UNIX, WINDOWS};
-	enum Arch {X86_64, INTEL}; 
+	public enum OS {UNIX, WINDOWS};
+	public enum Arch {X86_64, INTEL}; 
 	public static String mapdriveDir;
 
 	public static String getJobStatus(String JobId) throws IOException{
@@ -136,7 +136,7 @@ public class CondorUtils {
 	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch) throws IOException, SQLException{
 		Long time=System.nanoTime();
 		String nom="job_"+time.toString();
-		File dir=new File(path.toString()+File.separator+ServerInfo.CONDOR_JOB_DIR_NAME+nom);
+		File dir=new File(path.toString()+File.separator+ServerInfo.CONDOR_JOB_DIR_NAME+File.separator+nom);
 		dir.mkdirs();
 		File exe=new File(executable.getAbsolutePath());
 		File exe_move=new File(dir+File.separator+executable.getName());
@@ -144,7 +144,7 @@ public class CondorUtils {
 		File m=new File(filesToTransfer.get(0).getAbsolutePath());
 		File m_move=new File(dir+File.separator+filesToTransfer.get(0).getName());
 		Files.move(m.toPath(), m_move.toPath());
-		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"mapdrive.p");
+		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
 		try {
@@ -270,7 +270,7 @@ public class CondorUtils {
 		}*/
 		ArrayList<String> job_id= new ArrayList<String>() ;
 		String status=null;
-		File path =new File(SystemSettings.APP_DIR.);
+		File path =new File(SystemSettings.APP_DIR.toString());
 		int m = 1024;
 		int cpu = 2;
 		ArrayList<File> files = new ArrayList<File>();
