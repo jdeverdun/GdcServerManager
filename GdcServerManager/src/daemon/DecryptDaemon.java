@@ -33,12 +33,17 @@ public class DecryptDaemon extends Thread {
 	private boolean waiting;// variable pour savoir si on est en etat d'attente (aucune image ne reste a decrypter ou si on travail)
 	private int totalEncryptedFile;
 	private int pid;
+	// permet de savoir si le daemon a crashe
+	private boolean crashed;
+	private String crashmsg;
 	
 	public DecryptDaemon(){
 		fileToDecrypt = new LinkedList<Path[]>();
 		stop = false;
 		totalEncryptedFile = 0;
 		pid = System.identityHashCode(this); 
+		crashed = false;
+		setCrashmsg("");
 	}
 	
 	
@@ -181,6 +186,44 @@ public class DecryptDaemon extends Thread {
 	public int getDoneEncryptedFile(){
 		return getTotalEncryptedFile() - (getFileToDecrypt().size() + ThreadPool.numberOfThreadFor(pid));
 	}
+
+
+	/**
+	 * @return the crashed
+	 */
+	public boolean isCrashed() {
+		return crashed;
+	}
+
+
+	/**
+	 * @param crashed the crashed to set
+	 * @param crashmsg 
+	 */
+	public void setCrashed(boolean crashed, String crashmsg) {
+		this.crashed = crashed;
+		if(crashed)
+			this.setCrashmsg(crashmsg);
+		else
+			this.setCrashmsg("");
+	}
+
+
+	/**
+	 * @return the crashmsg
+	 */
+	public String getCrashmsg() {
+		return crashmsg;
+	}
+
+
+	/**
+	 * @param crashmsg the crashmsg to set
+	 */
+	public void setCrashmsg(String crashmsg) {
+		this.crashmsg = crashmsg;
+	}
+
 
 
 }

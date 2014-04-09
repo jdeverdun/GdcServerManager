@@ -520,6 +520,8 @@ public class AdvancedImportFrame extends JFrame {
 						if(!SystemSettings.DECRYPT_DAEMON.isAlive()){
 							SystemSettings.DECRYPT_DAEMON = new DecryptDaemon();
 							SystemSettings.DECRYPT_DAEMON.start();
+						}else{
+							SystemSettings.DECRYPT_DAEMON.setCrashed(false, "");
 						}
 						for(File fi:selectedFiles){
 							if(stopImport){
@@ -551,6 +553,22 @@ public class AdvancedImportFrame extends JFrame {
 							}
 						}
 						while(!SystemSettings.DECRYPT_DAEMON.isWaiting() && !stopImport){
+							// si erreur durant l'import
+							if(SystemSettings.DECRYPT_DAEMON.isCrashed()){
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JDialog.setDefaultLookAndFeelDecorated(true);
+										JOptionPane.showMessageDialog(AdvancedImportFrame.this,
+											    "Erreur durant l'import : "+SystemSettings.DECRYPT_DAEMON.getCrashmsg(),
+											    "Import error",
+											    JOptionPane.ERROR_MESSAGE);
+										SystemSettings.DECRYPT_DAEMON.setCrashed(false, "");
+									}
+								});
+								stopImport = true;
+							}
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {

@@ -703,6 +703,8 @@ public class RequestPanel extends JPanel {
 						if(!SystemSettings.DECRYPT_DAEMON.isAlive()){
 							SystemSettings.DECRYPT_DAEMON = new DecryptDaemon();
 							SystemSettings.DECRYPT_DAEMON.start();
+						}else{
+							SystemSettings.DECRYPT_DAEMON.setCrashed(false, "");
 						}
 						for(File fi:selectedFiles){
 							if(!continueAction){
@@ -729,6 +731,21 @@ public class RequestPanel extends JPanel {
 							}
 						}
 						while(!SystemSettings.DECRYPT_DAEMON.getFileToDecrypt().isEmpty() && continueAction){
+							if(SystemSettings.DECRYPT_DAEMON.isCrashed()){
+								SwingUtilities.invokeLater(new Runnable() {
+									
+									@Override
+									public void run() {
+										JDialog.setDefaultLookAndFeelDecorated(true);
+										JOptionPane.showMessageDialog(RequestPanel.this,
+											    "Erreur durant l'import : "+SystemSettings.DECRYPT_DAEMON.getCrashmsg(),
+											    "Import error",
+											    JOptionPane.ERROR_MESSAGE);
+										SystemSettings.DECRYPT_DAEMON.setCrashed(false, "");
+									}
+								});
+								continueAction = false;
+							}
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {

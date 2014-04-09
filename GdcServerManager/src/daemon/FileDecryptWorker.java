@@ -91,6 +91,7 @@ public class FileDecryptWorker extends DaemonWorker {
 			// Si le cryptage ne reussi pas je deplace vers un repertoire specifique
 			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 			WindowManager.mwLogger.log(Level.SEVERE, "Decrypt error",e);
+			getDecryptDaemon().setCrashed(true,"[" + from.toString() + "] - " + e.toString());
 		}
 		
 		
