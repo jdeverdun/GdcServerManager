@@ -46,6 +46,7 @@ import dao.MySQLUserViewDAO;
 import dao.UserDAO;
 import dao.UserProjectDAO;
 import dao.UserViewDAO;
+import display.containers.CondorMonitoringPanel;
 import display.containers.DeleteUserPanel;
 import display.containers.DicomSortConvertPanel;
 import display.containers.FileManager;
@@ -155,6 +156,7 @@ public class MainWindow extends JFrame {
 	private JMenuItem mntmStatistics;
 	private StatisticsPanel statsPanel;
 	private JMenuItem mntmImportFnDb;
+	private CondorMonitoringPanel condorPanel;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -544,7 +546,9 @@ public class MainWindow extends JFrame {
 			mnProject = new JMenu("Project");
 			
 			mnTools.add(mnProject);
-			
+			condorPanel = new CondorMonitoringPanel();
+			ongletPane.addTab("Jobs", null, condorPanel,
+	                "Check condor job status");
 			mntmStatistics = new JMenuItem("Statistics");
 			mnProject.add(mntmStatistics);
 			// Listeners
