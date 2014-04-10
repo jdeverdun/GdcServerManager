@@ -33,8 +33,8 @@ public class Job implements Serializable{
 		return user_id;
 	}
 	
-	public void setUserId(User user_id) {
-		this.user_id = user_id;
+	public void setUserId(User u) {
+		this.user_id = u;
 	}
 	
 	public String getJobId() {

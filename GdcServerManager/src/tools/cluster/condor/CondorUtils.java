@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -140,10 +141,10 @@ public class CondorUtils {
 		dir.mkdirs();
 		File exe=new File(executable.getAbsolutePath());
 		File exe_move=new File(dir+File.separator+executable.getName());
-		Files.move(exe.toPath(), exe_move.toPath());
+		Files.copy(exe.toPath(), exe_move.toPath());
 		File m=new File(filesToTransfer.get(0).getAbsolutePath());
 		File m_move=new File(dir+File.separator+filesToTransfer.get(0).getName());
-		Files.move(m.toPath(), m_move.toPath());
+		Files.copy(m.toPath(), m_move.toPath());
 		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
@@ -163,7 +164,6 @@ public class CondorUtils {
 				else*/
 				a=a+", "+filesToTransfer.get(i);
 			}
-			//writer.write("transfer_input_files= "+SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p"+a+" \n");
 			writer.write("transfer_input_files= mapdrive.p, "+m.getName().toString()+" \n");
 			writer.write("request_cpus = "+cpu+" \n");
 			writer.write("request_memory = "+memory+" \n");
@@ -183,7 +183,7 @@ public class CondorUtils {
 			e.printStackTrace();
 		}
 
-		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -212,12 +212,12 @@ public class CondorUtils {
 		is.close();
 
 		User user = new User();
-		JobDAO jobdao = new MySQLJobDAO();
 		user=UserProfile.CURRENT_USER;
+		JobDAO jobdao = new MySQLJobDAO();
 		String jobid=sortie[5]+"0";
 		Date d = new Date();
-
-		SimpleDateFormat dateStandard = new SimpleDateFormat("dd/MM/yyyy");
+		//String jobid="218.0";
+		SimpleDateFormat dateStandard = new SimpleDateFormat("yyyyMMdd");
 
 		String submitDate = dateStandard.format(d);
 		String description="test";
@@ -227,14 +227,17 @@ public class CondorUtils {
 
 			else
 				jobdao.newJob(user.getId(), jobid, submitDate, "WINDOWS", description);
-		}*/
-		
+		}
+		ArrayList<Job> jobs = new ArrayList<Job>();
+		jobs=jobdao.retrieveAllJob();
+		for(int i=0;i<jobs.size();i++)
+			System.out.println(jobs.get(i).getJobId());
 		//return null;//sortie[5]+"0";
 	}
 
-	public static void removeJob(String JobId) throws IOException{
+	public static void removeJob(String jobid) throws IOException, SQLException{
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
-		java.lang.Process p = cs.exec("condor_rm "+JobId);
+		java.lang.Process p = cs.exec("condor_rm "+jobid);
 		try {
 			p.waitFor();
 		} catch (InterruptedException e) {
@@ -259,6 +262,14 @@ public class CondorUtils {
 		System.out.println(sortie_condorrm);
 		reader.close();
 		is.close();
+		JobDAO jobdao = new MySQLJobDAO();
+		User user = new User();
+		user=UserProfile.CURRENT_USER;
+		jobdao.removeJob(jobid,user.getId());
+		ArrayList<Job> jobs = new ArrayList<Job>();
+		jobs=jobdao.retrieveAllJob();
+		for(int i=0;i<jobs.size();i++)
+			System.out.println(jobs.get(i).getJobId());
 	}
 	public static void main(String[] args){
 

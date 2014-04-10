@@ -16,6 +16,7 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import model.Job;
 import model.ProjectStatistics;
 import model.ServerInfo;
 import model.User;
@@ -46,6 +47,8 @@ import dao.MySQLUserViewDAO;
 import dao.UserDAO;
 import dao.UserProjectDAO;
 import dao.UserViewDAO;
+import dao.project.JobDAO;
+import dao.project.MySQLJobDAO;
 import display.containers.CondorMonitoringPanel;
 import display.containers.DeleteUserPanel;
 import display.containers.DicomSortConvertPanel;
@@ -88,6 +91,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -98,6 +102,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JPopupMenu;
 
 public class MainWindow extends JFrame {
@@ -157,6 +162,7 @@ public class MainWindow extends JFrame {
 	private StatisticsPanel statsPanel;
 	private JMenuItem mntmImportFnDb;
 	private CondorMonitoringPanel condorPanel;
+	private JTable table;
 	
 	/**
 	 * Si i = 0 : mode offline
@@ -546,7 +552,12 @@ public class MainWindow extends JFrame {
 			mnProject = new JMenu("Project");
 			
 			mnTools.add(mnProject);
-			condorPanel = new CondorMonitoringPanel();
+			try {
+				condorPanel = new CondorMonitoringPanel();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			ongletPane.addTab("Jobs", null, condorPanel,
 	                "Check condor job status");
 			mntmStatistics = new JMenuItem("Statistics");
@@ -566,17 +577,24 @@ public class MainWindow extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					UserProjectDAO pdao = new MySQLUserProjectDAO();
-					try {
-						UserProfile.CURRENT_USER.setProjects(pdao.getProjectsForUser(UserProfile.CURRENT_USER.getId()));
-					} catch (SQLException e1) {
-						WindowManager.mwLogger.log(Level.WARNING, "Refreshing error", e1);
+					switch(ongletPane.getSelectedIndex()){
+					case 0 : 
+						UserProjectDAO pdao = new MySQLUserProjectDAO();
+						try {
+							UserProfile.CURRENT_USER.setProjects(pdao.getProjectsForUser(UserProfile.CURRENT_USER.getId()));
+						} catch (SQLException e1) {
+							WindowManager.mwLogger.log(Level.WARNING, "Refreshing error", e1);
+						}
+						getFileTreeDist().refresh();
+						getFileTreeLocal().refresh();
+						getFileTreeWork().refresh();
+						// Refresh conf
+						SystemSettings.SERVER_INFO.refresh();
+						break;
+					case 5 : 
+						condorPanel.updateTable();
+						
 					}
-					getFileTreeDist().refresh();
-					getFileTreeLocal().refresh();
-					getFileTreeWork().refresh();
-					// Refresh conf
-					SystemSettings.SERVER_INFO.refresh();
 				}
 			});
 
@@ -1460,7 +1478,14 @@ public class MainWindow extends JFrame {
 	public void setFileTreeDist(FileManager fileTreeDist) {
 		this.fileTreeDist = fileTreeDist;
 	}
+	
+	public CondorMonitoringPanel getTable() {
+		return condorPanel;
+	}
 
+	public void setTable(CondorMonitoringPanel c) {
+		this.condorPanel = c;
+	}
 	public double getScreenWidth() {
 		return screenWidth;
 	}

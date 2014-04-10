@@ -3,7 +3,7 @@ package settings.sql.tables;
 public class JobTable {
 	
 	// Les noms des champs
-		public final String TNAME = "serie"; // nom de la table
+		public final String TNAME = "job"; // nom de la table
 		private String id;
 		private String user_id;
 		private String jobid;
@@ -14,7 +14,7 @@ public class JobTable {
 		// Constructeur
 		public JobTable(){
 			id = "id";
-			user_id = "user_id";
+			user_id = "id_user";
 			jobid = "jobid";
 			submitDate = "submitDate";
 			os = "os";

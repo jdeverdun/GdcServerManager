@@ -2,13 +2,10 @@ package dao.project;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
+
 
 import model.Job;
-import model.Patient;
-import model.Serie;
-import model.User;
+
 
 public interface JobDAO {
 
@@ -18,7 +15,7 @@ public interface JobDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	//public Collection<Job> retrieveAll() throws SQLException;
+	public ArrayList<Job> retrieveAllJob() throws SQLException;
 
 	/**
 	 * Recupere le job avec l'id  id
@@ -39,7 +36,7 @@ public interface JobDAO {
 	 * @throws SQLException
 	 */
 	public boolean newJob(int user_id,String jobid,String submitDate,String os,String description) throws SQLException;
-	public void removeJob(String jobid) throws SQLException;
+	public void removeJob(String jobid, int user_id) throws SQLException;
 	/**
 	 * met à jours un tuple
 	 * @param id
