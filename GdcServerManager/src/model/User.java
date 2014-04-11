@@ -15,6 +15,7 @@ public class User {
 	private String password;
 	private int level;
 	private Set<Project> projects;
+	private Set<Job> jobs;
 	private int firstConnect;
 
       public User(String nom, String prenom, String email,String login, String password, int level) {
@@ -94,6 +95,12 @@ public class User {
 	}
 	public void setProjects(Set<Project> projets) {
 		this.projects = projets;
+	}
+	public Set<Job> getJobs() {
+		return jobs;
+	}
+	public void setJobs(Set<Job> jobs) {
+		this.jobs = jobs;
 	}
 	public Set<Project> getProjects() {
 		return projects;

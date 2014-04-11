@@ -593,7 +593,6 @@ public class MainWindow extends JFrame {
 						break;
 					case 5 : 
 						condorPanel.updateTable();
-						
 					}
 				}
 			});

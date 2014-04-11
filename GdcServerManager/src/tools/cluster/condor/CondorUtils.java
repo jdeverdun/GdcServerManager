@@ -150,7 +150,7 @@ public class CondorUtils {
 		Files.copy(md.toPath(), md_copy.toPath());
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit")));
-			// normalement si le fichier n'existe pas, il est crée à la racine du projet
+			// si le fichier n'existe pas, il est crée à la racine du projet
 			writer.write("Universe = vanilla\n");
 			writer.write("Executable = "+exe.getName().toString()+"\n");
 			writer.write("Arguments = $$(MATLAB_PATH)\n");
@@ -159,9 +159,6 @@ public class CondorUtils {
 			writer.write("Log = "+nom+".log \n");
 			String a="";
 			for(int i=0;i<filesToTransfer.size();i++){
-				/*if(i==0)
-					a=filesToTransfer.get(i);
-				else*/
 				a=a+", "+filesToTransfer.get(i);
 			}
 			writer.write("transfer_input_files= mapdrive.p, "+m.getName().toString()+" \n");
@@ -216,7 +213,6 @@ public class CondorUtils {
 		JobDAO jobdao = new MySQLJobDAO();
 		String jobid=sortie[5]+"0";
 		Date d = new Date();
-		//String jobid="218.0";
 		SimpleDateFormat dateStandard = new SimpleDateFormat("yyyyMMdd");
 
 		String submitDate = dateStandard.format(d);
