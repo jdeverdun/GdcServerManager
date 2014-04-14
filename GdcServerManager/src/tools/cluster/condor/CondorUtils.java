@@ -259,9 +259,6 @@ public class CondorUtils {
 		reader.close();
 		is.close();
 		JobDAO jobdao = new MySQLJobDAO();
-		User user = new User();
-		user=UserProfile.CURRENT_USER;
-		jobdao.removeJob(jobid,user.getId());
 		ArrayList<Job> jobs = new ArrayList<Job>();
 		jobs=jobdao.retrieveAllJob();
 		for(int i=0;i<jobs.size();i++)

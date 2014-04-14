@@ -134,6 +134,7 @@ public class ImageProcessingFrame extends JFrame {
 		pluginLoader = new PluginsLoader();
 		try {
 			folderProcessingPlugins = pluginLoader.loadAllFolderProcessingPlugins();
+			
 		} catch (Exception e) {
 			WindowManager.mwLogger.log(Level.SEVERE,"Couldn't load folderProcessingPlugins ... ["+e.toString()+"]");
 			e.printStackTrace();
