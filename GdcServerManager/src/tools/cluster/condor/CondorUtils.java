@@ -135,22 +135,23 @@ public class CondorUtils {
 	}
 
 	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch) throws IOException, SQLException{
-		Long time=System.nanoTime();
-		String nom="job_"+time.toString();
-		File dir=new File(path.toString()+File.separator+ServerInfo.CONDOR_JOB_DIR_NAME+File.separator+nom);
+		String[] nom_entier=executable.getName().split("\\.");
+		String nom=nom_entier[0];
+		File dir=new File(path.toString()+File.separator+nom);
+		System.out.println(dir);
 		dir.mkdirs();
 		File exe=new File(executable.getAbsolutePath());
 		File exe_move=new File(dir+File.separator+executable.getName());
-		Files.copy(exe.toPath(), exe_move.toPath());
+		Files.move(exe.toPath(), exe_move.toPath());
 		File m=new File(filesToTransfer.get(0).getAbsolutePath());
 		File m_move=new File(dir+File.separator+filesToTransfer.get(0).getName());
-		Files.copy(m.toPath(), m_move.toPath());
+		Files.move(m.toPath(), m_move.toPath());
 		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit")));
-			// si le fichier n'existe pas, il est crée à la racine du projet
+			
 			writer.write("Universe = vanilla\n");
 			writer.write("Executable = "+exe.getName().toString()+"\n");
 			writer.write("Arguments = $$(MATLAB_PATH)\n");
@@ -170,7 +171,7 @@ public class CondorUtils {
 				writer.write("requirements = TARGET.OpSys == \"LINUX\" && TARGET.Arch == \"INTEL\" \n");
 			if(os.equals(OS.WINDOWS) && arch.equals(Arch.X86_64))
 				writer.write("requirements = TARGET.OpSys == \"WINDOWS\" && TARGET.Arch == \"X86_64\" \n");
-			if(os.equals(OS.UNIX) && arch.equals(Arch.INTEL))
+			if(os.equals(OS.WINDOWS) && arch.equals(Arch.INTEL))
 				writer.write("requirements = TARGET.OpSys == \"WINDOWS\" && TARGET.Arch == \"INTEL\" \n");
 			writer.write("Queue\n");
 			writer.close();
@@ -180,7 +181,7 @@ public class CondorUtils {
 			e.printStackTrace();
 		}
 
-		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -228,7 +229,7 @@ public class CondorUtils {
 		jobs=jobdao.retrieveAllJob();
 		for(int i=0;i<jobs.size();i++)
 			System.out.println(jobs.get(i).getJobId());
-		//return null;//sortie[5]+"0";
+		//return null;//sortie[5]+"0";*/
 	}
 
 	public static void removeJob(String jobid) throws IOException, SQLException{
