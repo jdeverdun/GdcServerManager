@@ -59,17 +59,17 @@ public class CondorUtils {
 			String[] liste3=liste.get(j).split(",");
 			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2"))
 			{
-				status="R";
+				status="Running";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1")){
-				status="I";
+				status="Idle";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
 				j=sortie_condorq.size();
 			}
 			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5")){
-				status="H";
+				status="Held";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
 				j=sortie_condorq.size();
 			}
@@ -108,12 +108,12 @@ public class CondorUtils {
 				String[] liste3=liste.get(j).split(",");
 				if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("4"))
 				{
-					status="C";
+					status="Completed";
 					//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is completed");
 					j=sortie_condorh.size();
 				}
 				else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("3")){
-					status="X";
+					status="Removed";
 					//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +"  is removed");
 					j=sortie_condorh.size();
 				}
@@ -134,7 +134,7 @@ public class CondorUtils {
 			return false;
 	}
 
-	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch) throws IOException, SQLException{
+	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch, String description) throws IOException, SQLException{
 		String[] nom_entier=executable.getName().split("\\.");
 		String nom=nom_entier[0];
 		File dir=new File(path.toString()+File.separator+nom);
@@ -180,8 +180,7 @@ public class CondorUtils {
 		{
 			e.printStackTrace();
 		}
-
-		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -217,7 +216,6 @@ public class CondorUtils {
 		SimpleDateFormat dateStandard = new SimpleDateFormat("yyyyMMdd");
 
 		String submitDate = dateStandard.format(d);
-		String description="test";
 		if(!isLibrary()){
 			if(os.equals(OS.UNIX))
 				jobdao.newJob(user.getId(), jobid, submitDate, "LINUX", description);
@@ -229,7 +227,7 @@ public class CondorUtils {
 		jobs=jobdao.retrieveAllJob();
 		for(int i=0;i<jobs.size();i++)
 			System.out.println(jobs.get(i).getJobId());
-		//return null;//sortie[5]+"0";*/
+		//return null;//sortie[5]+"0";
 	}
 
 	public static void removeJob(String jobid) throws IOException, SQLException{
@@ -273,7 +271,7 @@ public class CondorUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-		ArrayList<String> job_id= new ArrayList<String>() ;
+		/*ArrayList<String> job_id= new ArrayList<String>() ;
 		String status=null;
 		File path =new File(SystemSettings.APP_DIR.toString());
 		int m = 1024;
@@ -314,7 +312,6 @@ public class CondorUtils {
 				e.printStackTrace();
 			}
 		}*/
-
 	}
 
 }

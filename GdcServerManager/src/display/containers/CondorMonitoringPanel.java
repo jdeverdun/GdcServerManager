@@ -75,6 +75,8 @@ public class CondorMonitoringPanel extends JPanel{
 		table = new JTable();
 		table.setCellSelectionEnabled(true);
 		table.setColumnSelectionAllowed(true);
+		table.setRowHeight(50);
+		
 		DefaultTableModel model =new DefaultTableModel(){
 			public boolean isCellEditable(int row, int column) {
 				return false;
@@ -96,7 +98,8 @@ public class CondorMonitoringPanel extends JPanel{
 	    table.getColumnModel().getColumn(2).setPreferredWidth(260);
 	    table.getColumnModel().getColumn(3).setPreferredWidth(117);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-		centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+		centerRenderer.setHorizontalAlignment( JLabel.LEFT );
+		centerRenderer.setVerticalAlignment(JLabel.CENTER);
 		for(int i=0;i<model.getColumnCount();i++)
 			table.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
 		TableCellRenderer buttonRenderer = new JTableButtonRenderer();
@@ -142,7 +145,7 @@ public class CondorMonitoringPanel extends JPanel{
 				for(int i=0;i<jobs.size();i++)
 				{
 					jobid.add(jobs.get(i).getJobId());
-					description.add(jobs.get(i).getDescription());
+					description.add("<html>"+jobs.get(i).getDescription().replace("\n","<br>")+"</html>");
 					try {
 						status.add(CondorUtils.getJobStatus(jobid.get(i)));
 					} catch (IOException e) {
@@ -150,9 +153,20 @@ public class CondorMonitoringPanel extends JPanel{
 						e.printStackTrace();
 					}
 					model.addRow(new Object[]{jobid.get(i),description.get(i),status.get(i),null});
+					/*try
+				    {
+				        for (int row = 0; row < table.getRowCount(); row++)
+				        {
+				            int rowHeight = table.getRowHeight();
 
+				                Component comp = table.prepareRenderer(table.getCellRenderer(row, 1), row, 1);
+				                rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+
+				            table.setRowHeight(row, rowHeight);
+				        }
+				    }
+				    catch(ClassCastException e) {}*/
 				}
-
 			}
 		});
 		updatethread.start();
@@ -171,7 +185,8 @@ public class CondorMonitoringPanel extends JPanel{
 			ImageIcon icon2;
 			icon2 = new ImageIcon(CondorMonitoringPanel.class.getResource("/images/deleteJob.png"));
 			img = icon2.getImage();  
-			newimg = img.getScaledInstance(15,15,  java.awt.Image.SCALE_SMOOTH);  
+			//newimg = img.getScaledInstance(15,15,  java.awt.Image.SCALE_SMOOTH); 
+			newimg = img.getScaledInstance(30,30,  java.awt.Image.SCALE_SMOOTH);
 			icon = new ImageIcon(newimg);
 			JButton button = new JButton(icon);
 			//JButton button = (JButton)value;
