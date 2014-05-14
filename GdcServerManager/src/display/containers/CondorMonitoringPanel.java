@@ -139,13 +139,18 @@ public class CondorMonitoringPanel extends JPanel{
 					for(int i=countr-1;i>=0;i--)
 					{
 						model.removeRow(i);
+						System.out.println("i = "+i);
+						System.out.println("countr = "+countr);
 					}
 				}
-
+				System.out.println("separation");
 				for(int i=0;i<jobs.size();i++)
 				{
 					jobid.add(jobs.get(i).getJobId());
 					description.add("<html>"+jobs.get(i).getDescription().replace("\n","<br>")+"</html>");
+					System.out.println("i2 = "+i);
+					System.out.println("jobs.size = "+jobs.size());
+					System.out.println("user = "+jobs.get(i).getUserId());
 					try {
 						status.add(CondorUtils.getJobStatus(jobid.get(i)));
 					} catch (IOException e) {
@@ -225,7 +230,7 @@ public class CondorMonitoringPanel extends JPanel{
 				if(n==0){
 					model.removeRow(row);
 
-					if(status.equals("X")==false && status.equals("C")==false){
+					if(status.equals("Removed")==false && status.equals("Completed")==false){
 						try {
 							rm.removeJob(jobid);
 						} catch (IOException e1) {
@@ -238,7 +243,7 @@ public class CondorMonitoringPanel extends JPanel{
 					}
 					User user=UserProfile.CURRENT_USER;
 					JobDAO jobdao = new MySQLJobDAO();
-					if(status.equals("R")==false && status.equals("I")==false && status.equals("H")==false){
+					if(status.equals("Running")==false && status.equals("Idle")==false && status.equals("Held")==false){
 						try {
 							jobdao.removeJob(jobid, user.getId());
 						} catch (SQLException e1) {
