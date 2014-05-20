@@ -23,7 +23,7 @@ try
         restdir2 = dir([restdir.name '/*' restreg '*']);
         gredir2 = dir([gredir.name '/*' grereg '*']);
         while(i<=numel(t1dir2))
-            if(isempty(regexpi(t1dir2(i).name, '.*T1_axe.*')))
+            if(isempty(regexpi(t1dir2(i).name, '.*T1.*3D.*GADO.*')))
                 i=i+1;
             else
                 j=i;
