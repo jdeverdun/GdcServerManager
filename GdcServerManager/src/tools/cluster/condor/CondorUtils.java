@@ -149,6 +149,12 @@ public class CondorUtils {
 		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
+		if(filesToTransfer.size()>1){
+			File xls=new File(filesToTransfer.get(1).toString());
+			File xls_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
+			Files.copy(xls.toPath(), xls_copy.toPath());
+		}
+		
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit")));
 			
@@ -158,11 +164,11 @@ public class CondorUtils {
 			writer.write("Output = "+nom+".out \n");
 			writer.write("Error = "+nom+".err \n");
 			writer.write("Log = "+nom+".log \n");
-			String a="";
+			String files="";
 			for(int i=0;i<filesToTransfer.size();i++){
-				a=a+", "+filesToTransfer.get(i);
+				files=files+", "+filesToTransfer.get(i).getName();
 			}
-			writer.write("transfer_input_files= mapdrive.p, "+m.getName().toString()+" \n");
+			writer.write("transfer_input_files= mapdrive.p, "+files+" \n");
 			writer.write("request_cpus = "+cpu+" \n");
 			writer.write("request_memory = "+memory+" \n");
 			if(os.equals(OS.UNIX) && arch.equals(Arch.X86_64))
@@ -180,7 +186,7 @@ public class CondorUtils {
 		{
 			e.printStackTrace();
 		}
-		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -227,7 +233,7 @@ public class CondorUtils {
 		jobs=jobdao.retrieveAllJob();
 		for(int i=0;i<jobs.size();i++)
 			System.out.println(jobs.get(i).getJobId());
-		//return null;//sortie[5]+"0";
+		//return null;//sortie[5]+"0";*/
 	}
 
 	public static void removeJob(String jobid) throws IOException, SQLException{

@@ -201,6 +201,8 @@ public class ImageProcessingFrame extends JFrame {
 
 		checkBoxPatient = new JCheckBox("Patient");
 		panel.add(checkBoxPatient, "flowx,cell 2 3,alignx left,aligny center");
+		checkBoxPatient.setEnabled(false);
+		checkBoxPatient.setSelected(true);
 
 		checkBoxDate = new JCheckBox("Date");
 		panel.add(checkBoxDate, "cell 2 3,alignx left,aligny center");
