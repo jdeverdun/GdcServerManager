@@ -186,7 +186,7 @@ public class CondorUtils {
 		{
 			e.printStackTrace();
 		}
-		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();

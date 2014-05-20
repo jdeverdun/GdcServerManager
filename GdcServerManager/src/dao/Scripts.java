@@ -9,7 +9,7 @@ public class Scripts {
 	// script pour les creations de tables dans la database d'un nouveau projet
 	// et les acces (grant)
 	public static String[] getCreateUserViews(User u){
-		String[] script = new String[21];
+		String[] script = new String[22];
 		DBTables t = SQLSettings.TABLES;
 		// peut etre utiliser any(1,6,8) (enfin les id des projets stockés dans user)
 		script[0] = "create view "+t.getProject().TNAME+"_"+u.getId()+" as select * from "+t.getProject().TNAME+" where "+t.getProject().TNAME+"."+t.getProject().getId()+" = any(select "+t.getUser_project().getId_project()+" from "+t.getUser_project().TNAME+" where "+t.getUser_project().getId_user()+"="+u.getId()+");";
@@ -33,7 +33,8 @@ public class Scripts {
 		script[17] = "GRANT SELECT ON `"+SQLSettings.DATABASE_NAME+"`.`"+t.getNiftiImage().TNAME+"_"+u.getId()+"` TO '"+u.getLogin()+"'@'';";
 		script[18] = "GRANT SELECT ON `"+SQLSettings.DATABASE_NAME+"`.`"+t.getUser().TNAME+"_"+u.getId()+"` TO '"+u.getLogin()+"'@'';";
 		script[19] = "GRANT UPDATE ON `"+SQLSettings.DATABASE_NAME+"`.`"+t.getUser().TNAME+"_"+u.getId()+"` TO '"+u.getLogin()+"'@'';";
-		script[20] = "flush privileges;";
+		script[20] = "GRANT INSERT, UPDATE, DELETE, SELECT ON `"+SQLSettings.DATABASE_NAME+"`.`"+t.getJob().TNAME+"` TO '"+u.getLogin()+"'@'';";
+		script[21] = "flush privileges;";
 		
 		return script;
 	}
