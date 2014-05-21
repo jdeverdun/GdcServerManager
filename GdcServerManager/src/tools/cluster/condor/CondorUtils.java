@@ -160,7 +160,7 @@ public class CondorUtils {
 			Files.copy(template.toPath(), template_copy.toPath());
 		}
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit"))); 
 			
 			writer.write("Universe = vanilla\n");
 			writer.write("Executable = "+exe.getName().toString()+"\n");
