@@ -275,7 +275,7 @@ try
     matlabbatch{1}.spm.spatial.preproc.data = cellstr(pinfo.t1.files);
     matlabbatch{1}.spm.spatial.preproc.output.GM = [0 0 1];
     matlabbatch{1}.spm.spatial.preproc.output.WM = [0 0 1];
-    matlabbatch{1}.spm.spatial.preproc.output.CSF = [0 0 0];
+    matlabbatch{1}.spm.spatial.preproc.output.CSF = [0 0 1];
     matlabbatch{1}.spm.spatial.preproc.output.biascor = 1;
     matlabbatch{1}.spm.spatial.preproc.output.cleanup = 0;
     matlabbatch{1}.spm.spatial.preproc.opts.tpm = {
@@ -295,12 +295,27 @@ try
     matlabbatch{1}.spm.spatial.preproc.opts.samp = 3;
     matlabbatch{1}.spm.spatial.preproc.opts.msk = {''};
     spm_jobman('run',matlabbatch);
+	
+	if(reorientationFlag==0 || reorientationFlag==2)
+        pinfo.t1.segment.gm = spm_select('FPList',pinfo.rest.dir,['^c1o_' pinfo.name '.*.nii']);
+		pinfo.t1.segment.wm = spm_select('FPList',pinfo.rest.dir,['^c2o_' pinfo.name '.*.nii']);
+		pinfo.t1.segment.csf = spm_select('FPList',pinfo.rest.dir,['^c3o_' pinfo.name '.*.nii']);
+    else
+        pinfo.t1.segment.gm = spm_select('FPList',pinfo.rest.dir,['^c1' pinfo.name '.*.nii']);
+		pinfo.t1.segment.wm = spm_select('FPList',pinfo.rest.dir,['^c2' pinfo.name '.*.nii']);
+		pinfo.t1.segment.csf = spm_select('FPList',pinfo.rest.dir,['^c3' pinfo.name '.*.nii']);
+    end
     %% Normalisation du Resting-state
     template=#14#;
     clear matlabbatch
     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = cellstr(pinfo.t1.files);
     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = cellstr(pinfo.rest.realign.files);
+	temp = cellstr(pinfo.rest.realign.files);
+	temp{end+1} = pinfo.t1.files;
+	temp{end+1} = pinfo.t1.segment.gm;
+	temp{end+1} = pinfo.t1.segment.wm;
+	temp{end+1} = pinfo.t1.segment.csf;
+    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
     if(template==0)
         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {'#11#'}; %utilisteur
     else
