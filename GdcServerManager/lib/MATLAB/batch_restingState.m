@@ -61,7 +61,7 @@ try
     reorientationFlag=#1#;
     if(reorientationFlag==0)
         clear matlabbatch
-        matlabbatch{1}.spm.util.reorient.srcfiles = pinfo.all.files;
+        matlabbatch{1}.spm.util.reorient.srcfiles = cellstr(pinfo.all.files);
         [num txt raw]=xlsread('#2#');
         [ligne colonne]=size(raw);
 		for i=1:ligne
@@ -81,11 +81,11 @@ try
                 end
             end
             if(trouve)
-                matlabbatch{1}.spm.util.reorient.transform.transprm = [-raw{i,3} -raw{i,4} -raw{i,5} 0 0 0 1 1 1 0 0 0];
+                matlabbatch{1}.spm.util.reorient.transform.transprm = [-(str2num(raw{i,3})) -(str2num(raw{i,4})) -(str2num(raw{i,5})) 0 0 0 1 1 1 0 0 0];
                 if(isequal(class(raw{i,1}),'double'))
-                    fprintf(['ligne : ' num2str(i) ', name : ' num2str(raw{i,1}) ', date : ' num2str(raw{i,2}) ', coordonnees : ' num2str(raw{i,3}) ', commisure : ' num2str(raw{i,4}) ', anterieure : ' num2str(raw{i,5})]);
+                    fprintf(['ligne : ' num2str(i) ', name : ' num2str(raw{i,1}) ', date : ' num2str(raw{i,2}) ', x : ' num2str(raw{i,3}) ', y : ' num2str(raw{i,4}) ', z : ' num2str(raw{i,5})]);
                 else
-                    fprintf(['ligne : ' num2str(i) ', name : ' raw{i,1} ', date : ' num2str(raw{i,2}) ', coordonnees : ' num2str(raw{i,3}) ', commisure : ' num2str(raw{i,4}) ', anterieure : ' num2str(raw{i,5})]);
+                    fprintf(['ligne : ' num2str(i) ', name : ' raw{i,1} ', date : ' num2str(raw{i,2}) ', x : ' num2str(raw{i,3}) ', y : ' num2str(raw{i,4}) ', z : ' num2str(raw{i,5})]);
                 end
             else
                 error(['Patient ' pinfo.name ' : not find in the xls file at the date ' pinfo.acquisition]);
@@ -100,11 +100,11 @@ try
                 end
             end
             if(trouve)
-                matlabbatch{1}.spm.util.reorient.transform.transprm = [-raw{i,2} -raw{i,3} -raw{i,4} 0 0 0 1 1 1 0 0 0];
+                matlabbatch{1}.spm.util.reorient.transform.transprm = [-(str2num(raw{i,2})) -(str2num(raw{i,3})) -(str2num(raw{i,4})) 0 0 0 1 1 1 0 0 0];
                 if(isequal(class(raw{i,1}),'double'))
-                    fprintf(['ligne : ' num2str(i) ', name : ' num2str(raw{i,1}) ', coordonnees : ' num2str(raw{i,2}) ', commisure : ' num2str(raw{i,3}) ', anterieure : ' num2str(raw{i,4})]);
+                    fprintf(['ligne : ' num2str(i) ', name : ' num2str(raw{i,1}) ', x : ' num2str(raw{i,2}) ', y : ' num2str(raw{i,3}) ', z : ' num2str(raw{i,4})]);
                 else
-                    fprintf(['ligne : ' num2str(i) ', name : ' raw{i,1} ', coordonnees : ' num2str(raw{i,2}) ', commisure : ' num2str(raw{i,3}) ', anterieure : ' num2str(raw{i,4})]);
+                    fprintf(['ligne : ' num2str(i) ', name : ' raw{i,1} ', x : ' num2str(raw{i,2}) ', y : ' num2str(raw{i,3}) ', z : ' num2str(raw{i,4})]);
                 end
             else
                 error(['Patient ' pinfo.name ' : not find in the xls file']);
