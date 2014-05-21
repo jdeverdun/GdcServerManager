@@ -154,7 +154,11 @@ public class CondorUtils {
 			File xls_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
 			Files.copy(xls.toPath(), xls_copy.toPath());
 		}
-		
+		if(filesToTransfer.size()>2){
+			File template=new File(filesToTransfer.get(2).toString());
+			File template_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
+			Files.copy(template.toPath(), template_copy.toPath());
+		}
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit")));
 			

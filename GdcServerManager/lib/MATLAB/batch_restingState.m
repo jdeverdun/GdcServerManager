@@ -56,7 +56,8 @@ try
     if(isempty(pinfo.rest.files))
         error(['Empty rest files for ' pinfo.name]);
     end
-    
+    p=mfilename('fullpath');
+	[a b c] = fileparts(p);
     %% reorientation - optionnel
     reorientationFlag=#1#;
     if(reorientationFlag==0)
