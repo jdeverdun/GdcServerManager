@@ -143,9 +143,9 @@ try
         matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.matchanat = 0;
         spm_jobman('run',matlabbatch);
         if(reorientationFlag==0 || reorientationFlag==2)
-            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5o_.*' pinfo.name '.*.nii']);
+            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_sco_.*' pinfo.name '.*.nii']);
         else
-            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_.*' pinfo.name '.*.nii']);
+            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_sc.*' pinfo.name '.*.nii']);
         end
         if(isempty(pinfo.grefield.vdm5.files))
             error(['Empty grefield.vdm files for ' pinfo.name]);
@@ -153,9 +153,9 @@ try
     end
     if(presubtractFlag==2)
         if(reorientationFlag==0 || reorientationFlag==2)
-            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5o_.*' pinfo.name '.*.nii']);
+            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_sco_.*' pinfo.name '.*.nii']);
         else
-            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_.*' pinfo.name '.*.nii']);
+            pinfo.grefield.vdm5.files = spm_select('FPList',pinfo.grefield.dir,['^vdm5_sc.*' pinfo.name '.*.nii']);
         end
         if(isempty(pinfo.grefield.vdm5.files))
             error(['Empty grefield.vdm files for ' pinfo.name]);
