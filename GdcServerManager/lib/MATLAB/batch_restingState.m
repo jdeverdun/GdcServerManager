@@ -56,14 +56,15 @@ try
     if(isempty(pinfo.rest.files))
         error(['Empty rest files for ' pinfo.name]);
     end
-    p=mfilename('fullpath');
-	[a b c] = fileparts(p);
+    path2job=mfilename('fullpath');
+	[path2job ~, ~] = fileparts(path2job);
     %% reorientation - optionnel
     reorientationFlag=#1#;
     if(reorientationFlag==0)
         clear matlabbatch
         matlabbatch{1}.spm.util.reorient.srcfiles = cellstr(pinfo.all.files);
-        [num txt raw]=xlsread('#2#');
+		[~, xlsname, ext] = fileparts('#2#');
+        [num txt raw]=xlsread([path2job filesep xlsname ext]);
         [ligne colonne]=size(raw);
 		for i=1:ligne
 			if(isequal(num2str(raw{i,1}),'NaN'))
@@ -132,7 +133,8 @@ try
         matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.phase = cellstr(pinfo.grefield.files(3,:));
         matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.magnitude = cellstr(pinfo.grefield.files(2,:));
         if(defaultsfile==0)
-            matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsfile = {'#4#'}; %utilisateur parametre depend de la machine
+			[~, pmname, ext] = fileparts('#4#');
+            matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsfile = {[path2job filesep pmname ext]}; %utilisateur parametre depend de la machine
         else
             matlabbatch{1}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsfile = {[spm('Dir') '\toolbox\FieldMap\pm_defaults_skyra.m']};
         end

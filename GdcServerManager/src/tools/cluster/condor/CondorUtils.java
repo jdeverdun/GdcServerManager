@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 
+import org.apache.commons.io.FileUtils;
+
 import model.Job;
 import model.ServerInfo;
 import model.User;
@@ -149,7 +151,7 @@ public class CondorUtils {
 		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
-		if(filesToTransfer.size()>1){
+		/*if(filesToTransfer.size()>1){
 			File xls=new File(filesToTransfer.get(1).toString());
 			File xls_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
 			Files.copy(xls.toPath(), xls_copy.toPath());
@@ -158,6 +160,14 @@ public class CondorUtils {
 			File template=new File(filesToTransfer.get(2).toString());
 			File template_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
 			Files.copy(template.toPath(), template_copy.toPath());
+		}*/
+		int count = 0;
+		for(File lfi:filesToTransfer){
+			count++;
+			if(count>1){
+				System.out.println("Copy "+lfi.getAbsolutePath()+" to "+dir);
+				Files.copy(lfi.toPath(), new File(dir+File.separator+lfi.getName()).toPath());
+			}
 		}
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir+File.separator+nom+".submit"))); 
