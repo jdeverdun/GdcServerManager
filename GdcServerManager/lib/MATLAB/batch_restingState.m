@@ -172,7 +172,7 @@ try
     matlabbatch{1}.spm.temporal.st.prefix = 'a';
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
-        pinfo.rest.st.files = spm_select('FPList',pinfo.rest.dir,['^ao' pinfo.name '.*.nii']);
+        pinfo.rest.st.files = spm_select('FPList',pinfo.rest.dir,['^ao_' pinfo.name '.*.nii']);
     else
         pinfo.rest.st.files = spm_select('FPList',pinfo.rest.dir,['^a' pinfo.name '.*.nii']);
     end
@@ -210,8 +210,8 @@ try
         spm_jobman('run',matlabbatch);
         
         if(reorientationFlag==0 || reorientationFlag==2)
-            pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^uao' pinfo.name '.*.nii']);
-            pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanuao' pinfo.name '.*.nii']);
+            pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^uao_' pinfo.name '.*.nii']);
+            pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanuao_' pinfo.name '.*.nii']);
         else
             pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^ua' pinfo.name '.*.nii']);
             pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanua' pinfo.name '.*.nii']);
@@ -241,8 +241,8 @@ try
         matlabbatch{1}.spm.spatial.realign.estwrite.roptions.prefix = 'r';
         spm_jobman('run',matlabbatch);
         if(reorientationFlag==0 || reorientationFlag==2)
-            pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^rao' pinfo.name '.*.nii']);
-            pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanrao' pinfo.name '.*.nii']);
+            pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^rao_' pinfo.name '.*.nii']);
+            pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanrao_' pinfo.name '.*.nii']);
         else
             pinfo.rest.realign.files = spm_select('FPList',pinfo.rest.dir,['^ra' pinfo.name '.*.nii']);
             pinfo.rest.realign.mean.files = spm_select('FPList',pinfo.rest.dir,['^meanra' pinfo.name '.*.nii']);
@@ -319,7 +319,7 @@ try
     matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.prefix = 'w';
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
-        pinfo.rest.norm.files = spm_select('FPList',pinfo.rest.dir,['^wuao' pinfo.name '.*.nii']);
+        pinfo.rest.norm.files = spm_select('FPList',pinfo.rest.dir,['^wuao_' pinfo.name '.*.nii']);
     else
         pinfo.rest.norm.files = spm_select('FPList',pinfo.rest.dir,['^wua' pinfo.name '.*.nii']);
     end
@@ -337,7 +337,7 @@ try
     matlabbatch{1}.spm.spatial.smooth.prefix = 's';
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
-        pinfo.rest.smoothnorm.files = spm_select('FPList',pinfo.rest.dir,['^swuao' pinfo.name '.*.nii']);
+        pinfo.rest.smoothnorm.files = spm_select('FPList',pinfo.rest.dir,['^swuao_' pinfo.name '.*.nii']);
     else
         pinfo.rest.smoothnorm.files = spm_select('FPList',pinfo.rest.dir,['^swua' pinfo.name '.*.nii']);
     end
