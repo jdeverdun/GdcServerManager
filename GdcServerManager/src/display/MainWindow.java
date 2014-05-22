@@ -1570,7 +1570,8 @@ public class MainWindow extends JFrame {
 		getBtndistToWorkspace().setEnabled(!b);
 		getBtnLocalpanel().setEnabled(!b);
 		getBtnlocalTowork().setEnabled(!b);
-		btnImport.setEnabled(!b);
+		if(btnImport!=null)
+			btnImport.setEnabled(!b);
 		getBtnRefresh().setEnabled(!b);
 		getBtnWorkpanel().setEnabled(!b);
 		getBtnWorkTolocal().setEnabled(!b);
