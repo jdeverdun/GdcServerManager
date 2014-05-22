@@ -316,8 +316,9 @@ try
 	temp{end+1} = pinfo.t1.segment.wm;
 	temp{end+1} = pinfo.t1.segment.csf;
     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
+    [~, pmname, ext] = fileparts('#11#');
     if(template==0)
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {'#11#'}; %utilisteur
+        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
     else
         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
     end
