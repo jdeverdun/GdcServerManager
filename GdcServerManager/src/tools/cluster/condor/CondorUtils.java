@@ -268,7 +268,7 @@ public class CondorUtils {
 		BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 		String line;
 		while((line = br.readLine()) != null) {
-			System.out.println(line);
+			//System.out.println(line);
 		}
 		//System.out.println("Process exited with code = " + p.exitValue());
 		InputStream is = p.getInputStream();
@@ -279,7 +279,7 @@ public class CondorUtils {
 		while ((ligne = reader.readLine()) != null) {
 			sortie_condorrm=ligne;
 		}
-		System.out.println(sortie_condorrm);
+		//System.out.println(sortie_condorrm);
 		reader.close();
 		is.close();
 		JobDAO jobdao = new MySQLJobDAO();

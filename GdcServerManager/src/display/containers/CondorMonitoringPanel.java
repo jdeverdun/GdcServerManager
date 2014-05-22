@@ -53,7 +53,12 @@ public class CondorMonitoringPanel extends JPanel{
 	private JProgressBar progressBar;
 	private JProgressBar progressBar_1;
 	private JButton delete;
-
+	private JButton btnDeleteAll;
+	private Image img;
+	private Image newimg;
+	private ImageIcon icon;
+	private ImageIcon icon2;
+	
 	public CondorMonitoringPanel() throws SQLException {
 		setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
@@ -70,7 +75,7 @@ public class CondorMonitoringPanel extends JPanel{
 
 		specificStatusPanel = new JPanel();
 		add(specificStatusPanel, "cell 0 1,grow");
-		specificStatusPanel.setLayout(new MigLayout("", "[grow]", "[grow]"));
+		specificStatusPanel.setLayout(new MigLayout("", "[grow]", "[grow][][30.00]"));
 
 		table = new JTable();
 		table.setCellSelectionEnabled(true);
@@ -111,6 +116,45 @@ public class CondorMonitoringPanel extends JPanel{
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setEnabled(false);
 		specificStatusPanel.add(scrollPane, "cell 0 0,grow");
+		
+		icon2 = new ImageIcon(CondorMonitoringPanel.class.getResource("/images/deleteJob.png"));
+		img = icon2.getImage();  
+		newimg = img.getScaledInstance(25,25,  java.awt.Image.SCALE_SMOOTH); 
+		icon = new ImageIcon(newimg);
+		btnDeleteAll = new JButton(" Delete all job");
+		btnDeleteAll.setIcon(icon);
+		final CondorUtils rm =new CondorUtils();
+		btnDeleteAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				for(int i=0;i<table.getRowCount();i++){
+					String jobid = table.getValueAt(i, 0).toString();
+					String status = table.getValueAt(i, 2).toString();
+					if(status.equals("Removed")==false && status.equals("Completed")==false){
+						try {
+							rm.removeJob(jobid);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					User user=UserProfile.CURRENT_USER;
+					JobDAO jobdao = new MySQLJobDAO();
+					if(status.equals("Running")==false && status.equals("Idle")==false && status.equals("Held")==false){
+						try {
+							jobdao.removeJob(jobid, user.getId());
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+				updateTable();
+			}
+		});
+		specificStatusPanel.add(btnDeleteAll, "cell 0 1,alignx center");
 
 	}
 
@@ -178,10 +222,6 @@ public class CondorMonitoringPanel extends JPanel{
 		private static final long serialVersionUID = 1L;
 		private Object value;
 		@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, final int row, int column) {
-			Image img;
-			Image newimg;
-			ImageIcon icon;
-			ImageIcon icon2;
 			icon2 = new ImageIcon(CondorMonitoringPanel.class.getResource("/images/deleteJob.png"));
 			img = icon2.getImage();  
 			//newimg = img.getScaledInstance(15,15,  java.awt.Image.SCALE_SMOOTH); 
