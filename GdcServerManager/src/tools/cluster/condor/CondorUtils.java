@@ -39,6 +39,7 @@ public class CondorUtils {
 			p.waitFor();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
+			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot run condor_q",e);
 			e.printStackTrace();
 		}
 		//System.out.println("Process exited with code = " + p.exitValue());
@@ -88,6 +89,7 @@ public class CondorUtils {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot run condor_history",e);
 			}
 			//System.out.println("Process exited with code = " + p.exitValue());
 			is = p.getInputStream();
@@ -199,6 +201,7 @@ public class CondorUtils {
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot create .submit and .bat files",e);
 		}
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
@@ -207,6 +210,7 @@ public class CondorUtils {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot run condor_submit",e);
 		}
 		System.out.println("Process exited with code = " + p.exitValue());
 
@@ -257,6 +261,7 @@ public class CondorUtils {
 			p.waitFor();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
+			WindowManager.mwLogger.log(Level.WARNING, "Error : cannot run condor_rm for the job"+jobid,e);
 			e.printStackTrace();
 		}
 		// get the error stream of the process and print it
