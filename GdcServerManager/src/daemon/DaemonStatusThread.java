@@ -15,7 +15,7 @@ import display.containers.ServerStatusPanel;
  * @author Mobilette
  *
  */
-public class DaemonStatusThread extends Thread {
+public class DaemonStatusThread extends Thread { 
 
 	private static final int DEFAULT_REFRESH_TIME = 5000;
 	private int refresh_time;
