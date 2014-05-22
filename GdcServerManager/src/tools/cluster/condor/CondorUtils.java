@@ -203,7 +203,7 @@ public class CondorUtils {
 			e.printStackTrace();
 			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot create .submit and .bat files",e);
 		}
-		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
