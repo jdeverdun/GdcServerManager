@@ -173,6 +173,11 @@ public class CondorMonitoringPanel extends JPanel{
 				JobDAO jobdao = new MySQLJobDAO();
 				try {
 					jobs=jobdao.retrieveJobByUserId(user.getId());
+					/*for(int i=0;i<jobs.size();i++)
+					{
+						jobdao.removeJob(jobs.get(i).getJobId(), user.getId());
+						System.out.println(jobs.get(i).getJobId());
+						System.out.println(jobs.get(i).getUserId().getLogin());System.out.println(i);}*/
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

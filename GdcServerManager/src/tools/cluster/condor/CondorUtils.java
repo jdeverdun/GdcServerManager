@@ -153,6 +153,7 @@ public class CondorUtils {
 		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
 		File md_copy=new File(dir+File.separator+"mapdrive.p");
 		Files.copy(md.toPath(), md_copy.toPath());
+		
 		/*if(filesToTransfer.size()>1){
 			File xls=new File(filesToTransfer.get(1).toString());
 			File xls_copy=new File(dir+File.separator+filesToTransfer.get(1).getName());
@@ -167,7 +168,7 @@ public class CondorUtils {
 		for(File lfi:filesToTransfer){
 			count++;
 			if(count>1){
-				System.out.println("Copy "+lfi.getAbsolutePath()+" to "+dir);
+				//System.out.println("Copy "+lfi.getAbsolutePath()+" to "+dir);
 				Files.copy(lfi.toPath(), new File(dir+File.separator+lfi.getName()).toPath());
 			}
 		}
@@ -203,7 +204,13 @@ public class CondorUtils {
 			e.printStackTrace();
 			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot create .submit and .bat files",e);
 		}
-		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -249,8 +256,9 @@ public class CondorUtils {
 		}
 		ArrayList<Job> jobs = new ArrayList<Job>();
 		jobs=jobdao.retrieveAllJob();
-		for(int i=0;i<jobs.size();i++)
-			System.out.println(jobs.get(i).getJobId());
+		/*for(int i=0;i<jobs.size();i++)
+			{System.out.println(jobs.get(i).getJobId());
+			System.out.println(jobs.get(i).getUserId().getLogin());}
 		//return null;//sortie[5]+"0";*/
 	}
 
