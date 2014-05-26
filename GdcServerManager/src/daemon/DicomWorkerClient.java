@@ -86,8 +86,13 @@ public class DicomWorkerClient extends DicomWorker {
 		try {
 			acqDate = getAcquisitionDate();
 		} catch (DicomException e) {
-			acqDate = DEFAULT_STRING;
-			WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,acqDate set to null",e);
+			try{
+				acqDate = getSerieDate();
+			}catch(DicomException de){// on prend la date de la serie si on a pas la date d'acquisition
+				acqDate = DEFAULT_STRING;
+				WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerClient dicomException,acqDate set to null",e);
+			}
+			
 		}		
 		
 		// On créé les chemins vers les répertoires

@@ -126,7 +126,12 @@ public class DicomWorkerImport extends DicomWorker {
 				
 				protocolName = getProtocolName();
 				serieName = getSeriesDescription();
-				acqDate = getAcquisitionDate();	
+				try {
+					acqDate = getAcquisitionDate();
+				} catch (DicomException e) {
+					acqDate = getSerieDate();
+					WindowManager.mwLogger.log(Level.WARNING, "DicomWorkerImport dicomException,acqDate set to serieDate",e);
+				}
 
 				// -------------- Modif des noms etc ---------------
 				if(getDispatcher().getSettings().getImportSettings().getNamingTag()==DicomNamingTag.PATIENTID)

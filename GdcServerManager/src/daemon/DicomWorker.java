@@ -157,7 +157,12 @@ public class DicomWorker extends DaemonWorker {
 		
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
-		acqDate = getAcquisitionDate();	
+		try{
+			acqDate = getAcquisitionDate();	
+		}catch(DicomException de){// on prend la date de la serie si on a pas la date d'acquisition
+			acqDate = getSerieDate();
+			WindowManager.mwLogger.log(Level.WARNING, "DicomWorker dicomException,acqDate set to serieDate",de);
+		}
 		// si protocol est vide ou serie  est vide, on met le nom du protocol et vice versa !
 		if(protocolName == DEFAULT_STRING && serieName != DEFAULT_STRING){
 			protocolName = serieName;
@@ -870,7 +875,26 @@ public class DicomWorker extends DaemonWorker {
 		WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
 		return pdate;
 	}
-	
+	// Date de la serie ex : 20130122
+	public String getSerieDate() throws DicomException{
+		String pdate = getTag("0008,0023");
+		if(pdate == null){
+			throw new DicomException("Unable to decode DICOM header 0008,0023");
+		}
+		if(pdate.isEmpty())
+			return DEFAULT_STRING;
+		while(pdate.length()>1 && pdate.charAt(0) == ' ')
+			pdate = pdate.substring(1);	
+		if(pdate.equals(" "))// si le champs est vide
+			return DEFAULT_STRING;
+		// on enleve les espaces en fin de chaine
+		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+			pdate = pdate.substring(0,pdate.length()-1);
+		// on remplace les caracteres complique par "_"
+		pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+		WindowManager.mwLogger.log(Level.FINEST, "getSerieDate : "+pdate);
+		return pdate;
+	}
 	public Path getNewPath() {
 		return newPath;
 	}
