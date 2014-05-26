@@ -197,7 +197,7 @@ public class MySQLJobDAO implements JobDAO {
 			DBTables tab = SQLSettings.TABLES;
 			JobTable nt = tab.getJob();	
 			
-			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.getJobId()+"=" +jobid+"and "+nt.getUserId()+"="+user_id);
+			rset = stmt.executeUpdate("delete from "+nt.TNAME+" where "+nt.getJobId()+"=" +jobid+" and "+nt.getUserId()+"="+user_id);
 			
 			return;
 		} catch (SQLException e2) {

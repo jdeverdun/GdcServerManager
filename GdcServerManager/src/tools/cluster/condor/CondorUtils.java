@@ -142,7 +142,7 @@ public class CondorUtils {
 		String[] nom_entier=executable.getName().split("\\.");
 		String nom=nom_entier[0];
 		File dir=new File(path.toString()+File.separator+nom);
-		System.out.println(dir);
+		//System.out.println(dir);
 		dir.mkdirs();
 		File exe=new File(executable.getAbsolutePath());
 		File exe_move=new File(dir+File.separator+executable.getName());
@@ -204,7 +204,7 @@ public class CondorUtils {
 			e.printStackTrace();
 			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot create .submit and .bat files",e);
 		}
-		try {
+		/*try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -296,6 +296,7 @@ public class CondorUtils {
 		for(int i=0;i<jobs.size();i++)
 			System.out.println(jobs.get(i).getJobId());
 	}
+
 	public static void main(String[] args){
 
 		/*try {

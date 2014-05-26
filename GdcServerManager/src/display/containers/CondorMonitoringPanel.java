@@ -3,7 +3,9 @@ package display.containers;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EventObject;
 
 import javax.swing.JPanel;
@@ -11,6 +13,7 @@ import javax.swing.JPanel;
 import model.Job;
 import model.User;
 import net.miginfocom.swing.MigLayout;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.DefaultListModel;
@@ -33,7 +36,6 @@ import javax.swing.table.TableModel;
 
 import settings.UserProfile;
 import tools.cluster.condor.CondorUtils;
-
 import dao.project.JobDAO;
 import dao.project.MySQLJobDAO;
 import display.MainWindow;
@@ -60,6 +62,23 @@ public class CondorMonitoringPanel extends JPanel{
 	private ImageIcon icon2;
 	
 	public CondorMonitoringPanel() throws SQLException {
+		
+		
+		/*User user = new User();
+		user=UserProfile.CURRENT_USER;
+		JobDAO jobdao = new MySQLJobDAO();
+		String jobid="";
+		Date d = new Date();
+		SimpleDateFormat dateStandard = new SimpleDateFormat("yyyyMMdd");
+
+		String submitDate = dateStandard.format(d);
+		for(int i=0;i<15;i++)
+		{
+			jobdao.newJob(user.getId(), jobid+i, submitDate, "WINDOWS", "test");
+		}*/
+
+		
+		
 		setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		jobProgressPanel = new JPanel();
@@ -126,32 +145,41 @@ public class CondorMonitoringPanel extends JPanel{
 		final CondorUtils rm =new CondorUtils();
 		btnDeleteAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				for(int i=0;i<table.getRowCount();i++){
-					String jobid = table.getValueAt(i, 0).toString();
-					String status = table.getValueAt(i, 2).toString();
-					if(status.equals("Removed")==false && status.equals("Completed")==false){
-						try {
-							rm.removeJob(jobid);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+				JDialog.setDefaultLookAndFeelDecorated(true);
+				int n = JOptionPane.showConfirmDialog(
+						table,
+						"Do you want really remove all job?",
+						null,
+						JOptionPane.YES_NO_OPTION);
+
+				if(n==0){
+					for(int i=0;i<table.getRowCount();i++){
+						String jobid = table.getValueAt(i, 0).toString();
+						String status = table.getValueAt(i, 2).toString();
+						if(status.equals("Removed")==false || status.equals("Completed")==false || status.equals("The job "+jobid+" doesn't exist.")==false){
+							try {
+								rm.removeJob(jobid);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						User user=UserProfile.CURRENT_USER;
+						JobDAO jobdao = new MySQLJobDAO();
+						if(status.equals("Running")==false || status.equals("Idle")==false || status.equals("Held")==false){
+							try {
+								jobdao.removeJob(jobid, user.getId());
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
-					User user=UserProfile.CURRENT_USER;
-					JobDAO jobdao = new MySQLJobDAO();
-					if(status.equals("Running")==false && status.equals("Idle")==false && status.equals("Held")==false){
-						try {
-							jobdao.removeJob(jobid, user.getId());
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}
+					updateTable();
 				}
-				updateTable();
 			}
 		});
 		specificStatusPanel.add(btnDeleteAll, "cell 0 1,alignx center");
