@@ -204,7 +204,7 @@ public class CondorUtils {
 			e.printStackTrace();
 			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot create .submit and .bat files",e);
 		}
-		/*try {
+		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
