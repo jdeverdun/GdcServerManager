@@ -34,7 +34,7 @@ public class CondorUtils {
 
 		String status=null;
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
-		java.lang.Process p = cs.exec("condor_q -autoformat clusterid jobstatus procid");
+		java.lang.Process p = cs.exec("condor_q -global -autoformat clusterid jobstatus procid");
 		try {
 			p.waitFor();
 		} catch (InterruptedException e) {
@@ -57,21 +57,32 @@ public class CondorUtils {
 			String[] liste3= sortie_condorq.get(i).split(" ");
 			liste.add(liste3[0]+","+liste3[1]+","+liste3[2]);
 		}
+		User user = new User();
+		user=UserProfile.CURRENT_USER;
+		JobDAO jobdao = new MySQLJobDAO();
+		ArrayList<Job> jobs = new ArrayList<Job>();
+		try {
+			jobs=jobdao.retrieveJobByUserId(user.getId());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		int j=0;
 		while(j<sortie_condorq.size()){
 			String[] liste3=liste.get(j).split(",");
-			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2"))
+			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2]))
 			{
 				status="Running";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
 				j=sortie_condorq.size();
 			}
-			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1")){
+			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2])){
 				status="Idle";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
 				j=sortie_condorq.size();
 			}
-			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5")){
+			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2])){
 				status="Held";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
 				j=sortie_condorq.size();
@@ -126,8 +137,9 @@ public class CondorUtils {
 			reader.close();
 			is.close();
 		}
+			
 		if(status==null)
-			status="The job "+JobId+" doesn't exist.";
+			status="The job "+JobId+" is unknown.";
 		return status;
 	}
 	public static boolean isLibrary(){
