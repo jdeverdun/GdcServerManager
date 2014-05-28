@@ -195,9 +195,9 @@ public class CondorUtils {
 			writer.write("Log = "+nom+".log \n");
 			String files="";
 			for(int i=0;i<filesToTransfer.size();i++){
-				files=files+", "+filesToTransfer.get(i).getName();
+					files=files+", "+filesToTransfer.get(i).getName();
 			}
-			writer.write("transfer_input_files= mapdrive.p, "+files+" \n");
+			writer.write("transfer_input_files= mapdrive.p"+files+" \n");
 			writer.write("request_cpus = "+cpu+" \n");
 			writer.write("request_memory = "+memory+" \n");
 			if(os.equals(OS.UNIX) && arch.equals(Arch.X86_64))
@@ -235,9 +235,9 @@ public class CondorUtils {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 		String line;
-		while((line = br.readLine()) != null) {
+		/*while((line = br.readLine()) != null) {
 			System.out.println(line);
-		}
+		}*/
 		InputStream is = p.getInputStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		// And print each line
@@ -305,8 +305,8 @@ public class CondorUtils {
 		JobDAO jobdao = new MySQLJobDAO();
 		ArrayList<Job> jobs = new ArrayList<Job>();
 		jobs=jobdao.retrieveAllJob();
-		for(int i=0;i<jobs.size();i++)
-			System.out.println(jobs.get(i).getJobId());
+		/*for(int i=0;i<jobs.size();i++)
+			System.out.println(jobs.get(i).getJobId());*/
 	}
 
 	public static void main(String[] args){
