@@ -54,7 +54,7 @@ public class DicomWorkerClient extends DicomWorker {
 		// on definit le nom "null" au repertoire si les champs facultatifs  sont null
 		// si c'est des champs importants on transfere  l'erreur
 		patientName = getPatientName();
-		
+		sopinstanceid = getSOPInstanceUID();
 		try {
 			birthdate = getBirthdate();
 		} catch (DicomException e) {
@@ -139,14 +139,14 @@ public class DicomWorkerClient extends DicomWorker {
 		dirExists = checkAndMakeDir(protocolFolder);
 		dirExists = checkAndMakeDir(serieFolder);
 		
-		Path newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
+		Path newPath = Paths.get(serieFolder + File.separator + sopinstanceid);
 		
 		// On deplace
 		copyDicomTo(newPath);
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
-		dicomImage.setName(dicomFile.getFileName().toString());
+		dicomImage.setName(sopinstanceid);
 		dicomImage.setSliceLocation(getSliceLocation());
 		dicomImage.setProjet(new Project(getProject_id()));
 		dicomImage.setPatient(new Patient(getPatient_id()));

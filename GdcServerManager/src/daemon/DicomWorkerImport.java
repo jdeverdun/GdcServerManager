@@ -112,7 +112,7 @@ public class DicomWorkerImport extends DicomWorker {
 
 				birthdate = getBirthdate();
 				
-				
+				sopinstanceid = getSOPInstanceUID();
 				sex = getSex();
 				size = getPatientSize();
 				weight = getPatientWeight();
@@ -140,13 +140,13 @@ public class DicomWorkerImport extends DicomWorker {
 					patientName = getPatientName();
 				if(getDispatcher().getSettings().getImportSettings().changePatientName()){
 					patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
-					String lpt = getDicomFile().getFileName().toString();
-					String filename = lpt;
-					if(lpt.split(".").length>1){
+					//String lpt = getDicomFile().getFileName().toString();
+					String filename = sopinstanceid;//lpt;
+					/*if(lpt.split(".").length>1){
 						String[] parts = lpt.split("\\.");
 						filename = parts[0];
-					}
-					Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
+					}*/
+					Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a");
 					DicomTools.changementTag(getDicomFile().toFile(), newDicom.toFile(), Tag.PatientName, VR.PN, patientName);
 					setDicomFile(newDicom);
 				}else{
@@ -320,13 +320,13 @@ public class DicomWorkerImport extends DicomWorker {
 	}
 
 	private String anonymizeCurrentFile(String patientName) throws AnonymizationException, DicomException{
-		String lpt = getDicomFile().getFileName().toString();
+		String lpt = sopinstanceid;//getDicomFile().getFileName().toString();
 		String filename = lpt;
-		if(lpt.split(".").length>1){
+		/*if(lpt.split(".").length>1){
 			String[] parts = lpt.split("\\.");
 			filename = parts[0];
-		}
-		Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a.dcm");
+		}*/
+		Path newDicom = Paths.get(SystemSettings.SERVER_INFO.getTempDir()+File.separator+filename+"_a");
 		String npatname;
 		try {
 			npatname = DicomTools.anonymize(getDicomFile(),newDicom,patientName,birthdate);

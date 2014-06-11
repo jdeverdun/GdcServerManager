@@ -61,6 +61,7 @@ public class DicomWorker extends DaemonWorker {
 	protected String header;
 	protected String birthdate;
 	protected String sex;
+	protected String sopinstanceid;
 	protected float size;
 	protected float weight;
 	protected String mri_name;
@@ -154,7 +155,7 @@ public class DicomWorker extends DaemonWorker {
 		String[] pspacing = getPixelSpacing();
 		voxelwidth = Float.parseFloat(pspacing[0]);
 		voxelheight = Float.parseFloat(pspacing[1]);
-		
+		sopinstanceid = getSOPInstanceUID();
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
 		try{
@@ -209,14 +210,15 @@ public class DicomWorker extends DaemonWorker {
 		else
 			setSerie_idFromDB(serieFolder.getFileName());
 		
-		newPath = Paths.get(serieFolder + File.separator + dicomFile.getFileName());
+		
+		newPath = Paths.get(serieFolder + File.separator + sopinstanceid);
 		
 		// On deplace
 		moveDicomTo(newPath);
 		
 		// On construit l'objet dicom
 		dicomImage = new DicomImage();
-		dicomImage.setName(dicomFile.getFileName().toString());
+		dicomImage.setName(sopinstanceid);
 		dicomImage.setSliceLocation(getSliceLocation());
 		dicomImage.setProjet(new Project(getProject_id()));
 		dicomImage.setPatient(new Patient(getPatient_id()));
@@ -582,6 +584,25 @@ public class DicomWorker extends DaemonWorker {
 		// on remplace les caracteres complique par "_"
 		pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getPatientId : "+pname);
+		return pname;
+	}
+	
+	// ID du dicom (SOP Instance UID)
+	public String getSOPInstanceUID() throws DicomException{
+		String pname = getTag("0008,0018");
+		if(pname == null){
+			throw new DicomException("Unable to decode DICOM header 0008,0018");
+		}
+		if(pname.isEmpty())
+			return DEFAULT_STRING;
+		// on enleve les espaces en fin de chaine
+		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+			pname = pname.substring(0,pname.length()-1);
+		while(pname.length()>1 && pname.charAt(0) == ' ')
+			pname = pname.substring(1,pname.length());
+		if(pname.equals(" "))// si le champs est vide
+			throw new DicomException("Unable to decode DICOM header 0008,0018");
+		WindowManager.mwLogger.log(Level.FINEST, "getSOPInstanceUID : "+pname);
 		return pname;
 	}
 	
