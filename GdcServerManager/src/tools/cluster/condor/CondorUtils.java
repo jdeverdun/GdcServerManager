@@ -150,7 +150,7 @@ public class CondorUtils {
 			return false;
 	}
 
-	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch, String description) throws IOException, SQLException{
+	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch, String description, String machine) throws IOException, SQLException{
 		String[] nom_entier=executable.getName().split("\\.");
 		String nom=nom_entier[0];
 		File dir=new File(path.toString()+File.separator+nom);
@@ -208,6 +208,8 @@ public class CondorUtils {
 				writer.write("requirements = TARGET.OpSys == \"WINDOWS\" && TARGET.Arch == \"X86_64\" \n");
 			if(os.equals(OS.WINDOWS) && arch.equals(Arch.INTEL))
 				writer.write("requirements = TARGET.OpSys == \"WINDOWS\" && TARGET.Arch == \"INTEL\" \n");
+			if(!machine.isEmpty())
+				writer.write("rank = machine == \""+machine+"\" \n");
 			writer.write("Queue\n");
 			writer.close();
 		}
