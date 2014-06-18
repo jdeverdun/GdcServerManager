@@ -14,7 +14,6 @@ import org.apache.commons.io.FileUtils;
 import model.Job;
 import model.ServerInfo;
 import model.User;
-
 import dao.project.JobDAO;
 import dao.project.MySQLJobDAO;
 
@@ -71,18 +70,20 @@ public class CondorUtils {
 		int j=0;
 		while(j<sortie_condorq.size()){
 			String[] liste3=liste.get(j).split(",");
-			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2]))
+			if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("2"))//&& jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2]))
 			{
 				status="Running";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is running");
 				j=sortie_condorq.size();
 			}
-			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2])){
+			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("1"))// && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2]))
+				{
 				status="Idle";
-				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");
+				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is idle");			
 				j=sortie_condorq.size();
 			}
-			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5") && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2])){
+			else if(JobId.equals(liste3[0]+"."+liste3[2]) && liste3[1].equals("5"))// && jobs.get(j).getJobId().equals(liste3[0]+"."+liste3[2]))
+				{
 				status="Held";
 				//WindowManager.mwLogger.log(Level.FINE, "The job "+ JobId +" is held");
 				j=sortie_condorq.size();
@@ -111,7 +112,6 @@ public class CondorUtils {
 			while ((ligne = reader.readLine()) != null) {
 				if (ligne.isEmpty()==false){
 					sortie_condorh.add(ligne);}
-
 			}
 			liste= new ArrayList<String>();
 			for(int i = 0 ; i < sortie_condorh.size(); i++){
@@ -140,6 +140,7 @@ public class CondorUtils {
 			
 		if(status==null)
 			status="The job "+JobId+" is unknown.";
+
 		return status;
 	}
 	public static boolean isLibrary(){
@@ -224,7 +225,7 @@ public class CondorUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -239,7 +240,7 @@ public class CondorUtils {
 		String line;
 		/*while((line = br.readLine()) != null) {
 			System.out.println(line);
-		}*/
+		}
 		InputStream is = p.getInputStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		// And print each line
@@ -275,7 +276,44 @@ public class CondorUtils {
 			System.out.println(jobs.get(i).getUserId().getLogin());}
 		//return null;//sortie[5]+"0";*/
 	}
-
+	
+	public static void submitJobLocal(File path, ArrayList<File> filesToTransfer, String executable) throws IOException{
+		String[] nom_entier=filesToTransfer.get(0).getName().split("\\.");
+		String nom=nom_entier[0];
+		File dir=new File(path.toString()+File.separator+nom);
+		//System.out.println(dir);
+		dir.mkdirs();
+		File m=new File(filesToTransfer.get(0).getAbsolutePath());
+		File m_move=new File(dir+File.separator+filesToTransfer.get(0).getName());
+		Files.move(m.toPath(), m_move.toPath());
+		File md=new File(SystemSettings.APP_DIR+File.separator+"lib"+File.separator+"MATLAB"+File.separator+"mapdrive.p");
+		File md_copy=new File(dir+File.separator+"mapdrive.p");
+		Files.copy(md.toPath(), md_copy.toPath());
+		int count = 0;
+		for(File lfi:filesToTransfer){
+			count++;
+			if(count>1){
+				//System.out.println("Copy "+lfi.getAbsolutePath()+" to "+dir);
+				Files.copy(lfi.toPath(), new File(dir+File.separator+lfi.getName()).toPath());
+			}
+		}
+		String[] name;
+		name=filesToTransfer.get(0).getName().split("\\.");
+		try
+		{
+			java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+			java.lang.Process p = cs.exec("\""+executable+"\""+" -wait -logfile matlablog.log -nodesktop -nosplash -r "+name[0],null,dir);
+			p.waitFor();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot run matlab",e);
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void removeJob(String jobid) throws IOException, SQLException{
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_rm "+jobid);

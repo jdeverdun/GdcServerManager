@@ -34,6 +34,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import com.sun.corba.se.impl.encoding.CodeSetConversion.BTCConverter;
+
 import settings.UserProfile;
 import tools.cluster.condor.CondorUtils;
 import dao.project.JobDAO;
@@ -49,13 +51,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class CondorMonitoringPanel extends JPanel{
-	private JTable table;
+	private static JTable table;
 	private JPanel jobProgressPanel;
 	private JPanel specificStatusPanel;
 	private JProgressBar progressBar;
 	private JProgressBar progressBar_1;
 	private JButton delete;
-	private JButton btnDeleteAll;
+	private static JButton btnDeleteAll;
 	private Image img;
 	private Image newimg;
 	private ImageIcon icon;
@@ -72,7 +74,7 @@ public class CondorMonitoringPanel extends JPanel{
 		SimpleDateFormat dateStandard = new SimpleDateFormat("yyyyMMdd");
 
 		String submitDate = dateStandard.format(d);
-		for(int i=0;i<15;i++)
+		for(int i=0;i<2;i++)
 		{
 			jobdao.newJob(user.getId(), jobid+i, submitDate, "WINDOWS", "test");
 		}*/
@@ -96,12 +98,16 @@ public class CondorMonitoringPanel extends JPanel{
 		add(specificStatusPanel, "cell 0 1,grow");
 		specificStatusPanel.setLayout(new MigLayout("", "[grow]", "[grow][][30.00]"));
 
+		btnDeleteAll = new JButton(" Delete all job");
+		btnDeleteAll.setIcon(icon);
+		specificStatusPanel.add(btnDeleteAll, "cell 0 1,alignx center");
+		
 		table = new JTable();
 		table.setCellSelectionEnabled(true);
 		table.setColumnSelectionAllowed(true);
 		table.setRowHeight(50);
 		
-		DefaultTableModel model =new DefaultTableModel(){
+		final DefaultTableModel model =new DefaultTableModel(){
 			public boolean isCellEditable(int row, int column) {
 				return false;
 			}
@@ -111,6 +117,7 @@ public class CondorMonitoringPanel extends JPanel{
 		model.addColumn("Description");
 		model.addColumn("Status");
 		model.addColumn("Action");
+		
 		
 		updateTable();
 		
@@ -140,8 +147,7 @@ public class CondorMonitoringPanel extends JPanel{
 		img = icon2.getImage();  
 		newimg = img.getScaledInstance(25,25,  java.awt.Image.SCALE_SMOOTH); 
 		icon = new ImageIcon(newimg);
-		btnDeleteAll = new JButton(" Delete all job");
-		btnDeleteAll.setIcon(icon);
+		
 		final CondorUtils rm =new CondorUtils();
 		btnDeleteAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -153,10 +159,11 @@ public class CondorMonitoringPanel extends JPanel{
 						JOptionPane.YES_NO_OPTION);
 
 				if(n==0){
+					
 					for(int i=0;i<table.getRowCount();i++){
 						String jobid = table.getValueAt(i, 0).toString();
 						String status = table.getValueAt(i, 2).toString();
-						if(status.equals("Removed")==false || status.equals("Completed")==false || status.equals("The job "+jobid+" doesn't exist.")==false){
+						if(status.equals("Removed")==false && status.equals("Completed")==false && status.equals("The job "+jobid+" doesn't exist.")==false){
 							try {
 								rm.removeJob(jobid);
 							} catch (IOException e1) {
@@ -169,7 +176,7 @@ public class CondorMonitoringPanel extends JPanel{
 						}
 						User user=UserProfile.CURRENT_USER;
 						JobDAO jobdao = new MySQLJobDAO();
-						if(status.equals("Running")==false || status.equals("Idle")==false || status.equals("Held")==false){
+						if(status.equals("Running")==false && status.equals("Idle")==false && status.equals("Held")==false){
 							try {
 								jobdao.removeJob(jobid, user.getId());
 							} catch (SQLException e1) {
@@ -182,17 +189,18 @@ public class CondorMonitoringPanel extends JPanel{
 				}
 			}
 		});
-		specificStatusPanel.add(btnDeleteAll, "cell 0 1,alignx center");
+		
 
 	}
 
-	public void updateTable()  
+	public static void updateTable()  
 	{  
 		Thread updatethread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				DefaultTableModel model = (DefaultTableModel)table.getModel();
+				btnDeleteAll.setEnabled(false);
 				ArrayList<Job> jobs = new ArrayList<Job>();
 				ArrayList<String> jobid = new ArrayList<String>();
 				ArrayList<String> description = new ArrayList<String>();
@@ -201,11 +209,6 @@ public class CondorMonitoringPanel extends JPanel{
 				JobDAO jobdao = new MySQLJobDAO();
 				try {
 					jobs=jobdao.retrieveJobByUserId(user.getId());
-					/*for(int i=0;i<jobs.size();i++)
-					{
-						jobdao.removeJob(jobs.get(i).getJobId(), user.getId());
-						System.out.println(jobs.get(i).getJobId());
-						System.out.println(jobs.get(i).getUserId().getLogin());System.out.println(i);}*/
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -243,9 +246,11 @@ public class CondorMonitoringPanel extends JPanel{
 				    }
 				    catch(ClassCastException e) {}*/
 				}
+				btnDeleteAll.setEnabled(true);
 			}
 		});
 		updatethread.start();
+		
 	}
 
 	public class JTableButtonRenderer  extends JButton implements TableCellRenderer {        
@@ -297,7 +302,7 @@ public class CondorMonitoringPanel extends JPanel{
 				if(n==0){
 					model.removeRow(row);
 
-					if(status.equals("Removed")==false && status.equals("Completed")==false){
+					if(status.equals("Removed")==false && status.equals("Completed")==false && status.equals("The job "+jobid+" doesn't exist.")==false){
 						try {
 							rm.removeJob(jobid);
 						} catch (IOException e1) {
@@ -318,6 +323,7 @@ public class CondorMonitoringPanel extends JPanel{
 							e1.printStackTrace();
 						}
 					}
+					updateTable();
 				}
 			}
 		}

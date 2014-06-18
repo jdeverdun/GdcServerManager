@@ -41,6 +41,10 @@ try
     
     pinfo.t1.files = spm_select('FPList',pinfo.t1.dir,['^' pinfo.name '.*.nii']);
     pinfo.rest.files = spm_select('FPList',pinfo.rest.dir,['^' pinfo.name '.*.nii']);
+	RmImage=#21#;
+	if(RmImage==0)
+		pinfo.rest.files=pinfo.rest.files(#22#+1:end,:);
+	end
     if(~(isempty(gredir)))
         pinfo.grefield.files = spm_select('FPList',pinfo.grefield.dir,['^' pinfo.name '.*.nii']);
         if(isempty(pinfo.grefield.files))
