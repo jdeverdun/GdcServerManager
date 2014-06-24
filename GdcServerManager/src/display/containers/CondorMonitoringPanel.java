@@ -80,7 +80,6 @@ public class CondorMonitoringPanel extends JPanel{
 		}*/
 
 		
-		
 		setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
 		jobProgressPanel = new JPanel();
@@ -119,7 +118,7 @@ public class CondorMonitoringPanel extends JPanel{
 		model.addColumn("Action");
 		
 		
-		updateTable();
+		
 		
 		table.setModel(model);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -190,7 +189,7 @@ public class CondorMonitoringPanel extends JPanel{
 			}
 		});
 		
-
+		updateTable();
 	}
 
 	public static void updateTable()  

@@ -225,7 +225,7 @@ public class CondorUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		/*java.lang.Runtime cs = java.lang.Runtime.getRuntime();
+		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 		java.lang.Process p = cs.exec("condor_submit "+nom+".submit",null,dir);
 		try {
 			p.waitFor();
@@ -238,7 +238,7 @@ public class CondorUtils {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 		String line;
-		/*while((line = br.readLine()) != null) {
+		while((line = br.readLine()) != null) {
 			System.out.println(line);
 		}
 		InputStream is = p.getInputStream();
