@@ -189,7 +189,6 @@ try
     if(isempty(pinfo.coudeDroit.st.files))
         error(['Empty coudeDroit.st.files files for ' pinfo.name]);
     end
-    
     %% realignement avec grefield coudeDroit
     if(presubtractFlag==0 || presubtractFlag==2)
         clear matlabbatch

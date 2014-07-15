@@ -191,7 +191,9 @@ public class CondorMonitoringPanel extends JPanel{
 		
 		updateTable();
 	}
-
+	/****************************************************************************/
+	/** Mets à jour la table des jobs                                          **/
+	/****************************************************************************/
 	public static void updateTable()  
 	{  
 		Thread updatethread = new Thread(new Runnable() {
@@ -251,11 +253,11 @@ public class CondorMonitoringPanel extends JPanel{
 		updatethread.start();
 		
 	}
-
+	/****************************************************************************/
+	/** Créer une image d'un bouton dans la colonne action et suprimme jobs    **/
+	/** selon où on clique                                                     **/
+	/****************************************************************************/
 	public class JTableButtonRenderer  extends JButton implements TableCellRenderer {        
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1L;
 		private Object value;
 		@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, final int row, int column) {

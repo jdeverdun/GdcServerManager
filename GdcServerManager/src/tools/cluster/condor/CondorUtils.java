@@ -23,12 +23,15 @@ import settings.UserProfile;
 import settings.WindowManager;
 
 
-
 public class CondorUtils {
 	public enum OS {UNIX, WINDOWS};
 	public enum Arch {X86_64, INTEL}; 
 	public static String mapdriveDir;
 
+	/*****************************************************************/
+	/**  Donne le statut des jobs à partir de la commande condor_q  **/
+	/*****************************************************************/
+	
 	public static String getJobStatus(String JobId) throws IOException{
 
 		String status=null;
@@ -150,7 +153,13 @@ public class CondorUtils {
 		else
 			return false;
 	}
-
+	
+	/*****************************************************************/
+	/** Déplace les fichiers à transferer dans le dossier du job,   **/
+	/** créé le fichier submit et le lance avec la commande         **/
+	/** condor_submit                                               **/
+	/*****************************************************************/
+	
 	public static void submitJob(File path, ArrayList<File> filesToTransfer, File executable, int cpu, int memory, OS os, Arch arch, String description, String machine) throws IOException, SQLException{
 		String[] nom_entier=executable.getName().split("\\.");
 		String nom=nom_entier[0];
@@ -277,6 +286,11 @@ public class CondorUtils {
 		//return null;//sortie[5]+"0";*/
 	}
 	
+	/*****************************************************************/
+	/** Déplace les fichiers batch et mapdrive dans le dossier du   **/
+	/** job, lance avec le batch en local                           **/
+	/*****************************************************************/
+	
 	public static void submitJobLocal(File path, ArrayList<File> filesToTransfer, String executable) throws IOException{
 		String[] nom_entier=filesToTransfer.get(0).getName().split("\\.");
 		String nom=nom_entier[0];
@@ -313,6 +327,10 @@ public class CondorUtils {
 			e.printStackTrace();
 		}
 	}
+	
+	/*****************************************************************/
+	/**  Supprime les jobs avec la commande condor_rm               **/
+	/*****************************************************************/
 	
 	public static void removeJob(String jobid) throws IOException, SQLException{
 		java.lang.Runtime cs = java.lang.Runtime.getRuntime();
