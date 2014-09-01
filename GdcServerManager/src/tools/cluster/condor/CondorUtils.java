@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.io.FileUtils;
 
 import model.Job;
@@ -16,6 +20,8 @@ import model.ServerInfo;
 import model.User;
 import dao.project.JobDAO;
 import dao.project.MySQLJobDAO;
+import display.MainWindow;
+import display.containers.viewer.ViewerPanel;
 
 
 import settings.SystemSettings;
@@ -294,7 +300,7 @@ public class CondorUtils {
 	public static void submitJobLocal(File path, ArrayList<File> filesToTransfer, String executable) throws IOException{
 		String[] nom_entier=filesToTransfer.get(0).getName().split("\\.");
 		String nom=nom_entier[0];
-		File dir=new File(path.toString()+File.separator+nom);
+		final File dir=new File(path.toString()+File.separator+nom);
 		//System.out.println(dir);
 		dir.mkdirs();
 		File m=new File(filesToTransfer.get(0).getAbsolutePath());
@@ -318,6 +324,19 @@ public class CondorUtils {
 			java.lang.Runtime cs = java.lang.Runtime.getRuntime();
 			java.lang.Process p = cs.exec("\""+executable+"\""+" -wait -logfile matlablog.log -nodesktop -nosplash -r "+name[0],null,dir);
 			p.waitFor();
+			if(new File(dir+File.separator+"matlab_batch.error").exists()){
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						JDialog.setDefaultLookAndFeelDecorated(true);
+						JOptionPane.showMessageDialog(WindowManager.MAINWINDOW,
+							    "Job " + dir.getName() + " has failed.",
+							    "Matlab error",
+							    JOptionPane.ERROR_MESSAGE);
+					}
+				});
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			WindowManager.mwLogger.log(Level.SEVERE, "Error : cannot run matlab",e);

@@ -86,6 +86,26 @@ try
     reorientationFlag=#1#;
     if(reorientationFlag==0)
         clear matlabbatch
+        % reset orientation
+        clear P
+        P=cellstr(pinfo.all.files);
+
+        for i=1:numel(P)
+            V    = spm_vol(deblank(P{i}));
+            M    = V.mat;
+            [Y,I]=max(abs(M));
+            vox  = sqrt(sum(M(1:3,1:3).^2));
+            if det(M(1:3,1:3))<0, vox(1) = -vox(1); end;
+            orig = (V.dim(1:3)+1)/2;
+            off  = -vox.*orig;
+            M    = [vox(1)  0      0      off(1)
+                0      vox(2) 0      off(2)
+                0      0      vox(3) off(3)
+                0      0      0      1       ];
+            M( [I(1:3) 4],:)=M;
+            spm_get_space(P{i},M);
+        end
+
         matlabbatch{1}.spm.util.reorient.srcfiles = cellstr(pinfo.all.files);
 		[~, xlsname, ext] = fileparts('#2#');
         [num txt raw]=xlsread([path2job filesep xlsname ext]);
@@ -309,7 +329,7 @@ try
         matlabbatch{1}.spm.spatial.preproc.opts.samp = 3;
         matlabbatch{1}.spm.spatial.preproc.opts.msk = {''};
         spm_jobman('run',matlabbatch);
-        
+        pinfo.t1.segment.snmat = spm_select('FPList',pinfo.t1.dir,['.*' pinfo.name '.*seg_sn.mat']);
         if(reorientationFlag==0 || reorientationFlag==2)
             pinfo.t1.segment.gm = spm_select('FPList',pinfo.t1.dir,['^c1o_' pinfo.name '.*.img']);
             pinfo.t1.segment.wm = spm_select('FPList',pinfo.t1.dir,['^c2o_' pinfo.name '.*.img']);
@@ -323,34 +343,29 @@ try
     %% Normalisation coudeDroit
     template=#14#;
     clear matlabbatch
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = cellstr(pinfo.t1.files);
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
 	temp = cellstr(pinfo.coudeDroit.realign.files);
 	temp{end+1} = pinfo.t1.files;
 	temp{end+1} = pinfo.t1.segment.gm;
 	temp{end+1} = pinfo.t1.segment.wm;
 	temp{end+1} = pinfo.t1.segment.csf;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
+%     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
     [~, pmname, ext] = fileparts('#11#');
-    if(template==0)
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
-    else
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
-    end
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.weight = '';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smosrc = 8;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smoref = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.regtype = 'mni';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.cutoff = 25;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.nits = 16;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.reg = 1;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.preserve = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.bb = [-78 -112 -50
-        78 76 85];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.vox = [#12#];%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.interp = #13#;%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.wrap = [0 0 0];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.prefix = 'w';
+%     if(template==0)
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
+%     else
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
+%     end
+
+    matlabbatch{1}.spm.spatial.normalise.write.subj.matname = {pinfo.t1.segment.snmat};
+    matlabbatch{1}.spm.spatial.normalise.write.subj.resample = temp;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.preserve = 0;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.bb = [-78 -112 -50
+                                                              78 76 85];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.vox = [#12#];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.interp = #13#;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.wrap = [0 0 0];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.prefix = 'w';
+
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
         pinfo.coudeDroit.norm.files = spm_select('FPList',pinfo.coudeDroit.dir,['^wuao_' pinfo.name '.*.img']);
@@ -558,7 +573,7 @@ try
         matlabbatch{1}.spm.spatial.preproc.opts.samp = 3;
         matlabbatch{1}.spm.spatial.preproc.opts.msk = {''};
         spm_jobman('run',matlabbatch);
-        
+        pinfo.t1.segment.snmat = spm_select('FPList',pinfo.t1.dir,['.*' pinfo.name '.*seg_sn.mat']);
         if(reorientationFlag==0 || reorientationFlag==2)
             pinfo.t1.segment.gm = spm_select('FPList',pinfo.t1.dir,['^c1o_' pinfo.name '.*.img']);
             pinfo.t1.segment.wm = spm_select('FPList',pinfo.t1.dir,['^c2o_' pinfo.name '.*.img']);
@@ -572,34 +587,30 @@ try
     %% Normalisation coudeGauche
     template=#14#;
     clear matlabbatch
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = cellstr(pinfo.t1.files);
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
+%     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = cellstr(pinfo.t1.files);
+%     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
 	temp = cellstr(pinfo.coudeGauche.realign.files);
 	temp{end+1} = pinfo.t1.files;
 	temp{end+1} = pinfo.t1.segment.gm;
 	temp{end+1} = pinfo.t1.segment.wm;
 	temp{end+1} = pinfo.t1.segment.csf;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
+%     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
     [~, pmname, ext] = fileparts('#11#');
-    if(template==0)
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
-    else
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
-    end
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.weight = '';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smosrc = 8;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smoref = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.regtype = 'mni';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.cutoff = 25;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.nits = 16;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.reg = 1;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.preserve = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.bb = [-78 -112 -50
-        78 76 85];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.vox = [#12#];%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.interp = #13#;%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.wrap = [0 0 0];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.prefix = 'w';
+%     if(template==0)
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
+%     else
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
+%     end
+     matlabbatch{1}.spm.spatial.normalise.write.subj.matname = {pinfo.t1.segment.snmat};
+    matlabbatch{1}.spm.spatial.normalise.write.subj.resample = temp;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.preserve = 0;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.bb = [-78 -112 -50
+                                                              78 76 85];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.vox = [#12#];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.interp = #13#;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.wrap = [0 0 0];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.prefix = 'w';
+    
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
         pinfo.coudeGauche.norm.files = spm_select('FPList',pinfo.coudeGauche.dir,['^wuao_' pinfo.name '.*.img']);
@@ -806,6 +817,7 @@ try
         matlabbatch{1}.spm.spatial.preproc.opts.biasfwhm = 60;
         matlabbatch{1}.spm.spatial.preproc.opts.samp = 3;
         matlabbatch{1}.spm.spatial.preproc.opts.msk = {''};
+        pinfo.t1.segment.snmat = spm_select('FPList',pinfo.t1.dir,['.*' pinfo.name '.*seg_sn.mat']);
         spm_jobman('run',matlabbatch);
         
         if(reorientationFlag==0 || reorientationFlag==2)
@@ -821,34 +833,27 @@ try
     %% Normalisation coudeGD
     template=#14#;
     clear matlabbatch
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = cellstr(pinfo.t1.files);
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
 	temp = cellstr(pinfo.coudeGD.realign.files);
 	temp{end+1} = pinfo.t1.files;
 	temp{end+1} = pinfo.t1.segment.gm;
 	temp{end+1} = pinfo.t1.segment.wm;
 	temp{end+1} = pinfo.t1.segment.csf;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
+%     matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = temp;
     [~, pmname, ext] = fileparts('#11#');
-    if(template==0)
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
-    else
-        matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
-    end
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.weight = '';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smosrc = 8;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smoref = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.regtype = 'mni';
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.cutoff = 25;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.nits = 16;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.reg = 1;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.preserve = 0;
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.bb = [-78 -112 -50
-        78 76 85];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.vox = [#12#];%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.interp = #13#;%utilisteur
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.wrap = [0 0 0];
-    matlabbatch{1}.spm.spatial.normalise.estwrite.roptions.prefix = 'w';
+%     if(template==0)
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[path2job filesep pmname ext]}; %utilisteur
+%     else
+%         matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {[spm('Dir') '\templates\T1.nii,1']}; %utilisteur
+%     end
+    matlabbatch{1}.spm.spatial.normalise.write.subj.matname = {pinfo.t1.segment.snmat};
+    matlabbatch{1}.spm.spatial.normalise.write.subj.resample = temp;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.preserve = 0;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.bb = [-78 -112 -50
+                                                              78 76 85];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.vox = [#12#];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.interp = #13#;
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.wrap = [0 0 0];
+    matlabbatch{1}.spm.spatial.normalise.write.roptions.prefix = 'w';
     spm_jobman('run',matlabbatch);
     if(reorientationFlag==0 || reorientationFlag==2)
         pinfo.coudeGD.norm.files = spm_select('FPList',pinfo.coudeGD.dir,['^wuao_' pinfo.name '.*.img']);
@@ -881,6 +886,13 @@ try
     save([pinfo.dir '/pinfo.mat'],'pinfo');
 catch exception
     disp(exception.message);
+    cd(folder)
+    fName = 'matlab_batch.error';         %# A file name
+    fid = fopen(fName,'w');            %# Open the file
+    if fid ~= -1
+      fprintf(fid,'%s',exception.message);       %# Print the string
+      fclose(fid);                     %# Close the file
+    end
     quit;
 end
 quit;
