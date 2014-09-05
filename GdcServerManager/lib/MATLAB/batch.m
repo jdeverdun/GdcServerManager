@@ -1,5 +1,6 @@
 try
     mapdrive;
+    basefolder = pwd;
     folder = '#15#';
     t1reg = 'T1';
     coudeDroit = 'coude_droit';
@@ -886,7 +887,7 @@ try
     save([pinfo.dir '/pinfo.mat'],'pinfo');
 catch exception
     disp(exception.message);
-    cd(folder)
+    cd(basefolder)
     fName = 'matlab_batch.error';         %# A file name
     fid = fopen(fName,'w');            %# Open the file
     if fid ~= -1
