@@ -43,6 +43,7 @@ import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import daemon.DecryptDaemon;
 import daemon.NiftiDaemon;
+import daemon.tools.ThreadPool;
 import display.containers.FileManager;
 import display.containers.ProgressPanel;
 import display.containers.RequestPanel;
@@ -122,6 +123,7 @@ public class AdvancedImportFrame extends JFrame {
 	private JRadioButton rdbtnDicomNode;
 	private JRadioButton rdbtnNiftiNode;
 	private ProgressPanel progressBar;
+	private JCheckBox chckbxSafeMode;
 
 	
 	public AdvancedImportFrame(File[] files) {
@@ -177,7 +179,7 @@ public class AdvancedImportFrame extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Import Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(panel_1, "cell 0 1 3 2,grow");
-		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][][][][][15px][grow][]"));
+		panel_1.setLayout(new MigLayout("", "[grow][grow]", "[][][][][][][][][][][15px][grow][]"));
 		
 		lblNodeForImport = new JLabel("Node for import");
 		lblNodeForImport.setToolTipText("Attempt to import data from either NRI-DICOM or NRI-ANALYSE");
@@ -192,75 +194,78 @@ public class AdvancedImportFrame extends JFrame {
 		panel_1.add(rdbtnDicomNode, "flowx,cell 1 0");
 		
 		lblForceProjectName = new JLabel("Force project name");
-		panel_1.add(lblForceProjectName, "cell 0 1,alignx left");
+		panel_1.add(lblForceProjectName, "cell 0 2,alignx left");
 		
 		txtProjectname = new JTextField();
 		txtProjectname.setText(DEFAULT_NPROJECT_TEXT);
 		txtProjectname.setFont(new Font("Tahoma", Font.ITALIC, 11));
-		panel_1.add(txtProjectname, "cell 1 1,growx");
+		panel_1.add(txtProjectname, "cell 1 2,growx");
 		txtProjectname.setColumns(10);
 		
 		lblForcePatientName = new JLabel("Force patient name");
-		panel_1.add(lblForcePatientName, "cell 0 2,alignx left");
+		panel_1.add(lblForcePatientName, "cell 0 3,alignx left");
 		
 		txtNewPatientName = new JTextField();
 		txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
 		txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtNewPatientName.setColumns(10);
-		panel_1.add(txtNewPatientName, "cell 1 2,growx");
+		panel_1.add(txtNewPatientName, "cell 1 3,growx");
 		
 		lblForceDate = new JLabel("Force date");
-		panel_1.add(lblForceDate, "cell 0 3,alignx left");
+		panel_1.add(lblForceDate, "cell 0 4,alignx left");
 		
 		txtNewDateoptionnal = new JTextField();
 		txtNewDateoptionnal.setText(DEFAULT_NDATE_TEXT);
 		txtNewDateoptionnal.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtNewDateoptionnal.setColumns(10);
-		panel_1.add(txtNewDateoptionnal, "cell 1 3,growx");
+		panel_1.add(txtNewDateoptionnal, "cell 1 4,growx");
 		
 		lblForceProtocolName = new JLabel("Force Protocol name");
-		panel_1.add(lblForceProtocolName, "cell 0 4,alignx trailing");
+		panel_1.add(lblForceProtocolName, "cell 0 5,alignx trailing");
 		
 		txtNewProtocolName = new JTextField();
 		txtNewProtocolName.setText(DEFAULT_NPROTOCOL_TEXT);
 		txtNewProtocolName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtNewProtocolName.setColumns(10);
-		panel_1.add(txtNewProtocolName, "cell 1 4,growx");
+		panel_1.add(txtNewProtocolName, "cell 1 5,growx");
 		
 		separator_1 = new JSeparator();
-		panel_1.add(separator_1, "cell 0 5 2 1,growx");
+		panel_1.add(separator_1, "cell 0 6 2 1,growx");
 		
 		lblFolderStructure = new JLabel("Folder structure");
-		panel_1.add(lblFolderStructure, "cell 0 6,alignx left");
+		panel_1.add(lblFolderStructure, "cell 0 7,alignx left");
 		
 		chckbxProject = new JCheckBox("Project");
-		panel_1.add(chckbxProject, "flowx,cell 1 6,alignx left");
+		panel_1.add(chckbxProject, "flowx,cell 1 7,alignx left");
 		
 		checkBoxPatient = new JCheckBox("Patient");
-		panel_1.add(checkBoxPatient, "cell 1 6,alignx left");
+		panel_1.add(checkBoxPatient, "cell 1 7,alignx left");
 		
 		checkBoxDate = new JCheckBox("Date");
-		panel_1.add(checkBoxDate, "cell 1 6,alignx left");
+		panel_1.add(checkBoxDate, "cell 1 7,alignx left");
 		
 		chckbxProtocol = new JCheckBox("Protocol");
 		chckbxProtocol.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		panel_1.add(chckbxProtocol, "cell 1 6,alignx left");
+		panel_1.add(chckbxProtocol, "cell 1 7,alignx left");
 		checkBoxSerie = new JCheckBox("Serie");
 		checkBoxSerie.setEnabled(false);
 		checkBoxSerie.setSelected(true);
-		panel_1.add(checkBoxSerie, "cell 1 6,alignx left");
+		panel_1.add(checkBoxSerie, "cell 1 7,alignx left");
 		DefaultListModel<String> model = new DefaultListModel<String>();  
 		list = new JList<String>();
 		list.setModel(model);
 		updateList();
 		
+		chckbxSafeMode = new JCheckBox("Safe mode");
+		panel_1.add(chckbxSafeMode, "cell 0 8");
+		
 		separator = new JSeparator();
-		panel_1.add(separator, "cell 0 7 2 1,growx");
+		panel_1.add(separator, "cell 0 9 2 1,growx");
 		
 		verticalGlue = Box.createVerticalGlue();
 		verticalGlue.setPreferredSize(new Dimension(20, 0));
-		panel_1.add(verticalGlue, "cell 0 8,grow");
-		panel_1.add(new JScrollPane(list), "cell 0 9 2 2,grow");
+		panel_1.add(verticalGlue, "cell 0 10,grow");
+		panel_1.add(new JScrollPane(list), "cell 0 11 2 2,grow");
 		
 		
 		panel_1.add(rdbtnNiftiNode, "cell 1 0");
@@ -278,6 +283,18 @@ public class AdvancedImportFrame extends JFrame {
 		progressBar.setPreferredSize(new Dimension(150, 10));
 		progressBar.setVisible(false);
 		panelSaveClose.add(progressBar, "cell 0 1,alignx left");
+		chckbxSafeMode.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckbxSafeMode.isSelected()){
+					ThreadPool.resetCores();
+					ThreadPool.AVAILABLE_CORES = 1;
+				}else{
+					ThreadPool.resetCores();
+				}
+			}
+		});
 		txtProjectname.addFocusListener(new FocusListener() {
 
 			@Override
