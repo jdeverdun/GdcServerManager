@@ -21,7 +21,7 @@ public class ThreadPool {
 
 	public static enum DAEMONTYPE{NiftiEncryptDaemon,DecryptDaemon,DicomEncryptDaemon};
 	public static HashMap<DAEMONTYPE, Integer> maxWorkerForDaemonType;
-	private static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+	public static int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();// possibilite de le changer pr passer en mode safe
 	private static int maxWorker;
 	private static List<Thread> workers;
 	private static List<DAEMONTYPE> workersDType;
@@ -256,6 +256,11 @@ public class ThreadPool {
 				}
 			}
 		}
+	}
+	public static void resetCores() {
+		// TODO Auto-generated method stub
+		stopThreadPool();
+		AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
 	}
 
 }

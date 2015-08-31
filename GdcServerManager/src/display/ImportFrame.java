@@ -44,6 +44,7 @@ import com.sun.org.apache.bcel.internal.generic.FNEG;
 import daemon.DicomJobDispatcher;
 import daemon.DicomEncryptDaemon;
 import daemon.NiftiDaemon;
+import daemon.tools.ThreadPool;
 import daemon.tools.firstNameDB;
 import display.containers.FileManager;
 import display.containers.WaitingBarPanel;
@@ -59,6 +60,7 @@ import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.JRadioButton;
+import javax.swing.JCheckBox;
 
 /**
  * Classe permettant d'importer des donnees depuis la machine locale vers
@@ -92,6 +94,7 @@ public class ImportFrame extends JFrame {
 	// variable permettant de stopper l'import
 	private boolean stopImport;
 	private JLabel lblForcePatientName;
+	private JCheckBox chckbxSafeMode;
 
 	
 	
@@ -139,7 +142,7 @@ public class ImportFrame extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Import Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(panel_1, "cell 0 2 3 1,grow");
-		panel_1.setLayout(new MigLayout("", "[][grow]", "[][][]"));
+		panel_1.setLayout(new MigLayout("", "[][grow]", "[][][][]"));
 		
 		lblForceProjectName = new JLabel("Force project name");
 		panel_1.add(lblForceProjectName, "cell 0 0,alignx left");
@@ -172,6 +175,9 @@ public class ImportFrame extends JFrame {
 		rdbtnAnonymize = new JRadioButton("Anonymize");
 		panel_1.add(rdbtnAnonymize, "cell 1 2");
 		
+		chckbxSafeMode = new JCheckBox("Safe Mode");
+		panel_1.add(chckbxSafeMode, "cell 0 3");
+		
 		JPanel panelSaveClose = new JPanel();
 		getContentPane().add(panelSaveClose, BorderLayout.SOUTH);
 		panelSaveClose.setLayout(new MigLayout("", "[grow][grow]", "[]"));
@@ -181,6 +187,18 @@ public class ImportFrame extends JFrame {
 		
 		btnClose = new JButton("Close");
 		panelSaveClose.add(btnClose, "cell 1 0,growx");
+		chckbxSafeMode.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckbxSafeMode.isSelected()){
+					ThreadPool.resetCores();
+					ThreadPool.AVAILABLE_CORES = 1;
+				}else{
+					ThreadPool.resetCores();
+				}
+			}
+		});
 		txtProjectname.addFocusListener(new FocusListener() {
 
 			@Override
