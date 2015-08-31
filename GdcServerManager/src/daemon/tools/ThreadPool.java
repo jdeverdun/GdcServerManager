@@ -261,6 +261,7 @@ public class ThreadPool {
 		// TODO Auto-generated method stub
 		stopThreadPool();
 		AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+		launchThreadPool(AVAILABLE_CORES*2);
 	}
 
 }

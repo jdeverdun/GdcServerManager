@@ -290,6 +290,7 @@ public class AdvancedImportFrame extends JFrame {
 				if(chckbxSafeMode.isSelected()){
 					ThreadPool.resetCores();
 					ThreadPool.AVAILABLE_CORES = 1;
+					ThreadPool.launchThreadPool(1);
 				}else{
 					ThreadPool.resetCores();
 				}
