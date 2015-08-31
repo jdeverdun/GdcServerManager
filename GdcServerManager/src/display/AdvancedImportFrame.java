@@ -797,6 +797,7 @@ public class AdvancedImportFrame extends JFrame {
 		lblNodeForImport.setEnabled(!b);
 		rdbtnDicomNode.setEnabled(!b);
 		rdbtnNiftiNode.setEnabled(!b);
+		chckbxSafeMode.setEnabled(!b);
 	}
 
 	/**
