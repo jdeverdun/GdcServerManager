@@ -40,8 +40,8 @@ import model.daemon.CustomConversionSettings.ServerMode;
  *
  */
 public class DicomJobDispatcher extends Thread{
-	
-	
+
+
 	private DicomDaemon dicomDaemon;
 	private ServerInfo serverInfo;
 	private ConcurrentLinkedQueue<Path> dicomToMove;
@@ -63,9 +63,9 @@ public class DicomJobDispatcher extends Thread{
 		setStop(false);
 		setServerInfo(getDicomDaemon().getServerInfo());
 		crashed = false;
-		
+
 	}
-	
+
 	/**
 	 * Principalement pour l'import
 	 * @param settings
@@ -77,7 +77,7 @@ public class DicomJobDispatcher extends Thread{
 		setStop(false);
 		setServerInfo(SystemSettings.SERVER_INFO);
 		crashed = false;
-		
+
 	}
 
 	/**
@@ -97,10 +97,10 @@ public class DicomJobDispatcher extends Thread{
 		DicomWorkerClient.DICOMDIR = null;
 		crashed = false;
 	}
-	
-	
+
+
 	// Accesseurs
-	
+
 	public DicomDaemon getDicomDaemon() {
 		return dicomDaemon;
 	}
@@ -167,7 +167,7 @@ public class DicomJobDispatcher extends Thread{
 		if(stop)
 			WindowManager.mwLogger.log(Level.INFO, "Stopping DicomJobDispatcher");
 	}
-	
+
 	// Methodes
 	public void run(){
 		WindowManager.mwLogger.log(Level.INFO, "Dispatcher Online.");
@@ -207,7 +207,7 @@ public class DicomJobDispatcher extends Thread{
 				while(cont){
 					try{
 						try{
-							if(!DicomImage.isDicom(locp.toFile())){
+							if(!DicomImage.isDicom(locp.toFile()) && !DicomImage.isRda(locp.toFile())){
 								locp.toFile().delete();
 							}else{
 								try {
@@ -303,7 +303,7 @@ public class DicomJobDispatcher extends Thread{
 				break;
 			case CLIENT:
 				locp = (Path)dicomToMove.poll();
-				
+
 				try {
 					try {
 						dworker = new DicomWorkerClient(this, locp);
@@ -319,17 +319,17 @@ public class DicomJobDispatcher extends Thread{
 				break;
 			}
 
-	        numberOfRuns++;
-	        if(numberOfRuns>2000){
-	        	// On dit au garbage collector de nettoyer 
-	        	// quand on a fait 2000 copies
-	        	System.gc();
-	        	numberOfRuns = 0;
-	        }
+			numberOfRuns++;
+			if(numberOfRuns>2000){
+				// On dit au garbage collector de nettoyer 
+				// quand on a fait 2000 copies
+				System.gc();
+				numberOfRuns = 0;
+			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Rajoute a la liste des dicom a deplacer ceux qui on pu etre oublie
 	 * a cause d'event overflow
@@ -354,7 +354,7 @@ public class DicomJobDispatcher extends Thread{
 		}
 	}
 
-	
+
 	public void addDicomToMove(Path p){
 		if(!dicomToMove.contains(p)){
 			dicomToMove.add(p);
@@ -369,7 +369,7 @@ public class DicomJobDispatcher extends Thread{
 		this.stop = true;
 		WindowManager.mwLogger.log(Level.INFO, "Stopping DicomJobDispatcher");
 	}
-	
+
 	public String getStatus() {
 		if(isAlive())
 			return dicomToMove.size()+" files to move.";

@@ -77,7 +77,7 @@ public class DicomWorker extends DaemonWorker {
 	protected int serie_id;
 	protected Path newPath;// nouveau chemin vers le fichier (apres deplacement dans repertoire dicom)
 	
-	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException{
+	public DicomWorker(DicomJobDispatcher pDaemon, Path filename) throws DicomException, IOException{
 		super();
 		setDispatcher(pDaemon);
 		setDicomFile(filename);
@@ -97,16 +97,20 @@ public class DicomWorker extends DaemonWorker {
 		return dicomFile;
 	}
 
-	public void setDicomFile(Path dicomFile) throws FileNotFoundException, DicomException {
+	public void setDicomFile(Path dicomFile) throws DicomException, IOException {
 		this.dicomFile = dicomFile;
-		FileInputStream fis = new FileInputStream(dicomFile.toString());
-		header = new DICOM(fis).getInfo(dicomFile);
-		if(header == null)
-			throw new DicomException("Empty DICOM header");
-		try {
-			fis.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(DicomImage.isRda(dicomFile.toFile())){
+			header = DicomImage.getRdaHeader(dicomFile.toFile());
+		}else{
+			FileInputStream fis = new FileInputStream(dicomFile.toString());
+			header = new DICOM(fis).getInfo(dicomFile);
+			if(header == null)
+				throw new DicomException("Empty DICOM header");
+			try {
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -138,7 +142,7 @@ public class DicomWorker extends DaemonWorker {
 			prepareToStop();
 			return;
 		}	
-		if(getServerInfo().getPpid().contains(studyName))
+		if(getServerInfo().getPpid().contains(studyName) || DicomImage.isRda(dicomFile.toFile()))
 			patientName = getPatientId();
 		else
 			patientName = getPatientName();
@@ -518,158 +522,332 @@ public class DicomWorker extends DaemonWorker {
 	
 	// Renvoi le nom du protocole medical
 	public String getStudyDescription() throws DicomException{
-		String prot = getTag("0008,1030");
-		if(prot == null){
-			throw new DicomException("Unable to decode DICOM header 0008,1030");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "StudyDescription";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String prot = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					prot = pi.split(":")[1];
+					if(prot.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(prot.length()>1 && prot.charAt(0) == ' ')
+						prot = prot.substring(1);	
+					if(prot.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
+						prot = prot.substring(0,prot.length()-1);	
+					if(prot.contains("^"))
+						prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
+					// on remplace les caracteres complique par "_"
+					prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					return prot;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String prot = getTag("0008,1030");
+			if(prot == null){
+				throw new DicomException("Unable to decode DICOM header 0008,1030");
+			}
+			if(prot.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(prot.length()>1 && prot.charAt(0) == ' ')
+				prot = prot.substring(1);	
+			if(prot.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
+				prot = prot.substring(0,prot.length()-1);	
+			if(prot.contains("^"))
+				prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
+			// on remplace les caracteres complique par "_"
+			prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getStudyDescription : "+prot);
+			return prot;
 		}
-		if(prot.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(prot.length()>1 && prot.charAt(0) == ' ')
-			prot = prot.substring(1);	
-		if(prot.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(prot.length()>1 && prot.charAt(prot.length()-1) == ' ')
-			prot = prot.substring(0,prot.length()-1);	
-		if(prot.contains("^"))
-			prot = prot.substring(prot.lastIndexOf("^")+1,prot.length());
-		// on remplace les caracteres complique par "_"
-		prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getStudyDescription : "+prot);
-		return prot;
+		
 	}
 	
 	// Nom du patient
 	public String getPatientName() throws DicomException{
-		String pname = getTag("0010,0010");
-		if(pname == null){
-			throw new DicomException("Unable to decode DICOM header 0010,0010");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PatientName";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pname = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pname = pi.split(":")[1];
+					if(pname.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(pname.length()>1 && pname.charAt(0) == ' ')
+						pname = pname.substring(1);	
+					if(pname.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+						pname = pname.substring(0,pname.length()-1);	
+					// on remplace les caracteres complique par "_"
+					pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+					// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
+					while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
+						pname = pname.substring(0,pname.length()-1);	
+					WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
+					return pname;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pname = getTag("0010,0010");
+			if(pname == null){
+				throw new DicomException("Unable to decode DICOM header 0010,0010");
+			}
+			if(pname.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(pname.length()>1 && pname.charAt(0) == ' ')
+				pname = pname.substring(1);	
+			if(pname.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+				pname = pname.substring(0,pname.length()-1);	
+			// on remplace les caracteres complique par "_"
+			pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+			// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
+			while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
+				pname = pname.substring(0,pname.length()-1);	
+			WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
+			return pname;
 		}
-		if(pname.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(pname.length()>1 && pname.charAt(0) == ' ')
-			pname = pname.substring(1);	
-		if(pname.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
-			pname = pname.substring(0,pname.length()-1);	
-		// on remplace les caracteres complique par "_"
-		pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
-		// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
-		while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
-			pname = pname.substring(0,pname.length()-1);	
-		WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
-		return pname;
 	}
 	
 	// Nom du patient
 	public String getPatientId() throws DicomException{
-		String pname = getTag("0010,0020");
-		if(pname == null){
-			throw new DicomException("Unable to decode DICOM header 0010,0020");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PatientID";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pname = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pname = pi.split(":")[1];
+					if(pname.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(pname.length()>1 && pname.charAt(0) == ' ')
+						pname = pname.substring(1);	
+					if(pname.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+						pname = pname.substring(0,pname.length()-1);	
+					// on remplace les caracteres complique par "_"
+					pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+					// on enleve les champs en plus qui trainent a la fin et qu'on a remplace par des "_" 
+					while(pname.length()>1 && pname.charAt(pname.length()-1) == '_')
+						pname = pname.substring(0,pname.length()-1);	
+					WindowManager.mwLogger.log(Level.FINEST, "getPatientName : "+pname);
+					return pname;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pname = getTag("0010,0020");
+			if(pname == null){
+				throw new DicomException("Unable to decode DICOM header 0010,0020");
+			}
+			if(pname.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(pname.length()>1 && pname.charAt(0) == ' ')
+				pname = pname.substring(1);	
+			if(pname.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+				pname = pname.substring(0,pname.length()-1);	
+			// on remplace les caracteres complique par "_"
+			pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getPatientId : "+pname);
+			return pname;
 		}
-		if(pname.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(pname.length()>1 && pname.charAt(0) == ' ')
-			pname = pname.substring(1);	
-		if(pname.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
-			pname = pname.substring(0,pname.length()-1);	
-		// on remplace les caracteres complique par "_"
-		pname = pname.replaceAll("[^A-Za-z0-9\\.-]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getPatientId : "+pname);
-		return pname;
 	}
 	
 	// ID du dicom (SOP Instance UID)
 	public String getSOPInstanceUID() throws DicomException{
-		String pname = getTag("0008,0018");
-		if(pname == null){
-			throw new DicomException("Unable to decode DICOM header 0008,0018");
-		}
-		if(pname.isEmpty())
+		if(DicomImage.isRda(dicomFile.toFile())){
 			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
-			pname = pname.substring(0,pname.length()-1);
-		while(pname.length()>1 && pname.charAt(0) == ' ')
-			pname = pname.substring(1,pname.length());
-		if(pname.equals(" "))// si le champs est vide
-			throw new DicomException("Unable to decode DICOM header 0008,0018");
-		WindowManager.mwLogger.log(Level.FINEST, "getSOPInstanceUID : "+pname);
-		return pname;
+		}else{
+			String pname = getTag("0008,0018");
+			if(pname == null){
+				throw new DicomException("Unable to decode DICOM header 0008,0018");
+			}
+			if(pname.isEmpty())
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pname.length()>1 && pname.charAt(pname.length()-1) == ' ')
+				pname = pname.substring(0,pname.length()-1);
+			while(pname.length()>1 && pname.charAt(0) == ' ')
+				pname = pname.substring(1,pname.length());
+			if(pname.equals(" "))// si le champs est vide
+				throw new DicomException("Unable to decode DICOM header 0008,0018");
+			WindowManager.mwLogger.log(Level.FINEST, "getSOPInstanceUID : "+pname);
+			return pname;
+		}
 	}
 	
 	
 	// Nom de la sequence (ex:  Series Description: PHA_IMAGES)
 	public String getSeriesDescription() throws DicomException{
-		String sdesc = getTag("0008,103E");
-		if(sdesc == null){
-			throw new DicomException("Unable to decode DICOM header 0008,103E");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "SeriesDescription";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String sdesc = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					sdesc = pi.split(":")[1];
+					if(sdesc.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(sdesc.length()>1 && sdesc.charAt(0) == ' ')
+						sdesc = sdesc.substring(1);	
+					if(sdesc.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
+						sdesc = sdesc.substring(0,sdesc.length()-1);
+					// on remplace les caracteres complique par "_"
+					sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
+					return sdesc;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String sdesc = getTag("0008,103E");
+			if(sdesc == null){
+				throw new DicomException("Unable to decode DICOM header 0008,103E");
+			}
+			if(sdesc.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(sdesc.length()>1 && sdesc.charAt(0) == ' ')
+				sdesc = sdesc.substring(1);	
+			if(sdesc.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
+				sdesc = sdesc.substring(0,sdesc.length()-1);
+			// on remplace les caracteres complique par "_"
+			sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
+			return sdesc;
 		}
-		if(sdesc.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(sdesc.length()>1 && sdesc.charAt(0) == ' ')
-			sdesc = sdesc.substring(1);	
-		if(sdesc.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(sdesc.length()>1 && sdesc.charAt(sdesc.length()-1) == ' ')
-			sdesc = sdesc.substring(0,sdesc.length()-1);
-		// on remplace les caracteres complique par "_"
-		sdesc = sdesc.replaceAll("[^A-Za-z0-9\\.-]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getSeriesDescription : "+sdesc);
-		return sdesc;
 	}
 	
 	// Date de naissance
 	public String getBirthdate() throws DicomException{
-		String bdate = getTag("0010,0030");
-		if(bdate == null){
-			throw new DicomException("Unable to decode DICOM header 0010,0030");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PatientBirthDate";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String bdate = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					bdate = pi.split(":")[1];
+					if(bdate.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(bdate.length()>1 && bdate.charAt(0) == ' ')
+						bdate = bdate.substring(1);	
+					if(bdate.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
+						bdate = bdate.substring(0,bdate.length()-1);
+					// on remplace les caracteres complique par "_"
+					bdate = bdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
+					return bdate;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String bdate = getTag("0010,0030");
+			if(bdate == null){
+				throw new DicomException("Unable to decode DICOM header 0010,0030");
+			}
+			if(bdate.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(bdate.length()>1 && bdate.charAt(0) == ' ')
+				bdate = bdate.substring(1);	
+			if(bdate.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
+				bdate = bdate.substring(0,bdate.length()-1);
+			// on remplace les caracteres complique par "_"
+			bdate = bdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
+			return bdate;
 		}
-		if(bdate.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(bdate.length()>1 && bdate.charAt(0) == ' ')
-			bdate = bdate.substring(1);	
-		if(bdate.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(bdate.length()>1 && bdate.charAt(bdate.length()-1) == ' ')
-			bdate = bdate.substring(0,bdate.length()-1);
-		// on remplace les caracteres complique par "_"
-		bdate = bdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getBirthdate : "+bdate);
-		return bdate;
 	}
 	// Sexe du patient
 	public String getSex() throws DicomException{
-		String psex = getTag("0010,0040");
-		if(psex == null){
-			throw new DicomException("Unable to decode DICOM header 0010,0040");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PatientSex";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String psex = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					psex = pi.split(":")[1];
+					if(psex.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(psex.length()>1 && psex.charAt(0) == ' ')
+						psex = psex.substring(1);	
+					if(psex.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
+						psex = psex.substring(0,psex.length()-1);
+					// on remplace les caracteres complique par "_"
+					psex = psex.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getSex : "+psex);
+					return psex;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String psex = getTag("0010,0040");
+			if(psex == null){
+				throw new DicomException("Unable to decode DICOM header 0010,0040");
+			}
+			if(psex.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(psex.length()>1 && psex.charAt(0) == ' ')
+				psex = psex.substring(1);	
+			if(psex.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
+				psex = psex.substring(0,psex.length()-1);
+			// on remplace les caracteres complique par "_"
+			psex = psex.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getSex : "+psex);
+			return psex;
 		}
-		if(psex.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(psex.length()>1 && psex.charAt(0) == ' ')
-			psex = psex.substring(1);	
-		if(psex.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(psex.length()>1 && psex.charAt(psex.length()-1) == ' ')
-			psex = psex.substring(0,psex.length()-1);
-		// on remplace les caracteres complique par "_"
-		psex = psex.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getSex : "+psex);
-		return psex;
 	}	
 	
 	/**
@@ -678,24 +856,51 @@ public class DicomWorker extends DaemonWorker {
 	 * @throws DicomException
 	 */
 	public float getPatientWeight() throws DicomException{
-		String pweight = getTag("0010,1030");
-		if(pweight == null){
-			throw new DicomException("Unable to decode DICOM header 0010,1030");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PatientWeight";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pweight = "";
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pweight = pi.split(":")[1];
+					if(pweight.isEmpty())
+						return DEFAULT_FLOAT;
+					// On enleve les espace en debut de chaine
+					while(pweight.length()>1 && pweight.charAt(0) == ' ')
+						pweight = pweight.substring(1);	
+					if(pweight.equals(" "))// si le champs est vide
+						return DEFAULT_FLOAT;
+					// on enleve les espaces en fin de chaine
+					while(pweight.length()>1 && pweight.charAt(pweight.length()-1) == ' ')
+						pweight = pweight.substring(0,pweight.length()-1);
+					// on remplace les caracteres complique par "_"
+					pweight = pweight.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getPatientWeight : "+pweight);
+					return Float.parseFloat(pweight);
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pweight = getTag("0010,1030");
+			if(pweight == null){
+				throw new DicomException("Unable to decode DICOM header 0010,1030");
+			}
+			if(pweight.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(pweight.length()>1 && pweight.charAt(0) == ' ')
+				pweight = pweight.substring(1);	
+			if(pweight.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(pweight.length()>1 && pweight.charAt(pweight.length()-1) == ' ')
+				pweight = pweight.substring(0,pweight.length()-1);
+			// on remplace les caracteres complique par "_"
+			pweight = pweight.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getPatientWeight : "+pweight);
+			return Float.parseFloat(pweight);
 		}
-		if(pweight.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(pweight.length()>1 && pweight.charAt(0) == ' ')
-			pweight = pweight.substring(1);	
-		if(pweight.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(pweight.length()>1 && pweight.charAt(pweight.length()-1) == ' ')
-			pweight = pweight.substring(0,pweight.length()-1);
-		// on remplace les caracteres complique par "_"
-		pweight = pweight.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getPatientWeight : "+pweight);
-		return Float.parseFloat(pweight);
 	}
 	
 	/**
@@ -704,217 +909,438 @@ public class DicomWorker extends DaemonWorker {
 	 * @throws DicomException
 	 */
 	public float getPatientSize() throws DicomException{
-		String psize = getTag("0010,1020");
-		if(psize == null){
+		if(DicomImage.isRda(dicomFile.toFile())){
 			return DEFAULT_FLOAT;
-			//throw new DicomException("Unable to decode DICOM header 0010,1020");
+		}else{
+			String psize = getTag("0010,1020");
+			if(psize == null){
+				return DEFAULT_FLOAT;
+				//throw new DicomException("Unable to decode DICOM header 0010,1020");
+			}
+			if(psize.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(psize.length()>1 && psize.charAt(0) == ' ')
+				psize = psize.substring(1);	
+			if(psize.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(psize.length()>1 && psize.charAt(psize.length()-1) == ' ')
+				psize = psize.substring(0,psize.length()-1);
+			// on remplace les caracteres complique par "_"
+			psize = psize.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getPatientSize : "+psize);
+			return Float.parseFloat(psize);
 		}
-		if(psize.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(psize.length()>1 && psize.charAt(0) == ' ')
-			psize = psize.substring(1);	
-		if(psize.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(psize.length()>1 && psize.charAt(psize.length()-1) == ' ')
-			psize = psize.substring(0,psize.length()-1);
-		// on remplace les caracteres complique par "_"
-		psize = psize.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getPatientSize : "+psize);
-		return Float.parseFloat(psize);
 	}
 	
 	// Nom de l'IRM
 	public String getMri_name() throws DicomException{
-		String iname = getTag("0008,1090");
-		if(iname == null){
-			throw new DicomException("Unable to decode DICOM header 0008,1090");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "ModelName";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String iname = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					iname = pi.split(":")[1];
+					if(iname.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(iname.length()>1 && iname.charAt(0) == ' ')
+						iname = iname.substring(1);	
+					if(iname.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
+						iname = iname.substring(0,iname.length()-1);
+					// on remplace les caracteres complique par "_"
+					iname = iname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getMri_name : "+iname);
+					return iname;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String iname = getTag("0008,1090");
+			if(iname == null){
+				throw new DicomException("Unable to decode DICOM header 0008,1090");
+			}
+			if(iname.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(iname.length()>1 && iname.charAt(0) == ' ')
+				iname = iname.substring(1);	
+			if(iname.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
+				iname = iname.substring(0,iname.length()-1);
+			// on remplace les caracteres complique par "_"
+			iname = iname.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getMri_name : "+iname);
+			return iname;
 		}
-		if(iname.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(iname.length()>1 && iname.charAt(0) == ' ')
-			iname = iname.substring(1);	
-		if(iname.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(iname.length()>1 && iname.charAt(iname.length()-1) == ' ')
-			iname = iname.substring(0,iname.length()-1);
-		// on remplace les caracteres complique par "_"
-		iname = iname.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getMri_name : "+iname);
-		return iname;
 	}
 		
 	// localisation de la slice
 	// champs facultatif
 	public float getSliceLocation(){
-		String sl = getTag("0020,1041");
-		if(sl == null){
-			return DEFAULT_FLOAT; // comme c'est un champs facultatif on lance pas d'execption
+		if(DicomImage.isRda(dicomFile.toFile())){
+			return DEFAULT_FLOAT;
+		}else{
+			String sl = getTag("0020,1041");
+			if(sl == null){
+				return DEFAULT_FLOAT; // comme c'est un champs facultatif on lance pas d'execption
+			}
+			if(sl.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(sl.length()>1 && sl.charAt(0) == ' ')
+				sl = sl.substring(1);	
+			if(sl.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(sl.length()>1 && sl.charAt(sl.length()-1) == ' ')
+				sl = sl.substring(0,sl.length()-1);
+			// on remplace les caracteres complique par "_"
+			WindowManager.mwLogger.log(Level.FINEST, "getSliceLocation : "+sl);
+			return Float.parseFloat(sl);
 		}
-		if(sl.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(sl.length()>1 && sl.charAt(0) == ' ')
-			sl = sl.substring(1);	
-		if(sl.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(sl.length()>1 && sl.charAt(sl.length()-1) == ' ')
-			sl = sl.substring(0,sl.length()-1);
-		// on remplace les caracteres complique par "_"
-		WindowManager.mwLogger.log(Level.FINEST, "getSliceLocation : "+sl);
-		return Float.parseFloat(sl);
 	}
 		
 	// Nom du protocole d'acquisition (ex:  SWI3D TRA 1.5mm JEREMY)
 	public String getProtocolName() throws DicomException{
-		String pprot = getTag("0018,1030");
-		if(pprot == null){
-			throw new DicomException("Unable to decode DICOM header 0018,1030");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "ProtocolName";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pprot = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pprot = pi.split(":")[1];
+					if(pprot.isEmpty())
+						return DEFAULT_STRING;
+					// On enleve les espace en debut de chaine
+					while(pprot.length()>1 && pprot.charAt(0) == ' ')
+						pprot = pprot.substring(1);	
+					if(pprot.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
+						pprot = pprot.substring(0,pprot.length()-1);
+					// on remplace les caracteres complique par "_"
+					pprot = pprot.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
+					return pprot;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pprot = getTag("0018,1030");
+			if(pprot == null){
+				throw new DicomException("Unable to decode DICOM header 0018,1030");
+			}
+			if(pprot.isEmpty())
+				return DEFAULT_STRING;
+			// On enleve les espace en debut de chaine
+			while(pprot.length()>1 && pprot.charAt(0) == ' ')
+				pprot = pprot.substring(1);	
+			if(pprot.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
+				pprot = pprot.substring(0,pprot.length()-1);
+			// on remplace les caracteres complique par "_"
+			pprot = pprot.replaceAll("[^A-Za-z0-9\\.-]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
+			return pprot;
 		}
-		if(pprot.isEmpty())
-			return DEFAULT_STRING;
-		// On enleve les espace en debut de chaine
-		while(pprot.length()>1 && pprot.charAt(0) == ' ')
-			pprot = pprot.substring(1);	
-		if(pprot.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pprot.length()>1 && pprot.charAt(pprot.length()-1) == ' ')
-			pprot = pprot.substring(0,pprot.length()-1);
-		// on remplace les caracteres complique par "_"
-		pprot = pprot.replaceAll("[^A-Za-z0-9\\.-]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getProtocolName : "+pprot);
-		return pprot;
 	}
 	
 	// Taille du pixel en x y
 	public String[] getPixelSpacing() throws DicomException{
-		String ps = getTag("0028,0030");
-		if(ps == null){
-			throw new DicomException("Unable to decode DICOM header 0028,0030");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "PixelSpacingRow";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] ps = new String[]{DEFAULT_STRING,DEFAULT_STRING};
+			boolean ok = false;
+			for(int i = 0; i<params.length;i++){
+				String pi = params[i];
+				if(pi.contains(name)){
+					ps[0] = pi.split(":")[1];
+					ps[1] = params[i+1].split(":")[1];
+					// On enleve les espace en debut de chaine
+					while(ps[0].length()>1 && ps[0].charAt(0) == ' ')
+						ps[0] = ps[0].substring(1);	
+					while(ps[1].length()>1 && ps[1].charAt(0) == ' ')
+						ps[1] = ps[1].substring(1);	
+					if(ps[0].equals(" ") || ps[1].equals(" ") )// si le champs est vide
+						return new String[]{DEFAULT_STRING,DEFAULT_STRING};
+					// on enleve les espaces en fin de chaine
+					while(ps[0].length()>1 && ps[0].charAt(ps[0].length()-1) == ' ')
+						ps[0] = ps[0].substring(0,ps[0].length()-1);
+					while(ps[1].length()>1 && ps[1].charAt(ps[1].length()-1) == ' ')
+						ps[1] = ps[1].substring(0,ps[1].length()-1);
+					// on split sur "\" pour recup x et y
+					WindowManager.mwLogger.log(Level.FINEST, "getPixelSpacing : "+ps);
+					return ps;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String ps = getTag("0028,0030");
+			if(ps == null){
+				throw new DicomException("Unable to decode DICOM header 0028,0030");
+			}
+			if(ps.isEmpty())
+				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
+			// On enleve les espace en debut de chaine
+			while(ps.length()>1 && ps.charAt(0) == ' ')
+				ps = ps.substring(1);	
+			if(ps.equals(" "))// si le champs est vide
+				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
+			// on enleve les espaces en fin de chaine
+			while(ps.length()>1 && ps.charAt(ps.length()-1) == ' ')
+				ps = ps.substring(0,ps.length()-1);
+			// on split sur "\" pour recup x et y
+			String[] pixelSpacing = ps.split("\\\\");
+			WindowManager.mwLogger.log(Level.FINEST, "getPixelSpacing : "+ps);
+			return pixelSpacing;
 		}
-		if(ps.isEmpty())
-			return new String[]{DEFAULT_STRING,DEFAULT_STRING};
-		// On enleve les espace en debut de chaine
-		while(ps.length()>1 && ps.charAt(0) == ' ')
-			ps = ps.substring(1);	
-		if(ps.equals(" "))// si le champs est vide
-			return new String[]{DEFAULT_STRING,DEFAULT_STRING};
-		// on enleve les espaces en fin de chaine
-		while(ps.length()>1 && ps.charAt(ps.length()-1) == ' ')
-			ps = ps.substring(0,ps.length()-1);
-		// on split sur "\" pour recup x et y
-		String[] pixelSpacing = ps.split("\\\\");
-		WindowManager.mwLogger.log(Level.FINEST, "getPixelSpacing : "+ps);
-		return pixelSpacing;
 	}
 	
 	// recupere le TR
 	public float getRepetitionTime() throws DicomException{
-		String rt = getTag("0018,0080");
-		if(rt == null){
-			return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0080");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "TR";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String rt = "";
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name+":")){
+					rt = pi.split(":")[1];
+					if(rt.isEmpty())
+						return DEFAULT_FLOAT;
+					// On enleve les espace en debut de chaine
+					while(rt.length()>1 && rt.charAt(0) == ' ')
+						rt = rt.substring(1);	
+					if(rt.equals(" "))// si le champs est vide
+						return DEFAULT_FLOAT;
+					// on enleve les espaces en fin de chaine
+					while(rt.length()>1 && rt.charAt(rt.length()-1) == ' ')
+						rt = rt.substring(0,rt.length()-1);
+					// on remplace les caracteres complique par "_"
+					WindowManager.mwLogger.log(Level.FINEST, "getRepetitionTime : "+rt);
+					return Float.parseFloat(rt);
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String rt = getTag("0018,0080");
+			if(rt == null){
+				return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0080");
+			}
+			if(rt.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(rt.length()>1 && rt.charAt(0) == ' ')
+				rt = rt.substring(1);	
+			if(rt.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(rt.length()>1 && rt.charAt(rt.length()-1) == ' ')
+				rt = rt.substring(0,rt.length()-1);
+			// on remplace les caracteres complique par "_"
+			WindowManager.mwLogger.log(Level.FINEST, "getRepetitionTime : "+rt);
+			return Float.parseFloat(rt);
 		}
-		if(rt.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(rt.length()>1 && rt.charAt(0) == ' ')
-			rt = rt.substring(1);	
-		if(rt.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(rt.length()>1 && rt.charAt(rt.length()-1) == ' ')
-			rt = rt.substring(0,rt.length()-1);
-		// on remplace les caracteres complique par "_"
-		WindowManager.mwLogger.log(Level.FINEST, "getRepetitionTime : "+rt);
-		return Float.parseFloat(rt);
 	}
 	
 	// recupere le TE
 	public Float getEchoTime() throws DicomException{
-		String et = getTag("0018,0081");
-		if(et == null){
-			return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0081");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "TE";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String et = "";
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name+":")){
+					et = pi.split(":")[1];
+					if(et.isEmpty())
+						return DEFAULT_FLOAT;
+					// On enleve les espace en debut de chaine
+					while(et.length()>1 && et.charAt(0) == ' ')
+						et = et.substring(1);	
+					if(et.equals(" "))// si le champs est vide
+						return DEFAULT_FLOAT;
+					// on enleve les espaces en fin de chaine
+					while(et.length()>1 && et.charAt(et.length()-1) == ' ')
+						et = et.substring(0,et.length()-1);
+					// on remplace les caracteres complique par "_"
+					WindowManager.mwLogger.log(Level.FINEST, "getEchoTime : "+et);
+					return Float.parseFloat(et);
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String et = getTag("0018,0081");
+			if(et == null){
+				return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0081");
+			}
+			if(et.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(et.length()>1 && et.charAt(0) == ' ')
+				et = et.substring(1);	
+			if(et.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(et.length()>1 && et.charAt(et.length()-1) == ' ')
+				et = et.substring(0,et.length()-1);
+			// on remplace les caracteres complique par "_"
+			WindowManager.mwLogger.log(Level.FINEST, "getEchoTime : "+et);
+			return Float.parseFloat(et);
 		}
-		if(et.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(et.length()>1 && et.charAt(0) == ' ')
-			et = et.substring(1);	
-		if(et.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(et.length()>1 && et.charAt(et.length()-1) == ' ')
-			et = et.substring(0,et.length()-1);
-		// on remplace les caracteres complique par "_"
-		WindowManager.mwLogger.log(Level.FINEST, "getEchoTime : "+et);
-		return Float.parseFloat(et);
 	}
 		
 	// Taille du pixel en z
 	public float getSliceThickness() throws DicomException{
-		String st = getTag("0018,0050");
-		if(st == null){
-			throw new DicomException("Unable to decode DICOM header 0018,0050");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "SliceThickness";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String st = "";
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name+":")){
+					st = pi.split(":")[1];
+					if(st.isEmpty())
+						return DEFAULT_FLOAT;
+					// On enleve les espace en debut de chaine
+					while(st.length()>1 && st.charAt(0) == ' ')
+						st = st.substring(1);	
+					if(st.equals(" "))// si le champs est vide
+						return DEFAULT_FLOAT;
+					// on enleve les espaces en fin de chaine
+					while(st.length()>1 && st.charAt(st.length()-1) == ' ')
+						st = st.substring(0,st.length()-1);
+					WindowManager.mwLogger.log(Level.FINEST, "getSliceThickness : "+st);
+					return Float.parseFloat(st);
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String st = getTag("0018,0050");
+			if(st == null){
+				throw new DicomException("Unable to decode DICOM header 0018,0050");
+			}
+			if(st.isEmpty())
+				return DEFAULT_FLOAT;
+			// On enleve les espace en debut de chaine
+			while(st.length()>1 && st.charAt(0) == ' ')
+				st = st.substring(1);	
+			if(st.equals(" "))// si le champs est vide
+				return DEFAULT_FLOAT;
+			// on enleve les espaces en fin de chaine
+			while(st.length()>1 && st.charAt(st.length()-1) == ' ')
+				st = st.substring(0,st.length()-1);
+			WindowManager.mwLogger.log(Level.FINEST, "getSliceThickness : "+st);
+			return Float.parseFloat(st);
 		}
-		if(st.isEmpty())
-			return DEFAULT_FLOAT;
-		// On enleve les espace en debut de chaine
-		while(st.length()>1 && st.charAt(0) == ' ')
-			st = st.substring(1);	
-		if(st.equals(" "))// si le champs est vide
-			return DEFAULT_FLOAT;
-		// on enleve les espaces en fin de chaine
-		while(st.length()>1 && st.charAt(st.length()-1) == ' ')
-			st = st.substring(0,st.length()-1);
-		WindowManager.mwLogger.log(Level.FINEST, "getSliceThickness : "+st);
-		return Float.parseFloat(st);
 	}
 		
 
 	// Date de l'acquisition ex : 20130122
 	public String getAcquisitionDate() throws DicomException{
-		String pdate = getTag("0008,0022");
-		if(pdate == null){
-			throw new DicomException("Unable to decode DICOM header 0008,0022");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "StudyDate";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pdate = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pdate = pi.split(":")[1];
+					if(pdate.isEmpty())
+						return DEFAULT_STRING;
+					while(pdate.length()>1 && pdate.charAt(0) == ' ')
+						pdate = pdate.substring(1);	
+					if(pdate.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+						pdate = pdate.substring(0,pdate.length()-1);
+					// on remplace les caracteres complique par "_"
+					pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
+					return pdate;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pdate = getTag("0008,0022");
+			if(pdate == null){
+				throw new DicomException("Unable to decode DICOM header 0008,0022");
+			}
+			if(pdate.isEmpty())
+				return DEFAULT_STRING;
+			while(pdate.length()>1 && pdate.charAt(0) == ' ')
+				pdate = pdate.substring(1);	
+			if(pdate.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+				pdate = pdate.substring(0,pdate.length()-1);
+			// on remplace les caracteres complique par "_"
+			pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
+			return pdate;
 		}
-		if(pdate.isEmpty())
-			return DEFAULT_STRING;
-		while(pdate.length()>1 && pdate.charAt(0) == ' ')
-			pdate = pdate.substring(1);	
-		if(pdate.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
-			pdate = pdate.substring(0,pdate.length()-1);
-		// on remplace les caracteres complique par "_"
-		pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
-		return pdate;
 	}
 	// Date de la serie ex : 20130122
 	public String getSerieDate() throws DicomException{
-		String pdate = getTag("0008,0023");
-		if(pdate == null){
-			throw new DicomException("Unable to decode DICOM header 0008,0023");
+		if(DicomImage.isRda(dicomFile.toFile())){
+			String name = "SeriesDate";
+			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String pdate = DEFAULT_STRING;
+			boolean ok = false;
+			for(String pi:params){
+				if(pi.contains(name)){
+					pdate = pi.split(":")[1];
+					if(pdate.isEmpty())
+						return DEFAULT_STRING;
+					while(pdate.length()>1 && pdate.charAt(0) == ' ')
+						pdate = pdate.substring(1);	
+					if(pdate.equals(" "))// si le champs est vide
+						return DEFAULT_STRING;
+					// on enleve les espaces en fin de chaine
+					while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+						pdate = pdate.substring(0,pdate.length()-1);
+					// on remplace les caracteres complique par "_"
+					pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+					WindowManager.mwLogger.log(Level.FINEST, "getAcquisitionDate : "+pdate);
+					return pdate;
+				}
+			}
+			throw new DicomException("Unable to decode RDA header "+name);
+		}else{
+			String pdate = getTag("0008,0023");
+			if(pdate == null){
+				throw new DicomException("Unable to decode DICOM header 0008,0023");
+			}
+			if(pdate.isEmpty())
+				return DEFAULT_STRING;
+			while(pdate.length()>1 && pdate.charAt(0) == ' ')
+				pdate = pdate.substring(1);	
+			if(pdate.equals(" "))// si le champs est vide
+				return DEFAULT_STRING;
+			// on enleve les espaces en fin de chaine
+			while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
+				pdate = pdate.substring(0,pdate.length()-1);
+			// on remplace les caracteres complique par "_"
+			pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
+			WindowManager.mwLogger.log(Level.FINEST, "getSerieDate : "+pdate);
+			return pdate;
 		}
-		if(pdate.isEmpty())
-			return DEFAULT_STRING;
-		while(pdate.length()>1 && pdate.charAt(0) == ' ')
-			pdate = pdate.substring(1);	
-		if(pdate.equals(" "))// si le champs est vide
-			return DEFAULT_STRING;
-		// on enleve les espaces en fin de chaine
-		while(pdate.length()>1 && pdate.charAt(pdate.length()-1) == ' ')
-			pdate = pdate.substring(0,pdate.length()-1);
-		// on remplace les caracteres complique par "_"
-		pdate = pdate.replaceAll("[^A-Za-z0-9\\.]" , "_");
-		WindowManager.mwLogger.log(Level.FINEST, "getSerieDate : "+pdate);
-		return pdate;
 	}
 	public Path getNewPath() {
 		return newPath;

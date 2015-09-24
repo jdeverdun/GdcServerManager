@@ -251,12 +251,13 @@ public class MissingDaemon extends Thread{
 		for(File f:fi.listFiles()){
 			if(f.isDirectory())
 				return;
+			if(f.getName().contains(DicomImage.RDA_EXTENSION))
+				return;
 			String[] parts = fi.getAbsolutePath().split(Pattern.quote(File.separator));
 			int serverdirlen = (SystemSettings.SERVER_INFO.getServerDir().toString().split(Pattern.quote(File.separator))).length +1;// +1 pour NRI-ANALYSE et NRI-DICOM
 			if(parts.length==(serverdirlen)) 
 				return;
 			if(!fi.getName().contains("..")){
-
 				int count = 0;
 				for(int i = serverdirlen;i <parts.length;i++){
 					if(!parts[i].isEmpty()){

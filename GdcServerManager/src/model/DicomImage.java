@@ -1,7 +1,9 @@
 package model;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
@@ -20,6 +22,10 @@ public class DicomImage implements Serializable{
 	private Serie serie;
 	private Protocol procole;
 	private String name;
+	public static final String RDA_EXTENSION = ".rda";
+	public static final String HEADER_START_RDA = "Begin of header";
+	public static final String HEADER_END_RDA = "End of header";
+	public static final String RDA_SPLIT_CHAR = "@@";
 	
 	public DicomImage() {
 		// TODO Auto-generated constructor stub
@@ -106,6 +112,29 @@ public class DicomImage implements Serializable{
 		in = null;
 		return key.equals("DICM");
 	}
+	
+	public static boolean isRda(File fi) {
+		if(fi.getName().endsWith(".enc") || !fi.canRead())
+			return false;
+		return fi.getName().endsWith(RDA_EXTENSION);
+	}
+	
+	public static String getRdaHeader(File file) throws IOException{
+	    FileReader fr = new FileReader(file);
+	    BufferedReader br = new BufferedReader(fr);
+	    String header = "";
+	    String line = "";
+	    boolean save = false;
+	    while((line = br.readLine()) != null){
+	        if(!save && line.contains(HEADER_START_RDA)) save = true;
+	        if(line.contains(HEADER_END_RDA)) break;
+	        if(save) header += line + RDA_SPLIT_CHAR;
+	    }
+	    br.close();
+	    fr.close();
+	    return header;
+	}
+	
 	public float getSliceLocation() {
 		return slicelocation;
 	}

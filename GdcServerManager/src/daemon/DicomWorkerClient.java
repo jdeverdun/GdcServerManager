@@ -5,6 +5,7 @@ import ij.util.DicomTools;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +29,7 @@ import model.daemon.CustomConversionSettings;
 public class DicomWorkerClient extends DicomWorker {
 	public static Path DICOMDIR = null; // Permet de conserver la trace, pour un run du dispatcher du repertoire des dicom 
 	
-	public DicomWorkerClient(DicomJobDispatcher pDaemon, Path filename) throws FileNotFoundException, DicomException {
+	public DicomWorkerClient(DicomJobDispatcher pDaemon, Path filename) throws DicomException, IOException {
 		super(pDaemon,filename);
 	}
 	
