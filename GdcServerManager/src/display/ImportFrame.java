@@ -171,7 +171,7 @@ public class ImportFrame extends JFrame {
 		textFieldXLS.setText("New Patient Name/Id [Optionnal]");
 		textFieldXLS.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		textFieldXLS.setColumns(10);
-		panel_1.add(textFieldXLS, "cell 1 2,growx");
+		panel_1.add(textFieldXLS, "flowx,cell 1 2,growx");
 		
 		lblPatientIdentification = new JLabel("Patient Identification");
 		panel_1.add(lblPatientIdentification, "cell 0 3,alignx left");
@@ -188,7 +188,7 @@ public class ImportFrame extends JFrame {
 		
 		buttonXLS = new JButton((Icon) null);
 		buttonXLS.setText("...");
-		panel_1.add(buttonXLS, "cell 1 1,growy");
+		panel_1.add(buttonXLS, "cell 1 2,growy");
 		buttonXLS.addActionListener(new ActionListener() {
 			
 			@Override
