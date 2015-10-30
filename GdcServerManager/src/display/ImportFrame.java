@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 
 import javax.swing.JPanel;
@@ -59,6 +60,7 @@ import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.JRadioButton;
+import javax.swing.Icon;
 
 /**
  * Classe permettant d'importer des donnees depuis la machine locale vers
@@ -92,6 +94,9 @@ public class ImportFrame extends JFrame {
 	// variable permettant de stopper l'import
 	private boolean stopImport;
 	private JLabel lblForcePatientName;
+	private JLabel lblForcePatientName_1;
+	private JTextField textFieldXLS;
+	private JButton buttonXLS;
 
 	
 	
@@ -139,7 +144,7 @@ public class ImportFrame extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Import Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(panel_1, "cell 0 2 3 1,grow");
-		panel_1.setLayout(new MigLayout("", "[][grow]", "[][][]"));
+		panel_1.setLayout(new MigLayout("", "[][grow]", "[][][][]"));
 		
 		lblForceProjectName = new JLabel("Force project name");
 		panel_1.add(lblForceProjectName, "cell 0 0,alignx left");
@@ -157,21 +162,48 @@ public class ImportFrame extends JFrame {
 		txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
 		txtNewPatientName.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		txtNewPatientName.setColumns(10);
-		panel_1.add(txtNewPatientName, "cell 1 1,growx");
+		panel_1.add(txtNewPatientName, "flowx,cell 1 1,growx");
+		
+		lblForcePatientName_1 = new JLabel("Force Patient name (xls)");
+		panel_1.add(lblForcePatientName_1, "cell 0 2,alignx trailing");
+		
+		textFieldXLS = new JTextField();
+		textFieldXLS.setText("New Patient Name/Id [Optionnal]");
+		textFieldXLS.setFont(new Font("Tahoma", Font.ITALIC, 11));
+		textFieldXLS.setColumns(10);
+		panel_1.add(textFieldXLS, "cell 1 2,growx");
 		
 		lblPatientIdentification = new JLabel("Patient Identification");
-		panel_1.add(lblPatientIdentification, "cell 0 2,alignx left");
+		panel_1.add(lblPatientIdentification, "cell 0 3,alignx left");
 		
 		rdbtnPatientname = new JRadioButton("PatientName");
 		rdbtnPatientname.setSelected(true);
-		panel_1.add(rdbtnPatientname, "flowx,cell 1 2");
+		panel_1.add(rdbtnPatientname, "flowx,cell 1 3");
 		
 		rdbtnPatientid = new JRadioButton("PatientID");
-		panel_1.add(rdbtnPatientid, "cell 1 2");
+		panel_1.add(rdbtnPatientid, "cell 1 3");
 		
 		rdbtnAnonymize = new JRadioButton("Anonymize");
-		panel_1.add(rdbtnAnonymize, "cell 1 2");
+		panel_1.add(rdbtnAnonymize, "cell 1 3");
 		
+		buttonXLS = new JButton((Icon) null);
+		buttonXLS.setText("...");
+		panel_1.add(buttonXLS, "cell 1 1,growy");
+		buttonXLS.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JDialog.setDefaultLookAndFeelDecorated(true);
+				JFileChooser fc = new JFileChooser(txtDicomDirectory.getText());
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int retval = fc.showOpenDialog(ImportFrame.this);
+	            if (retval == JFileChooser.APPROVE_OPTION) {
+	            	File file = fc.getSelectedFile();
+	            	textFieldXLS.setText(file.getAbsolutePath());
+	            }
+			}
+		});
+
 		JPanel panelSaveClose = new JPanel();
 		getContentPane().add(panelSaveClose, BorderLayout.SOUTH);
 		panelSaveClose.setLayout(new MigLayout("", "[grow][grow]", "[]"));
@@ -285,6 +317,7 @@ public class ImportFrame extends JFrame {
 				
 				String pname = null;
 				String patname = null;
+				String xlsname = null;
 				// on ne force pas le nom du patient quand on anonymise ou qu'on utilise l'id
 				if(rdbtnAnonymize.isSelected() || rdbtnPatientid.isSelected()){
 					txtNewPatientName.setText(DEFAULT_NPATIENT_TEXT);
@@ -294,6 +327,10 @@ public class ImportFrame extends JFrame {
 					pname = txtProjectname.getText();
 				if(!txtNewPatientName.getText().equals(DEFAULT_NPATIENT_TEXT) && !txtNewPatientName.getText().equals(""))
 					patname = txtNewPatientName.getText();
+				if(!textFieldXLS.getText().equals(DEFAULT_NPATIENT_TEXT) && !textFieldXLS.getText().equals("")){
+					if(new File(textFieldXLS.getText()).exists())
+						xlsname = textFieldXLS.getText();					
+				}
 				// On definit les parametres de l'import
 				DicomNamingTag dtag;
 				if(rdbtnAnonymize.isSelected())
@@ -305,7 +342,7 @@ public class ImportFrame extends JFrame {
 						dtag = DicomNamingTag.PATIENTID;
 				ImportSettings is;
 				try {
-					is = new ImportSettings(pname,patname, dtag,dispatcher,niftid);
+					is = new ImportSettings(pname,patname,xlsname, dtag,dispatcher,niftid);
 				} catch (final AnonymizationException e1) {
 					SwingUtilities.invokeLater(new Runnable() {
 						

@@ -139,7 +139,10 @@ public class DicomWorkerImport extends DicomWorker {
 				else
 					patientName = getPatientName();
 				if(getDispatcher().getSettings().getImportSettings().changePatientName()){
-					patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
+					if(getDispatcher().getSettings().getImportSettings().getXlsName() != null)
+						patientName = getDispatcher().getSettings().getImportSettings().getNameToNewName().get(patientName);
+					else
+						patientName = getDispatcher().getSettings().getImportSettings().getNewPatientName();
 					//String lpt = getDicomFile().getFileName().toString();
 					String filename = sopinstanceid;//lpt;
 					/*if(lpt.split(".").length>1){

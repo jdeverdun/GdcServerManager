@@ -683,7 +683,7 @@ public class DicomWorker extends DaemonWorker {
 	// ID du dicom (SOP Instance UID)
 	public String getSOPInstanceUID() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
-			return DEFAULT_STRING;
+			return dicomFile.getFileName().toString();
 		}else{
 			String pname = getTag("0008,0018");
 			if(pname == null){
