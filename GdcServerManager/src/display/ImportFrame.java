@@ -195,7 +195,7 @@ public class ImportFrame extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JDialog.setDefaultLookAndFeelDecorated(true);
 				JFileChooser fc = new JFileChooser(txtDicomDirectory.getText());
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				int retval = fc.showOpenDialog(ImportFrame.this);
 	            if (retval == JFileChooser.APPROVE_OPTION) {
 	            	File file = fc.getSelectedFile();
