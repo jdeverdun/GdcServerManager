@@ -30,14 +30,10 @@ import daemon.tools.nifti.Nifti_Reader;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
-import dao.project.DicomImageDAO;
 import dao.project.MySQLAcquisitionDateDAO;
-import dao.project.MySQLDicomImageDAO;
-import dao.project.MySQLNiftiImageDAO;
 import dao.project.MySQLPatientDAO;
 import dao.project.MySQLProtocolDAO;
 import dao.project.MySQLSerieDAO;
-import dao.project.NiftiImageDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
@@ -254,26 +250,10 @@ public class NiftiWorker extends DaemonWorker {
 		for(String currNifti:niftis.keySet())
 			try {
 				Files.delete(niftis.get(currNifti));
-				if(getNiftiDaemon().getSettings().getServerMode() == ServerMode.SERVER)
-					removeDBEntry(niftis.get(currNifti).getFileName());
 			} catch (IOException e) {
 				WindowManager.mwLogger.log(Level.SEVERE, "removeFiles error",e);
 			}
 		return;
-	}
-	
-	// Supprime une entree dans la table niftiimage de la bdd
-	// où le nom du fichier = fileName et les id correspondent
-	private void removeDBEntry(Path fileName) {
-		NiftiImageDAO ndao = new MySQLNiftiImageDAO();
-		try {
-			ndao.removeEntry(fileName.getFileName().toString(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
-					sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
-		} catch (SQLException e) {
-			WindowManager.mwLogger.log(Level.WARNING, "removeDBEntry error",e);
-			WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-		}
-		
 	}
 	
 	// Construit la commande pour convertir un repertoire dicom (dicomPath) en nifti
@@ -331,11 +311,8 @@ public class NiftiWorker extends DaemonWorker {
 	protected void addEntryToDB(Path name, String table) {
 		switch(table){
 		case "NiftiImage":
-			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			SerieDAO sdao = new MySQLSerieDAO();
 			try {
-				dicdao.newNiftiImage(name.getFileName().toString(), nr.getNSlices(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
-						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 				// on indique a la serie qu'elle est dispo en nifti
 				sdao.updateHasNifti(sourceDicomImage.getSerie().getId(),1);
 			} catch (SQLException e) {

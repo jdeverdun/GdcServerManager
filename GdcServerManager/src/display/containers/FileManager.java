@@ -819,6 +819,18 @@ public class FileManager {
 				}
 			}else{
 				// dans le cas des nifti on n'a rien a sup de la bdd
+				switch(count){
+				case 5://serie
+					project = parts[serverdirlen];
+					patient = parts[serverdirlen+1];
+					acqdate = parts[serverdirlen+2];
+					protocol = parts[serverdirlen+3];
+					serie = parts[serverdirlen+4];
+					SerieDAO sdao = new MySQLSerieDAO();
+					int id = sdao.getSerieIdFor(project, patient, acqdate, protocol, serie);
+					sdao.updateHasNifti(id, 0);
+					break;
+				}
 			}
 			// on supprime d'abord les fichiers (au moins si ca plante on aura pas de decalage bdd
 			if(fi.isDirectory()){

@@ -1,8 +1,6 @@
 package settings.sql;
 
 import settings.sql.tables.AcquisitionDateTable;
-import settings.sql.tables.DicomImageTable;
-import settings.sql.tables.NiftiImageTable;
 import settings.sql.tables.PatientTable;
 import settings.sql.tables.ProjectTable;
 import settings.sql.tables.ProtocolTable;
@@ -32,8 +30,6 @@ public class DBTables {
 	private AcquisitionDateTable acquisitionDate;
 	private ProtocolTable protocol;
 	private SerieTable serie;
-	private DicomImageTable dicomImage;
-	private NiftiImageTable niftiImage;
 	private JobTable job;
 	
 	// Constructeur
@@ -46,8 +42,6 @@ public class DBTables {
 		acquisitionDate = new AcquisitionDateTable();
 		protocol = new ProtocolTable();
 		serie = new SerieTable();
-		dicomImage = new DicomImageTable();
-		niftiImage = new NiftiImageTable();
 		job = new JobTable();
 		
 	}
@@ -93,15 +87,6 @@ public class DBTables {
 		return serie;
 	}
 
-
-	public DicomImageTable getDicomImage() {
-		return dicomImage;
-	}
-
-
-	public NiftiImageTable getNiftiImage() {
-		return niftiImage;
-	}
 	
 	public JobTable getJob() {
 		return job;

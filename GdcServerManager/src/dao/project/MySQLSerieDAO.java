@@ -16,7 +16,6 @@ import settings.SQLSettings;
 import settings.UserProfile;
 import settings.WindowManager;
 import settings.sql.DBTables;
-import settings.sql.tables.NiftiImageTable;
 import settings.sql.tables.SerieTable;
 
 

@@ -27,8 +27,6 @@ import settings.SystemSettings;
 import settings.UserProfile;
 import settings.sql.DBTables;
 import settings.sql.tables.AcquisitionDateTable;
-import settings.sql.tables.DicomImageTable;
-import settings.sql.tables.NiftiImageTable;
 import settings.sql.tables.PatientTable;
 import settings.sql.tables.ProjectTable;
 import settings.sql.tables.ProtocolTable;
@@ -82,45 +80,29 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		if(UserProfile.CURRENT_USER.getLevel()!=3)
 			opt="_"+UserProfile.CURRENT_USER.getId();
 		switch(type){
-			case 0:// DicomImage
-				fieldToAdd = ", "+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_project()+" as "+tables.getDicomImage().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_patient()+" as "+tables.getDicomImage().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_acqdate()+" as "+tables.getDicomImage().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_protocol()+" as "+tables.getDicomImage().getId_protocol()+""+customFieldSuffixe+", " +
-								""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getId_serie()+" as "+tables.getDicomImage().getId_serie()+""+customFieldSuffixe+", " +
-										""+tables.getDicomImage().TNAME+opt+"."+tables.getDicomImage().getName()+" as "+tables.getDicomImage().getName()+""+customFieldSuffixe+" "; 
-				break;
-			case 1:// NiftiImage
-				fieldToAdd = ", "+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_project()+" as "+tables.getNiftiImage().getId_project()+""+customFieldSuffixe+", " +
-						""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_patient()+" as "+tables.getNiftiImage().getId_patient()+""+customFieldSuffixe+", " +
-								""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_acqdate()+" as "+tables.getNiftiImage().getId_acqdate()+""+customFieldSuffixe+", " +
-						""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_protocol()+" as "+tables.getNiftiImage().getId_protocol()+""+customFieldSuffixe+", " +
-								""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getId_serie()+" as "+tables.getNiftiImage().getId_serie()+""+customFieldSuffixe+", " +
-										""+tables.getNiftiImage().TNAME+opt+"."+tables.getNiftiImage().getName()+" as "+tables.getNiftiImage().getName()+""+customFieldSuffixe+" "; 
-				break;
-			case 2://Serie
+			case 0://Serie
 				fieldToAdd = ", "+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_project()+" as "+tables.getSerie().getId_project()+""+customFieldSuffixe+", " +
 						""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_patient()+" as "+tables.getSerie().getId_patient()+""+customFieldSuffixe+", " +
 								""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_acqdate()+" as "+tables.getSerie().getId_acqdate()+""+customFieldSuffixe+", " +
 						""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getId_protocol()+" as "+tables.getSerie().getId_protocol()+""+customFieldSuffixe+", " +
 								""+tables.getSerie().TNAME+opt+"."+tables.getSerie().getName()+" as "+tables.getSerie().getName()+""+customFieldSuffixe+" "; 
 				break;
-			case 3://Protocol
+			case 1://Protocol
 				fieldToAdd = ", "+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_project()+" as "+tables.getProtocol().getId_project()+""+customFieldSuffixe+", " +
 						""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_patient()+" as "+tables.getProtocol().getId_patient()+""+customFieldSuffixe+", " +
 								""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getId_acqdate()+" as "+tables.getProtocol().getId_acqdate()+""+customFieldSuffixe+", " +
 						""+tables.getProtocol().TNAME+opt+"."+tables.getProtocol().getName()+" as "+tables.getProtocol().getName()+""+customFieldSuffixe+" "; 
 				break;
-			case 4://Acqdate
+			case 2://Acqdate
 				fieldToAdd = ", "+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getId_project()+" as "+tables.getAcquisitionDate().getId_project()+""+customFieldSuffixe+", " +
 						""+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getId_patient()+" as "+tables.getAcquisitionDate().getId_patient()+""+customFieldSuffixe+", " +
 						""+tables.getAcquisitionDate().TNAME+opt+"."+tables.getAcquisitionDate().getDate()+" as "+tables.getAcquisitionDate().getDate()+""+customFieldSuffixe+" "; 
 				break;
-			case 5://Patient
+			case 3://Patient
 				fieldToAdd = ", "+tables.getPatient().TNAME+opt+"."+tables.getPatient().getId_project()+" as "+tables.getPatient().getId_project()+""+customFieldSuffixe+", " +
 						""+tables.getPatient().TNAME+opt+"."+tables.getPatient().getName()+" as "+tables.getPatient().getName()+""+customFieldSuffixe+" "; 
 				break;
-			case 6://Project
+			case 4://Project
 				fieldToAdd = ", "+tables.getProject().TNAME+opt+"."+tables.getProject().getName()+" as "+tables.getProject().getName()+""+customFieldSuffixe+" "; 
 				break;				
 		}
@@ -174,26 +156,6 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 				String[] customFields = null;
 				switch(type){
 				case 0:
-					DicomImageTable dt = tables.getDicomImage();
-					customFields = new String[6];
-					customFields[0] = rset.getString(dt.getId_project()+customFieldSuffixe);
-					customFields[1] = rset.getString(dt.getId_patient()+customFieldSuffixe);
-					customFields[2] = rset.getString(dt.getId_acqdate()+customFieldSuffixe);
-					customFields[3] = rset.getString(dt.getId_protocol()+customFieldSuffixe);
-					customFields[4] = rset.getString(dt.getId_serie()+customFieldSuffixe);
-					customFields[5] = rset.getString(dt.getName()+customFieldSuffixe);
-					break;
-				case 1:
-					NiftiImageTable nt = tables.getNiftiImage();
-					customFields = new String[6];
-					customFields[0] = rset.getString(nt.getId_project()+customFieldSuffixe);
-					customFields[1] = rset.getString(nt.getId_patient()+customFieldSuffixe);
-					customFields[2] = rset.getString(nt.getId_acqdate()+customFieldSuffixe);
-					customFields[3] = rset.getString(nt.getId_protocol()+customFieldSuffixe);
-					customFields[4] = rset.getString(nt.getId_serie()+customFieldSuffixe);
-					customFields[5] = rset.getString(nt.getName()+customFieldSuffixe);
-					break;
-				case 2:
 					SerieTable st = tables.getSerie();
 					customFields = new String[5];
 					customFields[0] = rset.getString(st.getId_project()+customFieldSuffixe);
@@ -202,7 +164,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					customFields[3] = rset.getString(st.getId_protocol()+customFieldSuffixe);
 					customFields[4] = rset.getString(st.getName()+customFieldSuffixe);
 					break;
-				case 3:
+				case 1:
 					ProtocolTable pt = tables.getProtocol();
 					customFields = new String[4];
 					customFields[0] = rset.getString(pt.getId_project()+customFieldSuffixe);
@@ -210,27 +172,27 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					customFields[2] = rset.getString(pt.getId_acqdate()+customFieldSuffixe);
 					customFields[3] = rset.getString(pt.getName()+customFieldSuffixe);
 					break;
-				case 4:
+				case 2:
 					AcquisitionDateTable at = tables.getAcquisitionDate();
 					customFields = new String[3];
 					customFields[0] = rset.getString(at.getId_project()+customFieldSuffixe);
 					customFields[1] = rset.getString(at.getId_patient()+customFieldSuffixe);
 					customFields[2] = rset.getString(at.getDate()+customFieldSuffixe);
 					break;
-				case 5:
+				case 3:
 					PatientTable ppt = tables.getPatient();
 					customFields = new String[2];
 					customFields[0] = rset.getString(ppt.getId_project()+customFieldSuffixe);
 					customFields[1] = rset.getString(ppt.getName()+customFieldSuffixe);
 					break;
-				case 6:
+				case 4:
 					ProjectTable prt = tables.getProject();
 					customFields = new String[1];
 					customFields[0] = rset.getString(prt.getName()+customFieldSuffixe);
 					break;
 				}
 				// si on est bien sur une requete portant sur les donnees
-				if(type>=0 && type<=6){
+				if(type>=0 && type<=4){
 					File file = buildPathFromIdList(customFields,type);
 					if(file!=null){
 						for(String n:indices.keySet()){
@@ -289,269 +251,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 		String serie = "";
 		String name = "";
 		switch(type){
-		case 0:
-			name = customFields[customFields.length-1];
-			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) && cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1])) && 
-					cache.getIdToAcqDateNameList().containsKey(Integer.parseInt(customFields[2])) && cache.getIdToProtocolNameList().containsKey(Integer.parseInt(customFields[3])) &&
-					cache.getIdToSerieNameList().containsKey(Integer.parseInt(customFields[4])) ){
-				return new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_DICOM_NAME+"/" +
-						""+cache.getIdToProjectNameList().get(Integer.parseInt(customFields[0]))+"/"+cache.getIdToPatientNameList().get(Integer.parseInt(customFields[1]))+"/"
-						+cache.getIdToAcqDateNameList().get(Integer.parseInt(customFields[2]))+"/"+cache.getIdToProtocolNameList().get(Integer.parseInt(customFields[3]))+"/" +
-								""+cache.getIdToSerieNameList().get(Integer.parseInt(customFields[4]))+"/"+name);
-			}else{
-				path += SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_DICOM_NAME;
-				if(!cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0]))){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getProject().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getProject().getName()+" as item0 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getProject().getId()+"="+customFields[0]+" ";
-				}else{
-					project = cache.getIdToProjectNameList().get(customFields[0]);
-				}
-				if(!cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1]))){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getPatient().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getPatient().getName()+" as item1 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getPatient().getId()+"="+customFields[1]+" ";
-				}else{
-					patient = cache.getIdToPatientNameList().get(customFields[1]);
-				}
-				if(!cache.getIdToAcqDateNameList().containsKey(Integer.parseInt(customFields[2]))){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getAcquisitionDate().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getAcquisitionDate().getDate()+" as item2 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getAcquisitionDate().getId()+"="+customFields[2]+" ";
-				}else{
-					acqdate = cache.getIdToAcqDateNameList().get(customFields[2]);
-				}
-				if(!cache.getIdToProtocolNameList().containsKey(Integer.parseInt(customFields[3]))){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getProtocol().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getProtocol().getName()+" as item3 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getProtocol().getId()+"="+customFields[3]+" ";
-				}else{
-					protocol = cache.getIdToProtocolNameList().get(customFields[3]);
-				}
-				if(!cache.getIdToSerieNameList().containsKey(Integer.parseInt(customFields[4]))){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getSerie().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getSerie().getName()+" as item4 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getSerie().getId()+"="+customFields[4]+" ";
-				}else{
-					serie = cache.getIdToSerieNameList().get(customFields[4]);
-				}
-				ResultSet rset = null;
-				Statement stmt = null;
-				Connection connection = null;
-				try {
-					connection = SQLSettings.getPDS().getConnection();
-					stmt = connection.createStatement();
-					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-					if(!rset.next())
-						return null;
-					ResultSetMetaData rsmd = rset.getMetaData();
-					for(int i = 1;i<=rsmd.getColumnCount();i++){
-						String cname = rsmd.getColumnLabel(i);
-						switch(cname){
-							case "item0":
-								project = rset.getString(i);
-								cache.getIdToProjectNameList().put(Integer.parseInt(customFields[0]), project);break;
-							case "item1":
-								patient = rset.getString(i);
-								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
-							case "item2":
-								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
-								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
-							case "item3":
-								protocol = rset.getString(i);
-								cache.getIdToProtocolNameList().put(Integer.parseInt(customFields[3]), protocol);break;
-							case "item4":
-								serie = rset.getString(i);
-								cache.getIdToSerieNameList().put(Integer.parseInt(customFields[4]), serie);break;
-						}
-					}
-					return new File(path+"/"+project+"/"+patient+"/"+acqdate+"/"+protocol+"/"+serie+"/"+name);
-				} catch (SQLException e) {
-					e.printStackTrace();
-					throw e;
-				} finally {
-					try { if(rset!=null) rset.close();  } catch (Exception e) {};
-					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
-					try { if(connection!=null) connection.close();  } catch (Exception e) {};
-				}
-			}
-		case 1:
-			name = customFields[customFields.length-1];
-			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) && cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1])) && 
-					cache.getIdToAcqDateNameList().containsKey(Integer.parseInt(customFields[2])) && cache.getIdToProtocolNameList().containsKey(Integer.parseInt(customFields[3])) &&
-					cache.getIdToSerieNameList().containsKey(Integer.parseInt(customFields[4])) ){
-				return new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME+"/" +
-						""+cache.getIdToProjectNameList().get(Integer.parseInt(customFields[0]))+"/"+cache.getIdToPatientNameList().get(Integer.parseInt(customFields[1]))+"/"
-						+cache.getIdToAcqDateNameList().get(Integer.parseInt(customFields[2]))+"/"+cache.getIdToProtocolNameList().get(Integer.parseInt(customFields[3]))+"/" +
-								""+cache.getIdToSerieNameList().get(Integer.parseInt(customFields[4]))+"/"+name);
-			}else{
-				path += SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME;
-				if(!cache.getIdToProjectNameList().containsKey(customFields[0])){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getProject().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getProject().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getProject().getName()+" as item0 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getProject().getId()+"="+customFields[0]+" ";
-				}else{
-					project = cache.getIdToProjectNameList().get(customFields[0]);
-				}
-				if(!cache.getIdToPatientNameList().containsKey(customFields[1])){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getPatient().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getPatient().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getPatient().getName()+" as item1 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getPatient().getId()+"="+customFields[1]+" ";
-				}else{
-					patient = cache.getIdToPatientNameList().get(customFields[1]);
-				}
-				if(!cache.getIdToAcqDateNameList().containsKey(customFields[2])){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getAcquisitionDate().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getAcquisitionDate().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getAcquisitionDate().getDate()+" as item2 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getAcquisitionDate().getId()+"="+customFields[2]+" ";
-				}else{
-					acqdate = cache.getIdToAcqDateNameList().get(customFields[2]);
-				}
-				if(!cache.getIdToProtocolNameList().containsKey(customFields[3])){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getProtocol().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getProtocol().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getProtocol().getName()+" as item3 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getProtocol().getId()+"="+customFields[3]+" ";
-				}else{
-					protocol = cache.getIdToProtocolNameList().get(customFields[3]);
-				}
-				if(!cache.getIdToSerieNameList().containsKey(customFields[4])){
-					if(!selectClause.equals("select "))
-						selectClause += " , ";
-					String tname = tables.getSerie().TNAME;
-					if(UserProfile.CURRENT_USER.getLevel()!=3)
-						tname = tables.getSerie().TNAME+"_"+UserProfile.CURRENT_USER.getId();
-					selectClause += " "+tname+"."+tables.getSerie().getName()+" as item4 ";
-					if(!fromClause.equals(" from "))
-						fromClause += " , ";
-					fromClause += " "+tname+" ";
-					if(!whereClause.equals(" where "))
-						whereClause += " and ";
-					whereClause += " "+tname+"."+tables.getSerie().getId()+"="+customFields[4]+" ";
-				}else{
-					serie = cache.getIdToSerieNameList().get(customFields[4]);
-				}
-				ResultSet rset = null;
-				Statement stmt = null;
-				Connection connection = null;
-				try {
-					connection = SQLSettings.getPDS().getConnection();
-					stmt = connection.createStatement();
-					rset = stmt.executeQuery(selectClause+" "+fromClause+" "+whereClause);
-					if(!rset.next())
-						return null;
-					ResultSetMetaData rsmd = rset.getMetaData();
-					for(int i = 1;i<=rsmd.getColumnCount();i++){
-						String cname = rsmd.getColumnLabel(i);
-						switch(cname){
-							case "item0":
-								project = rset.getString(i);
-								cache.getIdToProjectNameList().put(Integer.parseInt(customFields[0]), project);break;
-							case "item1":
-								patient = rset.getString(i);
-								cache.getIdToPatientNameList().put(Integer.parseInt(customFields[1]), patient);break;
-							case "item2":
-								acqdate = AcquisitionDate.yyyy_MM_dd_To_yyyyMMdd(rset.getString(i));
-								cache.getIdToAcqDateNameList().put(Integer.parseInt(customFields[2]), acqdate);break;
-							case "item3":
-								protocol = rset.getString(i);
-								cache.getIdToProtocolNameList().put(Integer.parseInt(customFields[3]), protocol);break;
-							case "item4":
-								serie = rset.getString(i);
-								cache.getIdToSerieNameList().put(Integer.parseInt(customFields[4]), serie);break;
-						}
-					}
-					return new File(path+"/"+project+"/"+patient+"/"+acqdate+"/"+protocol+"/"+serie+"/"+name);
-				} catch (SQLException e) {
-					e.printStackTrace();
-					throw e;
-				} finally {
-					try { if(rset!=null) rset.close();  } catch (Exception e) {};
-					try { if(stmt!=null) stmt.close();  } catch (Exception e) {};
-					try { if(connection!=null) connection.close();  } catch (Exception e) {};
-				}
-			}
-		case 2:// par defaut repertoire analyze
+		case 0:// par defaut repertoire analyze
 			name = customFields[customFields.length-1];
 			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) && cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1])) && 
 					cache.getIdToAcqDateNameList().containsKey(Integer.parseInt(customFields[2])) && cache.getIdToProtocolNameList().containsKey(Integer.parseInt(customFields[3])) ){
@@ -661,7 +361,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
-		case 3:
+		case 1:
 			name = customFields[customFields.length-1];
 			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) && cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1])) && 
 					cache.getIdToAcqDateNameList().containsKey(Integer.parseInt(customFields[2])) ){
@@ -752,7 +452,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
-		case 4:
+		case 2:
 			name = customFields[customFields.length-1];
 			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) && cache.getIdToPatientNameList().containsKey(Integer.parseInt(customFields[1])) ){
 				return new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME+"/" +
@@ -822,7 +522,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
-		case 5:
+		case 3:
 			name = customFields[customFields.length-1];
 			if(cache.getIdToProjectNameList().containsKey(Integer.parseInt(customFields[0])) ){
 				return new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME+"/" +
@@ -873,7 +573,7 @@ public class MySQLGenericRequestDAO implements GenericRequestDAO {
 					try { if(connection!=null) connection.close();  } catch (Exception e) {};
 				}
 			}
-		case 6 :
+		case 4 :
 			name = customFields[customFields.length-1];
 			return new File(SystemSettings.SERVER_INFO.getServerDir()+"/"+SystemSettings.SERVER_INFO.NRI_ANALYSE_NAME+"/" +
 						""+name);

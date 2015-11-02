@@ -32,7 +32,7 @@ public class SQLSettings {
 	// nom des tables beneficiant de vues pour chaque utilisateur
 	// trie par niveau (le plus bas etant dicomimage puis niftiimage
 	// le plus haut project, le dernier est user
-	public static final String[] LOCAL_VIEW_NAME = new String[]{TABLES.getDicomImage().TNAME,TABLES.getNiftiImage().TNAME, TABLES.getSerie().TNAME,
+	public static final String[] LOCAL_VIEW_NAME = new String[]{ TABLES.getSerie().TNAME,
 		TABLES.getProtocol().TNAME, TABLES.getAcquisitionDate().TNAME,TABLES.getPatient().TNAME, TABLES.getProject().TNAME, TABLES.getUser().TNAME,TABLES.getUser_project().TNAME
 	};
 	// Pool Data Source pour gerer les connections SQL
