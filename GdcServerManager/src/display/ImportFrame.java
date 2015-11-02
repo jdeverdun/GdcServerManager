@@ -550,6 +550,9 @@ public class ImportFrame extends JFrame {
 		btnClose.setEnabled(!b);
 		lblForcePatientName.setEnabled(!b);
 		txtNewPatientName.setEnabled(!b);
+		buttonXLS.setEnabled(!b);
+		textFieldXLS.setEnabled(!b);
+		lblForcePatientName_1.setEnabled(!b);
 	}
 	public void setNiftid(NiftiDaemon niftid) {
 		this.niftid = niftid;
