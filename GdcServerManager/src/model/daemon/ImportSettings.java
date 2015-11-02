@@ -213,7 +213,7 @@ public class ImportSettings {
 				}
 			}
 
-			for(int r = 1; r < rows; r++) {
+			for(int r = 0; r < rows; r++) {
 				row = sheet.getRow(r);
 				if(row != null) {
 					nameToNewName.put(row.getCell(0).getStringCellValue(),row.getCell(1).getStringCellValue());
