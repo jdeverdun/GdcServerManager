@@ -23,8 +23,6 @@ import model.daemon.CustomConversionSettings;
 import model.daemon.CustomConversionSettings.ServerMode;
 import model.daemon.ImportSettings.DicomNamingTag;
 
-import dao.project.DicomImageDAO;
-import dao.project.MySQLDicomImageDAO;
 import es.vocali.util.AESCrypt;
 
 

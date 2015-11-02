@@ -514,10 +514,6 @@ public class MySQLSerieDAO implements SerieDAO{
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			rset = stmt.executeUpdate("update "+SQLSettings.TABLES.getSerie().TNAME+" set "+SQLSettings.TABLES.getSerie().getId_project()+"="+toproj.getId()+" where "+SQLSettings.TABLES.getSerie().getId_patient()+"="+pat.getId()+" ;");
-			DicomImageDAO ddao = new MySQLDicomImageDAO();
-			ddao.changeProject(pat,toproj);
-			NiftiImageDAO ndao = new MySQLNiftiImageDAO();
-			ndao.changeProject(pat,toproj);
 			return true;
 		} catch (SQLException e2) {
 			e2.printStackTrace();

@@ -88,24 +88,24 @@ try
     if(reorientationFlag==0)
         clear matlabbatch
         % reset orientation
-        clear P
-        P=cellstr(pinfo.all.files);
+        % clear P
+        % P=cellstr(pinfo.all.files);
 
-        for i=1:numel(P)
-            V    = spm_vol(deblank(P{i}));
-            M    = V.mat;
-            [Y,I]=max(abs(M));
-            vox  = sqrt(sum(M(1:3,1:3).^2));
-            if det(M(1:3,1:3))<0, vox(1) = -vox(1); end;
-            orig = (V.dim(1:3)+1)/2;
-            off  = -vox.*orig;
-            M    = [vox(1)  0      0      off(1)
-                0      vox(2) 0      off(2)
-                0      0      vox(3) off(3)
-                0      0      0      1       ];
-            M( [I(1:3) 4],:)=M;
-            spm_get_space(P{i},M);
-        end
+        % for i=1:numel(P)
+            % V    = spm_vol(deblank(P{i}));
+            % M    = V.mat;
+            % [Y,I]=max(abs(M));
+            % vox  = sqrt(sum(M(1:3,1:3).^2));
+            % if det(M(1:3,1:3))<0, vox(1) = -vox(1); end;
+            % orig = (V.dim(1:3)+1)/2;
+            % off  = -vox.*orig;
+            % M    = [vox(1)  0      0      off(1)
+                % 0      vox(2) 0      off(2)
+                % 0      0      vox(3) off(3)
+                % 0      0      0      1       ];
+            % M( [I(1:3) 4],:)=M;
+            % spm_get_space(P{i},M);
+        % end
 
         matlabbatch{1}.spm.util.reorient.srcfiles = cellstr(pinfo.all.files);
 		[~, xlsname, ext] = fileparts('#2#');
@@ -127,7 +127,7 @@ try
                 end
             end
             if(trouve)
-                matlabbatch{1}.spm.util.reorient.transform.transprm = [-(raw{i,2}) -(raw{i,3}) -(raw{i,4}) 0 0 0 1 1 1 0 0 0];
+                matlabbatch{1}.spm.util.reorient.transform.transprm = [-(raw{i,2}) -(raw{i,3}) -(raw{i,4}) (raw{i,5}) (raw{i,6}) (raw{i,7}) 1 1 1 0 0 0];
                 if(isequal(class(raw{i,1}),'double'))
                     fprintf(['ligne : ' num2str(i) ', name : ' num2str(raw{i,1}) ', x : ' num2str(raw{i,2}) ', y : ' num2str(raw{i,3}) ', z : ' num2str(raw{i,4})]);
                 else

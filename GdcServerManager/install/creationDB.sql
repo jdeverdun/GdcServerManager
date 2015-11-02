@@ -45,18 +45,6 @@ constraint serie_pk primary key (id),
 constraint uprot_acqdata_patient_projet_nameserie unique(name,id_project,id_patient,id_acqdate,id_protocol),
 constraint protocolserie_fk foreign key (id_protocol) references Protocol(id) on delete cascade);
 
-create table DicomImage
-(id integer NOT NULL AUTO_INCREMENT, name varchar(300), slicelocation float,id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
-constraint dicomimage_pk primary key (id),
-constraint uprot_serie_acqdata_patient_projet_namedicom unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
-constraint seriedicom_fk foreign key (id_serie ) references Serie(id) on delete cascade);
-
-create table NiftiImage
-(id integer NOT NULL AUTO_INCREMENT, name varchar(300),slices integer, id_project integer,id_patient integer,id_acqdate integer,id_protocol integer,id_serie integer,
-constraint niftiimage_pk primary key (id),
-constraint uprot_serie_acqdata_patient_projet_namenifti unique(name,id_project,id_patient,id_acqdate,id_protocol,id_serie),
-constraint serienifti_fk foreign key (id_serie) references Serie(id) on delete cascade);
-
 --RAJOUT TABLE JOBS CONDOR
 create table job
 (id integer NOT NULL AUTO_INCREMENT, id_user integer, jobid varchar(10), submitDate date, os varchar(20), description varchar(300),

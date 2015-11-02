@@ -34,14 +34,10 @@ import daemon.NiftiDaemon;
 import dao.MySQLProjectDAO;
 import dao.ProjectDAO;
 import dao.project.AcquisitionDateDAO;
-import dao.project.DicomImageDAO;
 import dao.project.MySQLAcquisitionDateDAO;
-import dao.project.MySQLDicomImageDAO;
-import dao.project.MySQLNiftiImageDAO;
 import dao.project.MySQLPatientDAO;
 import dao.project.MySQLProtocolDAO;
 import dao.project.MySQLSerieDAO;
-import dao.project.NiftiImageDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
@@ -818,73 +814,11 @@ public class FileManager {
 					SerieDAO sdao = new MySQLSerieDAO();
 					sdao.removeSerie(project,patient,acqdate,protocol,serie);
 					break;
-				case 6://Image
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					acqdate = parts[serverdirlen+2];
-					protocol = parts[serverdirlen+3];
-					serie = parts[serverdirlen+4];
-					image = parts[serverdirlen+5];
-					image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
-					switch(parts[serverdirlen-1]){//NRI-ANALYZE ou DICOM
-					case ServerInfo.NRI_DICOM_NAME:
-						DicomImageDAO ddao = new MySQLDicomImageDAO();
-						ddao.removeDicom(project,patient,acqdate,protocol,serie,image);
-						break;
-					case ServerInfo.NRI_ANALYSE_NAME:
-						NiftiImageDAO ndao = new MySQLNiftiImageDAO();
-						ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
-						break;
-					}
-					
+				case 6://Image n'est plus dans la base			
 					break;
 				}
 			}else{
-				// dans le cas des nifti on delete que les images de la bdd 
-				NiftiImageDAO ndao = new MySQLNiftiImageDAO();
-				switch(count){
-				case 1:// on delete un projet complet
-					project = parts[serverdirlen];
-					ndao.removeNiftisForProject(project);
-					break;
-				case 2: // delete d'un patient
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					ndao.removeNiftisForPatient(project, patient);
-					break;
-				case 3://acqdate
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					acqdate = parts[serverdirlen+2];
-					ndao.removeNiftisForAcqDate(project, patient, acqdate);
-					break;
-				case 4://protocol
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					acqdate = parts[serverdirlen+2];
-					protocol = parts[serverdirlen+3];
-					ndao.removeNiftisForProtocol(project, patient, acqdate, protocol);
-					break;
-				case 5://serie
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					acqdate = parts[serverdirlen+2];
-					protocol = parts[serverdirlen+3];
-					serie = parts[serverdirlen+4];
-					ndao.removeNiftisForSerie(project, patient, acqdate, protocol, serie);
-					break;
-				case 6://Image
-					project = parts[serverdirlen];
-					patient = parts[serverdirlen+1];
-					acqdate = parts[serverdirlen+2];
-					protocol = parts[serverdirlen+3];
-					serie = parts[serverdirlen+4];
-					image = parts[serverdirlen+5];
-					image = image.substring(0, image.length()-AESCrypt.ENCRYPTSUFFIX.length());//-4
-					ndao.removeNifti(project,patient,acqdate,protocol,serie,image);
-
-					break;
-				}
+				// dans le cas des nifti on n'a rien a sup de la bdd
 			}
 			// on supprime d'abord les fichiers (au moins si ca plante on aura pas de decalage bdd
 			if(fi.isDirectory()){

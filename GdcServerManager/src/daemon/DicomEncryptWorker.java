@@ -19,8 +19,6 @@ import settings.WindowManager;
 import model.DicomImage;
 import model.ServerInfo;
 
-import dao.project.DicomImageDAO;
-import dao.project.MySQLDicomImageDAO;
 import es.vocali.util.AESCrypt;
 
 
@@ -74,8 +72,7 @@ public class DicomEncryptWorker extends DaemonWorker {
 			//Files.deleteIfExists(dicomFile);
 			
 			
-			// On ajoute l'entree du DICOM dans la database
-			addEntryToDB(dicomFile.getFileName(),"DicomImage");
+			// On n'ajoute plus l'entree du DICOM dans la database
 			
 			
 		} catch (Exception e) {
@@ -119,26 +116,6 @@ public class DicomEncryptWorker extends DaemonWorker {
 		this.dicomImage = dicomImage;
 	}
 
-	@Override
-	protected void addEntryToDB(Path name, String table) {
-		switch(table){
-			case "DicomImage":
-				DicomImageDAO dicdao = new MySQLDicomImageDAO();
-				try {
-					dicdao.newDicomImage(name.toString(),dicomImage.getSliceLocation(), dicomImage.getProjet().getId(), dicomImage.getPatient().getId(),
-							dicomImage.getAcquistionDate().getId(),dicomImage.getProtocole().getId(),dicomImage.getSerie().getId());
-					dicomImage.setId(dicdao.idmax());
-				} catch (SQLException e) {
-					WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningencrypter().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)).substring(0, Math.min(e.toString().length(), 100)));
-					WindowManager.mwLogger.log(Level.WARNING, "SQL error",e.toString());
-				}
-				
-				break;
-			default:
-				WindowManager.mwLogger.log(Level.SEVERE, "Unknow table "+table+".");
-		}
-	}
-	
 	// Date de naissance
 	public String getBirthdate(){
 		if(imp==null){
@@ -171,6 +148,12 @@ public class DicomEncryptWorker extends DaemonWorker {
 		/* /!\  A decommenter dans la version finale */
 		if(new File(getServerInfo().getServerDir() + File.separator + ServerInfo.WORKSPACE_PREFIXE + getProjectFolder().getFileName()).exists() && !dicomImage.isRda(dicomFile.toFile()))
 			encryptDaemon.sendToNiftiDaemon(this);
+	}
+
+	@Override
+	protected void addEntryToDB(Path name, String table) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

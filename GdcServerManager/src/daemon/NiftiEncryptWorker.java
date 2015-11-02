@@ -20,11 +20,7 @@ import model.DicomImage;
 import model.ServerInfo;
 
 import daemon.tools.nifti.Nifti_Reader;
-import dao.project.DicomImageDAO;
-import dao.project.MySQLDicomImageDAO;
-import dao.project.MySQLNiftiImageDAO;
 import dao.project.MySQLSerieDAO;
-import dao.project.NiftiImageDAO;
 import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
 
@@ -109,11 +105,8 @@ public class NiftiEncryptWorker extends DaemonWorker {
 	protected void addEntryToDB(Path name, String table) {
 		switch(table){
 		case "NiftiImage":
-			NiftiImageDAO dicdao = new MySQLNiftiImageDAO();
 			SerieDAO sdao = new MySQLSerieDAO();
 			try {
-				dicdao.newNiftiImage(name.getFileName().toString(), nr.getNSlices(),sourceDicomImage.getProjet().getId(),sourceDicomImage.getPatient().getId(),
-						sourceDicomImage.getAcquistionDate().getId(),sourceDicomImage.getProtocole().getId(),sourceDicomImage.getSerie().getId());
 				// on indique a la serie qu'elle est dispo en nifti
 				sdao.updateHasNifti(sourceDicomImage.getSerie().getId(),1);
 			} catch (SQLException e) {
