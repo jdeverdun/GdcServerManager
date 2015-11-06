@@ -44,10 +44,12 @@ import daemon.tools.nifti.LutLoader;
 import daemon.tools.nifti.LutLoader.ALUT;
 import daemon.tools.nifti.Nifti_Reader;
 import daemon.tools.nifti.Slicer;
+import display.DicomInfoFrame;
 import display.MainWindow;
 import display.containers.UserCreationPanel;
 import display.containers.WarningPanel;
 import display.containers.viewer.NiftiImagePanel.Plan;
+import model.DicomImage;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JSplitPane;
 
@@ -200,6 +202,23 @@ public class ViewerPanel extends JPanel{
 		getCoronalPanel().reset();
 		getAxialPanel().reset();
 		getSagittalPanel().reset();
+
+		try {
+			if(DicomImage.isDicom(path.toFile())){
+				final Path temp = path;
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						new DicomInfoFrame(temp.toFile());
+					}
+				});
+				return true;
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if(!path.toString().endsWith(".nii") && !path.toString().endsWith(".img") && !path.toString().endsWith(".hdr") && !path.toString().endsWith(".nii.gz")){
 			SwingUtilities.invokeLater(new Runnable() {
 				
