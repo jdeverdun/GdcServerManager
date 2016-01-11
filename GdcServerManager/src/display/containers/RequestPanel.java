@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -131,6 +132,7 @@ public class RequestPanel extends JPanel {
 		int c=1;
 		for(Project p:UserProfile.CURRENT_USER.getProjects())
 			projects[c++] = p.getNom();
+		Arrays.sort(projects);
 		projectComboBox = new JComboBox(projects);
 		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
 		
@@ -146,7 +148,7 @@ public class RequestPanel extends JPanel {
 		MAdvImportitem = new JMenuItem("Advanced import");
 		MDelitem = new JMenuItem("Delete");
 		MViewItem = new JMenuItem("View");
-		Pmenu.add(MimportItem);
+		//Pmenu.add(MimportItem);
 		Pmenu.add(MAdvImportitem);
 		Pmenu.add(MDelitem);
 		Pmenu.add(MViewItem);
