@@ -132,8 +132,9 @@ public class RequestPanel extends JPanel {
 		int c=1;
 		for(Project p:UserProfile.CURRENT_USER.getProjects())
 			projects[c++] = p.getNom();
-		if(projects!=null)
+		try{
 			Arrays.sort(projects);
+		}catch(Exception e){}
 		projectComboBox = new JComboBox(projects);
 		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
 		

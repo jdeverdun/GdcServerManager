@@ -354,7 +354,7 @@ public class DicomWorker extends DaemonWorker {
 		
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
-			Patient p = pdao.retrievePatient(fileName.toString(),this.birthdate,this.sex,this.size,this.weight, getProject_id());
+			Patient p = pdao.retrievePatient(fileName.toString(),getProject_id());
 			setPatient_id(p.getId());
 			cache.getIdPatientList().put(fileName.toString() + "@@" + getProject_id(), p.getId());
 		} catch (SQLException e) {

@@ -11,9 +11,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 import settings.SQLSettings;
 import settings.UserProfile;
+import settings.WindowManager;
 import settings.sql.DBTables;
 import settings.sql.tables.ProtocolTable;
 import settings.sql.tables.SerieTable;
@@ -72,6 +74,8 @@ public class MySQLProtocolDAO implements ProtocolDAO{
 			try {
 				connection = SQLSettings.getPDS().getConnection();
 				stmt = connection.createStatement();
+				WindowManager.mwLogger.log(Level.INFO, "insert into "+SQLSettings.TABLES.getProtocol().TNAME+" values (NULL,'"
+						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+")");
 				
 				rset = stmt.execute("insert into "+SQLSettings.TABLES.getProtocol().TNAME+" values (NULL,'"
 						+ nom + "', "+project_id+","+patient_id+","+id_acqdate+")");

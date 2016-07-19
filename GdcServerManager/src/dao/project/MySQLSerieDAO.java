@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
+import display.MainWindow;
+
 import settings.SQLSettings;
 import settings.UserProfile;
 import settings.WindowManager;

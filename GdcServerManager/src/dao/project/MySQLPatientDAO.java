@@ -12,9 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
 
 import settings.SQLSettings;
 import settings.UserProfile;
+import settings.WindowManager;
 import settings.sql.DBTables;
 import settings.sql.tables.AcquisitionDateTable;
 import settings.sql.tables.PatientTable;
@@ -272,7 +274,6 @@ public class MySQLPatientDAO implements PatientDAO {
 			connection = SQLSettings.getPDS().getConnection();
 			stmt = connection.createStatement();
 			ProjectDAO projdao=new MySQLProjectDAO();	
-			
 			if(UserProfile.CURRENT_USER.getLevel() == 3){
 				rset = stmt.executeQuery("select * from "+SQLSettings.TABLES.getPatient().TNAME+" where "+SQLSettings.TABLES.getPatient().getName()+"='"+name+"' and "+SQLSettings.TABLES.getPatient().getBirthdate()+"='"+birthdate+"' and "+SQLSettings.TABLES.getPatient().getSex()+"='"+sex+"' and "+SQLSettings.TABLES.getPatient().getId_project()+"="+project_id);
 			}else{
