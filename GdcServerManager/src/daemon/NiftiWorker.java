@@ -163,8 +163,8 @@ public class NiftiWorker extends DaemonWorker {
 						WindowManager.mwLogger.log(Level.SEVERE, "NiftiWorker in infinite loop ... stopping. ["+tempDicomPath+"]");
 						WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningniftidaemon().setText("NiftiWorker in infinite loop ... stopping");
 						try {
-							WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(path.toFile());
-							WindowManager.mwLogger.log(Level.SEVERE, "Removing file ["+path+"]");
+							//WindowManager.MAINWINDOW.getFileTreeDist().deleServerFile(path.toFile());
+							WindowManager.mwLogger.log(Level.SEVERE, "Should Remove file ["+path+"]");
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
