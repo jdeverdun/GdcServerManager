@@ -56,6 +56,7 @@ import settings.UserProfile;
 import settings.WindowManager;
 
 import model.AcquisitionDate;
+import model.BIDS_server;
 import model.ServerInfo;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Component;
@@ -79,6 +80,8 @@ public class AdvancedImportFrame extends JFrame {
 	private static final String DEFAULT_NPATIENT_TEXT = "New Patient Name [Optionnal]";
 	private static final String DEFAULT_NDATE_TEXT = "New Date [Optionnal]";
 	private static final String DEFAULT_NPROTOCOL_TEXT = "New Protocol Name [Optionnal]";
+	
+
 
 	// liste des fichiers a importer
 	private File[] files;
@@ -86,6 +89,9 @@ public class AdvancedImportFrame extends JFrame {
 	private String newPatientName;
 	private String newProtocolName;
 	private String newDate;
+	
+	
+	private BIDS_server bidsServer;
 	
 	// permet d'eviter de reparcourir l'arborescence pour rien
 	// si il y a un reciproque au niveau des repertoire selectionnee (NRI-DICOM vs NRI-ANALYSE et vice versa)
@@ -124,6 +130,7 @@ public class AdvancedImportFrame extends JFrame {
 	private JRadioButton rdbtnNiftiNode;
 	private ProgressPanel progressBar;
 	private JCheckBox chckbxSafeMode;
+	private JCheckBox chckBoxBIDS;
 
 	
 	public AdvancedImportFrame(File[] files) {
@@ -135,12 +142,13 @@ public class AdvancedImportFrame extends JFrame {
 		setNewProtocolName(null);
 		hasNiftiDicomCorrespondance = -1;
 		stopImport = false;
+		bidsServer = new BIDS_server();
 		ImageIcon icon=new ImageIcon(MainWindow.class.getResource("/images/folder.png"));
 		Image img = icon.getImage();  
 		Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
 		ImageIcon icon2 = new ImageIcon(newimg); 
 		
-
+		
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
@@ -258,6 +266,9 @@ public class AdvancedImportFrame extends JFrame {
 		
 		chckbxSafeMode = new JCheckBox("Safe mode");
 		panel_1.add(chckbxSafeMode, "cell 0 8");
+		
+		chckBoxBIDS = new JCheckBox("BIDS");
+		panel_1.add(chckBoxBIDS, "cell 1 8");
 		
 		separator = new JSeparator();
 		panel_1.add(separator, "cell 0 9 2 1,growx");
@@ -512,6 +523,14 @@ public class AdvancedImportFrame extends JFrame {
 				}
 				
 				// Si tout est ok on lance l'import
+				if(chckBoxBIDS.isSelected()) {
+					if(!bidsServer.connect()) {
+						System.out.println("Pas connecte desole");
+						return;
+					}
+					bidsServer.sendText("coucou");
+					bidsServer.disconnect();
+				}
 				UserProfile.LAST_SELECTED_DIR = Paths.get(txtOutputDirectory.getText());
 				final File[] selectedFiles = getFiles();
 			    String[] toFiles = getOutputFilesAsStringArray();
@@ -550,6 +569,7 @@ public class AdvancedImportFrame extends JFrame {
 							}
 							if(!fi.getName().contains("..")){
 								WindowManager.mwLogger.log(Level.INFO,"Decrypt "+fi.getAbsolutePath()+" to "+fromTo.get(fi));
+								
 								// on prend le parent car on va automatiquement rajouter la serie dans le copyAndDecrypt
 								FileManager.copyAndDecrypt(fi, new File(fromTo.get(fi)).getParentFile());
 								String path = fi.getParent();
@@ -661,6 +681,17 @@ public class AdvancedImportFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updateList();
+			}
+		});
+		chckBoxBIDS.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckBoxBIDS.isSelected()) {
+					rdbtnDicomNode.setSelected(true);
+					rdbtnNiftiNode.setSelected(false);
+				}
+				
 			}
 		});
 		
@@ -1144,7 +1175,10 @@ public class AdvancedImportFrame extends JFrame {
 				return "Unknown";
 			}
 			// cast en file pour eviter les multiple slash
-			return new File(txtOutputDirectory.getText()+File.separator+project+File.separator+patient+File.separator+acqdate+File.separator+protocol+File.separator+serie).getAbsolutePath();
+			String outputdir = txtOutputDirectory.getText();
+			if(chckBoxBIDS.isSelected())
+				outputdir = bidsServer.getDirectory();
+			return new File(outputdir+File.separator+project+File.separator+patient+File.separator+acqdate+File.separator+protocol+File.separator+serie).getAbsolutePath();
 		}
 		return "Unknow";
 	}

@@ -150,6 +150,7 @@ public class RequestPanel extends JPanel {
 		MAdvImportitem = new JMenuItem("Advanced import");
 		MDelitem = new JMenuItem("Delete");
 		MViewItem = new JMenuItem("View");
+		MViewItem = new JMenuItem("View");
 		//Pmenu.add(MimportItem);
 		Pmenu.add(MAdvImportitem);
 		Pmenu.add(MDelitem);
