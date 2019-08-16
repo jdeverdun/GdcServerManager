@@ -32,7 +32,8 @@
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-0.9.2.jar"/>
 	<classpathentry kind="lib" path="lib/dcm4che-tool-dcmqr-2.0.28.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
+	<classpathentry kind="lib" path="lib/poi-4.1.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/GSMupdater"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
