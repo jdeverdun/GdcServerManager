@@ -524,12 +524,12 @@ public class AdvancedImportFrame extends JFrame {
 				
 				// Si tout est ok on lance l'import
 				if(chckBoxBIDS.isSelected()) {
+					// on se connecte au serveur bids
 					if(!bidsServer.connect()) {
 						System.out.println("Pas connecte desole");
+						// JUSTINE MESSAGE ERREUR !
 						return;
 					}
-					bidsServer.sendText("coucou");
-					bidsServer.disconnect();
 				}
 				UserProfile.LAST_SELECTED_DIR = Paths.get(txtOutputDirectory.getText());
 				final File[] selectedFiles = getFiles();
@@ -614,11 +614,27 @@ public class AdvancedImportFrame extends JFrame {
 							}
 						}
 						SystemSettings.DECRYPT_DAEMON.cleanList();
+						// JUSTINE ICI il a fini d'importer les donnees (decrypte) dans le repertoire du bids
+						// va falloir le dire à margaux !! pour qu'elle le convertisse !!!
+						
+						
+						
+						// quand margaux sera ok et qu'elle t'envoi le message en mode j'ai fini
+						// tu copie le repertoire qu'elle a cree dans le repertoire de sortie que l'utilisateur a choisi
+						// c'est dans la variable : txtOutputDirectory.getText()
+						
+						
+						
+						// une fois que c'est fait tu dis au thread qui permet de maintenir le suivi "updateStatusThread"
+						// que c'est termine et que la fenetre peut etre ferme, c'est pour ca ces deux ligbes de code						
+						// ca justine tu vois ca ferme la fenetre de suivi de la copie (on va la laisser tant que les donnees
+						// on a ete bidsé
 						popup.hide();
 						setLock(false);
 						//if(!stopImport)
 							//dispose();
 						stopImport = false;
+						
 					}
 					
 				});

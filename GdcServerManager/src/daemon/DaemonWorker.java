@@ -116,6 +116,7 @@ public abstract class DaemonWorker {
 		}
 		try {
 			Patient pat = pdao.retrievePatient(patientName,projectName);
+
 			cache.getRkeyList().put(pat.getNom()+"_"+projectName, pat.getRemoteKey());
 			String lkey;
 			if(sameChars(pat.getRemoteKey(), projectName)){

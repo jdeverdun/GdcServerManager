@@ -1,10 +1,15 @@
 package model;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class BIDS_server {
 
@@ -15,7 +20,10 @@ public class BIDS_server {
 	
 	
 	private Socket socket = null;
-
+	private OutputStream output;
+    private PrintWriter writer;
+    private InputStream input;
+    private BufferedReader reader;
 
 	public BIDS_server() {
 		directory = DEFAULT_BIDS_DIR;
@@ -32,6 +40,10 @@ public class BIDS_server {
 	public boolean connect() {
 		try {
 			socket = new Socket(host, port);
+			output = socket.getOutputStream();
+			input  = socket.getInputStream();
+			writer = new PrintWriter(output, true);
+			reader = new BufferedReader(new InputStreamReader(input));
 			System.out.println("connected to "+host+":"+port);
 			return true;
 		} catch (UnknownHostException e) {
@@ -44,26 +56,24 @@ public class BIDS_server {
 		return false;
 	}
 	
-	public boolean sendText(String text) {
+	public String sendText(String text) {
+		
 		if(socket==null) {
 			System.out.println("Open socket (connect()) first");
-			return false;
+			return null;
 		}
-		// get the output stream from the socket.
-		System.out.println("Sending string to the ServerSocket");
 		try {
-	        OutputStream outputStream = socket.getOutputStream();
-	        // create a data output stream from the output stream so we can send data through it
-	        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-	        // write the message we want to send
-	        dataOutputStream.writeUTF(text);
-	        dataOutputStream.flush(); // send the message
-	        dataOutputStream.close(); // close the output stream when we're done.
-	        System.out.println("Envoi ok");
-	        return true;
+			
+			// on envoi le message
+            writer.println(text);
+            writer.flush();
+
+            // on recupere la reponse
+            String response = reader.readLine();     
+	        return response;
 		}catch(Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
 	}
 	
