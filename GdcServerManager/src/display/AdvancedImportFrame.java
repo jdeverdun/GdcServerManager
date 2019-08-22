@@ -706,6 +706,25 @@ public class AdvancedImportFrame extends JFrame {
 				if(chckBoxBIDS.isSelected()) {
 					rdbtnDicomNode.setSelected(true);
 					rdbtnNiftiNode.setSelected(false);
+					chckbxProtocol.setSelected(false);
+					chckbxProject.setSelected(false);
+					checkBoxDate.setSelected(true);
+					checkBoxPatient.setSelected(true);
+					
+					rdbtnDicomNode.setEnabled(false);
+					rdbtnNiftiNode.setEnabled(false);
+					chckbxProtocol.setEnabled(false);
+					chckbxProject.setEnabled(false);
+					checkBoxDate.setEnabled(false);
+					checkBoxPatient.setEnabled(false);
+					
+				}else {
+					rdbtnDicomNode.setEnabled(true);
+					rdbtnNiftiNode.setEnabled(true);
+					chckbxProtocol.setEnabled(true);
+					chckbxProject.setEnabled(true);
+					checkBoxDate.setEnabled(true);
+					checkBoxPatient.setEnabled(true);
 				}
 				
 			}
