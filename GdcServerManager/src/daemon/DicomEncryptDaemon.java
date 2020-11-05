@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
@@ -111,30 +112,39 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 				}
 			}
 			// permet de securiser le thread
-			final Path lpath = (Path)dicomToEncrypt.pop();
-			final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
-			Thread tr = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					// on lance l'encryptage du fichier
-					DicomEncryptWorker dWorker = new DicomEncryptWorker(DicomEncryptDaemon.this,lpath,di);
-					dWorker.start();  
-				}
-			});
-			try{
-				while(!ThreadPool.addThread(tr,getPid(),DTYPE) && !isStop() ){
-					try{
-						Thread.sleep(50);
-					}catch(Exception e){
-						e.printStackTrace();
+			try {
+				final Path lpath = (Path)dicomToEncrypt.pop();
+				final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
+
+			
+				Thread tr = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						// on lance l'encryptage du fichier
+						DicomEncryptWorker dWorker = new DicomEncryptWorker(DicomEncryptDaemon.this,lpath,di);
+						dWorker.start();  
 					}
+				});
+				try{
+					while(!ThreadPool.addThread(tr,getPid(),DTYPE) && !isStop() ){
+						try{
+							Thread.sleep(50);
+						}catch(Exception e){
+							e.printStackTrace();
+						}
+					}
+					tr.start();
+				}catch(ThreadPoolException te){
+					// on replace le dernier fichier a encrypter dans la liste (avant de sauvegarder)
+					dicomToEncrypt.push(lpath);
+					WindowManager.mwLogger.log(Level.SEVERE,"Critical error in DicomEncryptDaemon (addThread) ... saving & shutdown",te);
+					SystemSettings.stopDaemons();
 				}
-				tr.start();
-			}catch(ThreadPoolException te){
-				// on replace le dernier fichier a encrypter dans la liste (avant de sauvegarder)
-				dicomToEncrypt.push(lpath);
-				WindowManager.mwLogger.log(Level.SEVERE,"Critical error in DicomEncryptDaemon (addThread) ... saving & shutdown",te);
-				SystemSettings.stopDaemons();
+			}catch(NoSuchElementException e) {
+				// on gere le bug qui fait tout crasher, surement à cause de thread concurrent
+				e.printStackTrace();
+				WindowManager.mwLogger.log(Level.SEVERE,"La fameuse erreur ! NoSuchElementException!",e);
+				continue;
 			}
 		}
 	}
