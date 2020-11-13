@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
@@ -40,22 +41,22 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 	private static final DAEMONTYPE DTYPE = DAEMONTYPE.DicomEncryptDaemon;
 	private static final String BACKUP_FILE = "encryptDaemon.bak";
 	private CustomConversionSettings settings; // pour import only
-	private LinkedList<Path> dicomToEncrypt;
-	private LinkedList<DicomImage> dicomImageToEncrypt;
+	private ConcurrentLinkedQueue<Path> dicomToEncrypt;
+	private ConcurrentLinkedQueue<DicomImage> dicomImageToEncrypt;
 	private DicomDaemon dicomDaemon;
 	
 	public DicomEncryptDaemon(DicomDaemon dicomDaemon){
 		super();
-		dicomToEncrypt = new LinkedList<Path>();
-		dicomImageToEncrypt = new  LinkedList<DicomImage>();
+		dicomToEncrypt = new ConcurrentLinkedQueue<Path>();
+		dicomImageToEncrypt = new  ConcurrentLinkedQueue<DicomImage>();
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(getDicomDaemon().getServerInfo());
 	}
 	
 	public DicomEncryptDaemon(){
 		super();
-		dicomToEncrypt = new LinkedList<Path>();
-		dicomImageToEncrypt = new  LinkedList<DicomImage>();
+		dicomToEncrypt = new ConcurrentLinkedQueue<Path>();
+		dicomImageToEncrypt = new  ConcurrentLinkedQueue<DicomImage>();
 		setDicomDaemon(dicomDaemon);
 		setServerInfo(SystemSettings.SERVER_INFO);
 	}
@@ -63,8 +64,8 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 	
 	public DicomEncryptDaemon(CustomConversionSettings ccs) {
 		super();
-		dicomToEncrypt = new LinkedList<Path>();
-		dicomImageToEncrypt = new  LinkedList<DicomImage>();
+		dicomToEncrypt = new ConcurrentLinkedQueue<Path>();
+		dicomImageToEncrypt = new  ConcurrentLinkedQueue<DicomImage>();
 		setDicomDaemon(null);
 		setSettings(ccs);
 		setServerInfo(SystemSettings.SERVER_INFO);
@@ -113,8 +114,11 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 			}
 			// permet de securiser le thread
 			try {
-				final Path lpath = (Path)dicomToEncrypt.pop();
-				final DicomImage di = (DicomImage)dicomImageToEncrypt.pop();
+				final Path lpath = (Path)dicomToEncrypt.poll();
+				if(lpath==null) {
+					continue;
+				}
+				final DicomImage di = (DicomImage)dicomImageToEncrypt.poll();
 
 			
 				Thread tr = new Thread(new Runnable() {
@@ -136,7 +140,7 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 					tr.start();
 				}catch(ThreadPoolException te){
 					// on replace le dernier fichier a encrypter dans la liste (avant de sauvegarder)
-					dicomToEncrypt.push(lpath);
+					dicomToEncrypt.add(lpath);
 					WindowManager.mwLogger.log(Level.SEVERE,"Critical error in DicomEncryptDaemon (addThread) ... saving & shutdown",te);
 					SystemSettings.stopDaemons();
 				}
@@ -230,10 +234,10 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 		}
 		
 	}
-	public LinkedList<Path> getDicomToEncrypt() {
+	public ConcurrentLinkedQueue<Path> getDicomToEncrypt() {
 		return dicomToEncrypt;
 	}
-	public void setDicomToEncrypt(LinkedList<Path> dicomToEncrypt) {
+	public void setDicomToEncrypt(ConcurrentLinkedQueue<Path> dicomToEncrypt) {
 		this.dicomToEncrypt = dicomToEncrypt;
 	}
 
@@ -251,10 +255,10 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 		this.settings = settings;
 	}
 
-	public LinkedList<DicomImage> getDicomImageToEncrypt() {
+	public ConcurrentLinkedQueue<DicomImage> getDicomImageToEncrypt() {
 		return dicomImageToEncrypt;
 	}
-	public void setDicomImageToEncrypt(LinkedList<DicomImage> dicomImageToEncrypt) {
+	public void setDicomImageToEncrypt(ConcurrentLinkedQueue<DicomImage> dicomImageToEncrypt) {
 		this.dicomImageToEncrypt = dicomImageToEncrypt;
 	}
 	public DicomDaemon getDicomDaemon() {
@@ -272,8 +276,8 @@ public class DicomEncryptDaemon extends EncryptDaemon {
 			}
 		}
 		if(!dicomToEncrypt.contains(p)){
-			dicomToEncrypt.push(p);
-			dicomImageToEncrypt.push(di);
+			dicomToEncrypt.add(p);
+			dicomImageToEncrypt.add(di);
 			setWaiting(false);
 		}
 	}
