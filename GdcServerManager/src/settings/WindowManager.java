@@ -12,5 +12,5 @@ public class WindowManager {
 	public static String PROGRAM_NAME = "Constellation";
 	public static String RELEASE_NAME = "Orion";
 	public static String UPDATER_JARFILE = "gsm_updater.jar";
-	public static String  VERSION = "1.2.2";
+	public static String  VERSION = "1.2.3";
 }
