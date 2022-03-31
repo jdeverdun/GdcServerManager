@@ -110,7 +110,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 		}
 		if (gettingInfo) {
 			info = dd.getDicomInfo();
-			return null;
+			return (String) info;
 		}
 		if (fi!=null && fi.width>0 && fi.height>0 && fi.offset>0) {
 			/*FileOpener fo = new FileOpener(fi);
@@ -772,9 +772,10 @@ class DicomDecoder {
 			IJ.log("offset: " + fi.offset);
 		}
 	
-		if (inputStream!=null)
-			f.reset();
-		else
+		if (inputStream!=null) {
+			// je comment car BUG DICOM EXCEPTION !!!
+			//f.reset();
+		}else
 			f.close();
 		return fi;
 	}
