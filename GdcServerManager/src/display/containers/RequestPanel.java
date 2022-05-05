@@ -135,7 +135,7 @@ public class RequestPanel extends JPanel {
 		try{
 			Arrays.sort(projects);
 		}catch(Exception e){}
-		projectComboBox = new JComboBox(projects);
+		projectComboBox = new JComboBox<String>(projects);
 		requestFieldpanel.add(projectComboBox, "flowx,cell 0 1,growx");
 		
 		
