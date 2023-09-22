@@ -37,8 +37,6 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import com.sun.org.apache.bcel.internal.generic.FNEG;
 
@@ -568,11 +566,11 @@ public class ImportFrame extends JFrame {
 
 	public void createAndShowGUI(){
 		//JFrame.setDefaultLookAndFeelDecorated(true);
-		try {
+		/*try {
 	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
         } catch (Exception e) {
           System.out.println("Substance Graphite failed to initialize");
-        }
+        }*/
 		//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Import");
 		setSize(420, 270);

@@ -24,8 +24,6 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
 import daemon.DicomNode;
 import display.containers.viewer.ViewerPanel;
@@ -424,11 +422,11 @@ public class SettingsFrame extends JFrame {
 
 	public void createAndShowGUI(){
 		//JFrame.setDefaultLookAndFeelDecorated(true);
-		try {
+		/*try {
 	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
         } catch (Exception e) {
           System.out.println("Substance Graphite failed to initialize");
-        }
+        }*/
 		//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("Settings");
 		setSize(420, 350);
@@ -444,11 +442,11 @@ public class SettingsFrame extends JFrame {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				//JFrame.setDefaultLookAndFeelDecorated(true);
-				try {
+				/*try {
 			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 		        } catch (Exception e) {
 		          System.out.println("Substance Graphite failed to initialize");
-		        }
+		        }*/
 				//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 				JFrame jf = new JFrame("Settings");
 				jf.getContentPane().add(new SettingsFrame());

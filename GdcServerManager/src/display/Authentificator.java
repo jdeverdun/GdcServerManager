@@ -22,8 +22,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
+
 
 import settings.SystemSettings;
 import settings.UserProfile;
@@ -273,11 +272,11 @@ public class Authentificator extends JFrame {
 							public void run(){
 								//JFrame.setDefaultLookAndFeelDecorated(true);
 								FlatDarkLaf.setup();
-								try {
+								/*try {
 							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
-							        }
+							        }*/
 								WindowManager.MAINWINDOW = new MainWindow(0);
 								//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 								WindowManager.MAINWINDOW.createAndShowGUI();
@@ -295,12 +294,12 @@ public class Authentificator extends JFrame {
 							SwingUtilities.invokeLater(new Runnable(){
 								public void run(){
 									//JFrame.setDefaultLookAndFeelDecorated(true);
-									try {
+									/*try {
 								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
 							          WindowManager.mwLogger.log(Level.WARNING, "Substance Graphite failed to initialize", e);
-							        }
+							        }*/
 									//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 									PassChangePanel pchange = new PassChangePanel();
 									Popup popup = PopupFactory.getSharedInstance().getPopup(Authentificator.this, pchange, (int)getX(),(int)getY());
@@ -313,11 +312,11 @@ public class Authentificator extends JFrame {
 							SwingUtilities.invokeLater(new Runnable(){
 								public void run(){
 									//JFrame.setDefaultLookAndFeelDecorated(true);
-									try {
+									/*try {
 								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 								        } catch (Exception e) {
 								          System.out.println("Substance Graphite failed to initialize");
-								        }
+								        }*/
 									WindowManager.MAINWINDOW = new MainWindow(1);
 									//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 									WindowManager.MAINWINDOW.createAndShowGUI();
