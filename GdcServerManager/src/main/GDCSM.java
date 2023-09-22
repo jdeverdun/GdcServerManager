@@ -1,5 +1,6 @@
 package main;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import gsm.update.Updater;
 
 import java.awt.Image;
@@ -48,14 +49,14 @@ public class GDCSM {
 		
 		// On définit les paramètres du serveur
 		SystemSettings.SERVER_INFO = new ServerInfo(SystemSettings.APP_DIR);
-		init();			
-		
-		
+		init();
+
 		// ------------ Fin de verif des mises a jours -------
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);
-				try {
+				FlatDarkLaf.setup();
+				/*try {
 			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 			        } catch (Exception e) {
 			          System.out.println("Substance Graphite failed to initialize");
@@ -63,7 +64,7 @@ public class GDCSM {
 				
 				// ------------ Verification des mises a jours -------
 				
-				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 				Updater updater = new Updater();
 				ArrayList<String> versions = updater.getVersions();
 				if(!versions.isEmpty() && !versions.get(versions.size()-1).equals(WindowManager.VERSION)){

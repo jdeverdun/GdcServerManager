@@ -423,13 +423,13 @@ public class SettingsFrame extends JFrame {
 	}
 
 	public void createAndShowGUI(){
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		/*JFrame.setDefaultLookAndFeelDecorated(true);
 		try {
 	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
         } catch (Exception e) {
           System.out.println("Substance Graphite failed to initialize");
         }
-		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 		setTitle("Settings");
 		setSize(420, 350);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -443,13 +443,13 @@ public class SettingsFrame extends JFrame {
 
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
-				JFrame.setDefaultLookAndFeelDecorated(true);
+				/*JFrame.setDefaultLookAndFeelDecorated(true);
 				try {
 			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 		        } catch (Exception e) {
 		          System.out.println("Substance Graphite failed to initialize");
 		        }
-				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 				JFrame jf = new JFrame("Settings");
 				jf.getContentPane().add(new SettingsFrame());
 				jf.setSize(400, 250);

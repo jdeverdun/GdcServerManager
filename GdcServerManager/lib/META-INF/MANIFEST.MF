@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Main-Class: main.GDCSM
+Class-Path: flatlaf-1.2.jar ij.jar ucp.jar mail.jar gsm_updater.jar loca
+ l_policy.jar swingx-0.9.2.jar miglayout-src.zip trident-7.2.1.jar commo
+ ns-io-2.4.jar flamingo-7.2.1.jar commons-cli-1.2.jar slf4j-api-1.7.5.ja
+ r slf4j-ext-1.7.5.jar substance-7.2.1.jar laf-plugin-7.2.1.jar laf-widg
+ et-7.2.1.jar US_export_policy.jar commons-lang3-3.1.jar miglayout15-swi
+ ng.jar trident-7.2.1-swt.jar slf4j-simple-1.7.5.jar trident-7.2.1-base.
+ jar trident-7.2.1-swing.jar slf4j-migrator-1.7.5.jar substance-7.2.1-li
+ te.jar substance-7.2.1-tools.jar substance-swingx-7.2.1.jar mysql-conne
+ ctor-j-8.1.0.jar substance-flamingo-7.2.1.jar dcm4che-tool-dcmqr-2.0.28
+ .jar substance-flamingo-7.2.1-lite.jar mysql-connector-java-5.1.23-bin.
+ jar dcm4che-net-2.0.28rc-INTERMEDIATE.v20130322_1503.jar dcm4che-core-2
+ .0.28rc-INTERMEDIATE.v20130322_1503.jar dcm4che-filecache-2.0.28rc-INTE
+ RMEDIATE.v20130322_1503.jar poi-5.2.3.jar commons-codec-1.15.jar common
+ s-collections4-4.4.jar commons-math3-3.6.1.jar commons-io-2.11.0.jar Sp
+ arseBitSet-1.2.jar log4j-api-2.18.0.jar
+

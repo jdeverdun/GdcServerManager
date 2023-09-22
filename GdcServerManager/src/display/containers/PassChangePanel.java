@@ -99,7 +99,7 @@ public class PassChangePanel extends PopupPanel {
 					// On recupere le mot de passe
 					String newPass = new String(getPasswordField1().getPassword());
 					
-					// On met à jours l'utilisateur local
+					// On met ï¿½ jours l'utilisateur local
 					User ulocal = UserProfile.CURRENT_USER;
 					UserDAO udao = new MySQLUserDAO();
 					ulocal.setFirstConnect(0);
@@ -114,7 +114,7 @@ public class PassChangePanel extends PopupPanel {
 						return;
 					}
 					
-					// On met à jours l'utilisateur sur la db
+					// On met ï¿½ jours l'utilisateur sur la db
 					DataBaseAdminDAO ddao = new MySQLDataBaseAdminDAO();
 					try {
 						udao.updateUser(ulocal);
@@ -127,14 +127,14 @@ public class PassChangePanel extends PopupPanel {
 									WindowManager.MAINWINDOW.dispose();
 								if(WindowManager.AUTHENTIFICATOR!=null && WindowManager.AUTHENTIFICATOR.isDisplayable())
 									WindowManager.AUTHENTIFICATOR.dispose();
-								JFrame.setDefaultLookAndFeelDecorated(true);
+								/*JFrame.setDefaultLookAndFeelDecorated(true);
 								try {
 							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
-							        }
+							        }*/
 								Authentificator auth = new Authentificator();
-								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 								auth.setVisible(true);
 								SwingUtilities.invokeLater(new Runnable() {
 									

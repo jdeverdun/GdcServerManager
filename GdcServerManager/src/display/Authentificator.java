@@ -21,6 +21,7 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
 
@@ -149,7 +150,7 @@ public class Authentificator extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource("/images/logo32.png")).getImage());
 		// ====================== Event ==============================
-		// on appui sur Entrée quand on est sur le pass -> tente le login
+		// on appui sur Entrï¿½e quand on est sur le pass -> tente le login
 		passwordField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent key) {
@@ -270,14 +271,15 @@ public class Authentificator extends JFrame {
 					if(txtUsername.getText().isEmpty() && passwordField.getText().isEmpty()){
 						SwingUtilities.invokeLater(new Runnable(){
 							public void run(){
-								JFrame.setDefaultLookAndFeelDecorated(true);
+								FlatDarkLaf.setup();
+								/*JFrame.setDefaultLookAndFeelDecorated(true);
 								try {
 							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
-							        }
+							        }*/
 								WindowManager.MAINWINDOW = new MainWindow(0);
-								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 								WindowManager.MAINWINDOW.createAndShowGUI();
 							}
 						});
@@ -292,14 +294,14 @@ public class Authentificator extends JFrame {
 						if(UserProfile.CURRENT_USER.firstConnect() == 1){
 							SwingUtilities.invokeLater(new Runnable(){
 								public void run(){
-									JFrame.setDefaultLookAndFeelDecorated(true);
+									/*JFrame.setDefaultLookAndFeelDecorated(true);
 									try {
 								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
 							          WindowManager.mwLogger.log(Level.WARNING, "Substance Graphite failed to initialize", e);
-							        }
-									UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+							        }*/
+									//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 									PassChangePanel pchange = new PassChangePanel();
 									Popup popup = PopupFactory.getSharedInstance().getPopup(Authentificator.this, pchange, (int)getX(),(int)getY());
 									pchange.setPopup(popup);
@@ -310,14 +312,14 @@ public class Authentificator extends JFrame {
 						
 							SwingUtilities.invokeLater(new Runnable(){
 								public void run(){
-									JFrame.setDefaultLookAndFeelDecorated(true);
+									/*JFrame.setDefaultLookAndFeelDecorated(true);
 									try {
 								          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 								        } catch (Exception e) {
 								          System.out.println("Substance Graphite failed to initialize");
-								        }
+								        }*/
 									WindowManager.MAINWINDOW = new MainWindow(1);
-									UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+									//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 									WindowManager.MAINWINDOW.createAndShowGUI();
 								}
 							});

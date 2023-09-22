@@ -24,7 +24,7 @@ import settings.sql.DBTables;
 public class SQLSettings {
 	public static final int reconnectTimeout = 1800000;// temps a attendre depuis la derniere requete pour reouvrir la connection a la bdd
 			
-	public static String ADDRESS = "120.40.30.110";//"localhost";
+	public static String ADDRESS = "192.168.55.10";//"localhost";
 	public static String DATABASE_NAME = "gdcserver";
 	public static DBTables TABLES = new DBTables();
 	public static long lastRequestTime = 0; // date de la derniere requete
@@ -42,9 +42,9 @@ public class SQLSettings {
 	
 	
 	/**
-	 * Démarre le Pool Data Source pour gerer les connections à
+	 * Dï¿½marre le Pool Data Source pour gerer les connections ï¿½
 	 * la base de donnee en recuperant les informations de connexion
-	 * depuis UserProfile.  La taille du pool est placé par défaut selon : 
+	 * depuis UserProfile.  La taille du pool est placï¿½ par dï¿½faut selon : 
 	 * Initial pool size = 5 // Min pool size = 5 // Max pool size = 10
 	 * J'utilise le pool manager pour controler le lancement - extinction du pool
 	 * @throws SQLException
@@ -61,7 +61,7 @@ public class SQLSettings {
 		PDS = PoolDataSourceFactory.getPoolDataSource();
 		PDS.setConnectionPoolName("mgr_pool");
 		//Setting connection properties of the data source
-		PDS.setConnectionFactoryClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+		PDS.setConnectionFactoryClassName("com.mysql.cj.jdbc.MysqlDataSource");
 		   
 		PDS.setURL("jdbc:mysql://"+ADDRESS+":3306/"+DATABASE_NAME+"?autoReconnect=true");
 		PDS.setUser(UserProfile.LOGIN);
@@ -82,7 +82,7 @@ public class SQLSettings {
 	
 	/**
 	 * /**
-	 * Démarre le Pool Data Source pour gerer les connections à
+	 * Dï¿½marre le Pool Data Source pour gerer les connections ï¿½
 	 * la base de donnee en recuperant les informations de connexion
 	 * depuis UserProfile, la taille du pool est donnee en argument
 	 * J'utilise le pool manager pour controler le lancement - extinction du pool

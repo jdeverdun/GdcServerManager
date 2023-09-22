@@ -34,7 +34,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import com.sun.corba.se.impl.encoding.CodeSetConversion.BTCConverter;
 
 import settings.UserProfile;
 import tools.cluster.condor.CondorUtils;

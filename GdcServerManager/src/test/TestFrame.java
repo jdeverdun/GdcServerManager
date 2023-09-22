@@ -27,12 +27,12 @@ public class TestFrame extends JFrame {
 		TestFrame t = new TestFrame();
 		t.setSize(400,400);
 		t.setVisible(true);
-		JFrame.setDefaultLookAndFeelDecorated(false);
+		/*JFrame.setDefaultLookAndFeelDecorated(false);
 		try {
 	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 	        } catch (Exception e) {
 	          System.out.println("Substance Graphite failed to initialize");
 	        }
-		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 	}
 }

@@ -45,8 +45,8 @@ public class ServerInfo {
 	public static String CONF_FILE = "params.conf";
 	// Attributs
 	private Path incomingDir; // dossier des dicom en vrac
-	private Path dicomDir; // dossier des dicom triés
-	private Path niftiDir; // dossier des nifti triés
+	private Path dicomDir; // dossier des dicom triï¿½s
+	private Path niftiDir; // dossier des nifti triï¿½s
 	private Path tempDir; // dossier temporaire, utilise surtout pour la conversion nifti (decryptage fichier)
 	private Path serverDir; // dossier racine du serveur
 	private DBCache dbCache; // cache de donnees de la bdd
@@ -271,6 +271,7 @@ public class ServerInfo {
 		lines.add(DATABASE_NAME+"="+SQLSettings.DATABASE_NAME);
 		lines.add(CONDOR_JOB_DIR_NAME+"="+getCondorJobDir());
 		try {
+			System.out.println(SystemSettings.APP_DIR);
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
 			WindowManager.mwLogger.log(Level.SEVERE, "Error with params.conf.",e);
