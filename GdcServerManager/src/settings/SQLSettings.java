@@ -24,7 +24,7 @@ import settings.sql.DBTables;
 public class SQLSettings {
 	public static final int reconnectTimeout = 1800000;// temps a attendre depuis la derniere requete pour reouvrir la connection a la bdd
 			
-	public static String ADDRESS = "120.40.30.110";//"localhost";
+	public static String ADDRESS = "192.168.55.10";//"localhost";
 	public static String DATABASE_NAME = "gdcserver";
 	public static DBTables TABLES = new DBTables();
 	public static long lastRequestTime = 0; // date de la derniere requete
@@ -61,7 +61,7 @@ public class SQLSettings {
 		PDS = PoolDataSourceFactory.getPoolDataSource();
 		PDS.setConnectionPoolName("mgr_pool");
 		//Setting connection properties of the data source
-		PDS.setConnectionFactoryClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+		PDS.setConnectionFactoryClassName("com.mysql.cj.jdbc.MysqlDataSource");
 		   
 		PDS.setURL("jdbc:mysql://"+ADDRESS+":3306/"+DATABASE_NAME+"?autoReconnect=true");
 		PDS.setUser(UserProfile.LOGIN);

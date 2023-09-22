@@ -271,6 +271,7 @@ public class ServerInfo {
 		lines.add(DATABASE_NAME+"="+SQLSettings.DATABASE_NAME);
 		lines.add(CONDOR_JOB_DIR_NAME+"="+getCondorJobDir());
 		try {
+			System.out.println(SystemSettings.APP_DIR);
 			writeSmallTextFile(lines, SystemSettings.APP_DIR+"/"+CONF_FILE);
 		} catch (IOException e) {
 			WindowManager.mwLogger.log(Level.SEVERE, "Error with params.conf.",e);

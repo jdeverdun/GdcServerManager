@@ -16,7 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
+import com.formdev.flatlaf.FlatDarkLaf;
 import org.apache.commons.io.FileUtils;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.SubstanceGraphiteLookAndFeel;
@@ -55,15 +55,16 @@ public class GDCSM {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				JFrame.setDefaultLookAndFeelDecorated(true);
-				try {
+				FlatDarkLaf.setup();
+				/*try {
 			          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 			        } catch (Exception e) {
 			          System.out.println("Substance Graphite failed to initialize");
 			        }
-				
+
 				// ------------ Verification des mises a jours -------
 				
-				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 				Updater updater = new Updater();
 				ArrayList<String> versions = updater.getVersions();
 				if(!versions.isEmpty() && !versions.get(versions.size()-1).equals(WindowManager.VERSION)){

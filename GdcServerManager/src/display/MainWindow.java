@@ -1183,14 +1183,14 @@ public class MainWindow extends JFrame {
 		if(UserProfile.CURRENT_USER.firstConnect() == 1){
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
-					JFrame.setDefaultLookAndFeelDecorated(true);
+					//JFrame.setDefaultLookAndFeelDecorated(true);
 					try {
 				          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 			        } catch (Exception e) {
 			          System.out.println("Substance Graphite failed to initialize");
 			          WindowManager.mwLogger.log(Level.WARNING, "Substance Graphite failed to initialize", e);
 			        }
-					UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+					//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 					PassChangePanel pchange = new PassChangePanel();
 					Popup popup = PopupFactory.getSharedInstance().getPopup(MainWindow.this, pchange, (int)getX()+200,(int)getY()+150);
 					pchange.setPopup(popup);
@@ -1615,7 +1615,7 @@ public class MainWindow extends JFrame {
 
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
-				JFrame.setDefaultLookAndFeelDecorated(true);
+				//JFrame.setDefaultLookAndFeelDecorated(true);
 				try {
 					UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 				} catch (Exception e) {
@@ -1623,7 +1623,7 @@ public class MainWindow extends JFrame {
 				}
 				MainWindow mw = new MainWindow(0);
 				
-				UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+				//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 				mw.createAndShowGUI();
 			}
 		});

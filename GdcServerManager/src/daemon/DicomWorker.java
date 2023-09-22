@@ -173,9 +173,10 @@ public class DicomWorker extends DaemonWorker {
 			if(serieName == DEFAULT_STRING && protocolName != DEFAULT_STRING)
 				serieName = protocolName;
 		}
-			
-		
-		// On créé les chemins vers les répertoires
+
+		// on gÃ¨re les Ã©tudes qui devraient Ãªtre envoye vers logiciel PRRI
+		handleExternalTrigger(studyName,patientName, birthdate, acqDate);
+		// On crï¿½ï¿½ les chemins vers les rï¿½pertoires
 		Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
 		setProjectFolder(studyFolder);
 		patientFolder = Paths.get(studyFolder + File.separator + patientName);
@@ -183,7 +184,7 @@ public class DicomWorker extends DaemonWorker {
 		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
 		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
 		
-		// On test si les repertoires existent (patient / protocoles etc) et on les créé au besoin
+		// On test si les repertoires existent (patient / protocoles etc) et on les crï¿½ï¿½ au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
 		// sinon recuperer les ID des projets etc
 		boolean dirExists = checkAndMakeDir(studyFolder);
@@ -265,7 +266,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 		
 		// Si ce n'est pas le cas on fait la requete SQL 
-		// et on met à jours le cache
+		// et on met ï¿½ jours le cache
 		
 		SerieDAO sdao = new MySQLSerieDAO();
 		try {
@@ -278,6 +279,22 @@ public class DicomWorker extends DaemonWorker {
 		}
 	}
 
+
+	protected void handleExternalTrigger(String studyName, String patientName, String birthdate, String acqDate) {
+		if(studyName.equals("PRRI_ZAKARIA")){
+			// on va ecrire un fichier dans le repertoire de travail
+			Path outdir = Paths.get("J:\\NRI-NOMO-STROKE\\LOGICIEL_PRRI\\serveur\\to_import");
+			String dataname = patientName+"@"+birthdate+"@"+acqDate+".import";
+			Path outfile = Paths.get(outdir+File.separator+dataname);
+			if(!Files.exists(outfile)){
+				try {
+					outfile.toFile().createNewFile();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Definition de l'attribut Protocol_id grace a son nom (repertoire) depuis la BDD
@@ -294,7 +311,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 			
 		// Si ce n'est pas le cas on fait la requete SQL 
-		// et on met à jours le cache
+		// et on met ï¿½ jours le cache
 		
 		ProtocolDAO pdao = new MySQLProtocolDAO();
 		try {
@@ -322,7 +339,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 			
 		// Si ce n'est pas le cas on fait la requete SQL 
-		// et on met à jours le cache
+		// et on met ï¿½ jours le cache
 		
 		AcquisitionDateDAO adao = new MySQLAcquisitionDateDAO();
 		try {
@@ -350,7 +367,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 			
 		// Si ce n'est pas le cas on fait la requete SQL 
-		// et on met à jours le cache
+		// et on met ï¿½ jours le cache
 		
 		PatientDAO pdao = new MySQLPatientDAO();
 		try {
@@ -377,7 +394,7 @@ public class DicomWorker extends DaemonWorker {
 		}
 			
 		// Si ce n'est pas le cas on fait la requete SQL 
-		// et on met à jours le cache
+		// et on met ï¿½ jours le cache
 		
 		ProjectDAO pdao = new MySQLProjectDAO();
 		try {
@@ -454,7 +471,7 @@ public class DicomWorker extends DaemonWorker {
 	}
 
 
-	// Deplace dicomFile à l'emplacement donné et update la date de modification
+	// Deplace dicomFile ï¿½ l'emplacement donnï¿½ et update la date de modification
 	// du repertoire patient pour la conversion nifti
 	protected void moveDicomTo(Path newPath) {
 		try {

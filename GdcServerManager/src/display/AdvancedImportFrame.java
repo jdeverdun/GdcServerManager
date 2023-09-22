@@ -931,13 +931,13 @@ public class AdvancedImportFrame extends JFrame {
 
 
 	public void createAndShowGUI(){
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		/*JFrame.setDefaultLookAndFeelDecorated(true);
 		try {
 	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
         } catch (Exception e) {
           System.out.println("Substance Graphite failed to initialize");
         }
-		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);*/
 		setTitle("Advanced import (from server to local)");
 		setSize(490, 600);
 		if(SystemSettings.isMac())

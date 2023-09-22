@@ -127,14 +127,14 @@ public class PassChangePanel extends PopupPanel {
 									WindowManager.MAINWINDOW.dispose();
 								if(WindowManager.AUTHENTIFICATOR!=null && WindowManager.AUTHENTIFICATOR.isDisplayable())
 									WindowManager.AUTHENTIFICATOR.dispose();
-								JFrame.setDefaultLookAndFeelDecorated(true);
+								/*JFrame.setDefaultLookAndFeelDecorated(true);
 								try {
 							          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
 							        } catch (Exception e) {
 							          System.out.println("Substance Graphite failed to initialize");
-							        }
+							        }*/
 								Authentificator auth = new Authentificator();
-								UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+								//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 								auth.setVisible(true);
 								SwingUtilities.invokeLater(new Runnable() {
 									
