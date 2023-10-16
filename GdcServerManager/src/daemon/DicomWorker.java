@@ -2,21 +2,16 @@ package daemon;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
-import java.security.GeneralSecurityException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.Date;
 import java.util.logging.Level;
 
+import model.*;
 import settings.SystemSettings;
 import settings.WindowManager;
 
@@ -31,20 +26,12 @@ import dao.project.MySQLSerieDAO;
 import dao.project.PatientDAO;
 import dao.project.ProtocolDAO;
 import dao.project.SerieDAO;
-import es.vocali.util.AESCrypt;
 import exceptions.AnonymizationException;
 import exceptions.DicomException;
 
-import model.AcquisitionDate;
-import model.DICOM;
-import model.DicomImage;
-import model.Patient;
-import model.Project;
-import model.Protocol;
-import model.Serie;
-import model.ServerInfo;
-import model.User;
 import model.daemon.CustomConversionSettings.ServerMode;
+import tools.DicomUtils;
+
 import static java.nio.file.StandardCopyOption.*;
 
 
@@ -101,6 +88,8 @@ public class DicomWorker extends DaemonWorker {
 			header = DicomImage.getRdaHeader(dicomFile.toFile());
 		}else{
 			FileInputStream fis = new FileInputStream(dicomFile.toString());
+			/*DicomFile dfile = new DicomFile(dicomFile.toString());
+			header = DicomUtils.readDicomHeader(dicomFile.toFile());*/
 			header = new DICOM(fis).getInfo(dicomFile);
 			if(header == null)
 				throw new DicomException("Empty DICOM header");
@@ -174,8 +163,7 @@ public class DicomWorker extends DaemonWorker {
 				serieName = protocolName;
 		}
 
-		// on gère les études qui devraient être envoye vers logiciel PRRI
-		handleExternalTrigger(studyName,patientName, birthdate, acqDate);
+
 		// On cr�� les chemins vers les r�pertoires
 		Path studyFolder = Paths.get(serverInfo.getServerDir()+File.separator+serverInfo.NRI_DICOM_NAME + File.separator + studyName);
 		setProjectFolder(studyFolder);
@@ -183,6 +171,8 @@ public class DicomWorker extends DaemonWorker {
 		Path dateFolder = Paths.get(patientFolder + File.separator + acqDate);
 		Path protocolFolder = Paths.get(dateFolder + File.separator + protocolName);
 		serieFolder = Paths.get(protocolFolder + File.separator + serieName);
+		// on gère les études qui devraient être envoye vers logiciel PRRI
+		handleExternalTrigger(dateFolder, studyName,patientName, birthdate, acqDate);
 		
 		// On test si les repertoires existent (patient / protocoles etc) et on les cr�� au besoin
 		// si on les cree alors on doit rajouter l'info dans la database
@@ -280,15 +270,29 @@ public class DicomWorker extends DaemonWorker {
 	}
 
 
-	protected void handleExternalTrigger(String studyName, String patientName, String birthdate, String acqDate) {
+	protected void handleExternalTrigger(Path dateFolder, String studyName, String patientName, String birthdate, String acqDate) {
 		if(studyName.equals("PRRI_ZAKARIA")){
 			// on va ecrire un fichier dans le repertoire de travail
 			Path outdir = Paths.get("J:\\NRI-NOMO-STROKE\\LOGICIEL_PRRI\\serveur\\to_import");
-			String dataname = patientName+"@"+birthdate+"@"+acqDate+".import";
+			String dataname = studyName+"@"+patientName+"@"+birthdate+"@"+acqDate+".import";
 			Path outfile = Paths.get(outdir+File.separator+dataname);
 			if(!Files.exists(outfile)){
 				try {
 					outfile.toFile().createNewFile();
+					try {
+						Files.write(outfile, dateFolder.toString().getBytes());
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}else{
+				// touch
+				FileTime newTimestamp = FileTime.fromMillis(new Date().getTime());
+				try {
+					// Update the modification timestamp of the file
+					Files.setLastModifiedTime(outfile, newTimestamp);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -798,7 +802,8 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String bdate = getTag("0010,0030");
 			if(bdate == null){
-				throw new DicomException("Unable to decode DICOM header 0010,0030");
+				return DEFAULT_STRING;
+				//throw new DicomException("Unable to decode DICOM header 0010,0030");
 			}
 			if(bdate.isEmpty())
 				return DEFAULT_STRING;
@@ -846,7 +851,8 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String psex = getTag("0010,0040");
 			if(psex == null){
-				throw new DicomException("Unable to decode DICOM header 0010,0040");
+				return DEFAULT_STRING;
+				//throw new DicomException("Unable to decode DICOM header 0010,0040");
 			}
 			if(psex.isEmpty())
 				return DEFAULT_STRING;
@@ -899,7 +905,8 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String pweight = getTag("0010,1030");
 			if(pweight == null){
-				throw new DicomException("Unable to decode DICOM header 0010,1030");
+				return DEFAULT_FLOAT;
+				//throw new DicomException("Unable to decode DICOM header 0010,1030");
 			}
 			if(pweight.isEmpty())
 				return DEFAULT_FLOAT;
@@ -979,7 +986,8 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String iname = getTag("0008,1090");
 			if(iname == null){
-				throw new DicomException("Unable to decode DICOM header 0008,1090");
+				return DEFAULT_STRING;
+				//throw new DicomException("Unable to decode DICOM header 0008,1090");
 			}
 			if(iname.isEmpty())
 				return DEFAULT_STRING;
@@ -1106,7 +1114,8 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String ps = getTag("0028,0030");
 			if(ps == null){
-				throw new DicomException("Unable to decode DICOM header 0028,0030");
+				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
+				//throw new DicomException("Unable to decode DICOM header 0028,0030");
 			}
 			if(ps.isEmpty())
 				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
@@ -1247,7 +1256,9 @@ public class DicomWorker extends DaemonWorker {
 		}else{
 			String st = getTag("0018,0050");
 			if(st == null){
-				throw new DicomException("Unable to decode DICOM header 0018,0050");
+				WindowManager.mwLogger.log(Level.SEVERE, "can't find slicethickness, setting -1 : ");
+				return DEFAULT_FLOAT;
+				//throw new DicomException("Unable to decode DICOM header 0018,0050");
 			}
 			if(st.isEmpty())
 				return DEFAULT_FLOAT;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -208,6 +209,7 @@ public class DicomJobDispatcher extends Thread{
 					try{
 						try{
 							if(!DicomImage.isDicom(locp.toFile()) && !DicomImage.isRda(locp.toFile())){
+								//Files.move(locp, Paths.get(SystemSettings.APP_DIR + File.separator + locp.getFileName()));
 								locp.toFile().delete();
 							}else{
 								try {
@@ -219,10 +221,13 @@ public class DicomJobDispatcher extends Thread{
 									WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted",e);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
 									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists())
+									if(locp.toFile().exists()) {
 										locp.toFile().delete();
+										//Files.move(locp, Paths.get(SystemSettings.APP_DIR + File.separator + locp.getFileName()));
+									}
 									if(dworker != null && dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
 										dworker.getNewPath().toFile().delete();
+										//Files.move(dworker.getNewPath(),Paths.get(SystemSettings.APP_DIR+File.separator+dworker.getNewPath().getFileName()));
 									}
 									cont=false;
 								} catch (AnonymizationException ae) {
@@ -243,10 +248,14 @@ public class DicomJobDispatcher extends Thread{
 									WindowManager.mwLogger.log(Level.SEVERE, locp+" : corrupted ... deleted",e1);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e1.toString().substring(0, Math.min(e1.toString().length(), 100)));
 									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists())
+									if(locp.toFile().exists()){
 										locp.toFile().delete();
+										//Files.move(locp,Paths.get(SystemSettings.APP_DIR+File.separator+locp.getFileName()));
+									}
 									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+										//dworker.getNewPath().toFile().delete();
 										dworker.getNewPath().toFile().delete();
+										//Files.move(dworker.getNewPath(),Paths.get(SystemSettings.APP_DIR+File.separator+dworker.getNewPath().getFileName()));
 									}
 								}
 							}

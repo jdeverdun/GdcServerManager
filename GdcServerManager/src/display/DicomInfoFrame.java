@@ -100,11 +100,11 @@ public class DicomInfoFrame extends JFrame{
 	public void createAndShowGUI(){
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		try {
-	          UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
+	          //UIManager.setLookAndFeel(new SubstanceGraphiteLookAndFeel());
         } catch (Exception e) {
           System.out.println("Substance Graphite failed to initialize");
         }
-		UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
+		//UIManager.put(SubstanceLookAndFeel.WINDOW_ROUNDED_CORNERS, Boolean.FALSE);
 		setTitle("DicomInfo");
 		setSize(600, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
