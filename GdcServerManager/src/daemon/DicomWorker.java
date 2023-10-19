@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.logging.Level;
 
 import model.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import settings.SystemSettings;
 import settings.WindowManager;
 
@@ -43,7 +45,8 @@ public class DicomWorker extends DaemonWorker {
 	protected Path dicomFile;
 	protected DicomJobDispatcher dispatcher;
 	protected DicomImage dicomImage;
-	protected String header;
+	protected Attributes header;
+	protected String rdaheader;
 	protected String birthdate;
 	protected String sex;
 	protected String sopinstanceid;
@@ -85,19 +88,18 @@ public class DicomWorker extends DaemonWorker {
 	public void setDicomFile(Path dicomFile) throws DicomException, IOException {
 		this.dicomFile = dicomFile;
 		if(DicomImage.isRda(dicomFile.toFile())){
-			header = DicomImage.getRdaHeader(dicomFile.toFile());
+			rdaheader = DicomImage.getRdaHeader(dicomFile.toFile());
 		}else{
-			FileInputStream fis = new FileInputStream(dicomFile.toString());
-			/*DicomFile dfile = new DicomFile(dicomFile.toString());
-			header = DicomUtils.readDicomHeader(dicomFile.toFile());*/
-			header = new DICOM(fis).getInfo(dicomFile);
+			//FileInputStream fis = new FileInputStream(dicomFile.toString());
+			header = DicomUtils.readDicomHeader(dicomFile.toFile());
+			//header = new DICOM(fis).getInfo(dicomFile);
 			if(header == null)
 				throw new DicomException("Empty DICOM header");
-			try {
+			/*try {
 				fis.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 
@@ -144,8 +146,13 @@ public class DicomWorker extends DaemonWorker {
 		echotime = getEchoTime();
 		slicethickness = getSliceThickness();
 		String[] pspacing = getPixelSpacing();
-		voxelwidth = Float.parseFloat(pspacing[0]);
-		voxelheight = Float.parseFloat(pspacing[1]);
+		if(!pspacing[0].equals(DEFAULT_STRING)) {
+			voxelwidth = Float.parseFloat(pspacing[0]);
+			voxelheight = Float.parseFloat(pspacing[1]);
+		}else{
+			voxelwidth = -1;
+			voxelheight = -1;
+		}
 		sopinstanceid = getSOPInstanceUID();
 		protocolName = getProtocolName();
 		serieName = getSeriesDescription();
@@ -518,7 +525,7 @@ public class DicomWorker extends DaemonWorker {
 	}
 	
 	// Renvoi le ntag specifie par tag sous forme d'une chaine de caractere
-	public String getCustomTag(String tag) throws DicomException{
+	/*public String getCustomTag(String tag) throws DicomException{
 		String prot = getTag(tag);
 		if(prot == null){
 			throw new DicomException("Unable to decode DICOM header "+tag);
@@ -537,13 +544,13 @@ public class DicomWorker extends DaemonWorker {
 		prot = prot.replaceAll("[^A-Za-z0-9\\.]" , "_");
 		WindowManager.mwLogger.log(Level.FINEST, "getCustomTag : "+tag);
 		return prot;
-	}
+	}*/
 	
 	// Renvoi le nom du protocole medical
 	public String getStudyDescription() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "StudyDescription";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String prot = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -568,7 +575,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String prot = getTag("0008,1030");
+			String prot = header.getString(Tag.StudyDescription);//getTag("0008,1030");
 			if(prot == null){
 				throw new DicomException("Unable to decode DICOM header 0008,1030");
 			}
@@ -596,7 +603,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getPatientName() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PatientName";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pname = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -623,7 +630,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pname = getTag("0010,0010");
+			String pname = header.getString(Tag.PatientName);//getTag("0010,0010");
 			if(pname == null){
 				throw new DicomException("Unable to decode DICOM header 0010,0010");
 			}
@@ -651,7 +658,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getPatientId() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PatientID";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pname = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -678,7 +685,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pname = getTag("0010,0020");
+			String pname = header.getString(Tag.PatientID);//getTag("0010,0020");
 			if(pname == null){
 				throw new DicomException("Unable to decode DICOM header 0010,0020");
 			}
@@ -704,7 +711,7 @@ public class DicomWorker extends DaemonWorker {
 		if(DicomImage.isRda(dicomFile.toFile())){
 			return dicomFile.getFileName().toString();
 		}else{
-			String pname = getTag("0008,0018");
+			String pname = header.getString(Tag.SOPInstanceUID);//getTag("0008,0018");
 			if(pname == null){
 				throw new DicomException("Unable to decode DICOM header 0008,0018");
 			}
@@ -727,7 +734,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getSeriesDescription() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "SeriesDescription";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String sdesc = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -751,7 +758,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String sdesc = getTag("0008,103E");
+			String sdesc = header.getString(Tag.SeriesDescription);//getTag("0008,103E");
 			if(sdesc == null){
 				throw new DicomException("Unable to decode DICOM header 0008,103E");
 			}
@@ -776,7 +783,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getBirthdate() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PatientBirthDate";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String bdate = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -800,7 +807,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String bdate = getTag("0010,0030");
+			String bdate = header.getString(Tag.PatientBirthDate);//getTag("0010,0030");
 			if(bdate == null){
 				return DEFAULT_STRING;
 				//throw new DicomException("Unable to decode DICOM header 0010,0030");
@@ -825,7 +832,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getSex() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PatientSex";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String psex = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -849,7 +856,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String psex = getTag("0010,0040");
+			String psex = header.getString(Tag.PatientSex);//getTag("0010,0040");
 			if(psex == null){
 				return DEFAULT_STRING;
 				//throw new DicomException("Unable to decode DICOM header 0010,0040");
@@ -879,7 +886,7 @@ public class DicomWorker extends DaemonWorker {
 	public float getPatientWeight() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PatientWeight";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pweight = "";
 			boolean ok = false;
 			for(String pi:params){
@@ -903,7 +910,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pweight = getTag("0010,1030");
+			String pweight = header.getString(Tag.PatientWeight);//getTag("0010,1030");
 			if(pweight == null){
 				return DEFAULT_FLOAT;
 				//throw new DicomException("Unable to decode DICOM header 0010,1030");
@@ -934,7 +941,7 @@ public class DicomWorker extends DaemonWorker {
 		if(DicomImage.isRda(dicomFile.toFile())){
 			return DEFAULT_FLOAT;
 		}else{
-			String psize = getTag("0010,1020");
+			String psize = header.getString(Tag.PatientSize);//getTag("0010,1020");
 			if(psize == null){
 				return DEFAULT_FLOAT;
 				//throw new DicomException("Unable to decode DICOM header 0010,1020");
@@ -960,7 +967,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getMri_name() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "ModelName";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String iname = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -984,7 +991,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String iname = getTag("0008,1090");
+			String iname = header.getString(Tag.ManufacturerModelName);//getTag("0008,1090");
 			if(iname == null){
 				return DEFAULT_STRING;
 				//throw new DicomException("Unable to decode DICOM header 0008,1090");
@@ -1012,7 +1019,7 @@ public class DicomWorker extends DaemonWorker {
 		if(DicomImage.isRda(dicomFile.toFile())){
 			return DEFAULT_FLOAT;
 		}else{
-			String sl = getTag("0020,1041");
+			String sl = header.getString(Tag.SliceLocation);//getTag("0020,1041");
 			if(sl == null){
 				return DEFAULT_FLOAT; // comme c'est un champs facultatif on lance pas d'execption
 			}
@@ -1036,7 +1043,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getProtocolName() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "ProtocolName";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pprot = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -1060,7 +1067,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pprot = getTag("0018,1030");
+			String pprot = header.getString(Tag.ProtocolName);//getTag("0018,1030");
 			if(pprot == null){
 				throw new DicomException("Unable to decode DICOM header 0018,1030");
 			}
@@ -1085,7 +1092,7 @@ public class DicomWorker extends DaemonWorker {
 	public String[] getPixelSpacing() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "PixelSpacingRow";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String[] ps = new String[]{DEFAULT_STRING,DEFAULT_STRING};
 			boolean ok = false;
 			for(int i = 0; i<params.length;i++){
@@ -1112,25 +1119,14 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String ps = getTag("0028,0030");
+			String[] ps = header.getStrings(Tag.PixelSpacing);//getTag("0028,0030");
 			if(ps == null){
 				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
 				//throw new DicomException("Unable to decode DICOM header 0028,0030");
 			}
-			if(ps.isEmpty())
-				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
-			// On enleve les espace en debut de chaine
-			while(ps.length()>1 && ps.charAt(0) == ' ')
-				ps = ps.substring(1);	
-			if(ps.equals(" "))// si le champs est vide
-				return new String[]{DEFAULT_STRING,DEFAULT_STRING};
-			// on enleve les espaces en fin de chaine
-			while(ps.length()>1 && ps.charAt(ps.length()-1) == ' ')
-				ps = ps.substring(0,ps.length()-1);
-			// on split sur "\" pour recup x et y
-			String[] pixelSpacing = ps.split("\\\\");
+
 			WindowManager.mwLogger.log(Level.FINEST, "getPixelSpacing : "+ps);
-			return pixelSpacing;
+			return ps;
 		}
 	}
 	
@@ -1138,7 +1134,7 @@ public class DicomWorker extends DaemonWorker {
 	public float getRepetitionTime() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "TR";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String rt = "";
 			boolean ok = false;
 			for(String pi:params){
@@ -1161,7 +1157,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String rt = getTag("0018,0080");
+			String rt = header.getString(Tag.RepetitionTime);//getTag("0018,0080");
 			if(rt == null){
 				return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0080");
 			}
@@ -1185,7 +1181,7 @@ public class DicomWorker extends DaemonWorker {
 	public Float getEchoTime() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "TE";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String et = "";
 			boolean ok = false;
 			for(String pi:params){
@@ -1208,7 +1204,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String et = getTag("0018,0081");
+			String et = header.getString(Tag.EchoTime);//getTag("0018,0081");
 			if(et == null){
 				return DEFAULT_FLOAT;//throw new DicomException("Unable to decode DICOM header 0018,0081");
 			}
@@ -1232,7 +1228,7 @@ public class DicomWorker extends DaemonWorker {
 	public float getSliceThickness() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "SliceThickness";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String st = "";
 			boolean ok = false;
 			for(String pi:params){
@@ -1254,7 +1250,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String st = getTag("0018,0050");
+			String st = header.getString(Tag.SliceThickness);//getTag("0018,0050");
 			if(st == null){
 				WindowManager.mwLogger.log(Level.SEVERE, "can't find slicethickness, setting -1 : ");
 				return DEFAULT_FLOAT;
@@ -1280,7 +1276,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getAcquisitionDate() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "StudyDate";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pdate = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -1303,7 +1299,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pdate = getTag("0008,0022");
+			String pdate = header.getString(Tag.AcquisitionDate);//getTag("0008,0022");
 			if(pdate == null){
 				throw new DicomException("Unable to decode DICOM header 0008,0022");
 			}
@@ -1326,7 +1322,7 @@ public class DicomWorker extends DaemonWorker {
 	public String getSerieDate() throws DicomException{
 		if(DicomImage.isRda(dicomFile.toFile())){
 			String name = "SeriesDate";
-			String[] params = header.split(DicomImage.RDA_SPLIT_CHAR);
+			String[] params = rdaheader.split(DicomImage.RDA_SPLIT_CHAR);
 			String pdate = DEFAULT_STRING;
 			boolean ok = false;
 			for(String pi:params){
@@ -1349,7 +1345,7 @@ public class DicomWorker extends DaemonWorker {
 			}
 			throw new DicomException("Unable to decode RDA header "+name);
 		}else{
-			String pdate = getTag("0008,0023");
+			String pdate = header.getString(Tag.SeriesDate);//getTag("0008,0023");
 			if(pdate == null){
 				throw new DicomException("Unable to decode DICOM header 0008,0023");
 			}
@@ -1453,7 +1449,7 @@ public class DicomWorker extends DaemonWorker {
 	 * @param tag
 	 * @return
 	 */
-	protected String getTag(String tag) {
+	/*protected String getTag(String tag) {
 		if (header==null) return null;
 		int index1 = header.indexOf(tag);
 		if (index1==-1) return null;
@@ -1468,7 +1464,7 @@ public class DicomWorker extends DaemonWorker {
 		int index2 = header.indexOf("\n", index1);
 		String value = header.substring(index1+1, index2);
 		return value;
-	}
+	}*/
 	
 	/**
 	 * Reinitialise les variables pour un dicom

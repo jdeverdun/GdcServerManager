@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.VR;
 
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import settings.SystemSettings;
 import settings.WindowManager;
 import tools.DicomTools;
@@ -27,16 +27,6 @@ import tools.DicomTools;
 import daemon.tools.ThreadPool;
 import daemon.tools.firstNameDB;
 import daemon.tools.ThreadPool.DAEMONTYPE;
-import dao.MySQLProjectDAO;
-import dao.ProjectDAO;
-import dao.project.AcquisitionDateDAO;
-import dao.project.MySQLAcquisitionDateDAO;
-import dao.project.MySQLPatientDAO;
-import dao.project.MySQLProtocolDAO;
-import dao.project.MySQLSerieDAO;
-import dao.project.PatientDAO;
-import dao.project.ProtocolDAO;
-import dao.project.SerieDAO;
 import es.vocali.util.AESCrypt;
 import exceptions.AnonymizationException;
 import exceptions.DicomException;

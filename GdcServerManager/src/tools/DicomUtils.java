@@ -3,7 +3,9 @@ package tools;
 
 import model.DicomFile;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.DicomInputStream;
+import org.w3c.dom.Attr;
 import settings.WindowManager;
 
 import java.io.*;
@@ -22,11 +24,19 @@ public class DicomUtils {
     public static Attributes readDicomHeader(File dicomFile) throws IOException {
         DicomInputStream dis = new DicomInputStream(dicomFile);
         Attributes attributes = dis.readDataset();
-
         dis.close();
         return(attributes);
     }
 
+    public static void main(String[] args){
+        File fi = new File("C:\\Users\\arngd\\Desktop\\bidstest\\out\\sourcedata\\sub-003410219\\ses-2020072317\\ENC_DIFF_smsRESOLVE_AXIAL_2mm_ENC_DIFF_smsRESOLVE_AXIAL_2mm_ADC//IM0001");
+        try {
+            Attributes attr = readDicomHeader(fi);
+            System.out.println(attr.getFloat(Tag.PixelSpacing,-1.0f));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static Attributes readDicomHeader(File dicomFile, int stopTag) throws IOException {
         DicomInputStream dis = new DicomInputStream(dicomFile);
         Attributes attributes = dis.readDataset(stopTag);

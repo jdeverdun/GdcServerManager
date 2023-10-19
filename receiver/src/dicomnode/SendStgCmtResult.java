@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package daemon.dicomnode;
+package dicomnode;
 
 import java.util.TimerTask;
 

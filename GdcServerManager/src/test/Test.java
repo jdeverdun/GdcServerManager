@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.net.ConfigurationException;
-import org.dcm4che2.tool.dcmqr.DcmQR;
+
+
 
 import daemon.tools.nifti.Nifti_Reader;
 import ij.ImagePlus;
 
 public class Test {
 	public static void main(String[] args){
-		try {
+		/*try {
 			DcmQR dcmQR = new DcmQR("GDC_RECHPASS2");
 
 			dcmQR.setCalledAET("GEPACS28", true);
@@ -54,7 +52,7 @@ public class Test {
 		} catch (ConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
 

@@ -201,69 +201,70 @@ public class DicomJobDispatcher extends Thread{
 			boolean cont;
 			switch(getSettings().getServerMode()){
 			case SERVER:
+
 				locp = (Path)dicomToMove.poll();
 				// tant qu'on ne peut pas lire le fichier on attend
 				// permet de gerer les problemes d'acces
 				cont=true;
-				while(cont){
-					try{
-						try{
-							if(!DicomImage.isDicom(locp.toFile()) && !DicomImage.isRda(locp.toFile())){
+				while(cont) {
+					try {
+						try {
+							if (!DicomImage.isDicom(locp.toFile()) && !DicomImage.isRda(locp.toFile())) {
 								//Files.move(locp, Paths.get(SystemSettings.APP_DIR + File.separator + locp.getFileName()));
 								locp.toFile().delete();
-							}else{
+							} else {
 								try {
 									dworker = new DicomWorker(this, locp);
 									dworker.start();
 								} catch (DicomException e) {
-									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais
 									// a cause d'une erreur de copie ne contiennent pas tout les champs
-									WindowManager.mwLogger.log(Level.WARNING, locp+" : corrupted ... deleted",e);
+									WindowManager.mwLogger.log(Level.WARNING, locp + " : corrupted ... deleted", e);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e.toString().substring(0, Math.min(e.toString().length(), 100)));
-									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists()) {
+									// on supprime le fichier dans le buffer (si il est present)
+									if (locp.toFile().exists()) {
 										locp.toFile().delete();
 										//Files.move(locp, Paths.get(SystemSettings.APP_DIR + File.separator + locp.getFileName()));
 									}
-									if(dworker != null && dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+									if (dworker != null && dworker.getNewPath() != null && dworker.getNewPath().toFile().exists()) {
 										dworker.getNewPath().toFile().delete();
 										//Files.move(dworker.getNewPath(),Paths.get(SystemSettings.APP_DIR+File.separator+dworker.getNewPath().getFileName()));
 									}
-									cont=false;
+									cont = false;
 								} catch (AnonymizationException ae) {
-									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais
 									// a cause d'une erreur de copie ne contiennent pas tout les champs
-									WindowManager.mwLogger.log(Level.WARNING, locp+" : not anonymized ... deleted",ae);
+									WindowManager.mwLogger.log(Level.WARNING, locp + " : not anonymized ... deleted", ae);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(ae.toString().substring(0, Math.min(ae.toString().length(), 100)));
-									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists())
+									// on supprime le fichier dans le buffer (si il est present)
+									if (locp.toFile().exists())
 										locp.toFile().delete();
-									if(dworker != null && dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+									if (dworker != null && dworker.getNewPath() != null && dworker.getNewPath().toFile().exists()) {
 										dworker.getNewPath().toFile().delete();
 									}
-									cont=false;
-								} catch(Exception e1){
-									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais 
+									cont = false;
+								} catch (Exception e1) {
+									// on gere le fait que les fichiers peuvent etre tagge comme dicom mais
 									// a cause d'une erreur de copie sont mal formattee
-									WindowManager.mwLogger.log(Level.SEVERE, locp+" : corrupted ... deleted",e1);
+									WindowManager.mwLogger.log(Level.SEVERE, locp + " : corrupted ... deleted", e1);
 									WindowManager.MAINWINDOW.getSstatusPanel().getLblWarningdicomdispatcher().setText(e1.toString().substring(0, Math.min(e1.toString().length(), 100)));
-									// on supprime le fichier dans le buffer (si il est present) 
-									if(locp.toFile().exists()){
+									// on supprime le fichier dans le buffer (si il est present)
+									if (locp.toFile().exists()) {
 										locp.toFile().delete();
 										//Files.move(locp,Paths.get(SystemSettings.APP_DIR+File.separator+locp.getFileName()));
 									}
-									if(dworker.getNewPath()!=null && dworker.getNewPath().toFile().exists()){
+									if (dworker.getNewPath() != null && dworker.getNewPath().toFile().exists()) {
 										//dworker.getNewPath().toFile().delete();
 										dworker.getNewPath().toFile().delete();
 										//Files.move(dworker.getNewPath(),Paths.get(SystemSettings.APP_DIR+File.separator+dworker.getNewPath().getFileName()));
 									}
 								}
 							}
-							cont=false;
-						}catch(FileNotFoundException fe){
-							cont=false;
+							cont = false;
+						} catch (FileNotFoundException fe) {
+							cont = false;
 						}
-					}catch(IOException e){
+					} catch (IOException e) {
 						try {
 							Thread.sleep(50);
 						} catch (InterruptedException e1) {

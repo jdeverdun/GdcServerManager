@@ -1,13 +1,12 @@
 package daemon;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.logging.Level;
 
-import org.apache.commons.cli.CommandLine;
 
+import dicomnode.DcmRcv;
 import settings.SystemSettings;
-
-import daemon.dicomnode.DcmRcv;
+import settings.WindowManager;
 
 public class DicomNode {
 
@@ -20,13 +19,15 @@ public class DicomNode {
 	private int port;
 	private String hostname;
 	private boolean alive;
-	
+
 	public DicomNode(){
+		WindowManager.mwLogger.log(Level.INFO,"DICOM NODE INIT0");
 		dcmrcv = new DcmRcv("DCMRCV");
 		dcmrcv.setPort(DEFAULT_PORT);
 		setPort(DEFAULT_PORT);
 		setHostname(DEFAULT_HOSTNAME);
 		initDcmRcv();
+		WindowManager.mwLogger.log(Level.INFO,"DICOM NODE INIT1");
 	}
 	
 	public DicomNode(int port){
@@ -60,7 +61,9 @@ public class DicomNode {
 	
 	public void start(){
         try {
+			WindowManager.mwLogger.log(Level.INFO,"DICOM NODE START0");
             dcmrcv.start();
+			WindowManager.mwLogger.log(Level.INFO,"DICOM NODE STARTED");
             alive = true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,6 +71,7 @@ public class DicomNode {
 	}
 
 	public void stop(){
+		WindowManager.mwLogger.log(Level.INFO,"DICOM NODE STOP");
 		dcmrcv.stop();
 		alive = false;
 	}

@@ -75,6 +75,7 @@ public class DicomDaemon extends Thread{
 		missingDaemon.start();
 		
 		Path dir = serverInfo.getIncomingDir();
+		WindowManager.mwLogger.log(Level.INFO,"DIR MONITOR "+dir);
 		try {
 			watcher = FileSystems.getDefault().newWatchService();
 		    WatchKey key2 = dir.register(watcher,

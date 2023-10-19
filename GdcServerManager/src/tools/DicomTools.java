@@ -10,12 +10,12 @@ import java.nio.file.Path;
 
 import model.DICOM;
 
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.VR;
-import org.dcm4che2.io.DicomInputStream;
-import org.dcm4che2.io.DicomOutputStream;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.DicomOutputStream;
 import settings.SystemSettings;
 
 import exceptions.DicomException;
@@ -32,21 +32,21 @@ public class DicomTools {
     @param newString : new String
     exemple:
     **/
-	public static void changementTag(File file,File output, int tagChooser,  VR vr, String newString ) throws IOException{
+	public static void changementTag(File file, File output, int tagChooser, VR vr, String newString ) throws IOException{
 
 		DicomInputStream dis = new DicomInputStream(file);
-		DicomObject dio = dis.readDicomObject();
+		Attributes attributes = dis.readDataset();
 		dis.close();
 
 		boolean change = false;
-		dio.putString(tagChooser, vr, newString);
+		attributes.setString(tagChooser, vr, newString);
 		change = true;
 
 		if(change){
-			FileOutputStream fos = new FileOutputStream( output );//new File(file.getParent()+ File.separator + file.getName() +"_a.dcm"));
-			BufferedOutputStream bos = new BufferedOutputStream(fos);
-			DicomOutputStream dos = new DicomOutputStream(bos);
-			dos.writeDicomFile(dio);
+			/*FileOutputStream fos = new FileOutputStream( output );//new File(file.getParent()+ File.separator + file.getName() +"_a.dcm"));
+			BufferedOutputStream bos = new BufferedOutputStream(fos);*/
+			DicomOutputStream dos = new DicomOutputStream(output);
+			attributes.writeTo(dos);
 			dos.close();
 		}
 	}
@@ -107,15 +107,15 @@ public class DicomTools {
 		DicomTools.changementTag(dicomPath.toFile(), output.toFile(), Tag.PatientName, VR.PN, code);
 		return code;
 	}
-	
+	/*
 	public static void main(String[] args){
 		
 
-		/*try {
+		try {
 			DicomTools.changementTag(new File("C:\\Users\\Analyse\\Desktop\\test\\IM000004"), Tag.PatientName , VR.PN, "piane" );
 		} catch (IOException e) {
 			e.printStackTrace();
-		}*/
-	}
+		}
+	}*/
 
 }

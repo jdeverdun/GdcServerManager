@@ -36,66 +36,37 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package daemon.dicomnode;
+package dicomnode;
 
 import java.io.IOException;
 
 import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.UID;
 import org.dcm4che2.net.Association;
 import org.dcm4che2.net.CommandUtils;
-import org.dcm4che2.net.DicomServiceException;
-import org.dcm4che2.net.PDVInputStream;
-import org.dcm4che2.net.service.StorageService;
+import org.dcm4che2.net.service.DicomService;
+import org.dcm4che2.net.service.NActionSCP;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @version $Rev$ $Date:: 0000-00-00 $
  * @since Mar 22, 2010
  */
-class StorageSCP extends StorageService {
+class StgCmtSCP extends DicomService implements NActionSCP {
 
     private final DcmRcv dcmrcv;
 
-    public StorageSCP(DcmRcv dcmrcv, String[] sopClasses) {
-        super(sopClasses);
+    public StgCmtSCP(DcmRcv dcmrcv) {
+        super(UID.StorageCommitmentPushModelSOPClass);
         this.dcmrcv = dcmrcv;
     }
 
-    /** Overwrite {@link StorageService#cstore} to send delayed C-STORE RSP 
-     * by separate Thread, so reading of following received C-STORE RQs from
-     * the open association is not blocked.
-     */
     @Override
-    public void cstore(final Association as, final int pcid, DicomObject rq,
-            PDVInputStream dataStream, String tsuid)
-            throws DicomServiceException, IOException {
-        final DicomObject rsp = CommandUtils.mkRSP(rq, CommandUtils.SUCCESS);
-        onCStoreRQ(as, pcid, rq, dataStream, tsuid, rsp);
-        if (dcmrcv.getDimseRspDelay() > 0) {
-            dcmrcv.executor().execute(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(dcmrcv.getDimseRspDelay());
-                        as.writeDimseRSP(pcid, rsp);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } else {
-            as.writeDimseRSP(pcid, rsp);
-        }
-        onCStoreRSP(as, pcid, rq, dataStream, tsuid, rsp);
-    }
-
-    @Override
-    protected void onCStoreRQ(Association as, int pcid, DicomObject rq,
-            PDVInputStream dataStream, String tsuid, DicomObject rsp)
-            throws IOException, DicomServiceException {
-        if (dcmrcv.isStoreFile())
-            dcmrcv.onCStoreRQ(as, pcid, rq, dataStream, tsuid, rsp);
-        else
-            super.onCStoreRQ(as, pcid, rq, dataStream, tsuid, rsp);
+    public void naction(Association as, int pcid, DicomObject rq,
+            DicomObject info) throws IOException {
+        DicomObject rsp = CommandUtils.mkRSP(rq, CommandUtils.SUCCESS);
+        dcmrcv.onNActionRQ(as, rq, info);
+        as.writeDimseRSP(pcid, rsp);
     }
 
 }

@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package daemon.dicomnode;
+package dicomnode;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -61,24 +61,10 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.dcm4che2.data.BasicDicomObject;
-import org.dcm4che2.data.DicomElement;
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.UID;
-import org.dcm4che2.data.VR;
+import org.dcm4che2.data.*;
 import org.dcm4che2.filecache.FileCache;
 import org.dcm4che2.io.DicomOutputStream;
-import org.dcm4che2.net.Association;
-import org.dcm4che2.net.Device;
-import org.dcm4che2.net.DicomServiceException;
-import org.dcm4che2.net.DimseRSPHandler;
-import org.dcm4che2.net.NetworkApplicationEntity;
-import org.dcm4che2.net.NetworkConnection;
-import org.dcm4che2.net.NewThreadExecutor;
-import org.dcm4che2.net.PDVInputStream;
-import org.dcm4che2.net.Status;
-import org.dcm4che2.net.TransferCapability;
+import org.dcm4che2.net.*;
 import org.dcm4che2.net.service.VerificationService;
 import org.dcm4che2.util.CloseUtils;
 import org.slf4j.Logger;
@@ -269,7 +255,7 @@ public class DcmRcv {
 
     private String stgcmtRetrieveAETs;
 
-    private final DimseRSPHandler nEventReportRspHandler = 
+    private final DimseRSPHandler nEventReportRspHandler =
         new DimseRSPHandler();
 
     public DcmRcv() {
